@@ -1,0 +1,122 @@
+.project-shell {
+  width: min(760px, calc(100% - 40px));
+  min-height: 100vh;
+  margin: 0 auto;
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  padding: 72px 0;
+}
+.eyebrow {
+  margin: 0;
+  color: #bda66f;
+  font:
+    600 12px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+h1 {
+  max-width: 680px;
+  margin: 0;
+  color: #f3f0e6;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(42px, 8vw, 78px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+.lead {
+  max-width: 650px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.8;
+}
+.route-state {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 14px 0 0;
+  border-block: 1px solid var(--color-border);
+}
+.route-state div {
+  padding: 20px 0;
+}
+.route-state dt {
+  color: #73756d;
+  font-size: 12px;
+}
+.route-state dd {
+  margin: 7px 0 0;
+  color: #dedbcf;
+}
+.note {
+  margin: 0;
+  color: var(--color-text-subtle);
+  font:
+    13px/1.6 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+@media (max-width: 560px) {
+  .route-state {
+    grid-template-columns: 1fr;
+  }
+  .route-state div + div {
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.centered-state,
+.quest-layout {
+  width: min(920px, calc(100% - 40px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 64px 0;
+}
+
+.centered-state {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 18px;
+}
+
+.centered-state h1 {
+  font-size: clamp(38px, 7vw, 68px);
+}
+
+.centered-state p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.primary-action {
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.primary-action:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}

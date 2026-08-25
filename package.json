@@ -1,0 +1,49 @@
+{
+  "name": "questions-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "check": "pnpm check:styles && pnpm lint && pnpm test:run && pnpm build",
+    "check:styles": "node scripts/verify-style-architecture.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:run": "vitest run",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:all": "playwright test",
+    "check:all": "pnpm check && pnpm test:e2e:all && pnpm format:check",
+    "verify:api": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/levels/records?perPage=500&sort=step' | node --experimental-strip-types scripts/verify-live-api.ts",
+    "verify:letter": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/letter/records?perPage=500&sort=created' | node --experimental-strip-types scripts/verify-live-letter-api.ts",
+    "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --experimental-strip-types scripts/verify-live-notification-api.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.102.2",
+    "radix-ui": "^1.6.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "jsdom": "^30.0.1",
+    "oxlint": "^1.79.0",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
+  }
+}

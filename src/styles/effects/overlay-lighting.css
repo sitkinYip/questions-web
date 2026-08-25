@@ -1,0 +1,565 @@
+:is(.clue-dialog-backdrop, .multi-clue-backdrop, .notification-backdrop) {
+  overflow: hidden;
+}
+
+:is(
+  .clue-dialog-backdrop,
+  .multi-clue-backdrop,
+  .notification-backdrop,
+  .media-viewer-backdrop
+)::before,
+:is(
+  .clue-dialog-backdrop,
+  .multi-clue-backdrop,
+  .notification-backdrop,
+  .media-viewer-backdrop
+)::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+:is(
+  .clue-dialog-backdrop,
+  .multi-clue-backdrop,
+  .notification-backdrop,
+  .media-viewer-backdrop
+)::before {
+  inset: -28%;
+  opacity: 0.26;
+  background: repeating-conic-gradient(
+    from 8deg at 50% 50%,
+    transparent 0 12deg,
+    rgba(219, 185, 99, 0.12) 13deg,
+    transparent 14deg 28deg
+  );
+  mask-image: radial-gradient(circle, #000, transparent 63%);
+  animation: overlay-rays-drift 24s cubic-bezier(0.45, 0.02, 0.55, 0.98)
+    infinite alternate;
+}
+
+:is(
+  .clue-dialog-backdrop,
+  .multi-clue-backdrop,
+  .notification-backdrop,
+  .media-viewer-backdrop
+)::after {
+  top: 50%;
+  left: 50%;
+  width: min(1020px, 92vw);
+  aspect-ratio: 1;
+  opacity: 0.28;
+  border: 1px solid rgba(217, 184, 100, 0.14);
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0) scaleY(0.58) rotate(-8deg);
+  animation: overlay-halo-breathe 9s var(--motion-ios) infinite alternate;
+}
+
+.multi-clue-backdrop::before,
+.notification-backdrop::before {
+  background: repeating-conic-gradient(
+    from 8deg at 50% 50%,
+    transparent 0 12deg,
+    rgba(93, 171, 151, 0.12) 13deg,
+    transparent 14deg 28deg
+  );
+}
+
+.multi-clue-backdrop::after {
+  border-color: rgba(101, 183, 162, 0.18);
+}
+
+.notification-backdrop::after {
+  border-color: rgba(184, 139, 203, 0.18);
+}
+
+:is(.clue-dialog, .multi-clue-dialog, .notification-dialog) {
+  isolation: isolate;
+  box-shadow:
+    0 42px 150px rgba(5, 7, 5, 0.62),
+    0 0 86px rgba(180, 146, 66, 0.08),
+    inset 0 1px rgba(255, 245, 216, 0.055),
+    inset 0 0 0 7px rgba(255, 255, 255, 0.012);
+}
+
+:is(.clue-dialog, .multi-clue-dialog, .notification-dialog)::before,
+:is(.clue-dialog, .multi-clue-dialog, .notification-dialog)::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+:is(.clue-dialog, .multi-clue-dialog, .notification-dialog)::before {
+  inset: 7px;
+  border: 1px solid rgba(255, 236, 183, 0.055);
+}
+
+:is(.clue-dialog, .multi-clue-dialog, .notification-dialog)::after {
+  top: 0;
+  right: 15%;
+  left: 15%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(244, 215, 137, 0.86),
+    transparent
+  );
+  box-shadow: 0 0 24px rgba(223, 185, 89, 0.52);
+  animation: overlay-edge-charge 2.8s var(--motion-ios) infinite alternate;
+}
+
+.clue-dialog[data-state="open"] {
+  animation: clue-vault-enter 720ms var(--motion-impact) both;
+}
+
+.multi-clue-dialog[data-state="open"] {
+  animation: multi-clue-enter 760ms var(--motion-impact) both;
+}
+
+.notification-dialog[data-state="open"] {
+  animation: notification-enter 720ms var(--motion-impact) both;
+}
+
+.clue-dialog-sigil,
+.multi-clue-aura,
+.notification-signal {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.clue-dialog-sigil {
+  top: -170px;
+  right: -130px;
+  width: 390px;
+  aspect-ratio: 1;
+  opacity: 0.38;
+  border: 1px solid rgba(223, 189, 102, 0.18);
+  border-radius: 50%;
+  animation: clue-sigil-turn 22s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.clue-dialog-sigil::before,
+.clue-dialog-sigil::after,
+.clue-dialog-sigil i {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(223, 189, 102, 0.16);
+}
+
+.clue-dialog-sigil::before {
+  inset: 16%;
+  border-radius: 50%;
+}
+
+.clue-dialog-sigil::after {
+  inset: 31%;
+  transform: rotate(45deg);
+}
+
+.clue-dialog-sigil i:nth-child(1) {
+  inset: 46% 8%;
+}
+
+.clue-dialog-sigil i:nth-child(2) {
+  inset: 8% 46%;
+}
+
+.clue-dialog-sigil i:nth-child(3) {
+  inset: 24%;
+  border-style: dashed;
+  border-radius: 50%;
+}
+
+.clue-dialog > :not(.clue-dialog-sigil),
+.multi-clue-dialog > :not(.multi-clue-aura),
+.notification-dialog > :not(.notification-signal) {
+  position: relative;
+  z-index: 1;
+}
+
+.clue-dialog .eyebrow,
+.clue-dialog h2,
+.clue-dialog-rule,
+.clue-dialog-content,
+.multi-clue-dialog > .eyebrow,
+.multi-clue-dialog > h2,
+.multi-clue-content,
+.multi-clue-dialog > footer {
+  animation: overlay-content-rise 760ms var(--motion-impact) both;
+}
+
+.clue-dialog h2,
+.multi-clue-dialog > h2 {
+  animation-delay: 70ms;
+}
+
+.clue-dialog-rule,
+.multi-clue-content {
+  animation-delay: 130ms;
+}
+
+.clue-dialog-content,
+.multi-clue-dialog > footer {
+  animation-delay: 190ms;
+}
+
+.clue-dialog-rule {
+  width: min(180px, 38%);
+  height: 1px;
+  display: block;
+  margin-top: 20px;
+  background: linear-gradient(90deg, rgba(231, 200, 119, 0.86), transparent);
+  box-shadow: 0 0 18px rgba(220, 181, 83, 0.3);
+  transform-origin: left center;
+}
+
+.clue-dialog-close {
+  transition:
+    color 380ms var(--motion-ios),
+    border-color 380ms var(--motion-ios),
+    box-shadow 480ms var(--motion-ios),
+    transform 560ms var(--motion-spring);
+}
+
+.clue-dialog-close:hover {
+  color: #f5e9c9;
+  border-color: #8a7446;
+  box-shadow: 0 0 30px rgba(215, 174, 75, 0.18);
+  transform: rotate(90deg) scale(1.08);
+}
+
+.multi-clue-aura {
+  top: 50%;
+  left: 50%;
+  width: min(720px, 104vw);
+  aspect-ratio: 1;
+  opacity: 0.34;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.multi-clue-aura::before,
+.multi-clue-aura::after,
+.multi-clue-aura i {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(105, 190, 166, 0.18);
+  border-radius: 50%;
+}
+
+.multi-clue-aura::before {
+  inset: 5%;
+}
+
+.multi-clue-aura::after {
+  inset: 22%;
+  border-style: dashed;
+}
+
+.multi-clue-aura i:nth-child(1) {
+  inset: 38%;
+}
+
+.multi-clue-aura i:nth-child(2) {
+  inset: 14% 47%;
+  border-radius: 0;
+  transform: rotate(38deg);
+}
+
+.multi-clue-aura i:nth-child(3) {
+  inset: 47% 14%;
+  border-radius: 0;
+  transform: rotate(38deg);
+}
+
+.multi-clue-aura {
+  animation: multi-clue-orbit 20s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.notification-dialog {
+  overflow: hidden auto;
+  box-shadow:
+    0 42px 150px rgba(7, 4, 10, 0.68),
+    0 0 94px rgba(142, 96, 162, 0.14),
+    inset 0 1px rgba(255, 239, 255, 0.06),
+    inset 0 0 0 7px rgba(255, 255, 255, 0.012);
+}
+
+.notification-signal {
+  top: -140px;
+  right: -110px;
+  width: 340px;
+  aspect-ratio: 1;
+  opacity: 0.42;
+}
+
+.notification-signal::before,
+.notification-signal::after,
+.notification-signal i {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(203, 155, 218, 0.2);
+  border-radius: 50%;
+}
+
+.notification-signal::before {
+  inset: 8%;
+}
+
+.notification-signal::after {
+  inset: 26%;
+}
+
+.notification-signal i:nth-child(1) {
+  inset: 41%;
+  background: rgba(218, 178, 229, 0.18);
+  box-shadow: 0 0 46px rgba(177, 119, 197, 0.28);
+}
+
+.notification-signal i:nth-child(2) {
+  inset: 16%;
+  border-style: dashed;
+}
+
+.notification-signal i:nth-child(3) {
+  inset: 3%;
+}
+
+.notification-signal {
+  animation: notification-signal 3.2s var(--motion-ios) infinite alternate;
+}
+
+.notification-dialog header > *,
+.notification-content,
+.notification-dialog footer {
+  animation: overlay-content-rise 720ms var(--motion-impact) both;
+}
+
+.notification-dialog header h2 {
+  animation-delay: 70ms;
+}
+
+.notification-dialog header > p:last-child {
+  animation-delay: 120ms;
+}
+
+.notification-content {
+  animation-delay: 170ms;
+}
+
+.notification-dialog footer {
+  animation-delay: 240ms;
+}
+
+.notification-segment {
+  display: inline-block;
+  animation: notification-segment-enter 680ms var(--motion-impact) both;
+}
+
+.notification-media {
+  transition:
+    border-color 420ms var(--motion-ios),
+    box-shadow 560ms var(--motion-ios),
+    transform 680ms var(--motion-impact);
+}
+
+.notification-media:hover {
+  border-color: rgba(194, 144, 211, 0.56);
+  box-shadow:
+    0 26px 72px rgba(9, 5, 12, 0.5),
+    0 0 48px rgba(139, 91, 157, 0.12);
+  transform: translate3d(0, -4px, 0) scale(1.008);
+}
+
+.media-viewer-backdrop {
+  overflow: hidden;
+}
+
+.media-viewer-backdrop::before {
+  opacity: 0.18;
+}
+
+.media-viewer[data-state="open"] {
+  animation: media-viewer-enter 760ms var(--motion-impact) both;
+}
+
+.media-viewer-ambient {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: min(1180px, 118vw);
+  aspect-ratio: 1;
+  opacity: 0.36;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0) scaleY(0.62);
+}
+
+.media-viewer-ambient::before,
+.media-viewer-ambient::after,
+.media-viewer-ambient i {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(224, 192, 107, 0.14);
+  border-radius: 50%;
+}
+
+.media-viewer-ambient::before {
+  inset: 7%;
+}
+
+.media-viewer-ambient::after {
+  inset: 24%;
+  border-style: dashed;
+}
+
+.media-viewer-ambient i:nth-child(1) {
+  inset: 41%;
+}
+
+.media-viewer-ambient i:nth-child(2) {
+  inset: 12%;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.media-viewer-ambient {
+  animation: media-orbit 26s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.media-viewer-stage {
+  isolation: isolate;
+  box-shadow:
+    0 38px 120px rgba(0, 0, 0, 0.58),
+    0 0 80px rgba(180, 147, 67, 0.1);
+}
+
+.media-viewer-stage::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 235, 179, 0.16),
+    inset 0 0 0 7px rgba(255, 255, 255, 0.018);
+}
+
+.media-viewer-stage > img {
+  animation: media-image-initial 720ms var(--motion-impact) both;
+}
+
+.media-viewer-stage[data-direction="next"] > img {
+  animation-name: media-image-next;
+}
+
+.media-viewer-stage[data-direction="previous"] > img {
+  animation-name: media-image-previous;
+}
+
+.media-viewer-stage--video > video {
+  animation: media-image-initial 720ms var(--motion-impact) both;
+}
+
+.media-viewer-frame {
+  position: absolute;
+  z-index: 3;
+  inset: 13px;
+  pointer-events: none;
+  border: 1px solid rgba(255, 236, 184, 0.12);
+  animation: media-frame-enter 880ms 120ms var(--motion-impact) both;
+}
+
+.media-viewer-close {
+  overflow: visible;
+  box-shadow:
+    0 12px 38px rgba(0, 0, 0, 0.46),
+    0 0 26px rgba(211, 176, 88, 0.09);
+  transition:
+    color 360ms var(--motion-ios),
+    border-color 360ms var(--motion-ios),
+    box-shadow 480ms var(--motion-ios),
+    transform 560ms var(--motion-spring);
+  animation: media-close-enter 620ms 260ms var(--motion-impact) both;
+}
+
+.media-viewer-close:hover {
+  color: #fff0c9;
+  border-color: #8b7548;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.52),
+    0 0 38px rgba(218, 180, 83, 0.2);
+  transform: rotate(90deg) scale(1.08);
+}
+
+.media-viewer-navigation {
+  padding: 7px;
+  background: rgba(15, 16, 13, 0.86);
+  border: 1px solid rgba(109, 101, 78, 0.42);
+  border-radius: 999px;
+  box-shadow:
+    0 14px 44px rgba(0, 0, 0, 0.42),
+    inset 0 1px rgba(255, 246, 218, 0.05);
+  animation: media-navigation-enter 680ms 190ms var(--motion-impact) both;
+}
+
+.media-viewer-navigation > span {
+  min-width: 58px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 620px) {
+  :is(
+    .clue-dialog-backdrop,
+    .multi-clue-backdrop,
+    .notification-backdrop,
+    .media-viewer-backdrop
+  )::before {
+    opacity: 0.14;
+  }
+
+  .clue-dialog-sigil,
+  .notification-signal {
+    opacity: 0.24;
+    transform: scale(0.76);
+  }
+
+  .multi-clue-aura {
+    width: 140vw;
+    opacity: 0.2;
+  }
+
+  .media-viewer-ambient {
+    width: 150vw;
+    opacity: 0.22;
+  }
+
+  .media-viewer-frame {
+    inset: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .clue-dialog-backdrop,
+    .multi-clue-backdrop,
+    .notification-backdrop,
+    .media-viewer-backdrop
+  )::before,
+  :is(
+    .clue-dialog-backdrop,
+    .multi-clue-backdrop,
+    .notification-backdrop,
+    .media-viewer-backdrop
+  )::after,
+  .clue-dialog-sigil,
+  .multi-clue-aura,
+  .notification-signal,
+  .media-viewer-ambient,
+  .notification-bell strong {
+    animation: none;
+  }
+}

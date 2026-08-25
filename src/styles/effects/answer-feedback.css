@@ -1,0 +1,317 @@
+.penalty-state,
+.feedback {
+  margin: 16px 0 0;
+}
+
+.feedback {
+  position: relative;
+  overflow: hidden;
+  animation: feedback-enter 620ms var(--motion-spring) both;
+}
+
+.feedback::after {
+  position: absolute;
+  inset: 50% auto auto 18px;
+  width: 18px;
+  height: 18px;
+  content: "";
+  opacity: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0) scale(0.2);
+  animation: feedback-ring 920ms var(--motion-impact) both;
+}
+
+.feedback::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  content: "";
+  background: #b99b54;
+  box-shadow: 0 0 22px rgba(203, 169, 84, 0.42);
+}
+
+.feedback[data-tone="success"] {
+  color: #d8e4ca;
+  background: rgba(22, 35, 22, 0.9);
+  border-color: rgba(103, 143, 90, 0.54);
+  box-shadow:
+    inset 0 1px rgba(226, 247, 210, 0.035),
+    0 18px 48px rgba(18, 45, 21, 0.16);
+}
+
+.quest-card:has(.feedback[data-tone="success"]) {
+  animation: quest-success-impact 920ms var(--motion-impact) both;
+}
+
+.feedback[data-tone="success"]::before {
+  background: #94bd79;
+  box-shadow: 0 0 24px rgba(133, 185, 107, 0.52);
+}
+
+.quest-card > .feedback[data-tone="danger"] {
+  color: #e1c4b9;
+  background: rgba(38, 22, 18, 0.9);
+  border-color: rgba(151, 85, 70, 0.58);
+  animation:
+    feedback-enter 520ms var(--motion-spring) both,
+    feedback-shake 480ms 80ms var(--motion-spring) both;
+}
+
+.quest-card:has(.feedback[data-tone="danger"]) {
+  animation: quest-danger-impact 680ms var(--motion-impact) both;
+}
+
+.feedback[data-tone="danger"]::before {
+  background: #bc7364;
+  box-shadow: 0 0 22px rgba(190, 102, 83, 0.45);
+}
+
+.energy-burst {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.energy-burst::before,
+.energy-burst::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.2);
+  animation: energy-ring 980ms var(--motion-impact) both;
+}
+
+.energy-burst::after {
+  animation-delay: 110ms;
+}
+
+.energy-burst--success {
+  color: #c8df9e;
+}
+
+.energy-burst--danger {
+  color: #d78b79;
+}
+
+.energy-burst i {
+  --burst-x: 160px;
+  --burst-y: -120px;
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #d8c17f;
+  border-radius: 50%;
+  box-shadow: 0 0 16px currentColor;
+  animation: energy-particle 920ms var(--motion-ios) both;
+}
+
+.energy-burst--success i {
+  color: #c8df9e;
+  background: #c8df9e;
+}
+
+.energy-burst--danger i {
+  color: #d78b79;
+  background: #d78b79;
+}
+
+.energy-burst i:nth-child(2) {
+  --burst-x: 102px;
+  --burst-y: -178px;
+  animation-delay: 30ms;
+}
+.energy-burst i:nth-child(3) {
+  --burst-x: -54px;
+  --burst-y: -160px;
+  animation-delay: 60ms;
+}
+.energy-burst i:nth-child(4) {
+  --burst-x: -164px;
+  --burst-y: -82px;
+  animation-delay: 20ms;
+}
+.energy-burst i:nth-child(5) {
+  --burst-x: -190px;
+  --burst-y: 48px;
+  animation-delay: 70ms;
+}
+.energy-burst i:nth-child(6) {
+  --burst-x: -110px;
+  --burst-y: 142px;
+  animation-delay: 90ms;
+}
+.energy-burst i:nth-child(7) {
+  --burst-x: 32px;
+  --burst-y: 168px;
+  animation-delay: 40ms;
+}
+.energy-burst i:nth-child(8) {
+  --burst-x: 158px;
+  --burst-y: 106px;
+  animation-delay: 110ms;
+}
+.energy-burst i:nth-child(9) {
+  --burst-x: 208px;
+  --burst-y: 8px;
+  animation-delay: 50ms;
+}
+.energy-burst i:nth-child(10) {
+  --burst-x: 54px;
+  --burst-y: -94px;
+  animation-delay: 130ms;
+}
+
+.energy-burst i:nth-child(11) {
+  --burst-x: 278px;
+  --burst-y: -86px;
+  animation-delay: 75ms;
+}
+.energy-burst i:nth-child(12) {
+  --burst-x: 244px;
+  --burst-y: 168px;
+  animation-delay: 105ms;
+}
+.energy-burst i:nth-child(13) {
+  --burst-x: 14px;
+  --burst-y: 238px;
+  animation-delay: 45ms;
+}
+.energy-burst i:nth-child(14) {
+  --burst-x: -238px;
+  --burst-y: 186px;
+  animation-delay: 125ms;
+}
+.energy-burst i:nth-child(15) {
+  --burst-x: -286px;
+  --burst-y: -34px;
+  animation-delay: 65ms;
+}
+.energy-burst i:nth-child(16) {
+  --burst-x: -210px;
+  --burst-y: -218px;
+  animation-delay: 145ms;
+}
+.energy-burst i:nth-child(17) {
+  --burst-x: 6px;
+  --burst-y: -252px;
+  animation-delay: 85ms;
+}
+.energy-burst i:nth-child(18) {
+  --burst-x: 184px;
+  --burst-y: -232px;
+  animation-delay: 155ms;
+}
+
+.answer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+label:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 620px) {
+  .centered-state,
+  .quest-layout {
+    width: min(100% - 28px, 920px);
+    padding: 32px 0;
+  }
+
+  .session-header {
+    align-items: center;
+  }
+
+  .traveler-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .quest-card {
+    padding: 26px 20px;
+  }
+
+  .quest-atmosphere__motes i:nth-child(n + 9),
+  .ritual-particles i:nth-child(n + 9) {
+    display: none;
+  }
+
+  .choice-option {
+    grid-template-columns: 1fr;
+  }
+
+  .choice-media-button {
+    width: 100%;
+    height: 130px;
+    border-left: 0;
+    border-top: 1px solid var(--color-border-strong);
+  }
+
+  .media-viewer-backdrop {
+    padding: 14px;
+  }
+
+  .completion-backdrop::before {
+    width: 118vw;
+  }
+
+  .completion-backdrop::after {
+    width: 86vw;
+  }
+
+  .final-destination {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    width: calc(100% - 28px);
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .final-destination-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (pointer: coarse) {
+  button,
+  input,
+  select,
+  textarea,
+  a.clue-card,
+  a.letter-return {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .completion-backdrop::before,
+  .completion-backdrop::after {
+    animation: none;
+  }
+
+  .quest-card:has(.feedback[data-tone="success"]),
+  .quest-card:has(.feedback[data-tone="danger"]),
+  .feedback::after,
+  .energy-burst::before,
+  .energy-burst::after {
+    animation: none;
+  }
+}

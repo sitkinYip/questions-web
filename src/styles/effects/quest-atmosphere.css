@@ -1,0 +1,207 @@
+.quest-atmosphere {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+.quest-atmosphere__aurora {
+  position: absolute;
+  top: -34vh;
+  left: 50%;
+  width: min(1120px, 110vw);
+  aspect-ratio: 1.45;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 52%,
+    rgba(225, 190, 98, 0.2),
+    rgba(118, 93, 44, 0.075) 34%,
+    transparent 69%
+  );
+  transform: translate3d(-50%, 0, 0) rotate(-4deg);
+  animation: atmosphere-breathe 12s var(--motion-ios) infinite alternate;
+}
+
+.quest-atmosphere__rift {
+  position: absolute;
+  top: -14vh;
+  left: 50%;
+  width: min(980px, 96vw);
+  height: 72vh;
+  opacity: 0.74;
+  background:
+    radial-gradient(
+      ellipse at 50% 3%,
+      rgba(255, 229, 156, 0.36),
+      rgba(204, 167, 75, 0.11) 18%,
+      transparent 56%
+    ),
+    conic-gradient(
+      from 205deg at 50% 0%,
+      transparent 0 34%,
+      rgba(216, 181, 94, 0.08) 42%,
+      transparent 52% 100%
+    );
+  filter: blur(1px);
+  transform: translate3d(-50%, 0, 0) scaleX(0.82);
+  animation: atmosphere-rift 9s var(--motion-ios) infinite alternate;
+}
+
+.quest-atmosphere__halo {
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  width: min(920px, 88vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(221, 188, 104, 0.14);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 80px rgba(197, 166, 88, 0.025),
+    0 0 90px rgba(197, 166, 88, 0.025);
+  transform: translate3d(-50%, 0, 0) rotate(8deg) scaleY(0.38);
+  animation: atmosphere-orbit 24s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite
+    alternate;
+}
+
+.quest-atmosphere__sigil {
+  position: absolute;
+  top: 6vh;
+  left: 50%;
+  width: min(760px, 78vw);
+  aspect-ratio: 1;
+  opacity: 0.3;
+  transform: translate3d(-50%, 0, 0) scaleY(0.42) rotate(-8deg);
+  animation: atmosphere-sigil 32s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.quest-atmosphere__sigil::before,
+.quest-atmosphere__sigil::after,
+.quest-atmosphere__sigil i {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border: 1px solid rgba(224, 190, 103, 0.14);
+  border-radius: 50%;
+}
+
+.quest-atmosphere__sigil::after {
+  inset: 15%;
+  border-style: dashed;
+}
+
+.quest-atmosphere__sigil i:nth-child(1) {
+  inset: 31%;
+}
+
+.quest-atmosphere__sigil i:nth-child(2) {
+  inset: 10% 43%;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.quest-atmosphere__sigil i:nth-child(3) {
+  inset: 43% 10%;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+.quest-atmosphere__rays {
+  position: absolute;
+  inset: -30% -20%;
+  opacity: 0.16;
+  background: repeating-conic-gradient(
+    from 8deg at 50% 20%,
+    transparent 0 7deg,
+    rgba(231, 198, 116, 0.16) 8deg,
+    transparent 9deg 19deg
+  );
+  mask-image: radial-gradient(ellipse at 50% 20%, #000, transparent 58%);
+  animation: atmosphere-rays 26s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite
+    alternate;
+}
+
+.quest-atmosphere__motes i {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #d7bd78;
+  border-radius: 50%;
+  box-shadow:
+    0 0 10px rgba(246, 221, 150, 0.86),
+    0 0 28px rgba(222, 195, 121, 0.34);
+  opacity: 0;
+  animation: atmosphere-mote 8s var(--motion-spring) infinite;
+}
+
+.quest-atmosphere__motes i:nth-child(1) {
+  top: 14%;
+  left: 8%;
+  animation-delay: -1s;
+}
+.quest-atmosphere__motes i:nth-child(2) {
+  top: 31%;
+  left: 19%;
+  animation-delay: -5s;
+}
+.quest-atmosphere__motes i:nth-child(3) {
+  top: 72%;
+  left: 11%;
+  animation-delay: -3s;
+}
+.quest-atmosphere__motes i:nth-child(4) {
+  top: 84%;
+  left: 28%;
+  animation-delay: -7s;
+}
+.quest-atmosphere__motes i:nth-child(5) {
+  top: 22%;
+  left: 37%;
+  animation-delay: -2s;
+}
+.quest-atmosphere__motes i:nth-child(6) {
+  top: 58%;
+  left: 43%;
+  animation-delay: -6s;
+}
+.quest-atmosphere__motes i:nth-child(7) {
+  top: 90%;
+  left: 51%;
+  animation-delay: -4s;
+}
+.quest-atmosphere__motes i:nth-child(8) {
+  top: 11%;
+  left: 59%;
+  animation-delay: -7.5s;
+}
+.quest-atmosphere__motes i:nth-child(9) {
+  top: 38%;
+  left: 67%;
+  animation-delay: -2.5s;
+}
+.quest-atmosphere__motes i:nth-child(10) {
+  top: 76%;
+  left: 73%;
+  animation-delay: -5.5s;
+}
+.quest-atmosphere__motes i:nth-child(11) {
+  top: 18%;
+  left: 84%;
+  animation-delay: -3.5s;
+}
+.quest-atmosphere__motes i:nth-child(12) {
+  top: 49%;
+  left: 91%;
+  animation-delay: -6.5s;
+}
+.quest-atmosphere__motes i:nth-child(13) {
+  top: 88%;
+  left: 92%;
+  animation-delay: -1.8s;
+}
+.quest-atmosphere__motes i:nth-child(14) {
+  top: 65%;
+  left: 31%;
+  animation-delay: -4.8s;
+}

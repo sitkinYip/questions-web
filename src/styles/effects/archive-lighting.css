@@ -1,0 +1,272 @@
+.clue-panel-atmosphere {
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  right: -90px;
+  width: min(360px, 72vw);
+  aspect-ratio: 1;
+  opacity: 0.26;
+  pointer-events: none;
+  border: 1px solid rgba(202, 171, 91, 0.12);
+  border-radius: 50%;
+  transform: scaleY(0.48) rotate(-9deg);
+  animation: archive-orbit 24s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.clue-panel-atmosphere::before,
+.clue-panel-atmosphere::after,
+.clue-panel-atmosphere i {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(202, 171, 91, 0.12);
+  border-radius: 50%;
+}
+
+.clue-panel-atmosphere::before {
+  inset: 13%;
+  border-style: dashed;
+}
+
+.clue-panel-atmosphere::after {
+  inset: 32%;
+  box-shadow: 0 0 52px rgba(199, 159, 61, 0.12);
+}
+
+.clue-panel-atmosphere i:nth-child(1) {
+  inset: 47% 4%;
+  border-radius: 0;
+}
+
+.clue-panel-atmosphere i:nth-child(2) {
+  inset: 4% 47%;
+  border-radius: 0;
+}
+
+.clue-panel-atmosphere i:nth-child(3) {
+  inset: 23%;
+  border-style: dotted;
+}
+
+.clue-panel-heading > div:first-child,
+.clue-panel-count {
+  animation: archive-heading-enter 720ms var(--motion-impact) both;
+}
+
+.clue-panel-count {
+  animation-delay: 90ms;
+}
+
+.clue-panel-count strong {
+  text-shadow: 0 0 28px rgba(203, 169, 77, 0.2);
+}
+
+.clue-list .clue-card {
+  transform-origin: left center;
+  animation: archive-card-enter 700ms var(--motion-impact) both;
+}
+
+.clue-list .clue-card:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.clue-list .clue-card:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.clue-list .clue-card:nth-child(4) {
+  animation-delay: 210ms;
+}
+
+.clue-list .clue-card:nth-child(n + 5) {
+  animation-delay: 280ms;
+}
+
+.clue-card-action i {
+  animation: archive-action-orbit 8s cubic-bezier(0.45, 0.02, 0.55, 0.98)
+    infinite;
+}
+
+.clue-card:hover .clue-card-action i {
+  animation-duration: 2.4s;
+}
+
+.notification-list {
+  transform-origin: 27px calc(100% + 12px);
+  animation: signal-archive-enter 620ms var(--motion-impact) both;
+}
+
+.notification-list-signal {
+  position: absolute;
+  z-index: 0;
+  top: -118px;
+  right: -92px;
+  width: 270px;
+  aspect-ratio: 1;
+  opacity: 0.38;
+  pointer-events: none;
+  animation: signal-field-breathe 3.6s var(--motion-ios) infinite alternate;
+}
+
+.notification-list-signal::before,
+.notification-list-signal::after,
+.notification-list-signal i {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(199, 151, 214, 0.18);
+  border-radius: 50%;
+}
+
+.notification-list-signal::before {
+  inset: 7%;
+}
+
+.notification-list-signal::after {
+  inset: 25%;
+  border-style: dashed;
+}
+
+.notification-list-signal i:nth-child(1) {
+  inset: 42%;
+  background: rgba(204, 157, 218, 0.13);
+  box-shadow: 0 0 42px rgba(158, 103, 175, 0.22);
+}
+
+.notification-list-signal i:nth-child(2) {
+  inset: 14% 48%;
+  border-radius: 0;
+}
+
+.notification-list-signal i:nth-child(3) {
+  inset: 48% 14%;
+  border-radius: 0;
+}
+
+.notification-list > header > *,
+.notification-list-items button {
+  animation: signal-item-enter 600ms var(--motion-impact) both;
+}
+
+.notification-list > header > span {
+  animation-delay: 70ms;
+  text-shadow: 0 0 26px rgba(179, 124, 196, 0.25);
+}
+
+.notification-list-items button:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.notification-list-items button:nth-child(2) {
+  animation-delay: 155ms;
+}
+
+.notification-list-items button:nth-child(3) {
+  animation-delay: 210ms;
+}
+
+.notification-list-items button:nth-child(4) {
+  animation-delay: 265ms;
+}
+
+.notification-list-items button:nth-child(5) {
+  animation-delay: 320ms;
+}
+
+.notification-list-items button {
+  transition:
+    color 360ms var(--motion-ios),
+    transform 520ms var(--motion-spring);
+}
+
+.notification-list-items button:hover {
+  transform: translate3d(5px, 0, 0);
+}
+
+.notification-list-action,
+.notification-list-action i {
+  transition:
+    color 360ms var(--motion-ios),
+    border-color 420ms var(--motion-ios),
+    transform 560ms var(--motion-spring);
+}
+
+.notification-list-items button:hover .notification-list-action {
+  color: #e7c7ef;
+  border-color: rgba(195, 145, 210, 0.55);
+  transform: translate3d(2px, -1px, 0) rotate(-5deg) scale(1.07);
+}
+
+.notification-list-items button:hover .notification-list-action i {
+  transform: rotate(90deg);
+}
+
+.notification-bell {
+  transition:
+    color 360ms var(--motion-ios),
+    border-color 360ms var(--motion-ios),
+    box-shadow 520ms var(--motion-ios),
+    transform 560ms var(--motion-spring);
+  animation: signal-launcher-enter 680ms var(--motion-spring) both;
+}
+
+.notification-bell-signal > i:first-child {
+  animation: signal-ring-outer 3.2s var(--motion-ios) infinite;
+}
+
+.notification-bell-signal > i:nth-child(2) {
+  animation: signal-ring-inner 8s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.notification-bell:hover {
+  color: #f1dff6;
+  border-color: #9572a1;
+  box-shadow:
+    0 16px 46px rgba(0, 0, 0, 0.48),
+    0 0 36px rgba(169, 113, 190, 0.18);
+  transform: translate3d(0, -3px, 0) rotate(-7deg) scale(1.06);
+}
+
+.notification-launcher[data-state="open"] .notification-bell {
+  color: #f1dff6;
+  border-color: #9a77a6;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    0 0 42px rgba(169, 113, 190, 0.22);
+  transform: rotate(12deg) scale(0.96);
+}
+
+.notification-bell:active {
+  transform: translate3d(0, 1px, 0) scale(0.94);
+}
+
+.notification-bell strong {
+  animation: signal-badge-enter 620ms var(--motion-spring) both;
+}
+
+@media (max-width: 620px) {
+  .clue-panel-atmosphere {
+    right: -130px;
+    opacity: 0.18;
+  }
+
+  .notification-list-signal {
+    opacity: 0.28;
+    transform: scale(0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clue-panel-atmosphere,
+  .clue-panel-heading > div:first-child,
+  .clue-panel-count,
+  .clue-list .clue-card,
+  .clue-card-action i,
+  .notification-list,
+  .notification-list-signal,
+  .notification-list > header > *,
+  .notification-list-items button,
+  .notification-bell,
+  .notification-bell-signal > i,
+  .notification-bell strong {
+    animation: none;
+  }
+}

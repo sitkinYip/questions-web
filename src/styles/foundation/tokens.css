@@ -1,0 +1,30 @@
+:root {
+  font-family: var(--font-ui);
+  color: var(--color-text);
+  background: var(--color-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --z-floating: 900;
+  --z-overlay: 2000;
+  --z-toast: 2200;
+  --z-texture: 2300;
+  --motion-spring: cubic-bezier(0.22, 0.78, 0.18, 1);
+  --motion-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-impact: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-ui:
+    "Avenir Next", "Segoe UI Variable", "Noto Sans SC", system-ui, sans-serif;
+  --font-display: Georgia, "Noto Serif SC", "Songti SC", serif;
+  --color-canvas: #10110f;
+  --color-text: #e7e6e1;
+  --color-text-strong: #f0ecdf;
+  --color-text-muted: #aaa99f;
+  --color-text-subtle: #777970;
+  --color-accent: #d4bc7d;
+  --color-accent-strong: #e1cb90;
+  --color-border: #30322c;
+  --color-border-strong: #34362f;
+  --glow-gold: rgba(218, 184, 99, 0.58);
+  --glow-gold-soft: rgba(218, 184, 99, 0.16);
+  --glow-danger: rgba(205, 92, 72, 0.46);
+  --glow-success: rgba(144, 199, 106, 0.48);
+}

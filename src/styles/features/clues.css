@@ -1,0 +1,453 @@
+.clue-panel {
+  position: relative;
+  isolation: isolate;
+  margin-top: 44px;
+  padding: 34px 0 12px;
+}
+
+.clue-panel::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(202, 172, 95, 0.46) 22%,
+    rgba(202, 172, 95, 0.12) 72%,
+    transparent
+  );
+}
+
+.clue-panel-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.clue-panel-heading .eyebrow {
+  margin-bottom: 8px;
+}
+
+.clue-panel-heading h2,
+.clue-dialog h2 {
+  margin: 0;
+  color: #eee8d8;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(27px, 5vw, 40px);
+  font-weight: 500;
+}
+
+.clue-panel-count {
+  min-width: 88px;
+  display: grid;
+  justify-items: end;
+  padding-bottom: 4px;
+}
+
+.clue-panel-count strong {
+  color: #d8c078;
+  font:
+    500 clamp(26px, 4vw, 38px) / 0.9 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: -0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.clue-panel-count span {
+  margin-top: 8px;
+  color: #74766e;
+  font:
+    9px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.clue-list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 11px;
+  perspective: 1000px;
+}
+
+.clue-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 46px;
+  align-items: center;
+  gap: 18px;
+  padding: 17px 18px 18px 12px;
+  overflow: hidden;
+  color: #bab9b0;
+  text-align: left;
+  text-decoration: none;
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      rgba(191, 155, 66, 0.08),
+      transparent 34%
+    ),
+    #12130f;
+  border: 1px solid rgba(103, 96, 72, 0.46);
+  cursor: pointer;
+  transition:
+    color 380ms var(--motion-ios),
+    background-color 460ms var(--motion-ios),
+    border-color 460ms var(--motion-ios),
+    box-shadow 560ms var(--motion-ios),
+    transform 560ms var(--motion-spring);
+}
+
+.clue-card::before,
+.clue-card::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.clue-card::before {
+  z-index: -1;
+  inset: 5px;
+  border: 1px solid rgba(246, 225, 163, 0.035);
+}
+
+.clue-card::after {
+  top: 0;
+  bottom: 0;
+  left: -18%;
+  width: 18%;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(233, 203, 118, 0.13),
+    transparent
+  );
+  transform: skewX(-14deg);
+  transition:
+    opacity 360ms var(--motion-ios),
+    transform 840ms var(--motion-impact);
+}
+
+.clue-card:hover {
+  color: #e9e4d7;
+  border-color: #776b4c;
+  background: #1a1a14;
+  box-shadow:
+    inset 0 1px rgba(255, 247, 221, 0.04),
+    0 20px 56px rgba(9, 10, 8, 0.3);
+  transform: translate3d(8px, -3px, 0) rotateX(0.7deg);
+}
+
+.clue-card:hover::after {
+  opacity: 1;
+  transform: translate3d(720%, 0, 0) skewX(-14deg);
+}
+
+.clue-card:active {
+  transform: translate3d(4px, 1px, 0) scale(0.99);
+}
+
+.clue-card-letter {
+  border-color: #67584b;
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      rgba(186, 117, 79, 0.11),
+      transparent 38%
+    ),
+    #1b1715;
+}
+
+.clue-index {
+  min-height: 56px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  color: #a7925f;
+  border-right: 1px solid rgba(129, 116, 80, 0.32);
+}
+
+.clue-index strong {
+  color: #d3bd7a;
+  font:
+    500 22px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: -0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.clue-index span {
+  margin-top: 7px;
+  font:
+    8px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.clue-card-body {
+  min-width: 0;
+}
+
+.clue-card-status {
+  display: block;
+  margin-bottom: 5px;
+  color: #6f725f;
+  font:
+    8px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.clue-card-body > strong {
+  display: block;
+  color: #ded9cb;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.clue-preview {
+  max-height: 3.2em;
+  margin: 5px 0 0;
+  overflow: hidden;
+  color: #83857c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.clue-card-action {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  color: #cbb778;
+  background: rgba(216, 190, 112, 0.045);
+  border: 1px solid rgba(159, 139, 82, 0.25);
+  border-radius: 50%;
+  transition:
+    color 360ms var(--motion-ios),
+    background-color 420ms var(--motion-ios),
+    border-color 420ms var(--motion-ios),
+    transform 560ms var(--motion-spring);
+}
+
+.clue-card-action i {
+  position: absolute;
+  inset: 4px;
+  border: 1px dashed rgba(207, 176, 91, 0.2);
+  border-radius: inherit;
+}
+
+.clue-card:hover .clue-card-action {
+  color: #f2dda0;
+  background: rgba(216, 190, 112, 0.09);
+  border-color: rgba(208, 179, 99, 0.52);
+  transform: translate3d(2px, -1px, 0) rotate(-5deg) scale(1.07);
+}
+
+.clue-preview img,
+.clue-preview video {
+  display: none;
+}
+
+@media (max-width: 620px) {
+  .clue-panel {
+    margin-top: 34px;
+    padding-top: 28px;
+  }
+
+  .clue-panel-heading {
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .clue-panel-count {
+    min-width: 66px;
+  }
+
+  .clue-card {
+    grid-template-columns: 52px minmax(0, 1fr) 38px;
+    gap: 11px;
+    padding: 14px 12px 15px 8px;
+  }
+
+  .clue-index {
+    min-height: 50px;
+  }
+
+  .clue-index strong {
+    font-size: 18px;
+  }
+
+  .clue-card-action {
+    width: 34px;
+    height: 34px;
+  }
+
+  .clue-card-status {
+    display: none;
+  }
+}
+
+.clue-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(6, 7, 6, 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.clue-dialog {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: clamp(28px, 6vw, 58px);
+  background: #171814;
+  border: 1px solid #4b4638;
+}
+
+.clue-dialog .eyebrow {
+  margin-bottom: 14px;
+}
+
+.clue-dialog-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  color: #ded9cb;
+  font-size: 26px;
+  background: #10110e;
+  border: 1px solid #45473f;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.clue-dialog-content {
+  margin-top: 24px;
+  color: #bdbbb1;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.clue-dialog-content mark {
+  color: #efd993;
+  background: rgba(201, 170, 91, 0.14);
+}
+
+.clue-dialog-content img,
+.clue-dialog-content video {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 18px 0;
+}
+
+.multi-clue-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(4, 7, 7, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+.multi-clue-dialog {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: clamp(30px, 6vw, 62px);
+  background: #111716;
+  border: 1px solid #46615c;
+}
+
+.multi-clue-dialog h2 {
+  margin: 14px 0 0;
+  color: #e8eee7;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(30px, 6vw, 50px);
+  font-weight: 500;
+}
+
+.multi-clue-content {
+  margin-top: 28px;
+  color: #bdc8c3;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.multi-clue-content mark {
+  color: #e5d69d;
+  background: rgba(201, 170, 91, 0.14);
+}
+
+.multi-clue-content img,
+.multi-clue-content video {
+  display: block;
+  max-width: 100%;
+  max-height: 58vh;
+  margin: 20px 0;
+}
+
+.multi-clue-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 1px solid #31413d;
+}
+
+.multi-clue-dialog footer p {
+  margin: 0;
+  color: #75827e;
+  font-size: 13px;
+}
+
+.multi-clue-launcher {
+  position: fixed;
+  right: max(20px, calc((100vw - 920px) / 2));
+  bottom: 24px;
+  z-index: 50;
+  min-height: 46px;
+  padding: 0 18px;
+  color: #dce7e1;
+  background: #17231f;
+  border: 1px solid #4a665e;
+  border-radius: 999px;
+  cursor: pointer;
+}

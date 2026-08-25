@@ -1,0 +1,136 @@
+.rank-up-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(171, 134, 61, 0.18),
+      transparent 34%
+    ),
+    rgba(5, 6, 5, 0.96);
+  backdrop-filter: blur(14px);
+}
+
+.rank-up-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(660px, 100%);
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  padding: clamp(38px, 8vw, 74px);
+  text-align: center;
+  background: rgba(17, 18, 15, 0.84);
+  border: 1px solid #66583b;
+  box-shadow:
+    0 38px 140px rgba(0, 0, 0, 0.62),
+    0 0 110px rgba(208, 167, 68, 0.15),
+    inset 0 0 0 7px rgba(255, 243, 207, 0.018);
+}
+
+.rank-up-rays {
+  position: absolute;
+  z-index: 0;
+  inset: -90%;
+  opacity: 0.28;
+  pointer-events: none;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0 8deg,
+    rgba(232, 195, 105, 0.17) 9deg,
+    transparent 10deg 20deg
+  );
+  mask-image: radial-gradient(circle, #000, transparent 64%);
+  animation: rank-rays 22s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.rank-up-orbit {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+  border: 1px dashed rgba(215, 186, 111, 0.42);
+  border-radius: 50%;
+  animation: rank-orbit 14s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
+}
+
+.rank-up-orbit::before,
+.rank-up-orbit::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(215, 186, 111, 0.25);
+  border-radius: 50%;
+}
+
+.rank-up-orbit::before {
+  inset: 14px;
+}
+
+.rank-up-orbit::after {
+  inset: -18px;
+  border-style: dotted;
+  animation: rank-orbit 9s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite reverse;
+}
+
+.rank-up-core {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  color: #f0d78e;
+  font:
+    38px/1 Georgia,
+    serif;
+  background: #19170f;
+  border: 1px solid #8d7440;
+  border-radius: 50%;
+  box-shadow:
+    0 0 42px rgba(218, 179, 85, 0.23),
+    inset 0 0 25px rgba(218, 179, 85, 0.08);
+  animation: rank-orbit 14s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite
+    reverse;
+}
+
+.rank-up-label {
+  margin: 0;
+  color: #a99769;
+  font:
+    12px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.24em;
+}
+
+.rank-up-dialog h2 {
+  margin: 0;
+  color: #f0e9d6;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(42px, 9vw, 78px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+}
+
+.rank-up-description {
+  margin: 0 0 16px;
+  color: #96948a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rank-up-orbit,
+  .rank-up-orbit::after,
+  .rank-up-core {
+    animation: none;
+  }
+
+  .rank-up-rays {
+    animation: none;
+  }
+}

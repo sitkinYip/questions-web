@@ -1,0 +1,467 @@
+.letter-state,
+.letter-page {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.letter-state {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  padding: 40px 24px;
+  text-align: center;
+  background: #11120f;
+}
+
+.letter-state h1 {
+  max-width: 760px;
+  font-size: clamp(42px, 9vw, 82px);
+}
+
+.letter-state > p:not(.eyebrow) {
+  max-width: 560px;
+  margin: 0;
+  color: #92938b;
+  line-height: 1.8;
+}
+
+.letter-state button {
+  min-height: 46px;
+  padding: 0 20px;
+  color: #191811;
+  background: var(--color-accent);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.letter-lost-mark {
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  color: #786c50;
+  font-size: 52px;
+  border: 1px dashed #4c4739;
+  border-radius: 50%;
+}
+
+.letter-page {
+  --letter-accent: #b49558;
+  --letter-ink: #302d28;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  padding: 54px 24px;
+  overflow: hidden;
+  background: #12130f;
+}
+
+.letter-atmosphere {
+  position: absolute;
+  inset: -30px;
+  z-index: -2;
+  background: linear-gradient(rgba(10, 11, 9, 0.64), rgba(10, 11, 9, 0.88));
+}
+
+.letter-atmosphere-image {
+  position: absolute;
+  inset: -30px;
+  z-index: -3;
+  width: calc(100% + 60px);
+  height: calc(100% + 60px);
+  object-fit: cover;
+  filter: blur(8px);
+  transform: scale(1.04);
+}
+
+.letter-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+}
+
+.letter-return {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  padding: 10px 14px;
+  color: #b7b5ac;
+  background: rgba(17, 18, 15, 0.82);
+  border: 1px solid #3e4039;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.letter-envelope {
+  position: relative;
+  width: min(580px, calc(100vw - 42px));
+  aspect-ratio: 1.58;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  padding: 34px;
+  color: #433c2e;
+  background: #d6c8a8;
+  border: 1px solid #958568;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.48);
+  cursor: pointer;
+  animation: letter-arrive 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.letter-envelope::before,
+.letter-envelope::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 66%;
+  border-top: 1px solid rgba(91, 76, 52, 0.28);
+  clip-path: polygon(0 100%, 50% 26%, 100% 100%);
+  background: #cbbb98;
+}
+
+.letter-envelope-flap {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  height: 58%;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: #e0d3b4;
+  border-top: 1px solid #9b8a68;
+}
+
+.letter-seal,
+.letter-recipient,
+.letter-description,
+.letter-open-hint {
+  position: relative;
+  z-index: 2;
+}
+
+.letter-seal {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  color: #e4c9a8;
+  font-family: Georgia, serif;
+  font-size: 28px;
+  background: #763f35;
+  border: 5px double #94574b;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(70, 36, 30, 0.35);
+}
+
+.letter-recipient {
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(22px, 5vw, 34px);
+}
+
+.letter-description {
+  color: #756b59;
+  font-size: 13px;
+}
+
+.letter-open-hint {
+  position: absolute;
+  right: 20px;
+  bottom: 17px;
+  color: #756a56;
+  font:
+    11px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.08em;
+}
+
+.letter-paper {
+  position: relative;
+  width: min(780px, calc(100vw - 38px));
+  max-height: calc(100vh - 74px);
+  min-height: min(760px, calc(100vh - 74px));
+  overflow: auto;
+  padding: clamp(38px, 7vw, 76px);
+  color: var(--letter-ink);
+  background: #e7dfcc;
+  border: 1px solid #a89b7e;
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.48);
+  animation: paper-open 650ms cubic-bezier(0.18, 0.8, 0.25, 1) both;
+}
+
+.letter-paper-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.18;
+  object-fit: cover;
+  pointer-events: none;
+  transition: opacity 600ms var(--motion-ios);
+}
+
+.letter-paper-frame {
+  position: absolute;
+  inset: 20px;
+  border: 1px solid color-mix(in srgb, var(--letter-accent) 58%, transparent);
+  pointer-events: none;
+}
+
+.letter-paper > header,
+.letter-paragraphs,
+.letter-controls {
+  position: relative;
+  z-index: 1;
+}
+
+.letter-paper > header {
+  padding-bottom: 26px;
+  border-bottom: 1px solid rgba(65, 56, 41, 0.18);
+}
+
+.letter-paper h1 {
+  margin-top: 12px;
+  color: var(--letter-ink);
+  font-size: clamp(32px, 6vw, 54px);
+  letter-spacing: -0.035em;
+}
+
+.letter-paper header > p:last-child:not(.eyebrow) {
+  margin: 12px 0 0;
+  color: color-mix(in srgb, var(--letter-ink) 68%, transparent);
+}
+
+.letter-paragraphs {
+  min-height: 300px;
+  padding: 30px 0 16px;
+}
+
+.letter-paragraphs p {
+  min-height: 1.7em;
+  margin: 0 0 1.35em;
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: clamp(17px, 2.6vw, 21px);
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.letter-align-center {
+  text-align: center;
+}
+
+.letter-align-right,
+.letter-align-bottom {
+  text-align: right;
+}
+
+.letter-align-left,
+.letter-align-top {
+  text-align: left;
+}
+
+.letter-cursor {
+  display: inline-block;
+  width: 0.08em;
+  height: 1.05em;
+  margin-left: 0.14em;
+  vertical-align: -0.1em;
+  background: currentColor;
+  animation: cursor-blink 900ms steps(1) infinite;
+}
+
+.letter-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(65, 56, 41, 0.18);
+}
+
+.letter-controls button {
+  min-height: 42px;
+  padding: 0 16px;
+  color: var(--letter-ink);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--letter-ink) 32%, transparent);
+  cursor: pointer;
+}
+
+.letter-audio {
+  position: fixed;
+  z-index: 20;
+  right: 24px;
+  bottom: 24px;
+  width: 48px;
+  height: 48px;
+  color: #d9c98f;
+  font-size: 19px;
+  background: rgba(17, 18, 15, 0.88);
+  border: 1px solid #665b3e;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.letter-audio.is-playing {
+  animation: audio-pulse 1.8s var(--motion-spring) infinite;
+}
+
+.letter-classical {
+  --letter-accent: #9d392f;
+  --letter-ink: #352820;
+}
+
+.letter-classical .letter-envelope {
+  aspect-ratio: 1.9;
+  background: #b93931;
+  border-color: #d9af76;
+}
+
+.letter-classical .letter-envelope::before,
+.letter-classical .letter-envelope-flap {
+  background: #c8453a;
+}
+
+.letter-classical .letter-recipient,
+.letter-classical .letter-description,
+.letter-classical .letter-open-hint {
+  color: #f0cf9e;
+}
+
+.letter-classical .letter-paper {
+  background: #e4d2aa;
+}
+
+.letter-classical .letter-paragraphs {
+  min-height: 440px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 22px;
+  overflow-x: auto;
+}
+
+.letter-classical .letter-paragraphs p {
+  max-height: 410px;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.12em;
+}
+
+.letter-magic {
+  --letter-accent: #61a99b;
+  --letter-ink: #dcebe5;
+  background: #070d0d;
+}
+
+.letter-magic .letter-atmosphere {
+  background-image:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(42, 108, 99, 0.24),
+      transparent 50%
+    ),
+    linear-gradient(rgba(4, 8, 8, 0.7), rgba(4, 8, 8, 0.92));
+}
+
+.letter-magic .letter-envelope {
+  color: #d6e8e1;
+  background: #102b28;
+  border-color: #4d8d82;
+  box-shadow: 0 0 80px rgba(62, 154, 139, 0.2);
+}
+
+.letter-magic .letter-envelope::before,
+.letter-magic .letter-envelope-flap {
+  background: #153a35;
+}
+
+.letter-magic .letter-description,
+.letter-magic .letter-open-hint {
+  color: #89afa6;
+}
+
+.letter-magic .letter-seal {
+  color: #d6f3e9;
+  background: #23675d;
+  border-color: #6fb6aa;
+  box-shadow: 0 0 28px rgba(89, 190, 171, 0.42);
+}
+
+.letter-magic .letter-paper {
+  background: #10211f;
+  border-color: #46756c;
+}
+
+.letter-magic .letter-paper > header,
+.letter-magic .letter-controls {
+  border-color: rgba(127, 188, 175, 0.2);
+}
+
+@media (max-width: 620px) {
+  .letter-page {
+    padding: 48px 14px 18px;
+  }
+
+  .letter-return {
+    top: 12px;
+    left: 14px;
+  }
+
+  .letter-paper {
+    width: 100%;
+    max-height: calc(100vh - 66px);
+    min-height: calc(100vh - 66px);
+    padding: 48px 30px 32px;
+  }
+
+  .letter-paper-frame {
+    inset: 13px;
+  }
+
+  .letter-classical .letter-paragraphs {
+    min-height: 52vh;
+  }
+
+  .letter-audio {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .letter-envelope,
+  .letter-paper,
+  .letter-audio,
+  .letter-cursor {
+    animation: none;
+  }
+
+  .quest-atmosphere__motes,
+  .energy-burst,
+  .ritual-particles {
+    display: none;
+  }
+}

@@ -1,0 +1,142 @@
+.bgm-control {
+  position: fixed;
+  z-index: 900;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #93835e;
+  background: rgba(22, 23, 19, 0.94);
+  border: 1px solid #514b3c;
+  border-radius: 50%;
+  box-shadow: 0 12px 42px rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  transition:
+    left 240ms var(--motion-impact),
+    top 200ms var(--motion-impact),
+    color 320ms var(--motion-ios),
+    border-color 320ms var(--motion-ios),
+    box-shadow 480ms var(--motion-ios),
+    transform 480ms var(--motion-spring);
+  will-change: left, top, transform;
+}
+
+.quest-layout > .bgm-control {
+  position: fixed;
+}
+
+.bgm-control:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.bgm-control:active,
+.bgm-control.is-dragging {
+  cursor: grabbing;
+  transform: scale(0.96);
+}
+
+.bgm-control.is-dragging {
+  transition: none;
+}
+
+.bgm-control.is-playing {
+  color: #e2ca86;
+  border-color: #806f47;
+  box-shadow:
+    0 12px 42px rgba(0, 0, 0, 0.42),
+    0 0 46px rgba(213, 186, 112, 0.25);
+}
+
+.bgm-note {
+  position: relative;
+  z-index: 1;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  transform: translate(-1px, -1px);
+}
+
+.bgm-playback-badge {
+  position: absolute;
+  z-index: 2;
+  right: 5px;
+  bottom: 5px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: #dad5c8;
+  background: #34352f;
+  border: 1px solid #666358;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+}
+
+.is-playing .bgm-playback-badge {
+  color: #18170f;
+  background: #e2ca86;
+  border-color: #f1dda5;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.42),
+    0 0 12px rgba(226, 202, 134, 0.5);
+}
+
+.bgm-play-glyph {
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+}
+
+.bgm-pause-glyph {
+  display: flex;
+  gap: 2px;
+}
+
+.bgm-pause-glyph i {
+  width: 2px;
+  height: 7px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.bgm-waves {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  opacity: 0.42;
+}
+
+.bgm-waves i {
+  width: 2px;
+  height: 8px;
+  background: currentColor;
+  animation: bgm-wave 0.8s var(--motion-spring) infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bgm-control.is-playing,
+  .bgm-waves i {
+    animation: none;
+  }
+}
+
+.bgm-waves i:nth-child(2) {
+  height: 14px;
+  animation-delay: 0.18s;
+}
+
+.bgm-waves i:nth-child(3) {
+  animation-delay: 0.34s;
+}
+
+.bgm-auth-hint {
+  border-color: #766846;
+}

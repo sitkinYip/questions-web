@@ -1,0 +1,268 @@
+.session-header {
+  text-shadow: 0 2px 24px rgba(219, 187, 105, 0.08);
+}
+
+.traveler-avatar {
+  outline: 1px solid rgba(255, 229, 158, 0.13);
+  outline-offset: 5px;
+}
+
+.session-progress strong {
+  text-shadow:
+    0 0 22px rgba(225, 195, 119, 0.3),
+    0 8px 28px rgba(6, 7, 5, 0.54);
+}
+
+.quest-nav button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.quest-nav button::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 110%,
+    rgba(224, 190, 103, 0.26),
+    transparent 64%
+  );
+  transform: scale(0.72);
+  transition:
+    opacity 480ms var(--motion-ios),
+    transform 680ms var(--motion-impact);
+}
+
+.quest-nav button::after {
+  position: absolute;
+  right: 14px;
+  bottom: 0;
+  left: 14px;
+  height: 1px;
+  content: "";
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(246, 218, 145, 0.94),
+    transparent
+  );
+  box-shadow: 0 0 16px rgba(227, 191, 101, 0.58);
+  transform: scaleX(0.24);
+}
+
+.quest-nav button.is-active::before,
+.quest-nav button.is-active::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.quest-nav button.is-active::after {
+  animation: quest-nav-glint 2.8s var(--motion-ios) infinite alternate;
+}
+
+.quest-card {
+  --spotlight-x: 50%;
+  --spotlight-y: 20%;
+  --spotlight-opacity: 0;
+  outline: 1px solid rgba(255, 233, 174, 0.04);
+  outline-offset: -7px;
+  transition:
+    border-color 520ms var(--motion-ios),
+    box-shadow 720ms var(--motion-ios);
+}
+
+.quest-card:hover {
+  border-color: rgba(144, 127, 84, 0.5);
+  box-shadow:
+    0 42px 140px rgba(9, 10, 8, 0.56),
+    0 0 70px rgba(175, 142, 64, 0.065),
+    inset 0 1px rgba(255, 248, 225, 0.07),
+    inset 0 0 0 6px rgba(255, 255, 255, 0.014);
+}
+
+.quest-card-chrome {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.quest-card-chrome::before {
+  position: absolute;
+  inset: -1px;
+  content: "";
+  opacity: var(--spotlight-opacity);
+  background: radial-gradient(
+    420px circle at var(--spotlight-x) var(--spotlight-y),
+    rgba(242, 214, 140, 0.13),
+    rgba(213, 177, 89, 0.035) 35%,
+    transparent 68%
+  );
+  transition: opacity 420ms var(--motion-ios);
+}
+
+.quest-card-chrome::after {
+  position: absolute;
+  top: -48%;
+  left: -28%;
+  width: 58%;
+  height: 190%;
+  content: "";
+  opacity: 0.11;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 234, 177, 0.72),
+    transparent
+  );
+  filter: blur(10px);
+  transform: translate3d(-130%, 0, 0) rotate(17deg);
+  animation: quest-card-sheen 9s 1.6s var(--motion-ios) infinite;
+}
+
+.quest-card-chrome i {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  opacity: 0.48;
+  border-color: rgba(225, 192, 107, 0.46);
+}
+
+.quest-card-chrome i:nth-child(1) {
+  top: 12px;
+  left: 12px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.quest-card-chrome i:nth-child(2) {
+  top: 12px;
+  right: 12px;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+.quest-card-chrome i:nth-child(3) {
+  right: 12px;
+  bottom: 12px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.quest-card-chrome i:nth-child(4) {
+  bottom: 12px;
+  left: 12px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.quest-card h1 {
+  text-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.025),
+    0 18px 54px rgba(4, 5, 4, 0.64);
+}
+
+.choice-option {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.choice-option::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  opacity: 0;
+  background: radial-gradient(
+    circle at 8% 50%,
+    rgba(223, 188, 97, 0.24),
+    transparent 62%
+  );
+  transform: translate3d(-12%, 0, 0) scaleX(0.72);
+  transition:
+    opacity 420ms var(--motion-ios),
+    transform 680ms var(--motion-impact);
+}
+
+.choice-option:hover::before,
+.choice-option.is-selected::before {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scaleX(1);
+}
+
+.choice-option.is-selected {
+  animation: choice-lock 620ms var(--motion-impact) both;
+}
+
+.play-badge,
+.choice-media-button > span:last-child {
+  box-shadow:
+    0 0 0 7px rgba(218, 184, 99, 0.08),
+    0 0 34px rgba(218, 184, 99, 0.3);
+  transition:
+    box-shadow 520ms var(--motion-ios),
+    transform 620ms var(--motion-impact);
+}
+
+.video-poster-button:hover .play-badge {
+  box-shadow:
+    0 0 0 12px rgba(218, 184, 99, 0.06),
+    0 0 58px rgba(218, 184, 99, 0.46);
+  transform: translate(-50%, -50%) scale(1.09);
+}
+
+.ui-button--primary {
+  text-shadow: 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.ui-button--primary::before {
+  position: absolute;
+  z-index: -1;
+  inset: -70%;
+  content: "";
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 244, 201, 0.7),
+    transparent 45%
+  );
+  transform: scale(0.36);
+  transition:
+    opacity 520ms var(--motion-ios),
+    transform 760ms var(--motion-impact);
+}
+
+.ui-button--primary:hover:not(:disabled)::before {
+  opacity: 0.46;
+  transform: scale(1);
+}
+
+@media (max-width: 620px) {
+  .quest-card-chrome::after {
+    opacity: 0.07;
+  }
+
+  .quest-atmosphere__sigil {
+    width: 125vw;
+  }
+}
+
+@media (hover: none) {
+  .quest-card-chrome::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quest-card-chrome::after,
+  .quest-nav button.is-active::after,
+  .choice-option.is-selected {
+    animation: none;
+  }
+}
