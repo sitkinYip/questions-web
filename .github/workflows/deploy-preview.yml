@@ -1,0 +1,102 @@
+name: Deploy Questions Preview
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: questions-preview
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preview
+    env:
+      REMOTE_HOST: ${{ secrets.HOST }}
+      REMOTE_USER: ${{ secrets.USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      SSH_PORT: ${{ vars.SSH_PORT || '22' }}
+      QUESTIONS_ROOT: ${{ secrets.QUESTIONS_ROOT }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build preview
+        run: pnpm build:preview
+
+      - name: Verify preview asset base
+        run: |
+          grep -Fq '/questions-next/assets/' dist/index.html
+          if grep -Eq '(src|href)="/assets/' dist/index.html; then
+            echo 'Preview build contains a root /assets/ reference.' >&2
+            exit 1
+          fi
+
+      - name: Configure SSH
+        run: |
+          test -n "$REMOTE_HOST"
+          test -n "$REMOTE_USER"
+          test -n "$SSH_PRIVATE_KEY"
+          test -n "$SSH_KNOWN_HOSTS"
+          test -n "$QUESTIONS_ROOT"
+          test "${QUESTIONS_ROOT#/}" != "$QUESTIONS_ROOT"
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Deploy preview files
+        run: |
+          remote_path="${QUESTIONS_ROOT%/}/questions-next"
+          ssh -p "$SSH_PORT" -i "$HOME/.ssh/id_ed25519" \
+            "$REMOTE_USER@$REMOTE_HOST" "mkdir -p -- '$remote_path'"
+          rsync --archive --compress --delete \
+            -e "ssh -p $SSH_PORT -i $HOME/.ssh/id_ed25519" \
+            dist/ "$REMOTE_USER@$REMOTE_HOST:$remote_path/"
+
+      - name: Smoke test preview routes
+        run: |
+          urls=(
+            'https://sitkin.top/questions-next/'
+            'https://sitkin.top/questions-next/?qa=1'
+            'https://sitkin.top/questions-next/letter'
+            'https://sitkin.top/questions-next/clearCache'
+          )
+          for url in "${urls[@]}"; do
+            html="$(curl --fail --silent --show-error --retry 5 --retry-all-errors "$url")"
+            if ! printf '%s' "$html" | grep -Fq '/questions-next/assets/'; then
+              echo "Preview route did not return the Questions HTML: $url" >&2
+              exit 1
+            fi
+          done

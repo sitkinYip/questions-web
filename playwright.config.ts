@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 const e2ePort = Number.parseInt(process.env.E2E_PORT ?? "5173", 10);
 const e2eBaseUrl = `http://127.0.0.1:${e2ePort}`;
+const localBrowserChannel = process.env.CI
+  ? {}
+  : { channel: "chrome" as const };
 
 export default defineConfig({
   testDir: "./e2e",
@@ -19,11 +22,11 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"], channel: "chrome" },
+      use: { ...devices["Desktop Chrome"], ...localBrowserChannel },
     },
     {
       name: "mobile-chromium",
-      use: { ...devices["Pixel 7"], channel: "chrome" },
+      use: { ...devices["Pixel 7"], ...localBrowserChannel },
     },
   ],
   webServer: {

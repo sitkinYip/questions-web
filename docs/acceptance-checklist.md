@@ -32,7 +32,7 @@
 
 - [x] `base=/questions-next/` 的构建资源路径正常。
 - [ ] OpenResty 对 `/questions-next/**` 的 history fallback 正常。
-- [ ] 主页 Service Worker 不控制 `/questions-next/` 与 `/questions/`。
+- [ ] 主页 Service Worker 不拦截 `/questions-next/` 与 `/questions/` 的导航及静态资源请求。
 - [x] 预览环境禁用生产埋点。
 - [ ] OpenResty 配置已备份，旧站可一键回滚。
 - [ ] `/letter` 重定向保留 query。

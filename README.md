@@ -50,4 +50,15 @@ pnpm verify:notifications
 | 并行预览 | `/questions-next/` |
 | 正式     | `/questions/`      |
 
+```bash
+pnpm build:preview
+pnpm build:production
+```
+
+`main` 的 CI 通过后，由 `Deploy Questions Preview` 工作流发布预览环境，也可手动触发。
+GitHub 的 `preview` Environment 需要配置 `HOST`、`USERNAME`、`SSH_KEY`、
+`SSH_KNOWN_HOSTS` 和 `QUESTIONS_ROOT` Secrets；可选的 `SSH_PORT` 配置为
+Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next/`，
+不会写入主页部署目录。
+
 详细边界和验收标准见 [架构文档](./docs/architecture.md)。
