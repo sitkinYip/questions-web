@@ -91,6 +91,7 @@ jobs:
             'https://sitkin.top/questions-next/'
             'https://sitkin.top/questions-next/?qa=1'
             'https://sitkin.top/questions-next/letter'
+            'https://sitkin.top/questions-next/bless?from=final'
             'https://sitkin.top/questions-next/clearCache'
           )
           for url in "${urls[@]}"; do

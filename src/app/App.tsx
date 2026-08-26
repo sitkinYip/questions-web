@@ -7,6 +7,12 @@ import { QuestEntryPage } from "../features/quest/QuestEntryPage";
 import { OverlayProvider } from "../components/ui/OverlayProvider";
 import { ToastProvider } from "../components/ui/ToastProvider";
 import { BlessPage } from "../features/bless/BlessPage";
+import { resolveAppBasename } from "../shared/navigation/app-base";
+
+const appBasename = resolveAppBasename(
+  import.meta.env.BASE_URL,
+  window.location.pathname,
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,7 +40,7 @@ const router = createBrowserRouter(
     { path: "/clearCache", element: <ClearCachePage /> },
     { path: "*", element: <QuestEntryPage /> },
   ],
-  { basename: import.meta.env.BASE_URL },
+  { basename: appBasename },
 );
 
 export function App() {

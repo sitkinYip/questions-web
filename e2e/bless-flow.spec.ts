@@ -34,3 +34,22 @@ test("rejects an external Bless return target", async ({ page }) => {
   );
   await expect(page.getByRole("link", { name: "返回冒险" })).toHaveCount(0);
 });
+
+test("recognizes Bless when a root build is served below questions-next", async ({
+  page,
+}) => {
+  await page.goto(
+    "/questions-next/bless?from=final&returnTo=%2Fquestions-next%2F%3Fqa%3D52",
+  );
+
+  await expect(
+    page.getByRole("button", { name: "点击开启你的专属星空" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "返回冒险" })).toHaveAttribute(
+    "href",
+    "/questions-next/?qa=52",
+  );
+  await expect(
+    page.getByRole("heading", { name: "没有找到对应题目" }),
+  ).toHaveCount(0);
+});

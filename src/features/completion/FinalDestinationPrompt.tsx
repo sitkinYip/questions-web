@@ -2,13 +2,10 @@ import { withSafeQuery } from "../../domain/content/parser";
 import { Button } from "../../components/ui/Button";
 import type { QuestFinalDestination } from "../../domain/quest/types";
 import { trackAnalytics } from "../../infrastructure/analytics";
-
-function resolveInternalAppHref(href: string) {
-  const base = import.meta.env.BASE_URL;
-  if (base === "/" || href === base.slice(0, -1) || href.startsWith(base))
-    return href;
-  return `${base}${href.replace(/^\//, "")}`;
-}
+import {
+  resolveAppBasename,
+  withAppBasename,
+} from "../../shared/navigation/app-base";
 
 interface FinalDestinationPromptProps {
   destination: QuestFinalDestination | null;
@@ -25,6 +22,10 @@ export function FinalDestinationPrompt({
   const returnTo = `${window.location.pathname}${window.location.search}`;
   const resolved = withSafeQuery(destination.href, { returnTo });
   if (!resolved) return null;
+  const appBasename = resolveAppBasename(
+    import.meta.env.BASE_URL,
+    window.location.pathname,
+  );
 
   return (
     <aside className="final-destination" aria-label="最终旅程出口">
@@ -39,7 +40,7 @@ export function FinalDestinationPrompt({
         {resolved.target === "internal" ? (
           <a
             className="primary-action"
-            href={resolveInternalAppHref(resolved.href)}
+            href={withAppBasename(resolved.href, appBasename)}
             onClick={() =>
               trackAnalytics(
                 {
