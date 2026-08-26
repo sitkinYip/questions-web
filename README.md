@@ -15,6 +15,7 @@ Questions 的独立 React 重写工程。旧 `home` 项目的线上 Questions �
 - 已实现多题顺序解锁、延迟 `autoNext`、恢复至首道未完成题和全部完成后的组合线索。
 - 已实现最终关优先反馈、最终 AutoPlay 时序及 `FinalLevelConfig` 安全继续入口。
 - 已实现 Letter 真实数据、modern/classical/magic 三种信件、逐段打字/配音/BGM 和安全返回。
+- 已接管 `/bless` 专属星空，支持 Phrase 叙事、粒子文字、逐段配音、循环 BGM、谢幕与安全返回。
 - 已实现 `/clearCache` 新旧记录扫描、精确筛选、解除惩罚、单条删除与批量清理。
 - 已实现会话等级展示、多题最高等级、一次性升级反馈和 `rankUpShown` 兼容记录。
 - 已实现按用户过滤的实时通知、可见性轮询、兼容已读记录、顺序弹窗队列和安全富内容预览。

@@ -85,6 +85,23 @@ export async function mockQuestionsApi(page: Page) {
       await fulfillJson(route, { items: [] });
       return;
     }
+    if (pathname.includes("/phrase/records")) {
+      await fulfillJson(
+        route,
+        pocketBaseList([
+          {
+            id: "phrase-final",
+            from: "final",
+            title: "点击开启你的专属星空",
+            phraseList: [{ text: "愿星光照亮前路", duration: 40 }],
+            takeABowList: [{ text: "旅途仍在继续", duration: 40 }],
+            mainAudio: "https://assets.example/bless-bgm.mp3",
+            updated: "2026-08-25 10:00:00.000Z",
+          },
+        ]),
+      );
+      return;
+    }
     await route.abort();
   });
   await page.route("https://assets.example/**", (route) =>

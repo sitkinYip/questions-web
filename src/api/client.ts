@@ -9,6 +9,9 @@ import { levelsResponseSchema } from "./level.schema";
 import { multiQuestCluesResponseSchema } from "./multi-clue.schema";
 import { adaptNotificationRecord } from "./notification.adapter";
 import { notificationsResponseSchema } from "./notification.schema";
+import type { Blessing } from "../domain/bless/types";
+import { adaptPhraseRecord } from "./phrase.adapter";
+import { phrasesResponseSchema } from "./phrase.schema";
 import { contractError, requestJson } from "./request";
 export { ApiError } from "./errors";
 
@@ -93,4 +96,18 @@ export async function fetchLetters(signal?: AbortSignal): Promise<Letter[]> {
   if (!parsed.success)
     throw contractError("信件接口", response.status, parsed.error);
   return parsed.data.items.map(adaptLetterRecord);
+}
+
+export async function fetchBlessings(
+  signal?: AbortSignal,
+): Promise<Blessing[]> {
+  const query = new URLSearchParams({ perPage: "500", sort: "created" });
+  const response = await requestJson(
+    `${env.VITE_API_BASE_URL}/phrase/records?${query}`,
+    { signal, resource: "专属星空" },
+  );
+  const parsed = phrasesResponseSchema.safeParse(response.data);
+  if (!parsed.success)
+    throw contractError("专属星空接口", response.status, parsed.error);
+  return parsed.data.items.map(adaptPhraseRecord);
 }

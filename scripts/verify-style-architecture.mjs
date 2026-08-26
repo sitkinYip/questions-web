@@ -29,7 +29,9 @@ const expectedImports = [
   "features/records.css",
   "features/rank.css",
   "features/letter.css",
+  "features/bless.css",
   "effects/keyframes.css",
+  "effects/bless-keyframes.css",
 ];
 
 async function collectCssFiles(directory) {

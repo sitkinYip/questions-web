@@ -3,6 +3,13 @@ import { Button } from "../../components/ui/Button";
 import type { QuestFinalDestination } from "../../domain/quest/types";
 import { trackAnalytics } from "../../infrastructure/analytics";
 
+function resolveInternalAppHref(href: string) {
+  const base = import.meta.env.BASE_URL;
+  if (base === "/" || href === base.slice(0, -1) || href.startsWith(base))
+    return href;
+  return `${base}${href.replace(/^\//, "")}`;
+}
+
 interface FinalDestinationPromptProps {
   destination: QuestFinalDestination | null;
   onDismiss: () => void;
@@ -29,25 +36,43 @@ export function FinalDestinationPrompt({
         <Button variant="ghost" onClick={onDismiss}>
           稍后前往
         </Button>
-        <a
-          className="primary-action"
-          href={resolved.href}
-          {...(resolved.target === "external"
-            ? { target: "_blank", rel: "noopener noreferrer" }
-            : {})}
-          onClick={() =>
-            trackAnalytics(
-              {
-                name: "destination_opened",
-                target: resolved.target,
-                href: resolved.href,
-              },
-              userId,
-            )
-          }
-        >
-          继续旅程
-        </a>
+        {resolved.target === "internal" ? (
+          <a
+            className="primary-action"
+            href={resolveInternalAppHref(resolved.href)}
+            onClick={() =>
+              trackAnalytics(
+                {
+                  name: "destination_opened",
+                  target: resolved.target,
+                  href: resolved.href,
+                },
+                userId,
+              )
+            }
+          >
+            继续旅程
+          </a>
+        ) : (
+          <a
+            className="primary-action"
+            href={resolved.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackAnalytics(
+                {
+                  name: "destination_opened",
+                  target: resolved.target,
+                  href: resolved.href,
+                },
+                userId,
+              )
+            }
+          >
+            继续旅程
+          </a>
+        )}
       </div>
     </aside>
   );

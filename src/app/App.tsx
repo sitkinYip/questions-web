@@ -6,6 +6,7 @@ import { LetterPage } from "../features/letter/LetterPage";
 import { QuestEntryPage } from "../features/quest/QuestEntryPage";
 import { OverlayProvider } from "../components/ui/OverlayProvider";
 import { ToastProvider } from "../components/ui/ToastProvider";
+import { BlessPage } from "../features/bless/BlessPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
   [
     { path: "/", element: <QuestEntryPage /> },
     { path: "/letter", element: <LetterPage /> },
+    { path: "/bless", element: <BlessPage /> },
     { path: "/clearCache", element: <ClearCachePage /> },
     { path: "*", element: <QuestEntryPage /> },
   ],

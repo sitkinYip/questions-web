@@ -19,4 +19,6 @@
 @import "./styles/features/records.css";
 @import "./styles/features/rank.css";
 @import "./styles/features/letter.css";
+@import "./styles/features/bless.css";
 @import "./styles/effects/keyframes.css";
+@import "./styles/effects/bless-keyframes.css";

@@ -38,6 +38,15 @@ PocketBase 列表响应统一为 `items/page/perPage/totalItems/totalPages`。�
 
 Letter 页面只在存在 `from` 时请求集合并执行精确匹配。所有媒体先经过 URL 安全过滤；`returnTo` 仅允许站内根相对路径，防止开放重定向。
 
+## Bless 关键字段
+
+- 匹配与入口：`from`, `title`
+- 主叙事：`phraseList[]` 的 `text`, `audio`, `duration`
+- 谢幕：`takeABowList[]`，字段与主叙事一致
+- 背景音乐：`mainAudio`
+
+Bless 页面只在存在 `from` 时请求 Phrase 集合并执行精确匹配。配音与 BGM URL 均经过安全过滤；开始按钮提供浏览器音频授权，返回或卸载页面时停止全部音频。`returnTo` 仅接受站内根相对路径。
+
 ## 错误策略
 
 - 所有数据请求默认 10 秒超时，并合并路由取消信号。

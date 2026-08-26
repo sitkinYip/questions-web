@@ -23,6 +23,7 @@
 - [x] Playwright 端到端测试。
 - [x] 桌面与移动端键盘、焦点、触控和 reduced-motion 验证。
 - [x] BGM 控件固定于视口、支持拖拽/键盘移动并在刷新后恢复位置。
+- [x] `/bless` 在独立应用内完成 Phrase 加载、叙事/BGM/谢幕播放，并可安全返回原答题参数。
 - [x] 全局模态弹窗统一使用 Radix 交互内核，并通过 Overlay Provider 处理并发优先级。
 - [x] Button、Input、Select、Sheet 与 Toast 具备统一接口、交互状态和组件级测试。
 - [x] 答题页具备环境光、题目转场、正误反馈和通关仪式动效，并完整支持 reduced-motion 降级。
@@ -36,4 +37,5 @@
 - [x] 预览环境禁用生产埋点。
 - [ ] OpenResty 配置已备份，旧站可一键回滚。
 - [ ] `/letter` 重定向保留 query。
+- [ ] `/bless` 重定向保留 query，旧根路径不再承载新 Questions 的最终跳转。
 - [ ] 切换后 `/questions/**` 刷新不返回主页 index.html。
