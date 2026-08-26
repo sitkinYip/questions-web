@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Quest } from "../../domain/quest/types";
 import { progressKey } from "../../infrastructure/storage/progress.repository";
+import { questAnswerGuideKey } from "../../infrastructure/storage/quest-guide.repository";
 import { rankUpKey } from "../../infrastructure/storage/rank.repository";
 import { QuestSessionView } from "./QuestSessionView";
 
@@ -77,6 +78,74 @@ describe("QuestSessionView", () => {
     fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
     expect(screen.getByRole("button", { name: /02/ })).toBeEnabled();
     expect(screen.getByRole("button", { name: "前往下一题" })).toBeEnabled();
+  });
+
+  it("uses the filtered array position for every displayed question number", () => {
+    render(
+      <QuestSessionView
+        allQuests={[textQuest, choiceQuest]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("article", { name: "第 1 题" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("第 1 题", { selector: ".quest-meta span" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("第 2 题", { selector: ".quest-nav small" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("第 11 题")).not.toBeInTheDocument();
+    expect(screen.queryByText("第 12 题")).not.toBeInTheDocument();
+  });
+
+  it("shows the multi-quest answer guide once per user", () => {
+    const { unmount } = render(
+      <QuestSessionView
+        allQuests={[textQuest, choiceQuest]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+
+    expect(screen.getByLabelText("答题引导")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "知道了" }));
+    expect(screen.queryByLabelText("答题引导")).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(questAnswerGuideKey("alice"))).toBe("1");
+
+    unmount();
+    render(
+      <QuestSessionView
+        allQuests={[textQuest, choiceQuest]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+    expect(screen.queryByLabelText("答题引导")).not.toBeInTheDocument();
+  });
+
+  it("dismisses the answer guide as soon as the user starts answering", () => {
+    render(
+      <QuestSessionView
+        allQuests={[textQuest, choiceQuest]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+
+    expect(screen.getByLabelText("答题引导")).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText("输入你的答案"), {
+      target: { value: "星" },
+    });
+    expect(screen.queryByLabelText("答题引导")).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(questAnswerGuideKey("alice"))).toBe("1");
   });
 
   it("reveals clues and opens the first AutoPlay clue after success", () => {

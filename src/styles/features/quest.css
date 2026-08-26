@@ -409,7 +409,20 @@
 }
 
 .answer-form {
+  position: relative;
   margin-top: 34px;
+  border-radius: 2px;
+  transition:
+    background-color 480ms var(--motion-ios),
+    box-shadow 620ms var(--motion-ios),
+    outline-color 480ms var(--motion-ios);
+}
+
+.answer-form[data-guide-highlight="true"] {
+  outline: 1px solid rgba(225, 193, 111, 0.72);
+  outline-offset: 12px;
+  background: rgba(212, 188, 125, 0.055);
+  box-shadow: 0 0 52px rgba(190, 153, 66, 0.16);
 }
 
 .answer-form fieldset {
@@ -525,4 +538,68 @@
   background: #d5bf84;
   border-radius: 50%;
   transform: translate(-50%, -50%);
+}
+
+.answer-guide {
+  position: fixed;
+  z-index: calc(var(--z-floating) + 20);
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: max(16px, env(safe-area-inset-left));
+  width: min(620px, calc(100% - 32px));
+  margin-inline: auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  color: #d9d5c8;
+  background: rgba(23, 24, 20, 0.96);
+  border: 1px solid rgba(139, 122, 81, 0.72);
+  box-shadow:
+    0 24px 80px rgba(5, 6, 5, 0.58),
+    inset 0 1px rgba(255, 244, 210, 0.06);
+  backdrop-filter: blur(18px);
+  pointer-events: none;
+  animation: quest-content-enter 620ms var(--motion-ios) both;
+}
+
+.answer-guide__marker {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #d8c382;
+  border: 1px solid #62583d;
+  font:
+    500 14px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.answer-guide__copy strong {
+  display: block;
+  color: #f0ead8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.answer-guide__copy p {
+  margin: 4px 0 0;
+  color: #98978e;
+  font-size: 12px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.answer-guide__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.answer-guide__actions button {
+  pointer-events: auto;
 }

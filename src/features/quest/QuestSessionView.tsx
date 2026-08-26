@@ -36,6 +36,7 @@ import {
   trackAnalyticsOnce,
 } from "../../infrastructure/analytics";
 import { createProgressRepository } from "../../infrastructure/storage/progress.repository";
+import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/quest-guide.repository";
 import { createRankRepository } from "../../infrastructure/storage/rank.repository";
 import { CluePanel } from "../clues/CluePanel";
 import { ClueTextDialog } from "../clues/ClueTextDialog";
@@ -116,6 +117,10 @@ export function QuestSessionView({
     () => createRankRepository(window.localStorage),
     [],
   );
+  const answerGuideRepository = useMemo(
+    () => createQuestAnswerGuideRepository(window.localStorage),
+    [],
+  );
   const [session, setSession] = useState<QuestSession>(() => {
     const result = createSessionFromSelection({
       allQuests,
@@ -127,6 +132,7 @@ export function QuestSessionView({
     return result.session;
   });
   const activeQuest = session.quests[session.activeIndex];
+  const activeQuestionNumber = session.activeIndex + 1;
   const activeAttempt = session.attempts[activeQuest.id];
   const [answers, setAnswers] = useState<Record<string, string>>(() =>
     Object.fromEntries(
@@ -152,15 +158,37 @@ export function QuestSessionView({
   const [finalDestination, setFinalDestination] =
     useState<QuestFinalDestination | null>(null);
   const [rankUp, setRankUp] = useState<QuestRank | null>(null);
+  const [showAnswerGuide, setShowAnswerGuide] = useState(() => {
+    if (session.quests.length <= 1 || session.status === "completed") {
+      return false;
+    }
+    try {
+      return !answerGuideRepository.hasSeen(userId);
+    } catch {
+      return true;
+    }
+  });
+  const [highlightAnswerForm, setHighlightAnswerForm] = useState(false);
   const pendingFlowRef = useRef<PendingFlow | null>(null);
   const finalSequenceRef = useRef<FinalSequence | null>(null);
   const autoAdvanceTimerRef = useRef<number | null>(null);
   const rankTimerRef = useRef<number | null>(null);
+  const answerGuideTimerRef = useRef<number | null>(null);
   const uiBusyRef = useRef(false);
   const questCardRef = useRef<HTMLElement>(null);
   const questNavRef = useRef<HTMLElement>(null);
+  const answerFormRef = useRef<HTMLFormElement>(null);
   const activeNavItemRef = useRef<HTMLButtonElement>(null);
   const previousQuestIdRef = useRef(activeQuest.id);
+
+  const closeAnswerGuide = useCallback(() => {
+    setShowAnswerGuide(false);
+    try {
+      answerGuideRepository.markSeen(userId);
+    } catch {
+      // The guide still closes when storage is unavailable.
+    }
+  }, [answerGuideRepository, userId]);
 
   const upgradeCandidate = useMemo(
     () => extractHighestRank(session.quests),
@@ -238,6 +266,9 @@ export function QuestSessionView({
       }
       if (rankTimerRef.current !== null)
         window.clearTimeout(rankTimerRef.current);
+      if (answerGuideTimerRef.current !== null) {
+        window.clearTimeout(answerGuideTimerRef.current);
+      }
     },
     [],
   );
@@ -409,6 +440,7 @@ export function QuestSessionView({
   }, []);
 
   const setAnswer = (value: string) => {
+    if (showAnswerGuide) closeAnswerGuide();
     setAnswers((current) => ({ ...current, [activeQuest.id]: value }));
   };
 
@@ -643,6 +675,25 @@ export function QuestSessionView({
     event.currentTarget.style.setProperty("--spotlight-opacity", "0");
   };
 
+  const dismissAnswerGuide = (locateAnswer: boolean) => {
+    closeAnswerGuide();
+    if (!locateAnswer) return;
+    answerFormRef.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "center",
+    });
+    setHighlightAnswerForm(true);
+    if (answerGuideTimerRef.current !== null) {
+      window.clearTimeout(answerGuideTimerRef.current);
+    }
+    answerGuideTimerRef.current = window.setTimeout(() => {
+      setHighlightAnswerForm(false);
+      answerGuideTimerRef.current = null;
+    }, 2_400);
+  };
+
   return (
     <main className="quest-layout">
       {activeQuest.backgroundImageUrl && (
@@ -709,8 +760,8 @@ export function QuestSessionView({
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <small>
                   {attempt.status === "completed"
-                    ? "完成"
-                    : `第 ${quest.step} 题`}
+                    ? "已完成"
+                    : `第 ${index + 1} 题`}
                 </small>
               </button>
             );
@@ -724,13 +775,13 @@ export function QuestSessionView({
         className="quest-card"
         data-answer-state={activeAttempt.status}
         tabIndex={-1}
-        aria-label={`第 ${activeQuest.step} 题`}
+        aria-label={`第 ${activeQuestionNumber} 题`}
         onPointerMove={updateQuestSpotlight}
         onPointerLeave={hideQuestSpotlight}
         {...swipeHandlers}
       >
         <div className="quest-meta">
-          <span>第 {activeQuest.step} 题</span>
+          <span>第 {activeQuestionNumber} 题</span>
           <span>{activeQuest.kind === "choice" ? "选择题" : "填空题"}</span>
         </div>
         {activeQuest.title && <h1>{activeQuest.title}</h1>}
@@ -749,7 +800,12 @@ export function QuestSessionView({
           </div>
         )}
 
-        <form className="answer-form" onSubmit={handleSubmit}>
+        <form
+          ref={answerFormRef}
+          className="answer-form"
+          data-guide-highlight={highlightAnswerForm || undefined}
+          onSubmit={handleSubmit}
+        >
           {activeQuest.kind === "choice" ? (
             <ChoiceOptions
               questId={activeQuest.id}
@@ -856,6 +912,33 @@ export function QuestSessionView({
           <i />
         </div>
       </article>
+      {showAnswerGuide && (
+        <aside className="answer-guide" aria-label="答题引导">
+          <div className="answer-guide__marker" aria-hidden="true">
+            01
+          </div>
+          <div className="answer-guide__copy">
+            <strong>答案在题目下方</strong>
+            <p>向下阅读题目，在卡片底部填写或选择答案；完成后解锁下一题。</p>
+          </div>
+          <div className="answer-guide__actions">
+            <Button
+              variant="ghost"
+              size="small"
+              onClick={() => dismissAnswerGuide(false)}
+            >
+              知道了
+            </Button>
+            <Button
+              variant="primary"
+              size="small"
+              onClick={() => dismissAnswerGuide(true)}
+            >
+              定位答题区
+            </Button>
+          </div>
+        </aside>
+      )}
       <span className="sr-only" aria-live="polite">
         {isVideoPlaying ? "视频正在播放" : "视频未播放"}
       </span>

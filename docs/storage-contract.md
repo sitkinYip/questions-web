@@ -4,7 +4,7 @@
 
 ## 新命名空间
 
-答题进度使用 `questions:v1:attempt:{userId}:{step}:{revision}`，值为 `{ version: 1, attempt: QuestAttempt }`。背景音乐设置使用 `questions:v1:bgm`，值为 `{ enabled: boolean, position?: { x: number, y: number } }`；位置使用 `0..1` 的视口比例保存，以便桌面与移动端尺寸变化后仍保持在屏幕边界内。
+答题进度使用 `questions:v1:attempt:{userId}:{step}:{revision}`，值为 `{ version: 1, attempt: QuestAttempt }`。背景音乐设置使用 `questions:v1:bgm`，值为 `{ enabled: boolean, position?: { x: number, y: number } }`；位置使用 `0..1` 的视口比例保存，以便桌面与移动端尺寸变化后仍保持在屏幕边界内。多题答题区首访引导使用 `questions:v1:quest-answer-guide:{encodedUserId}`，用户确认或定位答题区后写入 `1`，同一用户后续不再展示。
 
 ## 必须兼容的旧 key
 
