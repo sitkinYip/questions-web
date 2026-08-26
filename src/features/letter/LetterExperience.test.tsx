@@ -198,7 +198,9 @@ describe("LetterExperience", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
 
-    expect(await screen.findByLabelText("第 1 页，共 2 页")).toBeInTheDocument();
+    expect(
+      await screen.findByLabelText("第 1 页，共 2 页"),
+    ).toBeInTheDocument();
   });
 
   it("pauses typing until an automatic page turn finishes", async () => {
@@ -277,10 +279,7 @@ describe("LetterExperience", () => {
     function MockAudio() {
       return voices[voiceIndex++] as unknown as HTMLAudioElement;
     }
-    vi.stubGlobal(
-      "Audio",
-      vi.fn(MockAudio),
-    );
+    vi.stubGlobal("Audio", vi.fn(MockAudio));
     const letter = makeLetter("magic");
     letter.paragraphs = [
       {

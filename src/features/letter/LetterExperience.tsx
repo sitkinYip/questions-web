@@ -230,8 +230,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
           segment.paragraphIndex === paragraphIndex &&
           characterIndex >= segment.start &&
           (characterIndex < segment.end ||
-            (segment.start === segment.end &&
-              characterIndex === segment.end)),
+            (segment.start === segment.end && characterIndex === segment.end)),
       ),
     );
     if (activePage > pageIndex) {
