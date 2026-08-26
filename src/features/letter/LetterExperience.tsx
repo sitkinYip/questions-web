@@ -34,6 +34,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
   const [isFinished, setIsFinished] = useState(false);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [bgmPlaying, setBgmPlaying] = useState(false);
+  const [isVoicePlaying, setIsVoicePlaying] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageDirection, setPageDirection] = useState<"next" | "previous">(
     "next",
@@ -67,12 +68,15 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     voiceRef.current = null;
     voicedParagraphRef.current = -1;
     setBgmPlaying(false);
+    setIsVoicePlaying(false);
   }, []);
 
   useEffect(
     () => () => {
       bgmRef.current?.pause();
       voiceRef.current?.pause();
+      bgmRef.current = null;
+      voiceRef.current = null;
       if (pageTurnTimerRef.current !== null) {
         window.clearTimeout(pageTurnTimerRef.current);
       }
@@ -112,6 +116,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
       );
       return () => window.clearTimeout(timer);
     }
+    if (isVoicePlaying) return;
     if (paragraphIndex < letter.paragraphs.length - 1) {
       const delay = letter.paragraphs[paragraphIndex + 1]?.delayMs ?? 0;
       const timer = window.setTimeout(() => {
@@ -126,6 +131,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     characterIndex,
     isFinished,
     isOpen,
+    isVoicePlaying,
     letter.paragraphs,
     letter.typingSpeedMs,
     paragraphIndex,
@@ -141,13 +147,18 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     voiceRef.current?.pause();
     const voice = new Audio(paragraph.audioUrl);
     voiceRef.current = voice;
+    setIsVoicePlaying(true);
     if (bgmRef.current) bgmRef.current.volume = 0.18;
-    const restoreBgm = () => {
+    const finishVoice = () => {
+      if (voiceRef.current !== voice) return;
+      voiceRef.current = null;
       if (bgmRef.current) bgmRef.current.volume = 0.5;
+      setIsVoicePlaying(false);
     };
-    voice.onended = restoreBgm;
-    voice.onerror = restoreBgm;
-    void voice.play().catch(restoreBgm);
+    voice.onended = finishVoice;
+    voice.onerror = finishVoice;
+    voice.onabort = finishVoice;
+    void voice.play().catch(finishVoice);
   }, [isFinished, isOpen, letter.paragraphs, paragraphIndex]);
 
   const visibleParagraphs = useMemo(

@@ -25,6 +25,7 @@ function makeLetter(variant: LetterVariant): Letter {
 describe("LetterExperience", () => {
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -260,5 +261,77 @@ describe("LetterExperience", () => {
     expect(
       container.querySelector(".letter-paper-current .letter-paragraphs"),
     ).toHaveTextContent("七");
+  });
+
+  it("waits for the current paragraph voice before starting the next paragraph", async () => {
+    vi.useFakeTimers();
+    const voices = [0, 1].map(() => ({
+      onabort: null as (() => void) | null,
+      onended: null as (() => void) | null,
+      onerror: null as (() => void) | null,
+      pause: vi.fn(),
+      play: vi.fn().mockResolvedValue(undefined),
+      volume: 1,
+    }));
+    let voiceIndex = 0;
+    function MockAudio() {
+      return voices[voiceIndex++] as unknown as HTMLAudioElement;
+    }
+    vi.stubGlobal(
+      "Audio",
+      vi.fn(MockAudio),
+    );
+    const letter = makeLetter("magic");
+    letter.paragraphs = [
+      {
+        content: "甲",
+        align: "left",
+        delayMs: 0,
+        audioUrl: "/voice-one.mp3",
+      },
+      {
+        content: "乙",
+        align: "left",
+        delayMs: 0,
+        audioUrl: "/voice-two.mp3",
+      },
+    ];
+    letter.typingSpeedMs = 10;
+    const { container } = render(
+      <MemoryRouter>
+        <LetterExperience letter={letter} returnTo={null} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+
+    expect(
+      Array.from(
+        container.querySelectorAll(
+          ".letter-paper-current .letter-paragraphs p",
+        ),
+        (paragraph) => paragraph.textContent,
+      ),
+    ).toEqual(["甲", ""]);
+    expect(voiceIndex).toBe(1);
+    expect(voices[0].pause).not.toHaveBeenCalled();
+
+    await act(async () => voices[0].onended?.());
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(voiceIndex).toBe(2);
+    expect(voices[1].play).toHaveBeenCalledOnce();
+    expect(voices[0].pause).not.toHaveBeenCalled();
   });
 });
