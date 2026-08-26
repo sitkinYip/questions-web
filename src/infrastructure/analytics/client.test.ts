@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  analyticsUserFromSearch,
   createAnalyticsClient,
   isAnalyticsAllowed,
   summarizeAnalyticsEvent,
@@ -34,6 +35,13 @@ describe("Questions analytics client", () => {
     expect(isAnalyticsAllowed(true, "/questions-next/")).toBe(false);
     expect(isAnalyticsAllowed(true, "/")).toBe(false);
     expect(isAnalyticsAllowed(false, "/questions/")).toBe(false);
+  });
+
+  it("reads only a non-empty user query as the tracking identity", () => {
+    expect(analyticsUserFromSearch("?qa=11&user=alice%20")).toBe("alice");
+    expect(analyticsUserFromSearch("?qa=11")).toBeUndefined();
+    expect(analyticsUserFromSearch("?qa=11&user=%20%20")).toBeUndefined();
+    expect(analyticsUserFromSearch("?qa=11&user=")).toBeUndefined();
   });
 
   it("sends a complete operational context envelope with beacon", () => {
@@ -94,8 +102,8 @@ describe("Questions analytics client", () => {
       createSessionId: () => "session-2",
     });
 
-    expect(client.trackOnce("quest:11", answerEvent)).toBe(true);
-    expect(client.trackOnce("quest:11", answerEvent)).toBe(false);
+    expect(client.trackOnce("quest:11", answerEvent, "alice")).toBe(true);
+    expect(client.trackOnce("quest:11", answerEvent, "alice")).toBe(false);
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0][1]).toMatchObject({
       method: "POST",
@@ -117,9 +125,32 @@ describe("Questions analytics client", () => {
       transport,
     });
 
-    expect(disabled.track(answerEvent)).toBe(false);
-    expect(missingEndpoint.track(answerEvent)).toBe(false);
+    expect(disabled.track(answerEvent, "alice")).toBe(false);
+    expect(missingEndpoint.track(answerEvent, "alice")).toBe(false);
     expect(transport.sendBeacon).not.toHaveBeenCalled();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("never invokes transport without a non-empty user identity", () => {
+    const sendBeacon = vi.fn<(url: string, body: string) => boolean>(
+      () => true,
+    );
+    const fetchMock = vi.fn();
+    const client = createAnalyticsClient({
+      enabled: true,
+      endpoint: "https://events.example/questions",
+      transport: { sendBeacon, fetch: fetchMock },
+      createSessionId: () => "session-user-gate",
+    });
+
+    expect(client.track(answerEvent)).toBe(false);
+    expect(client.track(answerEvent, "   ")).toBe(false);
+    expect(client.trackOnce("quest:11", answerEvent)).toBe(false);
+    expect(sendBeacon).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    expect(client.trackOnce("quest:11", answerEvent, " alice ")).toBe(true);
+    const body = JSON.parse(sendBeacon.mock.calls[0][1]);
+    expect(body.userId).toBe("alice");
   });
 });

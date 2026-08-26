@@ -73,6 +73,11 @@ export function isAnalyticsAllowed(enabled: boolean, baseUrl: string) {
   return enabled && baseUrl === "/questions/";
 }
 
+export function analyticsUserFromSearch(search: string): string | undefined {
+  const userId = new URLSearchParams(search).get("user")?.trim();
+  return userId || undefined;
+}
+
 export function createAnalyticsClient(config: AnalyticsClientConfig) {
   const transport = config.transport ?? browserTransport();
   const now = config.now ?? (() => new Date());
@@ -80,12 +85,13 @@ export function createAnalyticsClient(config: AnalyticsClientConfig) {
   const reportedKeys = new Set<string>();
 
   const track = (event: AnalyticsEvent, userId?: string): boolean => {
-    if (!config.enabled || !config.endpoint) return false;
+    const normalizedUserId = userId?.trim();
+    if (!config.enabled || !config.endpoint || !normalizedUserId) return false;
     const envelope: AnalyticsEnvelope = {
       version: 2,
       sessionId,
       occurredAt: now().toISOString(),
-      ...(userId ? { userId } : {}),
+      userId: normalizedUserId,
       summary: summarizeAnalyticsEvent(event),
       event,
     };
@@ -113,6 +119,7 @@ export function createAnalyticsClient(config: AnalyticsClientConfig) {
   return {
     track,
     trackOnce(key: string, event: AnalyticsEvent, userId?: string) {
+      if (!userId?.trim()) return false;
       if (reportedKeys.has(key)) return false;
       reportedKeys.add(key);
       return track(event, userId);
