@@ -15,12 +15,22 @@
   place-items: center;
 }
 
+.media-viewer-stage[data-swipe-enabled="true"] {
+  touch-action: pan-y pinch-zoom;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .media-viewer-stage > img,
 .media-viewer-stage > video {
   max-width: 100%;
   max-height: calc(100vh - 130px);
   display: block;
   object-fit: contain;
+}
+
+.media-viewer-stage[data-swipe-enabled="true"] > img {
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .media-viewer-close {

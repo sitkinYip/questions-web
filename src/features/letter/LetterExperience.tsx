@@ -1,14 +1,31 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { Letter } from "../../domain/letter/types";
 import {
   trackAnalytics,
   trackAnalyticsOnce,
 } from "../../infrastructure/analytics";
+import {
+  paginateLetterParagraphs,
+  resolveLetterPageSwipe,
+  type LetterPage,
+  type LetterPageDirection,
+  type LetterSwipeAxis,
+} from "./letterPagination";
 
 interface LetterExperienceProps {
   letter: Letter;
   returnTo: string | null;
 }
+
+const PAGE_TURN_DURATION_MS = 920;
 
 export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,9 +34,31 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
   const [isFinished, setIsFinished] = useState(false);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [bgmPlaying, setBgmPlaying] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageDirection, setPageDirection] = useState<"next" | "previous">(
+    "next",
+  );
+  const [previousPageIndex, setPreviousPageIndex] = useState<number | null>(
+    null,
+  );
+  const [pages, setPages] = useState<LetterPage[]>(() => [
+    letter.paragraphs.map((paragraph, paragraphIndex) => ({
+      paragraphIndex,
+      start: 0,
+      end: paragraph.content.length,
+    })),
+  ]);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const voiceRef = useRef<HTMLAudioElement | null>(null);
   const voicedParagraphRef = useRef(-1);
+  const pageSwipeRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+  } | null>(null);
+  const pageTurnTimerRef = useRef<number | null>(null);
+  const pageViewportRef = useRef<HTMLDivElement | null>(null);
+  const paginationMeasureRef = useRef<HTMLDivElement | null>(null);
 
   const stopAudio = useCallback(() => {
     bgmRef.current?.pause();
@@ -34,6 +73,9 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     () => () => {
       bgmRef.current?.pause();
       voiceRef.current?.pause();
+      if (pageTurnTimerRef.current !== null) {
+        window.clearTimeout(pageTurnTimerRef.current);
+      }
     },
     [],
   );
@@ -121,6 +163,79 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     [characterIndex, isFinished, letter.paragraphs, paragraphIndex],
   );
 
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const viewport = pageViewportRef.current;
+    const measure = paginationMeasureRef.current;
+    if (!viewport || !measure) return;
+
+    const repaginate = () => {
+      const bounds = viewport.getBoundingClientRect();
+      if (bounds.width <= 0 || bounds.height <= 0) return;
+      measure.style.width = `${bounds.width}px`;
+      measure.style.height = `${bounds.height}px`;
+
+      const nextPages = paginateLetterParagraphs(
+        letter.paragraphs,
+        (segments) => {
+          measure.replaceChildren();
+          segments.forEach((segment) => {
+            const paragraph = letter.paragraphs[segment.paragraphIndex];
+            const element = document.createElement("p");
+            element.className = `letter-align-${paragraph.align}`;
+            element.textContent = paragraph.content.slice(
+              segment.start,
+              segment.end,
+            );
+            measure.append(element);
+          });
+          return (
+            measure.scrollWidth <= measure.clientWidth + 1 &&
+            measure.scrollHeight <= measure.clientHeight + 1
+          );
+        },
+      );
+      setPages(nextPages);
+      setPageIndex((current) => Math.min(current, nextPages.length - 1));
+    };
+
+    repaginate();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", repaginate);
+      return () => window.removeEventListener("resize", repaginate);
+    }
+    const observer = new ResizeObserver(repaginate);
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [isOpen, letter.paragraphs, letter.variant, pageIndex]);
+
+  useEffect(() => {
+    if (!isOpen || isFinished || paragraphIndex < 0 || pages.length < 2) return;
+    const activePage = pages.findIndex((page) =>
+      page.some(
+        (segment) =>
+          segment.paragraphIndex === paragraphIndex &&
+          characterIndex >= segment.start &&
+          characterIndex <= segment.end,
+      ),
+    );
+    if (activePage > pageIndex) {
+      const timer = window.setTimeout(() => {
+        if (pageTurnTimerRef.current !== null) {
+          window.clearTimeout(pageTurnTimerRef.current);
+        }
+        setPreviousPageIndex(pageIndex);
+        setPageDirection("next");
+        setPageIndex(activePage);
+        pageTurnTimerRef.current = window.setTimeout(() => {
+          setPreviousPageIndex(null);
+          pageTurnTimerRef.current = null;
+        }, PAGE_TURN_DURATION_MS);
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+  }, [characterIndex, isFinished, isOpen, pageIndex, pages, paragraphIndex]);
+
   useEffect(() => {
     if (!isFinished) return;
     trackAnalyticsOnce(`letter:${letter.id}:completed`, {
@@ -169,6 +284,14 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     setCharacterIndex(0);
     setIsFinished(false);
     setBackgroundIndex(0);
+    setPageIndex(0);
+    setPageDirection("next");
+    setPreviousPageIndex(null);
+    if (pageTurnTimerRef.current !== null) {
+      window.clearTimeout(pageTurnTimerRef.current);
+      pageTurnTimerRef.current = null;
+    }
+    pageSwipeRef.current = null;
   };
 
   const toggleBgm = () => {
@@ -190,6 +313,157 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
 
   const paperBackground =
     letter.backgroundImages[backgroundIndex] ?? letter.pageBackgroundUrl;
+  const currentPage = pages[pageIndex] ?? [];
+  const previousPage =
+    previousPageIndex === null ? null : (pages[previousPageIndex] ?? null);
+  const swipeAxis: LetterSwipeAxis =
+    letter.variant === "classical" ? "horizontal" : "vertical";
+  const canTurnPages =
+    isFinished && pages.length > 1 && previousPageIndex === null;
+  const turnPage = useCallback(
+    (direction: LetterPageDirection) => {
+      if (!isFinished || previousPageIndex !== null) return;
+      const nextPage = pageIndex + (direction === "next" ? 1 : -1);
+      if (nextPage < 0 || nextPage >= pages.length) return;
+      if (pageTurnTimerRef.current !== null) {
+        window.clearTimeout(pageTurnTimerRef.current);
+      }
+      setPreviousPageIndex(pageIndex);
+      setPageDirection(direction);
+      setPageIndex(nextPage);
+      pageTurnTimerRef.current = window.setTimeout(() => {
+        setPreviousPageIndex(null);
+        pageTurnTimerRef.current = null;
+      }, PAGE_TURN_DURATION_MS);
+    },
+    [isFinished, pageIndex, pages.length, previousPageIndex],
+  );
+
+  const beginPageSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!canTurnPages || !event.isPrimary || event.pointerType === "mouse") {
+      return;
+    }
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    pageSwipeRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  };
+
+  const finishPageSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const swipe = pageSwipeRef.current;
+    if (!swipe || swipe.pointerId !== event.pointerId) return;
+    pageSwipeRef.current = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    const threshold = Math.min(
+      96,
+      Math.max(
+        48,
+        (swipeAxis === "horizontal"
+          ? event.currentTarget.clientWidth
+          : event.currentTarget.clientHeight) * 0.12,
+      ),
+    );
+    const direction = resolveLetterPageSwipe(
+      swipeAxis,
+      event.clientX - swipe.startX,
+      event.clientY - swipe.startY,
+      threshold,
+    );
+    if (direction) turnPage(direction);
+  };
+
+  const cancelPageSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (pageSwipeRef.current?.pointerId === event.pointerId) {
+      pageSwipeRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen || !canTurnPages) return;
+    const handlePageKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") turnPage("previous");
+      if (event.key === "ArrowRight") turnPage("next");
+    };
+    document.addEventListener("keydown", handlePageKeyDown);
+    return () => document.removeEventListener("keydown", handlePageKeyDown);
+  }, [canTurnPages, isOpen, turnPage]);
+
+  const renderPaperSheet = (
+    page: LetterPage,
+    renderedPageIndex: number,
+    state: "current" | "turning",
+  ) => {
+    const isCurrentSheet = state === "current";
+    return (
+      <div
+        key={`${letter.id}:${state}:page:${renderedPageIndex}`}
+        className={`letter-paper letter-paper-${state} ${
+          isCurrentSheet && previousPage !== null ? "is-revealed" : ""
+        }`}
+        data-page-direction={pageDirection}
+        data-swipe-axis={swipeAxis}
+        data-swipe-enabled={isCurrentSheet && canTurnPages ? "true" : "false"}
+        onPointerDown={isCurrentSheet ? beginPageSwipe : undefined}
+        onPointerUp={isCurrentSheet ? finishPageSwipe : undefined}
+        onPointerCancel={isCurrentSheet ? cancelPageSwipe : undefined}
+        aria-hidden={isCurrentSheet ? undefined : true}
+        aria-describedby={
+          isCurrentSheet && pages.length > 1
+            ? "letter-page-gesture-instructions"
+            : undefined
+        }
+      >
+        {paperBackground && (
+          <img
+            className="letter-paper-image"
+            src={paperBackground}
+            alt=""
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        )}
+        <div className="letter-paper-frame" aria-hidden="true" />
+        <div className="letter-paper-content">
+          <header>
+            <p className="eyebrow">{letter.variant} letter</p>
+            {letter.title && <h1>{letter.title}</h1>}
+            {letter.description && <p>{letter.description}</p>}
+          </header>
+          <div
+            ref={isCurrentSheet ? pageViewportRef : undefined}
+            className="letter-paragraphs"
+            aria-live={isCurrentSheet ? "polite" : undefined}
+          >
+            {page.map((segment) => {
+              const paragraph = visibleParagraphs[segment.paragraphIndex];
+              const visibleEnd = Math.min(
+                segment.end,
+                paragraph.visibleContent.length,
+              );
+              const showsCursor =
+                isCurrentSheet &&
+                !isFinished &&
+                segment.paragraphIndex === paragraphIndex &&
+                characterIndex >= segment.start &&
+                characterIndex <= segment.end;
+              return (
+                <p
+                  key={`${letter.id}:page:${renderedPageIndex}:paragraph:${segment.paragraphIndex}:${segment.start}`}
+                  className={`letter-align-${paragraph.align}`}
+                >
+                  {paragraph.visibleContent.slice(segment.start, visibleEnd)}
+                  {showsCursor && (
+                    <span className="letter-cursor" aria-hidden="true" />
+                  )}
+                </p>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <main
@@ -226,45 +500,98 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
         </button>
       ) : (
         <section
-          className="letter-paper"
+          className="letter-reader"
           aria-label={letter.title || "信件内容"}
         >
-          {paperBackground && (
-            <img
-              className="letter-paper-image"
-              src={paperBackground}
-              alt=""
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          )}
-          <div className="letter-paper-frame" aria-hidden="true" />
-          <header>
-            <p className="eyebrow">{letter.variant} letter</p>
-            {letter.title && <h1>{letter.title}</h1>}
-            {letter.description && <p>{letter.description}</p>}
-          </header>
-          <div className="letter-paragraphs" aria-live="polite">
-            {visibleParagraphs.map((paragraph, index) => (
-              <p
-                key={`${letter.id}:paragraph:${index}`}
-                className={`letter-align-${paragraph.align}`}
-              >
-                {paragraph.visibleContent}
-                {!isFinished && index === paragraphIndex && (
-                  <span className="letter-cursor" aria-hidden="true" />
-                )}
-              </p>
-            ))}
-          </div>
-          <footer className="letter-controls">
-            {!isFinished && (
-              <button type="button" onClick={skipTyping}>
-                显示全文
-              </button>
+          <div
+            className="letter-paper-stack"
+            data-swipe-axis={swipeAxis}
+            data-turning={previousPage === null ? "false" : "true"}
+          >
+            {renderPaperSheet(currentPage, pageIndex, "current")}
+            {previousPage !== null &&
+              renderPaperSheet(
+                previousPage,
+                previousPageIndex ?? pageIndex,
+                "turning",
+              )}
+            {previousPage !== null && (
+              <span
+                className="letter-paper-curl"
+                data-page-direction={pageDirection}
+                data-swipe-axis={swipeAxis}
+                aria-hidden="true"
+              />
             )}
-            <button type="button" onClick={closeLetter}>
-              收起信件
-            </button>
+          </div>
+          <div
+            ref={paginationMeasureRef}
+            className="letter-paragraphs letter-pagination-measure"
+            data-flow={
+              letter.variant === "classical" ? "vertical" : "horizontal"
+            }
+            aria-hidden="true"
+          />
+          <footer className="letter-controls">
+            {pages.length > 1 && (
+              <div
+                className="letter-page-navigation"
+                data-locked={canTurnPages ? "false" : "true"}
+              >
+                <button
+                  type="button"
+                  disabled={!canTurnPages || pageIndex === 0}
+                  title={
+                    !isFinished
+                      ? "全文显示后可翻页"
+                      : previousPage !== null
+                        ? "翻页中"
+                        : undefined
+                  }
+                  onClick={() => turnPage("previous")}
+                >
+                  上一页
+                </button>
+                <span
+                  aria-label={`第 ${pageIndex + 1} 页，共 ${pages.length} 页`}
+                >
+                  {pageIndex + 1} / {pages.length}
+                </span>
+                <button
+                  type="button"
+                  disabled={!canTurnPages || pageIndex === pages.length - 1}
+                  title={
+                    !isFinished
+                      ? "全文显示后可翻页"
+                      : previousPage !== null
+                        ? "翻页中"
+                        : undefined
+                  }
+                  onClick={() => turnPage("next")}
+                >
+                  下一页
+                </button>
+              </div>
+            )}
+            {pages.length > 1 && (
+              <span id="letter-page-gesture-instructions" className="sr-only">
+                {isFinished
+                  ? swipeAxis === "horizontal"
+                    ? "可左右滑动翻页。"
+                    : "可上下滑动翻页。"
+                  : "打字完成或显示全文后可以翻页。"}
+              </span>
+            )}
+            <div className="letter-actions">
+              {!isFinished && (
+                <button type="button" onClick={skipTyping}>
+                  显示全文
+                </button>
+              )}
+              <button type="button" onClick={closeLetter}>
+                收起信件
+              </button>
+            </div>
           </footer>
         </section>
       )}

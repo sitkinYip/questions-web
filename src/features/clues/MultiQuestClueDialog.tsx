@@ -24,7 +24,7 @@ export function MultiQuestClueDialog({
       onOpenChange={(nextOpen) => {
         if (!nextOpen) onClose();
       }}
-      accessibleTitle={clue.title || "隐藏的组合线索"}
+      accessibleTitle={clue.title || "隐藏的本场线索"}
       overlayClassName="multi-clue-backdrop"
       contentClassName="multi-clue-dialog"
       closeOnOutside={false}
@@ -34,11 +34,13 @@ export function MultiQuestClueDialog({
         <i />
         <i />
       </div>
-      <p className="eyebrow">Combined revelation</p>
-      <h2 id="multi-clue-title">{clue.title || "隐藏的组合线索"}</h2>
-      <RichContent source={clue.content} className="multi-clue-content" />
+      <div className="multi-clue-dialog-scroll">
+        <p className="eyebrow">Combined revelation</p>
+        <h2 id="multi-clue-title">{clue.title || "隐藏的本场线索"}</h2>
+        <RichContent source={clue.content} className="multi-clue-content" />
+      </div>
       <footer>
-        <p>{clue.description || "该组合线索会保留在当前会话中。"}</p>
+        <p>{clue.description || "该本场线索会保留在当前会话中。"}</p>
         <Button variant="primary" onClick={onClose}>
           {clue.buttonText || "我知道了"}
         </Button>

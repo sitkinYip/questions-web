@@ -50,6 +50,8 @@
 .letter-page {
   --letter-accent: #b49558;
   --letter-ink: #302d28;
+  --letter-paper-edge: #a89b7e;
+  --letter-paper-surface: #e7dfcc;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -184,18 +186,34 @@
   letter-spacing: 0.08em;
 }
 
-.letter-paper {
+.letter-reader {
   position: relative;
   width: min(780px, calc(100vw - 38px));
-  max-height: calc(100vh - 74px);
-  min-height: min(760px, calc(100vh - 74px));
-  overflow: auto;
+  height: min(860px, calc(100vh - 74px));
+  height: min(860px, calc(100svh - 74px));
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 18px;
+}
+
+.letter-paper {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  overflow: hidden;
   padding: clamp(38px, 7vw, 76px);
   color: var(--letter-ink);
-  background: #e7dfcc;
-  border: 1px solid #a89b7e;
-  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.48);
-  animation: paper-open 650ms cubic-bezier(0.18, 0.8, 0.25, 1) both;
+  background: var(--letter-paper-surface);
+  border: 1px solid var(--letter-paper-edge);
+  box-shadow:
+    0 2px 2px rgb(30 22 13 / 14%),
+    0 18px 48px rgb(0 0 0 / 28%);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity, filter;
 }
 
 .letter-paper-image {
@@ -216,14 +234,21 @@
   pointer-events: none;
 }
 
-.letter-paper > header,
-.letter-paragraphs,
-.letter-controls {
+.letter-paper-content,
+.letter-paragraphs {
   position: relative;
   z-index: 1;
 }
 
-.letter-paper > header {
+.letter-paper-content {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.letter-paper-content > header {
   padding-bottom: 26px;
   border-bottom: 1px solid rgba(65, 56, 41, 0.18);
 }
@@ -235,14 +260,16 @@
   letter-spacing: -0.035em;
 }
 
-.letter-paper header > p:last-child:not(.eyebrow) {
+.letter-paper-content header > p:last-child:not(.eyebrow) {
   margin: 12px 0 0;
   color: color-mix(in srgb, var(--letter-ink) 68%, transparent);
 }
 
 .letter-paragraphs {
-  min-height: 300px;
+  min-width: 0;
+  min-height: 0;
   padding: 30px 0 16px;
+  overflow: hidden;
 }
 
 .letter-paragraphs p {
@@ -251,7 +278,9 @@
   font-family: Georgia, "Noto Serif SC", serif;
   font-size: clamp(17px, 2.6vw, 21px);
   line-height: 1.9;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .letter-align-center {
@@ -279,20 +308,85 @@
 }
 
 .letter-controls {
+  position: relative;
+  z-index: 5;
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 18px;
+  padding: 11px 13px;
+  color: #d9d4c8;
+  background: rgb(14 15 12 / 78%);
+  border: 1px solid color-mix(in srgb, var(--letter-accent) 34%, #37382f);
+  box-shadow: 0 14px 38px rgb(0 0 0 / 24%);
+  backdrop-filter: blur(14px);
+}
+
+.letter-page-navigation,
+.letter-actions {
+  display: flex;
+  align-items: center;
   gap: 10px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(65, 56, 41, 0.18);
+}
+
+.letter-page-navigation > span {
+  min-width: 54px;
+  color: #aaa79f;
+  font:
+    12px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.letter-actions {
+  justify-content: flex-end;
 }
 
 .letter-controls button {
   min-height: 42px;
   padding: 0 16px;
-  color: var(--letter-ink);
+  color: #ded9ce;
   background: transparent;
-  border: 1px solid color-mix(in srgb, var(--letter-ink) 32%, transparent);
+  border: 1px solid color-mix(in srgb, var(--letter-accent) 46%, #484942);
   cursor: pointer;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.letter-controls button:not(:disabled):hover {
+  color: #fffdf7;
+  background: color-mix(in srgb, var(--letter-accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--letter-accent) 72%, #5a5b52);
+}
+
+.letter-controls button:not(:disabled):active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.letter-controls button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--letter-accent) 72%, white);
+  outline-offset: 3px;
+}
+
+.letter-controls button:disabled {
+  opacity: 0.34;
+  cursor: not-allowed;
+}
+
+.letter-pagination-measure {
+  position: fixed !important;
+  top: -10000px;
+  left: -10000px;
+  z-index: -10 !important;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .letter-audio {
@@ -317,6 +411,8 @@
 .letter-classical {
   --letter-accent: #9d392f;
   --letter-ink: #352820;
+  --letter-paper-edge: #ad9061;
+  --letter-paper-surface: #e4d2aa;
 }
 
 .letter-classical .letter-envelope {
@@ -336,21 +432,17 @@
   color: #f0cf9e;
 }
 
-.letter-classical .letter-paper {
-  background: #e4d2aa;
-}
-
 .letter-classical .letter-paragraphs {
-  min-height: 440px;
   display: flex;
   flex-direction: row-reverse;
   align-items: flex-start;
   gap: 22px;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .letter-classical .letter-paragraphs p {
-  max-height: 410px;
+  height: 100%;
+  max-height: 100%;
   margin: 0;
   writing-mode: vertical-rl;
   text-orientation: upright;
@@ -360,6 +452,8 @@
 .letter-magic {
   --letter-accent: #61a99b;
   --letter-ink: #dcebe5;
+  --letter-paper-edge: #46756c;
+  --letter-paper-surface: #10211f;
   background: #070d0d;
 }
 
@@ -397,13 +491,7 @@
   box-shadow: 0 0 28px rgba(89, 190, 171, 0.42);
 }
 
-.letter-magic .letter-paper {
-  background: #10211f;
-  border-color: #46756c;
-}
-
-.letter-magic .letter-paper > header,
-.letter-magic .letter-controls {
+.letter-magic .letter-paper-content > header {
   border-color: rgba(127, 188, 175, 0.2);
 }
 
@@ -417,10 +505,14 @@
     left: 14px;
   }
 
-  .letter-paper {
+  .letter-reader {
     width: 100%;
-    max-height: calc(100vh - 66px);
-    min-height: calc(100vh - 66px);
+    height: calc(100vh - 66px);
+    height: calc(100svh - 66px);
+    gap: 12px;
+  }
+
+  .letter-paper {
     padding: 48px 30px 32px;
   }
 
@@ -428,8 +520,15 @@
     inset: 13px;
   }
 
-  .letter-classical .letter-paragraphs {
-    min-height: 52vh;
+  .letter-controls {
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .letter-page-navigation,
+  .letter-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .letter-audio {
@@ -453,7 +552,9 @@
   }
 
   .letter-envelope,
-  .letter-paper,
+  .letter-paper-stack,
+  .letter-paper-current,
+  .letter-paper-turning,
   .letter-audio,
   .letter-cursor {
     animation: none;

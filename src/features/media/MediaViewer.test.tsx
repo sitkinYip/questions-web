@@ -27,7 +27,7 @@ describe("MediaViewer", () => {
 
   it("reports video play, pause and ended states", () => {
     const onVideoPlayingChange = vi.fn();
-    const { container } = render(
+    render(
       <MediaViewer
         state={{ type: "video", url: "https://video.example/movie.mp4" }}
         onClose={vi.fn()}
@@ -35,11 +35,78 @@ describe("MediaViewer", () => {
         onVideoPlayingChange={onVideoPlayingChange}
       />,
     );
-    const video = container.ownerDocument.querySelector("video");
+    const video = document.querySelector("video");
     expect(video).not.toBeNull();
     fireEvent.play(video!);
     fireEvent.pause(video!);
     fireEvent.ended(video!);
     expect(onVideoPlayingChange.mock.calls).toEqual([[true], [false], [false]]);
+  });
+
+  it("navigates with deliberate horizontal touch swipes", () => {
+    const onImageIndexChange = vi.fn();
+    render(
+      <MediaViewer
+        state={{
+          type: "images",
+          urls: [
+            "https://img.example/1.jpg",
+            "https://img.example/2.jpg",
+            "https://img.example/3.jpg",
+          ],
+          index: 1,
+        }}
+        onClose={vi.fn()}
+        onImageIndexChange={onImageIndexChange}
+        onVideoPlayingChange={vi.fn()}
+      />,
+    );
+    const stage = document.querySelector<HTMLElement>(".media-viewer-stage");
+    expect(stage).not.toBeNull();
+
+    fireEvent.pointerDown(stage!, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 240,
+      clientY: 100,
+    });
+    fireEvent.pointerUp(stage!, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 120,
+      clientY: 108,
+    });
+    fireEvent.pointerDown(stage!, {
+      pointerId: 2,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 120,
+      clientY: 100,
+    });
+    fireEvent.pointerUp(stage!, {
+      pointerId: 2,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 240,
+      clientY: 108,
+    });
+    fireEvent.pointerDown(stage!, {
+      pointerId: 3,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 100,
+      clientY: 100,
+    });
+    fireEvent.pointerUp(stage!, {
+      pointerId: 3,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 130,
+      clientY: 220,
+    });
+
+    expect(onImageIndexChange.mock.calls).toEqual([[2], [0]]);
   });
 });

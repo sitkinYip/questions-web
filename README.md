@@ -12,7 +12,7 @@ Questions 的独立 React 重写工程。旧 `home` 项目的线上 Questions �
 - 已实现旧内容标记的安全 AST 解析与 React 渲染，不使用 HTML 注入。
 - 已支持题目图片/图片组、选择题媒体和统一全屏图片/视频查看器。
 - 已支持五类通关线索、首条 `AutoPlay` 以及安全的 Letter/链接跳转。
-- 已实现多题顺序解锁、延迟 `autoNext`、恢复至首道未完成题和全部完成后的组合线索。
+- 已实现多题顺序解锁、延迟 `autoNext`、恢复至首道未完成题和全部完成后的本场线索。
 - 已实现最终关优先反馈、最终 AutoPlay 时序及 `FinalLevelConfig` 安全继续入口。
 - 已实现 Letter 真实数据、modern/classical/magic 三种信件、逐段打字/配音/BGM 和安全返回。
 - 已接管 `/bless` 专属星空，支持 Phrase 叙事、粒子文字、逐段配音、循环 BGM、谢幕与安全返回。

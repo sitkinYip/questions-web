@@ -173,7 +173,7 @@
   border-radius: 50%;
 }
 
-.clue-dialog > :not(.clue-dialog-sigil),
+.clue-dialog > :not(.clue-dialog-sigil, .clue-dialog-close),
 .multi-clue-dialog > :not(.multi-clue-aura),
 .notification-dialog > :not(.notification-signal) {
   position: relative;
@@ -184,15 +184,14 @@
 .clue-dialog h2,
 .clue-dialog-rule,
 .clue-dialog-content,
-.multi-clue-dialog > .eyebrow,
-.multi-clue-dialog > h2,
-.multi-clue-content,
-.multi-clue-dialog > footer {
+.multi-clue-dialog .eyebrow,
+.multi-clue-dialog h2,
+.multi-clue-content {
   animation: overlay-content-rise 760ms var(--motion-impact) both;
 }
 
 .clue-dialog h2,
-.multi-clue-dialog > h2 {
+.multi-clue-dialog h2 {
   animation-delay: 70ms;
 }
 
@@ -201,8 +200,7 @@
   animation-delay: 130ms;
 }
 
-.clue-dialog-content,
-.multi-clue-dialog > footer {
+.clue-dialog-content {
   animation-delay: 190ms;
 }
 
@@ -279,7 +277,7 @@
 }
 
 .notification-dialog {
-  overflow: hidden auto;
+  overflow: hidden;
   box-shadow:
     0 42px 150px rgba(7, 4, 10, 0.68),
     0 0 94px rgba(142, 96, 162, 0.14),
@@ -332,8 +330,7 @@
 }
 
 .notification-dialog header > *,
-.notification-content,
-.notification-dialog footer {
+.notification-content {
   animation: overlay-content-rise 720ms var(--motion-impact) both;
 }
 
@@ -347,10 +344,6 @@
 
 .notification-content {
   animation-delay: 170ms;
-}
-
-.notification-dialog footer {
-  animation-delay: 240ms;
 }
 
 .notification-segment {

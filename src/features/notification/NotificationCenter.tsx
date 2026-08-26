@@ -1,5 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { Notification } from "../../domain/notification/types";
+import { createNotificationLauncherPositionRepository } from "../../infrastructure/storage/notification.repository";
+import { useDraggableFloatingControl } from "../../shared/gestures/useDraggableFloatingControl";
 import { NotificationDialog } from "./NotificationDialog";
 import { useNotifications } from "./useNotifications";
 
@@ -36,6 +38,36 @@ export function NotificationCenter({
   const [manualNotification, setManualNotification] =
     useState<Notification | null>(null);
   const [isListOpen, setIsListOpen] = useState(false);
+  const launcherPositionRepository = useMemo(
+    () => createNotificationLauncherPositionRepository(window.localStorage),
+    [],
+  );
+  const initialLauncherPosition = useMemo(
+    () => launcherPositionRepository.load() ?? { x: 0, y: 1 },
+    [launcherPositionRepository],
+  );
+  const saveLauncherPosition = useCallback(
+    (position: { x: number; y: number }) => {
+      try {
+        launcherPositionRepository.save(position);
+      } catch {
+        // The launcher remains draggable when storage is unavailable.
+      }
+    },
+    [launcherPositionRepository],
+  );
+  const {
+    controlRef,
+    isDragging,
+    position: launcherPosition,
+    style: launcherStyle,
+    handlers: launcherDragHandlers,
+    consumeSuppressedClick,
+  } = useDraggableFloatingControl({
+    initialPosition: initialLauncherPosition,
+    fallbackSize: 54,
+    onPositionCommit: saveLauncherPosition,
+  });
   const active = manualNotification ?? current;
   const visibleNotification = blocked ? null : active;
   const closeDialog = useCallback(() => {
@@ -47,8 +79,11 @@ export function NotificationCenter({
     <>
       {notifications.length > 0 && !blocked && !active && (
         <aside
-          className="notification-launcher"
+          className={`notification-launcher ${isDragging ? "is-dragging" : ""}`}
+          style={launcherStyle}
           data-state={isListOpen ? "open" : "closed"}
+          data-horizontal={launcherPosition.x < 0.5 ? "left" : "right"}
+          data-vertical={launcherPosition.y < 0.5 ? "below" : "above"}
         >
           {isListOpen && (
             <div
@@ -105,12 +140,19 @@ export function NotificationCenter({
             </div>
           )}
           <button
+            ref={controlRef}
             type="button"
             className="notification-bell"
+            {...launcherDragHandlers}
             aria-label={isListOpen ? "关闭通知列表" : "打开通知列表"}
             aria-expanded={isListOpen}
             aria-controls="notification-archive"
-            onClick={() => setIsListOpen((currentState) => !currentState)}
+            aria-describedby="notification-drag-instructions"
+            onClick={() => {
+              if (!consumeSuppressedClick()) {
+                setIsListOpen((currentState) => !currentState);
+              }
+            }}
           >
             <span className="notification-bell-signal" aria-hidden="true">
               <i />
@@ -121,6 +163,9 @@ export function NotificationCenter({
               {notifications.length > 9 ? "9+" : notifications.length}
             </strong>
           </button>
+          <span id="notification-drag-instructions" className="sr-only">
+            可拖拽移动；键盘用户可按 Alt 加方向键调整位置。
+          </span>
         </aside>
       )}
       <NotificationDialog

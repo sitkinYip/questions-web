@@ -72,7 +72,7 @@ export async function mockQuestionsApi(page: Page) {
             id: "combined-11-12",
             qas: "11,12",
             title: "星辰组合真相",
-            content: "[[组合线索已经解锁]]",
+            content: "[[本场线索已经解锁]]",
             buttonText: "收下线索",
             desc: "两道谜题的共同答案",
             updated: "2026-08-25 10:00:00.000Z",

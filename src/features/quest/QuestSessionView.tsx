@@ -882,7 +882,7 @@ export function QuestSessionView({
             className="multi-clue-launcher"
             onClick={() => setIsMultiClueOpen(true)}
           >
-            查看组合线索
+            查看本场线索
           </Button>
         )}
       <MultiQuestClueDialog

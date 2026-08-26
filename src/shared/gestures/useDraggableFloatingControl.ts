@@ -148,6 +148,7 @@ export function useDraggableFloatingControl({
   return {
     controlRef,
     isDragging,
+    position,
     style: { left: pixels.left, top: pixels.top } satisfies CSSProperties,
     handlers: {
       onPointerDown,

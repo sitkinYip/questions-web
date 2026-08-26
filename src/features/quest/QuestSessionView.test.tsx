@@ -204,7 +204,7 @@ describe("QuestSessionView", () => {
           id: "combined-11-12",
           qas: "11,12",
           title: "两题共同真相",
-          content: "[[组合线索已解锁]]",
+          content: "[[本场线索已解锁]]",
           buttonText: "收下线索",
           revision: "r1",
         }}
@@ -226,10 +226,10 @@ describe("QuestSessionView", () => {
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "查看组合结果" }));
     const dialog = screen.getByRole("dialog", { name: "两题共同真相" });
-    expect(within(dialog).getByText("组合线索已解锁")).toBeInTheDocument();
+    expect(within(dialog).getByText("本场线索已解锁")).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole("button", { name: "收下线索" }));
     expect(
-      screen.getByRole("button", { name: "查看组合线索" }),
+      screen.getByRole("button", { name: "查看本场线索" }),
     ).toBeInTheDocument();
   });
 
@@ -302,7 +302,7 @@ describe("QuestSessionView", () => {
         multiQuestClue={{
           id: "final-combined",
           qas: "11,52",
-          title: "最终组合线索",
+          title: "最终本场线索",
           content: "最终组合已经解锁",
           revision: "r1",
         }}
@@ -327,7 +327,7 @@ describe("QuestSessionView", () => {
     ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "揭示最终线索" }));
     expect(
-      screen.getByRole("dialog", { name: "最终组合线索" }),
+      screen.getByRole("dialog", { name: "最终本场线索" }),
     ).toBeInTheDocument();
   });
 

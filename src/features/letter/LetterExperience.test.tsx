@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Letter, LetterVariant } from "../../domain/letter/types";
 import { LetterExperience } from "./LetterExperience";
 
@@ -23,6 +23,8 @@ function makeLetter(variant: LetterVariant): Letter {
 }
 
 describe("LetterExperience", () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it.each(["modern", "classical", "magic"] as const)(
     "opens and renders the %s presentation",
     (variant) => {
@@ -37,6 +39,18 @@ describe("LetterExperience", () => {
       expect(
         screen.getByRole("region", { name: `${variant} 来信` }),
       ).toBeInTheDocument();
+      expect(
+        container.querySelector(".letter-pagination-measure"),
+      ).toHaveAttribute(
+        "data-flow",
+        variant === "classical" ? "vertical" : "horizontal",
+      );
+      expect(
+        container.querySelector(".letter-controls")?.parentElement,
+      ).toHaveClass("letter-reader");
+      expect(
+        container.querySelector(".letter-paper .letter-controls"),
+      ).not.toBeInTheDocument();
       fireEvent.click(screen.getByRole("button", { name: "显示全文" }));
       expect(screen.getByText("第一段内容")).toBeInTheDocument();
       expect(screen.getByText("第二段内容")).toBeInTheDocument();
@@ -62,5 +76,73 @@ describe("LetterExperience", () => {
     expect(
       screen.getByRole("link", { name: "← 返回冒险" }),
     ).toBeInTheDocument();
+  });
+
+  it("locks manual page turns while typing and unlocks them after showing all", async () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      width: 300,
+      height: 120,
+      top: 0,
+      right: 300,
+      bottom: 120,
+      left: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(300);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(120);
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(300);
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockImplementation(
+      function (this: HTMLElement) {
+        return this.classList.contains("letter-pagination-measure") &&
+          (this.textContent?.length ?? 0) > 6
+          ? 240
+          : 100;
+      },
+    );
+    const letter = makeLetter("modern");
+    letter.paragraphs = [
+      { content: "一二三四五六七八九十十一十二", align: "left", delayMs: 0 },
+    ];
+    letter.typingSpeedMs = 10_000;
+    const { container } = render(
+      <MemoryRouter>
+        <LetterExperience letter={letter} returnTo={null} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
+    const nextButton = await screen.findByRole("button", { name: "下一页" });
+    const firstPage = container.querySelector<HTMLElement>(
+      ".letter-paper-current",
+    );
+    expect(nextButton).toBeDisabled();
+    expect(firstPage).toHaveAttribute("data-swipe-enabled", "false");
+
+    fireEvent.click(screen.getByRole("button", { name: "显示全文" }));
+    expect(nextButton).toBeEnabled();
+    expect(firstPage).toHaveAttribute("data-swipe-enabled", "true");
+    fireEvent.pointerDown(firstPage!, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 150,
+      clientY: 100,
+    });
+    fireEvent.pointerUp(firstPage!, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 150,
+      clientY: 20,
+    });
+
+    expect(screen.getByLabelText(/第 2 页/)).toBeInTheDocument();
+    expect(
+      container.querySelector(".letter-paper-turning"),
+    ).toBeInTheDocument();
+    expect(container.querySelector(".letter-paper-curl")).toBeInTheDocument();
+    expect(container.querySelectorAll(".letter-paper")).toHaveLength(2);
   });
 });

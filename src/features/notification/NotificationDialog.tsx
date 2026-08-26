@@ -72,90 +72,92 @@ export function NotificationDialog({
         <i />
         <i />
       </div>
-      <header>
-        <p className="eyebrow">Incoming transmission</p>
-        <h2 id="notification-dialog-title">
-          {notification.popupTitle || "✨ 魔法通知 ✨"}
-        </h2>
-        {notification.title && <p>{notification.title}</p>}
-      </header>
-      <div className="notification-content">
-        {segments.map((segment, index) => {
-          const key = `${segment.type}-${index}`;
-          if (segment.type === "text")
-            return (
-              <span className="notification-segment" key={key}>
-                {segment.content}
-              </span>
-            );
-          if (segment.type === "highlight")
-            return (
-              <mark className="notification-segment" key={key}>
-                {segment.content}
-              </mark>
-            );
-          if (segment.type === "break") return <br key={key} />;
-          if (segment.type === "link")
-            return segment.target === "internal" ? (
-              <Link
-                className="notification-segment"
-                key={key}
-                to={segment.href}
-              >
-                {segment.content}
-              </Link>
-            ) : (
-              <a
-                key={key}
-                className="notification-segment"
-                href={segment.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {segment.content}
-              </a>
-            );
-          if (segment.type === "image")
+      <div className="notification-dialog-scroll">
+        <header>
+          <p className="eyebrow">Incoming transmission</p>
+          <h2 id="notification-dialog-title">
+            {notification.popupTitle || "✨ 魔法通知 ✨"}
+          </h2>
+          {notification.title && <p>{notification.title}</p>}
+        </header>
+        <div className="notification-content">
+          {segments.map((segment, index) => {
+            const key = `${segment.type}-${index}`;
+            if (segment.type === "text")
+              return (
+                <span className="notification-segment" key={key}>
+                  {segment.content}
+                </span>
+              );
+            if (segment.type === "highlight")
+              return (
+                <mark className="notification-segment" key={key}>
+                  {segment.content}
+                </mark>
+              );
+            if (segment.type === "break") return <br key={key} />;
+            if (segment.type === "link")
+              return segment.target === "internal" ? (
+                <Link
+                  className="notification-segment"
+                  key={key}
+                  to={segment.href}
+                >
+                  {segment.content}
+                </Link>
+              ) : (
+                <a
+                  key={key}
+                  className="notification-segment"
+                  href={segment.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {segment.content}
+                </a>
+              );
+            if (segment.type === "image")
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className="notification-media notification-segment"
+                  onClick={() => onOpenImages([segment.url])}
+                  aria-label="查看通知图片"
+                >
+                  <img
+                    src={segment.url}
+                    alt="通知内容"
+                    loading="lazy"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                </button>
+              );
             return (
               <button
                 key={key}
                 type="button"
-                className="notification-media notification-segment"
-                onClick={() => onOpenImages([segment.url])}
-                aria-label="查看通知图片"
+                className="notification-media notification-video notification-segment"
+                onClick={() => onOpenVideo(segment.url, segment.poster)}
+                aria-label="播放通知视频"
               >
-                <img
-                  src={segment.url}
-                  alt="通知内容"
-                  loading="lazy"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
+                {segment.poster ? (
+                  <img
+                    src={segment.poster}
+                    alt="通知视频封面"
+                    loading="lazy"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                ) : (
+                  <span className="video-placeholder">点击播放视频</span>
+                )}
+                <span className="play-badge" aria-hidden="true">
+                  ▶
+                </span>
               </button>
             );
-          return (
-            <button
-              key={key}
-              type="button"
-              className="notification-media notification-video notification-segment"
-              onClick={() => onOpenVideo(segment.url, segment.poster)}
-              aria-label="播放通知视频"
-            >
-              {segment.poster ? (
-                <img
-                  src={segment.poster}
-                  alt="通知视频封面"
-                  loading="lazy"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
-              ) : (
-                <span className="video-placeholder">点击播放视频</span>
-              )}
-              <span className="play-badge" aria-hidden="true">
-                ▶
-              </span>
-            </button>
-          );
-        })}
+          })}
+        </div>
       </div>
       <footer>
         <span>{queuedCount > 1 ? `还有 ${queuedCount - 1} 条讯息` : ""}</span>

@@ -29,8 +29,10 @@ const expectedImports = [
   "features/records.css",
   "features/rank.css",
   "features/letter.css",
+  "features/letter-page-turn.css",
   "features/bless.css",
   "effects/keyframes.css",
+  "effects/letter-keyframes.css",
   "effects/bless-keyframes.css",
 ];
 

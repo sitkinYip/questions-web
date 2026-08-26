@@ -13,8 +13,10 @@
   position: relative;
   width: min(640px, 100%);
   max-height: calc(100vh - 48px);
-  overflow: auto;
-  padding: clamp(30px, 6vw, 58px);
+  max-height: calc(100svh - 48px);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
   background:
     radial-gradient(
       circle at 50% 0%,
@@ -24,6 +26,17 @@
     #171419;
   border: 1px solid #62526c;
   box-shadow: 0 30px 100px rgba(0, 0, 0, 0.52);
+}
+
+.notification-dialog-scroll {
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(30px, 6vw, 58px);
+  padding-bottom: 30px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .notification-dialog header {
@@ -46,10 +59,14 @@
 }
 
 .notification-content {
+  min-width: 0;
+  max-width: 100%;
   margin-top: 26px;
   color: #c6bdc8;
   line-height: 1.9;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .notification-content mark {
@@ -89,28 +106,46 @@
 }
 
 .notification-dialog footer {
+  z-index: 2;
+  width: 100%;
+  align-self: end;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  margin-top: 30px;
-  padding-top: 20px;
+  padding: 18px clamp(20px, 6vw, 58px);
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  background: rgba(23, 20, 25, 0.96);
   border-top: 1px solid #3e3444;
+  box-shadow: 0 -18px 42px rgba(7, 4, 10, 0.24);
+  backdrop-filter: blur(14px);
 }
 
 .notification-dialog footer > span {
+  min-width: 0;
+  flex: 1;
   color: #786d7c;
   font-size: 12px;
+}
+
+.notification-dialog footer .ui-button {
+  flex: none;
+  min-height: 46px;
 }
 
 .notification-launcher {
   position: fixed;
   z-index: 900;
-  left: max(20px, calc((100vw - 920px) / 2));
-  bottom: 24px;
-  display: grid;
-  justify-items: start;
-  gap: 12px;
+  width: 54px;
+  height: 54px;
+  transition:
+    left 240ms var(--motion-impact),
+    top 200ms var(--motion-impact);
+  will-change: left, top;
+}
+
+.notification-launcher.is-dragging {
+  transition: none;
 }
 
 .notification-bell {
@@ -125,7 +160,11 @@
   border: 1px solid #66546e;
   border-radius: 50%;
   box-shadow: 0 12px 42px rgba(0, 0, 0, 0.42);
+  appearance: none;
   cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .notification-bell-signal {
@@ -172,7 +211,9 @@
 }
 
 .notification-list {
-  position: relative;
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
   isolation: isolate;
   width: min(390px, calc(100vw - 40px));
   max-height: min(520px, calc(100dvh - 120px));
@@ -185,6 +226,16 @@
     0 28px 90px rgba(7, 4, 10, 0.62),
     0 0 58px rgba(127, 80, 144, 0.09),
     inset 0 1px rgba(255, 242, 255, 0.06);
+}
+
+.notification-launcher[data-horizontal="right"] .notification-list {
+  right: 0;
+  left: auto;
+}
+
+.notification-launcher[data-vertical="below"] .notification-list {
+  top: calc(100% + 12px);
+  bottom: auto;
 }
 
 .notification-list::before {
@@ -353,11 +404,6 @@
 }
 
 @media (max-width: 620px) {
-  .notification-launcher {
-    left: 14px;
-    bottom: 14px;
-  }
-
   .notification-list {
     width: min(370px, calc(100vw - 28px));
     border-radius: 21px;

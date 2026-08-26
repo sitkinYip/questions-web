@@ -55,11 +55,11 @@ export async function fetchMultiQuestClue(
   });
   const response = await requestJson(
     `${env.VITE_API_BASE_URL}/multi_quest_clues/records?${query}`,
-    { signal, resource: "多题组合线索" },
+    { signal, resource: "多题本场线索" },
   );
   const parsed = multiQuestCluesResponseSchema.safeParse(response.data);
   if (!parsed.success)
-    throw contractError("多题组合线索", response.status, parsed.error);
+    throw contractError("多题本场线索", response.status, parsed.error);
   const item = parsed.data.items[0];
   return item
     ? {

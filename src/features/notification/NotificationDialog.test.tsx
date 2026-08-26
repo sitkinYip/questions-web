@@ -26,6 +26,11 @@ describe("NotificationDialog", () => {
     );
 
     const dialog = screen.getByRole("dialog", { name: "魔法通知" });
+    const scrollArea = dialog.querySelector(".notification-dialog-scroll");
+    const footer = dialog.querySelector("footer");
+    expect(scrollArea).toBeInTheDocument();
+    expect(footer).toBeInTheDocument();
+    expect(scrollArea).not.toContainElement(footer);
     expect(within(dialog).getByText("重点")).toBeInTheDocument();
     expect(within(dialog).getByText("还有 1 条讯息")).toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: /播放/ })).toBeNull();

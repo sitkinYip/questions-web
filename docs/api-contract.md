@@ -24,7 +24,7 @@ PocketBase 列表响应统一为 `items/page/perPage/totalItems/totalPages`。�
 
 `mainBgImg` 与 `avatar` 经安全 URL 过滤后映射为领域模型的背景与头像地址；背景只作为装饰层，头像提供与旅行者名称对应的替代文本。
 
-`thread[]` 已声明文本、图片、视频、链接和 Letter 五种类型，并在 Adapter 中执行 URL 安全过滤。多题组合线索按 URL 中 `qas` 的原始顺序精确匹配，并通过独立 Zod schema 校验。
+`thread[]` 已声明文本、图片、视频、链接和 Letter 五种类型，并在 Adapter 中执行 URL 安全过滤。多题本场线索按 URL 中 `qas` 的原始顺序精确匹配，并通过独立 Zod schema 校验。
 
 `FinalLevelConfig` 支持站内 `path` 或 HTTP(S) `link`，以及字符串 `query`。Adapter 会拒绝危险协议；界面在最终反馈和 AutoPlay 完成后提供继续入口，并附加编码后的 `returnTo`。
 

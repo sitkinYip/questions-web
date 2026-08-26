@@ -36,10 +36,12 @@ export function ClueTextDialog({ clue, onClose }: ClueTextDialogProps) {
       >
         ×
       </Button>
-      <p className="eyebrow">Decoded fragment</p>
-      <h2 id="clue-dialog-title">{clue.title || "古老密卷"}</h2>
-      <span className="clue-dialog-rule" aria-hidden="true" />
-      <RichContent source={clue.content} className="clue-dialog-content" />
+      <div className="clue-dialog-scroll">
+        <p className="eyebrow">Decoded fragment</p>
+        <h2 id="clue-dialog-title">{clue.title || "古老密卷"}</h2>
+        <span className="clue-dialog-rule" aria-hidden="true" />
+        <RichContent source={clue.content} className="clue-dialog-content" />
+      </div>
     </AppDialog>
   );
 }

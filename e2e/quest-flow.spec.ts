@@ -42,7 +42,7 @@ test("multi quest unlocks in order and reveals the combined clue", async ({
   await page.getByRole("button", { name: "查看组合结果" }).click();
   await expect(
     page.getByRole("dialog", { name: "星辰组合真相" }),
-  ).toContainText("组合线索已经解锁");
+  ).toContainText("本场线索已经解锁");
 });
 
 test("wrong choice enters a recoverable penalty state", async ({ page }) => {
