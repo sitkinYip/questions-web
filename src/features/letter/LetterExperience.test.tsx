@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Letter, LetterVariant } from "../../domain/letter/types";
@@ -23,7 +23,10 @@ function makeLetter(variant: LetterVariant): Letter {
 }
 
 describe("LetterExperience", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
   it.each(["modern", "classical", "magic"] as const)(
     "opens and renders the %s presentation",
@@ -144,5 +147,118 @@ describe("LetterExperience", () => {
     ).toBeInTheDocument();
     expect(container.querySelector(".letter-paper-curl")).toBeInTheDocument();
     expect(container.querySelectorAll(".letter-paper")).toHaveLength(2);
+  });
+
+  it("measures pagination without animation transforms changing page boundaries", async () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      width: 282,
+      height: 100,
+      top: 0,
+      right: 282,
+      bottom: 100,
+      left: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(
+      function (this: HTMLElement) {
+        return this.classList.contains("letter-pagination-measure")
+          ? Number.parseFloat(this.style.width) || 0
+          : 300;
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(
+      function (this: HTMLElement) {
+        return this.classList.contains("letter-pagination-measure")
+          ? Number.parseFloat(this.style.height) || 0
+          : 120;
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(300);
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockImplementation(
+      function (this: HTMLElement) {
+        const length = this.textContent?.length ?? 0;
+        if (length <= 4) return 90;
+        if (length <= 8) return 110;
+        return 130;
+      },
+    );
+    const letter = makeLetter("magic");
+    letter.paragraphs = [
+      { content: "一二三四五六七八九十十一十二", align: "left", delayMs: 0 },
+    ];
+    letter.typingSpeedMs = 10_000;
+
+    render(
+      <MemoryRouter>
+        <LetterExperience letter={letter} returnTo={null} />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
+
+    expect(await screen.findByLabelText("第 1 页，共 2 页")).toBeInTheDocument();
+  });
+
+  it("pauses typing until an automatic page turn finishes", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(300);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(120);
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(300);
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockImplementation(
+      function (this: HTMLElement) {
+        return this.classList.contains("letter-pagination-measure") &&
+          (this.textContent?.length ?? 0) > 6
+          ? 240
+          : 100;
+      },
+    );
+    const letter = makeLetter("magic");
+    letter.paragraphs = [
+      { content: "一二三四五六七八九十十一十二", align: "left", delayMs: 0 },
+    ];
+    letter.typingSpeedMs = 10;
+    const { container } = render(
+      <MemoryRouter>
+        <LetterExperience letter={letter} returnTo={null} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    for (let index = 0; index < 6; index += 1) {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10);
+      });
+    }
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(container.querySelector(".letter-paper-turning")).toHaveTextContent(
+      "一二三四五六",
+    );
+    expect(
+      container.querySelector(".letter-paper-current .letter-paragraphs"),
+    ).toHaveTextContent("");
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(900);
+    });
+    expect(
+      container.querySelector(".letter-paper-current .letter-paragraphs"),
+    ).toHaveTextContent("");
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(20);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(
+      container.querySelector(".letter-paper-current .letter-paragraphs"),
+    ).toHaveTextContent("七");
   });
 });

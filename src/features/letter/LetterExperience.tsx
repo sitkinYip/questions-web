@@ -93,7 +93,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
   }, [isOpen, letter.backgroundImages.length]);
 
   useEffect(() => {
-    if (!isOpen || isFinished) return;
+    if (!isOpen || isFinished || previousPageIndex !== null) return;
     if (paragraphIndex === -1) {
       const firstDelay = letter.paragraphs[0]?.delayMs ?? 0;
       const timer = window.setTimeout(() => setParagraphIndex(0), firstDelay);
@@ -129,6 +129,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     letter.paragraphs,
     letter.typingSpeedMs,
     paragraphIndex,
+    previousPageIndex,
   ]);
 
   useEffect(() => {
@@ -170,10 +171,11 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     if (!viewport || !measure) return;
 
     const repaginate = () => {
-      const bounds = viewport.getBoundingClientRect();
-      if (bounds.width <= 0 || bounds.height <= 0) return;
-      measure.style.width = `${bounds.width}px`;
-      measure.style.height = `${bounds.height}px`;
+      const width = viewport.clientWidth;
+      const height = viewport.clientHeight;
+      if (width <= 0 || height <= 0) return;
+      measure.style.width = `${width}px`;
+      measure.style.height = `${height}px`;
 
       const nextPages = paginateLetterParagraphs(
         letter.paragraphs,
@@ -216,7 +218,9 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
         (segment) =>
           segment.paragraphIndex === paragraphIndex &&
           characterIndex >= segment.start &&
-          characterIndex <= segment.end,
+          (characterIndex < segment.end ||
+            (segment.start === segment.end &&
+              characterIndex === segment.end)),
       ),
     );
     if (activePage > pageIndex) {
