@@ -27,6 +27,11 @@
 - [x] 全局模态弹窗统一使用 Radix 交互内核，并通过 Overlay Provider 处理并发优先级。
 - [x] Button、Input、Select、Sheet 与 Toast 具备统一接口、交互状态和组件级测试。
 - [x] 答题页具备环境光、题目转场、正误反馈和通关仪式动效，并完整支持 reduced-motion 降级。
+- [x] 默认主题跟随 `prefers-color-scheme`，设备主题变化可实时更新且不覆盖显式用户选择。
+- [x] `theme=light|dark|system` 可覆盖链接初始主题，非法值安全回退且不禁用头像菜单切换。
+- [x] 头像主题菜单支持 system/light/dark、刷新持久化及无头像首字回退入口。
+- [x] 全局结构 CSS 使用语义主题 Token；Quest、记录页、布局和通用控件禁止新增颜色字面量。
+- [x] 浅色 Quest、主题菜单与原暗金深色界面完成实际浏览器截图验收。
 - [x] `pnpm check` 通过且锁文件无漂移。
 
 ## 预览与切换

@@ -49,6 +49,7 @@ import { QuestContent } from "../media/QuestContent";
 import { NotificationCenter } from "../notification/NotificationCenter";
 import { RankUpDialog } from "../rank/RankUpDialog";
 import { BgmControls } from "../audio/BgmControls";
+import { ThemeMenu } from "../../components/ui/ThemeMenu";
 import { useQuestBgm } from "../audio/useQuestBgm";
 import { useHorizontalSwipe } from "../../shared/gestures/useHorizontalSwipe";
 
@@ -719,14 +720,10 @@ export function QuestSessionView({
       <QuestAtmosphere />
       <header className="session-header">
         <div className="traveler-identity">
-          {activeQuest.avatarUrl && (
-            <img
-              className="traveler-avatar"
-              src={activeQuest.avatarUrl}
-              alt={`${activeQuest.displayName || userId || "旅行者"}的头像`}
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          )}
+          <ThemeMenu
+            avatarUrl={activeQuest.avatarUrl}
+            displayName={activeQuest.displayName || userId || "旅行者"}
+          />
           <div>
             <p className="eyebrow">Quest session</p>
             <p className="traveler-name">

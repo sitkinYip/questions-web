@@ -42,8 +42,8 @@
   height: 46px;
   color: var(--color-text-strong);
   font-size: 28px;
-  background: rgba(15, 16, 14, 0.82);
-  border: 1px solid #55574f;
+  background: color-mix(in srgb, var(--color-surface-inset) 82%, transparent);
+  border: 1px solid var(--color-border-interactive);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -52,5 +52,11 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #b8b7ae;
+  color: var(--color-text-muted);
+}
+
+.media-viewer-navigation .ui-button--secondary:disabled {
+  color: #85867f;
+  border-color: #3d3f39;
+  opacity: 1;
 }

@@ -20,7 +20,7 @@
 .records-header > div > p:last-child {
   max-width: 650px;
   margin: 20px 0 0;
-  color: #8d8f87;
+  color: var(--color-text-muted);
   line-height: 1.7;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .record-summary strong {
-  color: #e8e2d3;
+  color: var(--color-text-strong);
   font:
     32px/1 ui-monospace,
     SFMono-Regular,
@@ -70,7 +70,7 @@
   gap: 12px;
   margin-top: 30px;
   padding: 20px;
-  background: #161713;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
 }
 
@@ -84,8 +84,8 @@
 
 .record-list-heading h2 {
   margin: 9px 0 0;
-  color: #dfdbcf;
-  font-family: Georgia, "Noto Serif SC", serif;
+  color: var(--color-text-strong);
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 500;
 }
@@ -101,9 +101,9 @@
 .record-feedback {
   margin: 18px 0 0;
   padding: 12px 14px;
-  color: #a8cfb4;
-  background: #142019;
-  border: 1px solid #355643;
+  color: var(--color-success);
+  background: var(--color-success-surface);
+  border: 1px solid var(--color-success-border);
 }
 
 .record-list {
@@ -118,7 +118,7 @@
   align-items: center;
   gap: 24px;
   padding: 20px;
-  background: #151612;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
 }
 
@@ -134,25 +134,25 @@
 
 .record-badges span {
   padding: 4px 7px;
-  color: #9f9f97;
+  color: var(--color-text-muted);
   font:
     10px/1.2 ui-monospace,
     SFMono-Regular,
     Menlo,
     monospace;
   text-transform: uppercase;
-  background: #20211d;
-  border: 1px solid #383a33;
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border-strong);
 }
 
 .record-badges .is-corrupt {
-  color: #dca8a2;
-  border-color: #714842;
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
 }
 
 .record-item h3 {
   margin: 12px 0 0;
-  color: #dcd8cd;
+  color: var(--color-text-strong);
   font-size: 16px;
   font-weight: 500;
 }
@@ -166,12 +166,12 @@
 }
 
 .record-item dt {
-  color: #696b64;
+  color: var(--color-text-subtle);
 }
 
 .record-item dd {
   margin: 0 8px 0 -12px;
-  color: #aeadac;
+  color: var(--color-text-muted);
 }
 
 .record-item code {
@@ -179,7 +179,7 @@
   max-width: 100%;
   margin-top: 12px;
   overflow: hidden;
-  color: #6f7169;
+  color: var(--color-text-subtle);
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -192,8 +192,8 @@
   margin-top: 18px;
   padding: 64px 24px;
   text-align: center;
-  background: #151612;
-  border: 1px dashed #3b3d36;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
 }
 
 .records-empty > span {
@@ -201,15 +201,15 @@
   height: 58px;
   display: grid;
   place-items: center;
-  color: #8dba99;
-  border: 1px solid #45604c;
+  color: var(--color-success);
+  border: 1px solid var(--color-success-border);
   border-radius: 50%;
 }
 
 .records-empty h2 {
   margin: 10px 0 0;
-  color: #d5d2c8;
-  font-family: Georgia, "Noto Serif SC", serif;
+  color: var(--color-text-strong);
+  font-family: var(--font-display);
   font-weight: 500;
 }
 
@@ -225,28 +225,28 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(5, 6, 5, 0.92);
+  background: var(--color-overlay-strong);
   backdrop-filter: blur(10px);
 }
 
 .record-confirm {
   width: min(540px, 100%);
   padding: clamp(28px, 6vw, 50px);
-  background: #171814;
-  border: 1px solid #514b3d;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
 }
 
 .record-confirm h2 {
   margin: 14px 0 0;
-  color: #e9e4d8;
-  font-family: Georgia, "Noto Serif SC", serif;
+  color: var(--color-text-strong);
+  font-family: var(--font-display);
   font-size: clamp(28px, 5vw, 42px);
   font-weight: 500;
 }
 
 .record-confirm > p:not(.eyebrow) {
   margin: 18px 0 26px;
-  color: #97978f;
+  color: var(--color-text-muted);
   line-height: 1.7;
 }
 

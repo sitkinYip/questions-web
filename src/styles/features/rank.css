@@ -12,7 +12,7 @@
       rgba(171, 134, 61, 0.18),
       transparent 34%
     ),
-    rgba(5, 6, 5, 0.96);
+    color-mix(in srgb, var(--color-overlay-strong) 96%, var(--color-canvas));
   backdrop-filter: blur(14px);
 }
 
@@ -25,12 +25,12 @@
   gap: 13px;
   padding: clamp(38px, 8vw, 74px);
   text-align: center;
-  background: rgba(17, 18, 15, 0.84);
-  border: 1px solid #66583b;
+  background: color-mix(in srgb, var(--color-surface-raised) 88%, transparent);
+  border: 1px solid var(--color-accent-border);
   box-shadow:
-    0 38px 140px rgba(0, 0, 0, 0.62),
-    0 0 110px rgba(208, 167, 68, 0.15),
-    inset 0 0 0 7px rgba(255, 243, 207, 0.018);
+    0 38px 140px var(--color-shadow-strong),
+    0 0 110px var(--glow-gold-soft),
+    inset 0 0 0 7px color-mix(in srgb, var(--color-text-strong) 2%, transparent);
 }
 
 .rank-up-rays {
@@ -84,12 +84,12 @@
   height: 88px;
   display: grid;
   place-items: center;
-  color: #f0d78e;
+  color: var(--color-accent-text);
   font:
     38px/1 Georgia,
     serif;
-  background: #19170f;
-  border: 1px solid #8d7440;
+  background: var(--color-surface-inset);
+  border: 1px solid var(--color-accent);
   border-radius: 50%;
   box-shadow:
     0 0 42px rgba(218, 179, 85, 0.23),
@@ -100,7 +100,7 @@
 
 .rank-up-label {
   margin: 0;
-  color: #a99769;
+  color: var(--color-accent-muted);
   font:
     12px/1.2 ui-monospace,
     SFMono-Regular,
@@ -111,8 +111,8 @@
 
 .rank-up-dialog h2 {
   margin: 0;
-  color: #f0e9d6;
-  font-family: Georgia, "Noto Serif SC", serif;
+  color: var(--color-text-strong);
+  font-family: var(--font-display);
   font-size: clamp(42px, 9vw, 78px);
   font-weight: 500;
   letter-spacing: -0.045em;
@@ -120,7 +120,7 @@
 
 .rank-up-description {
   margin: 0 0 16px;
-  color: #96948a;
+  color: var(--color-text-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -133,4 +133,18 @@
   .rank-up-rays {
     animation: none;
   }
+}
+
+:root[data-theme="light"] .rank-up-backdrop {
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(152, 117, 47, 0.15),
+      transparent 34%
+    ),
+    rgba(244, 240, 231, 0.96);
+}
+
+:root[data-theme="light"] .rank-up-dialog {
+  background: rgba(255, 253, 248, 0.92);
 }

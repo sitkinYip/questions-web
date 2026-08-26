@@ -547,3 +547,13 @@
     transform: rotate(360deg) scale(1.04);
   }
 }
+@keyframes ui-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

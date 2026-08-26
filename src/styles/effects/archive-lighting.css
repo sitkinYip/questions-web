@@ -270,3 +270,22 @@
     animation: none;
   }
 }
+
+:root[data-theme="light"]
+  .notification-list-items
+  button:hover
+  .notification-list-action {
+  color: #76517f;
+  border-color: #9e7da7;
+}
+
+:root[data-theme="light"] .notification-bell:hover,
+:root[data-theme="light"]
+  .notification-launcher[data-state="open"]
+  .notification-bell {
+  color: #4f3d55;
+  border-color: #9e7da7;
+  box-shadow:
+    0 16px 46px rgba(59, 41, 64, 0.2),
+    0 0 36px rgba(117, 81, 128, 0.12);
+}

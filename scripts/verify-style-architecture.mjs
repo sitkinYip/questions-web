@@ -105,14 +105,46 @@ const tokens = await readFile(
 );
 for (const token of [
   "--color-canvas",
+  "--color-surface",
+  "--color-surface-raised",
   "--color-text",
+  "--color-text-muted",
   "--color-accent",
+  "--color-on-accent",
   "--color-border",
+  "--color-overlay",
+  "--color-shadow",
   "--motion-spring",
   "--z-overlay",
 ]) {
   if (!tokens.includes(`${token}:`))
     failures.push(`Missing required token ${token}.`);
+}
+
+if (!tokens.includes(':root[data-theme="light"]'))
+  failures.push("Missing the light theme token contract.");
+
+const themeStructuralModules = [
+  "components/controls-and-overlays.css",
+  "layout/shell.css",
+  "features/quest.css",
+  "features/records.css",
+];
+const literalColorPattern = /#[\da-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)/i;
+for (const relative of themeStructuralModules) {
+  const css = await readFile(resolve(stylesRoot, relative), "utf8");
+  if (literalColorPattern.test(css))
+    failures.push(
+      `${relative} must consume semantic theme tokens instead of literal colors.`,
+    );
+}
+
+for (const file of files.filter((path) => path.includes("/styles/effects/"))) {
+  const css = await readFile(file, "utf8");
+  if (/\.ui-(?:button|input|select|sheet|toast)\b/.test(css))
+    failures.push(
+      `${file.slice(sourceRoot.length + 1)} must not own reusable UI primitives.`,
+    );
 }
 
 if (failures.length > 0) {

@@ -13,12 +13,25 @@ export const levels = [
       {
         text: "请输入星辰大海",
         img: "https://assets.example/constellation.png",
+        imgList: [
+          "https://assets.example/constellation-detail-1.png",
+          "https://assets.example/constellation-detail-2.png",
+        ],
       },
     ],
     answer: "星辰大海",
     answerList: ["星辰，大海"],
     options: [],
-    thread: [{ type: "text", content: "[[第一段线索]]" }],
+    thread: [
+      { type: "text", content: "[[第一段线索]]" },
+      {
+        type: "letter",
+        title: "藏在柜子的一封信",
+        content: "[[关于初见的故事]]\n先去打开柜子，再看看这封信。",
+        path: "/letter",
+        query: { from: "e2e-theme" },
+      },
+    ],
     updated: "2026-08-25 10:00:00.000Z",
   },
   {

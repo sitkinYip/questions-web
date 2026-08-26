@@ -6,6 +6,8 @@
 
 答题进度使用 `questions:v1:attempt:{userId}:{step}:{revision}`，值为 `{ version: 1, attempt: QuestAttempt }`。背景音乐设置使用 `questions:v1:bgm`，值为 `{ enabled: boolean, position?: { x: number, y: number } }`；位置使用 `0..1` 的视口比例保存，以便桌面与移动端尺寸变化后仍保持在屏幕边界内。多题答题区首访引导使用 `questions:v1:quest-answer-guide:{encodedUserId}`，用户确认或定位答题区后写入 `1`，同一用户后续不再展示。
 
+主题偏好使用 `questions:v1:theme`，值为 `{ version: 1, preference: "system" | "light" | "dark" }`。主题是当前浏览器中的应用级设备偏好，不按 `userId` 隔离；缺失、损坏或版本不匹配时回退到 `system`。合法的 `?theme=light|dark|system` 作为链接级初始偏好优先于此存储，但不会自动写入；用户从头像菜单选择后仍更新存储。刷新仍带合法 `theme` 的 URL 时再次以 query 为初始值。存储不可用时只影响刷新后的偏好恢复，不阻塞当前页面切换。
+
 ## 必须兼容的旧 key
 
 | 用途        | 格式                                   |
@@ -26,4 +28,5 @@
 
 - 结构变更必须增加版本号或新增迁移器；不直接改变旧 key 的解析语义。
 - 存储失败不能改变内存中的答题正确性，但 UI 应提示进度可能无法恢复。
+- 外观和音频等非业务偏好存储失败不得阻塞页面使用；可以保持当前内存状态并在刷新后回退默认值。
 - 用户 ID、step 和 revision 的组合是兼容标识；领域内部仍以 PocketBase record id 作为 QuestId。

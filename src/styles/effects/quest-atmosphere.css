@@ -205,3 +205,16 @@
   left: 31%;
   animation-delay: -4.8s;
 }
+
+:root[data-theme="light"] .quest-atmosphere {
+  opacity: 0.56;
+  mix-blend-mode: multiply;
+}
+
+:root[data-theme="light"] .quest-atmosphere__rift {
+  opacity: 0.38;
+}
+
+:root[data-theme="light"] .quest-atmosphere__motes {
+  opacity: 0.5;
+}

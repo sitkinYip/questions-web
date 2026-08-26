@@ -6,11 +6,11 @@
   display: grid;
   place-items: center;
   padding: 0;
-  color: #93835e;
-  background: rgba(22, 23, 19, 0.94);
-  border: 1px solid #514b3c;
+  color: var(--color-accent-muted);
+  background: color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
+  border: 1px solid var(--color-accent-border);
   border-radius: 50%;
-  box-shadow: 0 12px 42px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 12px 42px var(--color-shadow-strong);
   cursor: pointer;
   touch-action: none;
   user-select: none;
@@ -43,11 +43,11 @@
 }
 
 .bgm-control.is-playing {
-  color: #e2ca86;
-  border-color: #806f47;
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
   box-shadow:
-    0 12px 42px rgba(0, 0, 0, 0.42),
-    0 0 46px rgba(213, 186, 112, 0.25);
+    0 12px 42px var(--color-shadow-strong),
+    0 0 46px var(--glow-gold-soft);
 }
 
 .bgm-note {
@@ -67,20 +67,20 @@
   height: 18px;
   display: grid;
   place-items: center;
-  color: #dad5c8;
-  background: #34352f;
-  border: 1px solid #666358;
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border-interactive);
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 2px 8px var(--color-shadow);
 }
 
 .is-playing .bgm-playback-badge {
-  color: #18170f;
-  background: #e2ca86;
-  border-color: #f1dda5;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent-strong);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.42),
-    0 0 12px rgba(226, 202, 134, 0.5);
+    0 2px 8px var(--color-shadow),
+    0 0 12px var(--glow-gold);
 }
 
 .bgm-play-glyph {
@@ -138,5 +138,5 @@
 }
 
 .bgm-auth-hint {
-  border-color: #766846;
+  border-color: var(--color-accent-border);
 }

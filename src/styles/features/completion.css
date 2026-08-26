@@ -12,7 +12,7 @@
       rgba(209, 173, 78, 0.18),
       transparent 34%
     ),
-    rgba(5, 6, 5, 0.96);
+    color-mix(in srgb, var(--color-overlay-strong) 96%, var(--color-canvas));
 }
 
 .completion-backdrop::before,
@@ -49,13 +49,14 @@
   gap: 18px;
   padding: clamp(38px, 8vw, 78px);
   text-align: center;
-  background: rgba(18, 19, 16, 0.9);
-  border: 1px solid #5d5541;
+  background: color-mix(in srgb, var(--color-surface-raised) 92%, transparent);
+  border: 1px solid var(--color-accent-border);
   box-shadow:
-    0 38px 140px rgba(0, 0, 0, 0.58),
-    0 0 100px rgba(206, 169, 77, 0.12),
-    inset 0 1px rgba(255, 249, 229, 0.06),
-    inset 0 0 0 7px rgba(255, 255, 255, 0.012);
+    0 38px 140px var(--color-shadow-strong),
+    0 0 100px var(--glow-gold-soft),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 6%, transparent),
+    inset 0 0 0 7px
+      color-mix(in srgb, var(--color-text-strong) 1.5%, transparent);
 }
 
 .completion-dialog::before,
@@ -293,7 +294,7 @@
   max-width: 100%;
   margin: 0;
   color: var(--color-text-strong);
-  font-family: Georgia, "Noto Serif SC", serif;
+  font-family: var(--font-display);
   font-size: clamp(34px, 7vw, 62px);
   font-weight: 500;
   letter-spacing: -0.035em;
@@ -305,7 +306,7 @@
 .completion-dialog > p:not(.eyebrow) {
   max-width: 500px;
   margin: 0 0 8px;
-  color: #9e9d94;
+  color: var(--color-text-muted);
   line-height: 1.8;
 }
 
@@ -322,16 +323,16 @@
   justify-content: space-between;
   gap: 24px;
   padding: 18px 20px;
-  color: #d8d6cc;
-  background: #171914;
-  border: 1px solid #746442;
-  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.45);
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-accent-border);
+  box-shadow: 0 18px 70px var(--color-shadow-strong);
 }
 
 .final-destination strong {
   display: block;
   margin-top: 6px;
-  font-family: Georgia, "Noto Serif SC", serif;
+  font-family: var(--font-display);
   font-size: 18px;
 }
 
@@ -342,7 +343,7 @@
 }
 
 .final-destination-actions button {
-  color: #8d8f87;
+  color: var(--color-text-muted);
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -369,4 +370,23 @@
   .completion-dialog h2 {
     font-size: clamp(32px, 11vw, 46px);
   }
+}
+
+:root[data-theme="light"] .completion-backdrop {
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      rgba(152, 117, 47, 0.15),
+      transparent 34%
+    ),
+    rgba(244, 240, 231, 0.96);
+}
+
+:root[data-theme="light"] .completion-dialog {
+  background: rgba(255, 253, 248, 0.94);
+}
+
+:root[data-theme="light"] .completion-sigil {
+  color: var(--color-accent);
+  background: radial-gradient(circle, #f0e7d4, #fbf8f1 70%);
 }

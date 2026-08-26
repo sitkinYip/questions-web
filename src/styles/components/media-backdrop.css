@@ -1,4 +1,13 @@
 .media-viewer-backdrop {
+  color-scheme: dark;
+  --color-text: #d7d3c7;
+  --color-text-strong: #f0ecdf;
+  --color-text-muted: #b8b7ae;
+  --color-accent-faint: rgba(212, 188, 125, 0.08);
+  --color-accent-border: #75684a;
+  --color-shadow: rgba(5, 6, 5, 0.48);
+  --color-surface-inset: #10110e;
+  --color-border-interactive: #55574f;
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);

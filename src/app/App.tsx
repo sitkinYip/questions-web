@@ -8,6 +8,7 @@ import { OverlayProvider } from "../components/ui/OverlayProvider";
 import { ToastProvider } from "../components/ui/ToastProvider";
 import { BlessPage } from "../features/bless/BlessPage";
 import { resolveAppBasename } from "../shared/navigation/app-base";
+import { ThemeProvider } from "../components/ui/ThemeProvider";
 
 const appBasename = resolveAppBasename(
   import.meta.env.BASE_URL,
@@ -45,12 +46,14 @@ const router = createBrowserRouter(
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <OverlayProvider>
-          <RouterProvider router={router} />
-        </OverlayProvider>
-      </ToastProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <OverlayProvider>
+            <RouterProvider router={router} />
+          </OverlayProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

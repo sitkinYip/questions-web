@@ -218,16 +218,6 @@
   margin-top: 24px;
 }
 
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-a:focus-visible,
-label:has(input:focus-visible) {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-}
-
 @media (max-width: 620px) {
   .centered-state,
   .quest-layout {
@@ -247,6 +237,19 @@ label:has(input:focus-visible) {
   .traveler-avatar {
     width: 44px;
     height: 44px;
+  }
+
+  .theme-avatar-trigger {
+    width: 44px;
+    height: 44px;
+  }
+
+  .theme-avatar-indicator {
+    right: -2px;
+    bottom: 0;
+    width: 13px;
+    height: 13px;
+    border-width: 2px;
   }
 
   .traveler-identity {
@@ -376,6 +379,20 @@ label:has(input:focus-visible) {
   .final-destination-actions {
     justify-content: flex-end;
   }
+}
+
+:root[data-theme="light"] .feedback[data-tone="success"] {
+  color: var(--color-success);
+  background: var(--color-success-surface);
+  border-color: var(--color-success-border);
+  box-shadow: 0 18px 48px
+    color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+
+:root[data-theme="light"] .quest-card > .feedback[data-tone="danger"] {
+  color: var(--color-danger);
+  background: var(--color-danger-surface);
+  border-color: var(--color-danger-border);
 }
 
 @media (pointer: coarse) {

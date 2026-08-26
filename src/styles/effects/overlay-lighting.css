@@ -556,3 +556,32 @@
     animation: none;
   }
 }
+
+:root[data-theme="light"]
+  :is(.clue-dialog, .multi-clue-dialog, .notification-dialog) {
+  box-shadow:
+    0 42px 120px var(--color-shadow-strong),
+    0 0 72px var(--color-accent-faint),
+    inset 0 1px rgba(255, 255, 255, 0.7),
+    inset 0 0 0 7px rgba(118, 96, 47, 0.018);
+}
+
+:root[data-theme="light"]
+  :is(.clue-dialog, .multi-clue-dialog, .notification-dialog)::before {
+  border-color: rgba(118, 96, 47, 0.08);
+}
+
+:root[data-theme="light"] .notification-dialog {
+  box-shadow:
+    0 42px 120px rgba(59, 41, 64, 0.2),
+    0 0 72px rgba(117, 81, 128, 0.08),
+    inset 0 1px rgba(255, 255, 255, 0.72),
+    inset 0 0 0 7px rgba(117, 81, 128, 0.025);
+}
+
+:root[data-theme="light"] .notification-media:hover {
+  border-color: #9e7da7;
+  box-shadow:
+    0 26px 72px rgba(59, 41, 64, 0.16),
+    0 0 42px rgba(117, 81, 128, 0.08);
+}

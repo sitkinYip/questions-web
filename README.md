@@ -25,6 +25,7 @@ Questions 的独立 React 重写工程。旧 `home` 项目的线上 Questions �
 - 已接入关卡 `mainBgImg/avatar` 视觉字段，并完成弹窗焦点圈定/回收、键盘答题、44px 触控目标和 reduced-motion 验收。
 - 已实现多题导航活动 Tab 自动居中，并支持在题卡非交互区域横向滑动切换已解锁题目。
 - 已将关卡 BGM 控件恢复为视口固定浮标，支持拖拽、位置记忆和 `Alt + 方向键` 调整。
+- 已建立 `system / light / dark` 三态主题系统：默认跟随设备、支持 `?theme=light|dark|system` 链接初始主题、头像菜单手动覆盖和跨标签同步，并为暗金 UI 提供暖象牙纸浅色版本。
 
 ## 开发
 

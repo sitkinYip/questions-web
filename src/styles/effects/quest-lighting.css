@@ -217,32 +217,6 @@
   transform: translate(-50%, -50%) scale(1.09);
 }
 
-.ui-button--primary {
-  text-shadow: 0 1px rgba(255, 255, 255, 0.22);
-}
-
-.ui-button--primary::before {
-  position: absolute;
-  z-index: -1;
-  inset: -70%;
-  content: "";
-  opacity: 0;
-  background: radial-gradient(
-    circle,
-    rgba(255, 244, 201, 0.7),
-    transparent 45%
-  );
-  transform: scale(0.36);
-  transition:
-    opacity 520ms var(--motion-ios),
-    transform 760ms var(--motion-impact);
-}
-
-.ui-button--primary:hover:not(:disabled)::before {
-  opacity: 0.46;
-  transform: scale(1);
-}
-
 @media (max-width: 620px) {
   .quest-card-chrome::after {
     opacity: 0.07;
@@ -265,4 +239,33 @@
   .choice-option.is-selected {
     animation: none;
   }
+}
+
+:root[data-theme="light"] .session-header,
+:root[data-theme="light"] .session-progress strong,
+:root[data-theme="light"] .quest-card h1 {
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .traveler-avatar {
+  outline-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+:root[data-theme="light"] .quest-card {
+  outline-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+:root[data-theme="light"] .quest-card:hover {
+  border-color: var(--color-accent-border);
+  box-shadow:
+    0 42px 110px var(--color-shadow),
+    0 0 52px var(--color-accent-faint),
+    inset 0 1px rgba(255, 255, 255, 0.72),
+    inset 0 0 0 6px rgba(118, 96, 47, 0.025);
+}
+
+:root[data-theme="light"] .quest-card-chrome::before,
+:root[data-theme="light"] .choice-option::before {
+  opacity: calc(var(--spotlight-opacity, 0) * 0.45);
+  mix-blend-mode: multiply;
 }
