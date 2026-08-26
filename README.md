@@ -62,4 +62,8 @@ GitHub 的 `preview` Environment 需要配置 `HOST`、`USERNAME`、`SSH_KEY`、
 Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next/`，
 不会写入主页部署目录。
 
+正式环境通过 `Deploy Questions Production` 工作流手动发布。运行时必须勾选确认项；
+工作流固定构建 `main` 最新提交并同步到 `<QUESTIONS_ROOT>/questions/`，只验证服务器文件，
+不会修改 OpenResty 或自动切换线上 `/questions/` 路由。正式切换应在工作流成功后手动完成。
+
 详细边界和验收标准见 [架构文档](./docs/architecture.md)。

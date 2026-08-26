@@ -1,0 +1,103 @@
+name: Deploy Questions Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Deploy the latest main commit to /questions/
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: questions-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: inputs.confirm
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      REMOTE_HOST: ${{ secrets.HOST }}
+      REMOTE_USER: ${{ secrets.USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      SSH_PORT: ${{ vars.SSH_PORT || '22' }}
+      QUESTIONS_ROOT: ${{ secrets.QUESTIONS_ROOT }}
+    steps:
+      - name: Check out latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production
+        run: pnpm build:production
+
+      - name: Verify production asset base
+        run: |
+          grep -Fq '/questions/assets/' dist/index.html
+          if grep -Eq '(src|href)="/assets/' dist/index.html; then
+            echo 'Production build contains a root /assets/ reference.' >&2
+            exit 1
+          fi
+          if grep -Fq '/questions-next/assets/' dist/index.html; then
+            echo 'Production build contains a preview asset reference.' >&2
+            exit 1
+          fi
+
+      - name: Configure SSH
+        run: |
+          test -n "$REMOTE_HOST"
+          test -n "$REMOTE_USER"
+          test -n "$SSH_PRIVATE_KEY"
+          test -n "$SSH_KNOWN_HOSTS"
+          test -n "$QUESTIONS_ROOT"
+          test "${QUESTIONS_ROOT#/}" != "$QUESTIONS_ROOT"
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Deploy production files
+        run: |
+          remote_path="${QUESTIONS_ROOT%/}/questions"
+          ssh -p "$SSH_PORT" -i "$HOME/.ssh/id_ed25519" \
+            "$REMOTE_USER@$REMOTE_HOST" "mkdir -p -- '$remote_path'"
+          rsync --archive --compress --delete \
+            -e "ssh -p $SSH_PORT -i $HOME/.ssh/id_ed25519" \
+            dist/ "$REMOTE_USER@$REMOTE_HOST:$remote_path/"
+
+      - name: Verify remote production files
+        run: |
+          remote_path="${QUESTIONS_ROOT%/}/questions"
+          ssh -p "$SSH_PORT" -i "$HOME/.ssh/id_ed25519" \
+            "$REMOTE_USER@$REMOTE_HOST" \
+            "test -f '$remote_path/index.html' && grep -Fq '/questions/assets/' '$remote_path/index.html'"
+
+      - name: Write deployment summary
+        run: |
+          {
+            echo '## Production files deployed'
+            echo
+            echo 'The production build is available in `<QUESTIONS_ROOT>/questions/`.'
+            echo 'OpenResty has not been changed by this workflow.'
+          } >> "$GITHUB_STEP_SUMMARY"
