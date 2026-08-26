@@ -80,6 +80,43 @@ describe("QuestSessionView", () => {
     expect(screen.getByRole("button", { name: "前往下一题" })).toBeEnabled();
   });
 
+  it("aligns the next quest card to the viewport after using the footer action", () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+    try {
+      render(
+        <QuestSessionView
+          allQuests={[textQuest, choiceQuest]}
+          requestedSteps={[11, 12]}
+          userId="alice"
+          missingSteps={[]}
+        />,
+      );
+
+      fireEvent.change(screen.getByPlaceholderText("输入你的答案"), {
+        target: { value: "星辰大海" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+      fireEvent.click(screen.getByRole("button", { name: "前往下一题" }));
+
+      const nextQuest = screen.getByRole("article", { name: "第 2 题" });
+      expect(nextQuest).toHaveFocus();
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: "smooth",
+        block: "start",
+        inline: "nearest",
+      });
+    } finally {
+      if (originalScrollIntoView) {
+        HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+      } else {
+        delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+      }
+    }
+  });
+
   it("uses the filtered array position for every displayed question number", () => {
     render(
       <QuestSessionView

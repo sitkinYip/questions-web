@@ -194,6 +194,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  scroll-margin-top: 12px;
   padding: clamp(26px, 6vw, 62px);
   background:
     radial-gradient(

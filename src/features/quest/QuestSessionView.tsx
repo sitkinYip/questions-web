@@ -240,10 +240,21 @@ export function QuestSessionView({
   }, [isUiBusy]);
 
   useEffect(() => {
-    if (previousQuestIdRef.current !== activeQuest.id) {
-      questCardRef.current?.focus();
-      previousQuestIdRef.current = activeQuest.id;
-    }
+    if (previousQuestIdRef.current === activeQuest.id) return;
+    previousQuestIdRef.current = activeQuest.id;
+
+    const card = questCardRef.current;
+    if (!card) return;
+    card.focus({ preventScroll: true });
+    if (typeof card.scrollIntoView !== "function") return;
+    const prefersReducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    card.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+      inline: "nearest",
+    });
   }, [activeQuest.id]);
 
   useEffect(() => {

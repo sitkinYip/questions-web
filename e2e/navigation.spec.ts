@@ -6,7 +6,12 @@ const navigationLevels = Array.from({ length: 10 }, (_, index) => ({
   step: index + 11,
   type: "FillInTheBlank",
   title: `导航测试第 ${index + 1} 题`,
-  question: [{ text: `请输入第 ${index + 1} 题答案` }],
+  question: [
+    {
+      text: `请输入第 ${index + 1} 题答案`,
+      img: "https://assets.example/navigation.png",
+    },
+  ],
   answer: `答案${index + 1}`,
   answerList: [],
   options: [],
@@ -23,6 +28,40 @@ test.beforeEach(async ({ page }) => {
       body: JSON.stringify(pocketBaseList(navigationLevels)),
     }),
   );
+});
+
+test("footer next action returns the new quest title to the viewport top", async ({
+  page,
+}) => {
+  const steps = navigationLevels
+    .slice(0, 2)
+    .map((level) => level.step)
+    .join(",");
+  await page.goto(`/?qas=${steps}&user=e2e-footer-position`);
+
+  await page.getByPlaceholder("输入你的答案").fill("答案1");
+  await page.getByRole("button", { name: "提交答案" }).click();
+  await page.getByRole("button", { name: "前往下一题" }).click();
+  await expect(
+    page.getByRole("heading", { name: "导航测试第 2 题" }),
+  ).toBeVisible();
+  await page.waitForTimeout(700);
+
+  const titlePosition = await page
+    .getByRole("heading", { name: "导航测试第 2 题" })
+    .evaluate((title) => {
+      const bounds = title.getBoundingClientRect();
+      return {
+        top: Math.round(bounds.top),
+        bottom: Math.round(bounds.bottom),
+        viewportHeight: window.innerHeight,
+      };
+    });
+  expect(titlePosition.top).toBeGreaterThanOrEqual(0);
+  expect(titlePosition.top).toBeLessThanOrEqual(
+    titlePosition.viewportHeight * 0.35,
+  );
+  expect(titlePosition.bottom).toBeLessThan(titlePosition.viewportHeight);
 });
 
 test("active tab stays visible and completed quests switch by horizontal swipe", async ({
