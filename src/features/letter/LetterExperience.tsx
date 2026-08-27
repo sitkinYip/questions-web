@@ -8,6 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import type { Letter } from "../../domain/letter/types";
+import { playAudio } from "../../shared/media/play-audio";
 import {
   trackAnalytics,
   trackAnalyticsOnce,
@@ -158,7 +159,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     voice.onended = finishVoice;
     voice.onerror = finishVoice;
     voice.onabort = finishVoice;
-    void voice.play().catch(finishVoice);
+    void playAudio(voice).catch(finishVoice);
   }, [isFinished, isOpen, letter.paragraphs, paragraphIndex]);
 
   const visibleParagraphs = useMemo(
@@ -277,9 +278,8 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     bgm.loop = true;
     bgm.volume = 0.5;
     bgmRef.current = bgm;
-    void bgm
-      .play()
-      .then(() => setBgmPlaying(true))
+    void playAudio(bgm)
+      .then(() => setBgmPlaying(!bgm.paused))
       .catch(() => setBgmPlaying(false));
   };
 
@@ -315,7 +315,9 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
       bgm.pause();
       setBgmPlaying(false);
     } else {
-      void bgm.play().then(() => setBgmPlaying(true));
+      void playAudio(bgm)
+        .then(() => setBgmPlaying(!bgm.paused))
+        .catch(() => setBgmPlaying(false));
     }
   };
 

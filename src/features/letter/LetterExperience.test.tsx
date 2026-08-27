@@ -82,6 +82,59 @@ describe("LetterExperience", () => {
     ).toBeInTheDocument();
   });
 
+  it.each(["promise", "legacy", "silent"] as const)(
+    "handles BGM playback and blocked retries with a %s play result",
+    async (mode) => {
+      class MockAudio {
+        paused = true;
+        play = vi.fn((): Promise<void> | void => {
+          if (mode !== "silent") this.paused = false;
+          if (mode === "promise") return Promise.resolve();
+        });
+        pause = vi.fn(() => {
+          this.paused = true;
+        });
+      }
+      const bgm = new MockAudio();
+      vi.stubGlobal(
+        "Audio",
+        vi.fn(function () {
+          return bgm;
+        }),
+      );
+      const letter = { ...makeLetter("modern"), mainAudioUrl: "/bgm.mp3" };
+      render(<LetterExperience letter={letter} returnTo={null} />);
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
+        expect(bgm.play).toHaveBeenCalledOnce();
+      });
+      if (mode === "silent") {
+        expect(
+          screen.getByRole("button", { name: "播放背景音乐" }),
+        ).toBeInTheDocument();
+        return;
+      }
+
+      fireEvent.click(screen.getByRole("button", { name: "暂停背景音乐" }));
+      bgm.play.mockImplementationOnce(() =>
+        Promise.reject(new DOMException("blocked", "NotAllowedError")),
+      );
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "播放背景音乐" }));
+      });
+      expect(
+        screen.getByRole("button", { name: "播放背景音乐" }),
+      ).toBeInTheDocument();
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "播放背景音乐" }));
+      });
+      expect(
+        screen.getByRole("button", { name: "暂停背景音乐" }),
+      ).toBeInTheDocument();
+    },
+  );
+
   it("locks manual page turns while typing and unlocks them after showing all", async () => {
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
       width: 300,
@@ -265,72 +318,75 @@ describe("LetterExperience", () => {
     ).toHaveTextContent("七");
   });
 
-  it("waits for the current paragraph voice before starting the next paragraph", async () => {
-    vi.useFakeTimers();
-    const voices = [0, 1].map(() => ({
-      onabort: null as (() => void) | null,
-      onended: null as (() => void) | null,
-      onerror: null as (() => void) | null,
-      pause: vi.fn(),
-      play: vi.fn().mockResolvedValue(undefined),
-      volume: 1,
-    }));
-    let voiceIndex = 0;
-    function MockAudio() {
-      return voices[voiceIndex++] as unknown as HTMLAudioElement;
-    }
-    vi.stubGlobal("Audio", vi.fn(MockAudio));
-    const letter = makeLetter("magic");
-    letter.paragraphs = [
-      {
-        content: "甲",
-        align: "left",
-        delayMs: 0,
-        audioUrl: "/voice-one.mp3",
-      },
-      {
-        content: "乙",
-        align: "left",
-        delayMs: 0,
-        audioUrl: "/voice-two.mp3",
-      },
-    ];
-    letter.typingSpeedMs = 10;
-    const { container } = render(
-      <MemoryRouter>
-        <LetterExperience letter={letter} returnTo={null} />
-      </MemoryRouter>,
-    );
+  it.each([false, true])(
+    "waits for the current paragraph voice (legacy play: %s)",
+    async (legacyPlay) => {
+      vi.useFakeTimers();
+      const voices = [0, 1].map(() => ({
+        onabort: null as (() => void) | null,
+        onended: null as (() => void) | null,
+        onerror: null as (() => void) | null,
+        pause: vi.fn(),
+        play: vi.fn(() => (legacyPlay ? undefined : Promise.resolve())),
+        volume: 1,
+      }));
+      let voiceIndex = 0;
+      function MockAudio() {
+        return voices[voiceIndex++] as unknown as HTMLAudioElement;
+      }
+      vi.stubGlobal("Audio", vi.fn(MockAudio));
+      const letter = makeLetter("magic");
+      letter.paragraphs = [
+        {
+          content: "甲",
+          align: "left",
+          delayMs: 0,
+          audioUrl: "/voice-one.mp3",
+        },
+        {
+          content: "乙",
+          align: "left",
+          delayMs: 0,
+          audioUrl: "/voice-two.mp3",
+        },
+      ];
+      letter.typingSpeedMs = 10;
+      const { container } = render(
+        <MemoryRouter>
+          <LetterExperience letter={letter} returnTo={null} />
+        </MemoryRouter>,
+      );
 
-    fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(0);
-    });
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(10);
-    });
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(5_000);
-    });
+      fireEvent.click(screen.getByRole("button", { name: /点击开启/ }));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10);
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5_000);
+      });
 
-    expect(
-      Array.from(
-        container.querySelectorAll(
-          ".letter-paper-current .letter-paragraphs p",
+      expect(
+        Array.from(
+          container.querySelectorAll(
+            ".letter-paper-current .letter-paragraphs p",
+          ),
+          (paragraph) => paragraph.textContent,
         ),
-        (paragraph) => paragraph.textContent,
-      ),
-    ).toEqual(["甲", ""]);
-    expect(voiceIndex).toBe(1);
-    expect(voices[0].pause).not.toHaveBeenCalled();
+      ).toEqual(["甲", ""]);
+      expect(voiceIndex).toBe(1);
+      expect(voices[0].pause).not.toHaveBeenCalled();
 
-    await act(async () => voices[0].onended?.());
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(0);
-    });
+      await act(async () => voices[0].onended?.());
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
+      });
 
-    expect(voiceIndex).toBe(2);
-    expect(voices[1].play).toHaveBeenCalledOnce();
-    expect(voices[0].pause).not.toHaveBeenCalled();
-  });
+      expect(voiceIndex).toBe(2);
+      expect(voices[1].play).toHaveBeenCalledOnce();
+      expect(voices[0].pause).not.toHaveBeenCalled();
+    },
+  );
 });

@@ -1,8 +1,61 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi } from "./fixtures";
+import {
+  mockLegacyAudioPlayback,
+  mockQuestionsApi,
+  pocketBaseList,
+} from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
   await mockQuestionsApi(page);
+});
+
+test("plays Bless music, narration and credits with a legacy play return", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await mockLegacyAudioPlayback(page);
+  await page.route("**/api/collections/phrase/records**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify(
+        pocketBaseList([
+          {
+            id: "phrase-final",
+            from: "final",
+            title: "点击开启你的专属星空",
+            phraseList: [
+              {
+                text: "愿星光照亮前路",
+                audio: "https://assets.example/voice.mp3",
+                duration: 40,
+              },
+            ],
+            takeABowList: [
+              {
+                text: "第一句谢幕",
+                audio: "https://assets.example/credits.mp3",
+                duration: 40,
+              },
+              { text: "旅途仍在继续", duration: 40 },
+            ],
+            mainAudio: "https://assets.example/bless-bgm.mp3",
+            updated: "2026-08-25 10:00:00.000Z",
+          },
+        ]),
+      ),
+    }),
+  );
+  await page.goto("/bless?from=final");
+  await page.getByRole("button", { name: "点击开启你的专属星空" }).click();
+  await page.getByRole("button", { name: "暂停背景音乐" }).click();
+  await page.getByRole("button", { name: "播放背景音乐" }).click();
+  await expect(
+    page.getByRole("button", { name: "暂停背景音乐" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "开始播放" }).click();
+  await expect(page.getByText("旅途仍在继续")).toHaveClass("is-active");
+  expect(errors).toEqual([]);
 });
 
 test("opens the in-app Bless experience and returns to qa=42", async ({

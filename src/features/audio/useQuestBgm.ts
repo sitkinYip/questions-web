@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { trackAnalytics } from "../../infrastructure/analytics";
 import { createBgmPreferencesRepository } from "../../infrastructure/storage/audio.repository";
+import { playAudio } from "../../shared/media/play-audio";
 
 const AUTH_HINT_DURATION_MS = 5_000;
 const DEFAULT_VOLUME = 0.3;
@@ -40,7 +41,7 @@ export function useQuestBgm(
       const audio = audioRef.current;
       if (!audio || suspendedRef.current) return;
       playReasonRef.current = reason;
-      void audio.play().catch(() => {
+      void playAudio(audio).catch(() => {
         if (
           audioRef.current !== audio ||
           suspendedRef.current ||

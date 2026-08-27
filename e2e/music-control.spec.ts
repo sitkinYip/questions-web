@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { levels, mockQuestionsApi, pocketBaseList } from "./fixtures";
+import {
+  levels,
+  mockLegacyAudioPlayback,
+  mockQuestionsApi,
+  pocketBaseList,
+} from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
   await mockQuestionsApi(page);
@@ -17,6 +22,24 @@ test.beforeEach(async ({ page }) => {
   await page.route("https://assets.example/bgm.mp3", (route) =>
     route.fulfill({ status: 200, contentType: "audio/mpeg", body: "" }),
   );
+});
+
+test("loads and toggles music when play returns undefined", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await mockLegacyAudioPlayback(page);
+  await page.goto("/questions-next/?qa=11&user=e2e-legacy-audio");
+
+  const control = page.locator(".bgm-control");
+  await expect(control).toHaveAttribute("aria-pressed", "true");
+  await control.click();
+  await expect(control).toHaveAttribute("aria-pressed", "false");
+  await control.click();
+  await expect(control).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("Unexpected Application Error!")).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
 
 test("music control stays fixed, drags without toggling and restores position", async ({

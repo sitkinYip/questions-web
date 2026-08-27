@@ -28,6 +28,10 @@ export default defineConfig({
       name: "mobile-chromium",
       use: { ...devices["Pixel 7"], ...localBrowserChannel },
     },
+    {
+      name: "mobile-webkit",
+      use: { ...devices["iPhone 13"] },
+    },
   ],
   webServer: {
     command: `pnpm dev --port ${e2ePort}`,

@@ -70,6 +70,42 @@ async function fulfillJson(route: Route, body: unknown, status = 200) {
   });
 }
 
+export async function mockLegacyAudioPlayback(page: Page) {
+  await page.addInitScript(() => {
+    Object.defineProperty(HTMLMediaElement.prototype, "play", {
+      configurable: true,
+      value: function (this: HTMLMediaElement) {
+        Object.defineProperty(this, "paused", {
+          configurable: true,
+          value: false,
+        });
+        this.dispatchEvent(new Event("play"));
+        if (!this.loop) {
+          window.setTimeout(() => {
+            if (this.paused) return;
+            Object.defineProperty(this, "paused", {
+              configurable: true,
+              value: true,
+            });
+            this.dispatchEvent(new Event("ended"));
+          }, 50);
+        }
+        // Older media implementations start playback without returning a Promise.
+      },
+    });
+    Object.defineProperty(HTMLMediaElement.prototype, "pause", {
+      configurable: true,
+      value: function (this: HTMLMediaElement) {
+        Object.defineProperty(this, "paused", {
+          configurable: true,
+          value: true,
+        });
+        this.dispatchEvent(new Event("pause"));
+      },
+    });
+  });
+}
+
 export async function mockQuestionsApi(page: Page) {
   await page.route("**/api/collections/**", async (route) => {
     const pathname = new URL(route.request().url()).pathname;

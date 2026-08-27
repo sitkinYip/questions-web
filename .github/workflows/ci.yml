@@ -55,11 +55,14 @@ jobs:
             exit 1
           fi
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install Playwright Chromium and WebKit
+        run: pnpm exec playwright install --with-deps chromium webkit
 
       - name: Run browser tests
         run: pnpm test:e2e
+
+      - name: Run iOS audio regression tests
+        run: pnpm exec playwright test e2e/music-control.spec.ts e2e/bless-flow.spec.ts --project=mobile-webkit
 
       - name: Check formatting
         run: pnpm format:check

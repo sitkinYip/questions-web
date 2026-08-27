@@ -50,7 +50,7 @@ ThemeProvider ── 监听设备变化 / storage 事件
 - Vitest 覆盖领域逻辑、Schema、存储迁移、请求错误分类与组件行为。
 - Overlay 测试覆盖并发弹窗优先级及高优先级关闭后的队列恢复。
 - Theme 测试覆盖损坏存储回退、query 优先级、非法 query 回退、设备主题变化、显式覆盖、刷新持久化、无头像入口和头像菜单键盘语义。
-- Playwright 使用 API 路由拦截覆盖单题恢复、多题组合、媒体预览、惩罚和错误恢复；默认运行桌面 Chrome，可通过 `test:e2e:all` 同时运行 Pixel 7 移动视口。
+- Playwright 使用 API 路由拦截覆盖单题恢复、多题组合、媒体预览、惩罚和错误恢复；默认运行桌面 Chrome，可通过 `test:e2e:all` 同时运行 Pixel 7 和 iPhone 13（WebKit）移动视口。CI 额外运行 WebKit 音频回归，覆盖 `play()` 返回 `undefined` 的兼容路径。
 - Playwright 失败产物保留截图、HTML 报告和 trace，不录制视频以避免额外 FFmpeg 运行时依赖。
 
 ## 延后引入

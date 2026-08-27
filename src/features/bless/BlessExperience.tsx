@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Blessing } from "../../domain/bless/types";
+import { playAudio } from "../../shared/media/play-audio";
 import { BlessClosingCredits } from "./BlessClosingCredits";
 import { useBlessCanvas } from "./canvas-engine";
 
@@ -51,7 +52,7 @@ export function BlessExperience({ blessing, returnTo }: BlessExperienceProps) {
       if (!audioUrl) return;
       const voice = new Audio(audioUrl);
       voiceRef.current = voice;
-      void voice.play().catch(() => undefined);
+      void playAudio(voice).catch(() => undefined);
     };
 
     const runNarrative = async () => {
@@ -87,9 +88,8 @@ export function BlessExperience({ blessing, returnTo }: BlessExperienceProps) {
     bgm.loop = true;
     bgm.volume = 0.15;
     bgmRef.current = bgm;
-    void bgm
-      .play()
-      .then(() => setBgmPlaying(true))
+    void playAudio(bgm)
+      .then(() => setBgmPlaying(!bgm.paused))
       .catch(() => setBgmPlaying(false));
   };
 
@@ -100,7 +100,9 @@ export function BlessExperience({ blessing, returnTo }: BlessExperienceProps) {
       bgm.pause();
       setBgmPlaying(false);
     } else {
-      void bgm.play().then(() => setBgmPlaying(true));
+      void playAudio(bgm)
+        .then(() => setBgmPlaying(!bgm.paused))
+        .catch(() => setBgmPlaying(false));
     }
   };
 

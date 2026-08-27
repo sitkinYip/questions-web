@@ -12,19 +12,26 @@ import { useQuestBgm } from "./useQuestBgm";
 class MockAudio extends EventTarget {
   static instances: MockAudio[] = [];
   static rejectNextPlay = false;
+  static legacyPlay = false;
+  static throwNextPlay = false;
 
   readonly src: string;
   loop = false;
   volume = 1;
   preload = "";
   paused = true;
-  play = vi.fn(async () => {
+  play = vi.fn((): Promise<void> | void => {
+    if (MockAudio.throwNextPlay) {
+      MockAudio.throwNextPlay = false;
+      throw new DOMException("blocked", "NotAllowedError");
+    }
     if (MockAudio.rejectNextPlay) {
       MockAudio.rejectNextPlay = false;
-      throw new DOMException("blocked", "NotAllowedError");
+      return Promise.reject(new DOMException("blocked", "NotAllowedError"));
     }
     this.paused = false;
     this.dispatchEvent(new Event("play"));
+    if (!MockAudio.legacyPlay) return Promise.resolve();
   });
   pause = vi.fn(() => {
     if (this.paused) return;
@@ -60,32 +67,42 @@ describe("useQuestBgm", () => {
     window.localStorage.clear();
     MockAudio.instances = [];
     MockAudio.rejectNextPlay = false;
+    MockAudio.legacyPlay = false;
+    MockAudio.throwNextPlay = false;
     vi.stubGlobal("Audio", MockAudio);
   });
 
-  afterEach(() => vi.unstubAllGlobals());
-
-  it("loops at legacy volume and resumes after a temporary video suspension", async () => {
-    const { rerender } = render(<Harness />);
-    await waitFor(() =>
-      expect(screen.getByText("playing")).toBeInTheDocument(),
-    );
-    const audio = MockAudio.instances[0];
-    expect(audio).toMatchObject({
-      src: "https://audio.example/bgm.mp3",
-      loop: true,
-      volume: 0.3,
-      preload: "auto",
-    });
-
-    rerender(<Harness suspended />);
-    expect(screen.getByText("paused")).toBeInTheDocument();
-    rerender(<Harness />);
-    await waitFor(() =>
-      expect(screen.getByText("playing")).toBeInTheDocument(),
-    );
-    expect(audio.play).toHaveBeenCalledTimes(2);
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
+
+  it.each([false, true])(
+    "loops and resumes after video suspension (legacy play: %s)",
+    async (legacyPlay) => {
+      MockAudio.legacyPlay = legacyPlay;
+      const { rerender } = render(<Harness />);
+      expect(MockAudio.instances[0].play).toHaveBeenCalledOnce();
+      await waitFor(() =>
+        expect(screen.getByText("playing")).toBeInTheDocument(),
+      );
+      const audio = MockAudio.instances[0];
+      expect(audio).toMatchObject({
+        src: "https://audio.example/bgm.mp3",
+        loop: true,
+        volume: 0.3,
+        preload: "auto",
+      });
+
+      rerender(<Harness suspended />);
+      expect(screen.getByText("paused")).toBeInTheDocument();
+      rerender(<Harness />);
+      await waitFor(() =>
+        expect(screen.getByText("playing")).toBeInTheDocument(),
+      );
+      expect(audio.play).toHaveBeenCalledTimes(2);
+    },
+  );
 
   it("does not resume after the user explicitly pauses", async () => {
     const { rerender } = render(<Harness />);
@@ -104,15 +121,19 @@ describe("useQuestBgm", () => {
     expect(audio.play).toHaveBeenCalledTimes(1);
   });
 
-  it("offers authorization when browser autoplay is blocked", async () => {
-    vi.useFakeTimers();
-    MockAudio.rejectNextPlay = true;
-    render(<Harness />);
-    await act(async () => Promise.resolve());
-    expect(screen.getByText("authorization needed")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "authorize" }));
-    await act(async () => Promise.resolve());
-    expect(screen.getByText("playing")).toBeInTheDocument();
-    vi.useRealTimers();
-  });
+  it.each(["reject", "throw"])(
+    "offers authorization when browser autoplay fails with %s",
+    async (failure) => {
+      vi.useFakeTimers();
+      MockAudio.rejectNextPlay = failure === "reject";
+      MockAudio.throwNextPlay = failure === "throw";
+      render(<Harness />);
+      await act(async () => Promise.resolve());
+      expect(screen.getByText("authorization needed")).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "authorize" }));
+      await act(async () => Promise.resolve());
+      expect(screen.getByText("playing")).toBeInTheDocument();
+      vi.useRealTimers();
+    },
+  );
 });

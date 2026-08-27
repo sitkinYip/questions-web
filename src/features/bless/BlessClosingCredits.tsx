@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { BlessLine } from "../../domain/bless/types";
+import { playAudio } from "../../shared/media/play-audio";
 
 interface BlessClosingCreditsProps {
   lines: readonly BlessLine[];
@@ -26,7 +27,7 @@ export function BlessClosingCredits({ lines }: BlessClosingCreditsProps) {
       audio.onerror = () => {
         timer = window.setTimeout(advance, line.durationMs);
       };
-      void audio.play().catch(() => {
+      void playAudio(audio).catch(() => {
         timer = window.setTimeout(advance, line.durationMs);
       });
     } else timer = window.setTimeout(advance, line.durationMs);
