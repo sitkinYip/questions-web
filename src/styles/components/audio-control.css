@@ -138,5 +138,45 @@
 }
 
 .bgm-auth-hint {
+  grid-template-areas:
+    "content close"
+    "action action";
+  grid-template-columns: minmax(0, 1fr) 40px;
+  align-items: start;
+  gap: 10px 8px;
+  padding: 14px 8px 10px 16px;
   border-color: var(--color-accent-border);
+}
+
+.bgm-auth-hint .ui-toast__content {
+  grid-area: content;
+  min-width: 0;
+}
+
+.bgm-auth-hint .ui-toast__title {
+  display: block;
+  font-size: 15px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.bgm-auth-hint .ui-toast__description {
+  max-width: 30em;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.bgm-auth-hint .ui-toast__action {
+  grid-area: action;
+  width: 100%;
+  min-height: 42px;
+  color: var(--color-accent-text);
+  background: var(--color-accent-faint);
+  border-color: var(--color-accent-border);
+  border-radius: 10px;
+}
+
+.bgm-auth-hint .ui-toast__close {
+  grid-area: close;
+  align-self: start;
 }

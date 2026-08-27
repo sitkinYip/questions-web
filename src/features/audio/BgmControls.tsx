@@ -51,7 +51,7 @@ export function BgmControls({
           }}
           title="背景音乐提示"
           description="浏览器需要一次手动确认，之后会记住你的选择。"
-          actionLabel="点这里开启背景乐章"
+          actionLabel="开启背景音乐"
           actionAltText="开启背景音乐，也可以稍后使用悬浮音乐按钮"
           onAction={onAuthorize}
           duration={15_000}

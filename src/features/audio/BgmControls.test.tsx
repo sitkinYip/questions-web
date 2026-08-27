@@ -28,7 +28,7 @@ describe("BgmControls", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "播放背景音乐" }));
-    fireEvent.click(screen.getByRole("button", { name: "点这里开启背景乐章" }));
+    fireEvent.click(screen.getByRole("button", { name: "开启背景音乐" }));
     fireEvent.click(screen.getByRole("button", { name: "关闭背景音乐提示" }));
     expect(onToggle).toHaveBeenCalledOnce();
     expect(onAuthorize).toHaveBeenCalledOnce();

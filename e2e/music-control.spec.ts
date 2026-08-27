@@ -83,3 +83,30 @@ test("music control stays fixed, drags without toggling and restores position", 
   if (!scrolledBox) throw new Error("Fixed music control is not visible");
   expect(Math.abs(scrolledBox.y - restoredBox.y)).toBeLessThanOrEqual(1);
 });
+
+test("autoplay hint keeps readable horizontal text on a narrow screen", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(HTMLMediaElement.prototype, "play", {
+      configurable: true,
+      value: () => Promise.reject(new DOMException("Autoplay blocked")),
+    });
+  });
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/?qa=11&user=e2e-music-hint");
+
+  const hint = page.locator(".bgm-auth-hint");
+  const title = hint.locator(".ui-toast__title");
+  const action = hint.getByRole("button", { name: "开启背景音乐" });
+  await expect(hint).toBeVisible();
+  await expect(title).toHaveCSS("white-space", "nowrap");
+  await expect(action).toHaveCSS("white-space", "nowrap");
+
+  const hintBox = await hint.boundingBox();
+  const actionBox = await action.boundingBox();
+  if (!hintBox || !actionBox) throw new Error("Music hint is not visible");
+  expect(hintBox.width).toBeLessThanOrEqual(332);
+  expect(hintBox.height).toBeLessThan(150);
+  expect(actionBox.width).toBeGreaterThan(hintBox.width - 32);
+});
