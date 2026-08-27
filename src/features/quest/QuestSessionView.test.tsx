@@ -36,9 +36,23 @@ const choiceQuest: Quest = {
   penaltyDurationsMs: [1_000],
 };
 
+const scrollIntoView = vi.fn();
+const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+
 describe("QuestSessionView", () => {
-  beforeEach(() => window.localStorage.clear());
-  afterEach(() => vi.useRealTimers());
+  beforeEach(() => {
+    window.localStorage.clear();
+    scrollIntoView.mockClear();
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    if (originalScrollIntoView) {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    } else {
+      delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
+    }
+  });
 
   it("submits a normalized text answer and persists completion", () => {
     render(
@@ -81,40 +95,30 @@ describe("QuestSessionView", () => {
   });
 
   it("aligns the next quest card to the viewport after using the footer action", () => {
-    const scrollIntoView = vi.fn();
-    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
-    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    vi.useFakeTimers();
+    render(
+      <QuestSessionView
+        allQuests={[textQuest, choiceQuest]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
 
-    try {
-      render(
-        <QuestSessionView
-          allQuests={[textQuest, choiceQuest]}
-          requestedSteps={[11, 12]}
-          userId="alice"
-          missingSteps={[]}
-        />,
-      );
+    fireEvent.change(screen.getByPlaceholderText("输入你的答案"), {
+      target: { value: "星辰大海" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+    fireEvent.click(screen.getByRole("button", { name: "前往下一题" }));
+    act(() => vi.advanceTimersByTime(100));
 
-      fireEvent.change(screen.getByPlaceholderText("输入你的答案"), {
-        target: { value: "星辰大海" },
-      });
-      fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
-      fireEvent.click(screen.getByRole("button", { name: "前往下一题" }));
-
-      const nextQuest = screen.getByRole("article", { name: "第 2 题" });
-      expect(nextQuest).toHaveFocus();
-      expect(scrollIntoView).toHaveBeenCalledWith({
-        behavior: "smooth",
-        block: "start",
-        inline: "nearest",
-      });
-    } finally {
-      if (originalScrollIntoView) {
-        HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
-      } else {
-        delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView;
-      }
-    }
+    const nextQuest = screen.getByRole("article", { name: "第 2 题" });
+    expect(nextQuest).toHaveFocus();
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "start",
+      inline: "nearest",
+    });
   });
 
   it("uses the filtered array position for every displayed question number", () => {
@@ -219,7 +223,7 @@ describe("QuestSessionView", () => {
     expect(within(dialog).getByText("线索已经解锁")).toBeInTheDocument();
   });
 
-  it("auto-advances only after an AutoPlay text clue is closed", () => {
+  it("auto-advances and positions the title after an AutoPlay text clue closes", () => {
     const secondTextQuest: Quest = {
       ...textQuest,
       id: "quest-12-text",
@@ -257,10 +261,113 @@ describe("QuestSessionView", () => {
     expect(
       screen.getByRole("dialog", { name: "古老密卷" }),
     ).toBeInTheDocument();
+    vi.useFakeTimers();
     fireEvent.click(screen.getByRole("button", { name: "关闭线索" }));
+    act(() => vi.advanceTimersByTime(100));
     expect(
       screen.getByRole("heading", { name: "等待进入的第二题" }),
     ).toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "start",
+      inline: "nearest",
+    });
+  });
+
+  it("uses the same positioned navigation after an AutoPlay image closes", () => {
+    const secondTextQuest: Quest = {
+      ...textQuest,
+      id: "quest-12-after-image",
+      step: 12,
+      title: "图片线索后的第二题",
+    };
+    render(
+      <QuestSessionView
+        allQuests={[
+          {
+            ...textQuest,
+            autoNext: true,
+            clues: [
+              {
+                id: "auto-image",
+                kind: "image",
+                content: "查看后继续",
+                autoPlay: true,
+                imageUrls: ["https://img.example/auto.jpg"],
+              },
+            ],
+          },
+          secondTextQuest,
+        ]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("输入你的答案"), {
+      target: { value: "星辰大海" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+    expect(
+      screen.getByRole("dialog", { name: "图片预览" }),
+    ).toBeInTheDocument();
+    vi.useFakeTimers();
+    fireEvent.click(screen.getByRole("button", { name: "关闭媒体预览" }));
+    act(() => vi.advanceTimersByTime(100));
+
+    expect(
+      screen.getByRole("heading", { name: "图片线索后的第二题" }),
+    ).toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalled();
+  });
+
+  it("uses the same positioned navigation after an AutoPlay video ends", () => {
+    const secondTextQuest: Quest = {
+      ...textQuest,
+      id: "quest-12-after-video",
+      step: 12,
+      title: "视频线索后的第二题",
+    };
+    render(
+      <QuestSessionView
+        allQuests={[
+          {
+            ...textQuest,
+            autoNext: true,
+            clues: [
+              {
+                id: "auto-video",
+                kind: "video",
+                content: "播放后继续",
+                autoPlay: true,
+                imageUrls: [],
+                url: "https://video.example/auto.mp4",
+              },
+            ],
+          },
+          secondTextQuest,
+        ]}
+        requestedSteps={[11, 12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("输入你的答案"), {
+      target: { value: "星辰大海" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+    const video = document.querySelector("video");
+    expect(video).not.toBeNull();
+    vi.useFakeTimers();
+    fireEvent.ended(video!);
+    act(() => vi.advanceTimersByTime(100));
+
+    expect(
+      screen.getByRole("heading", { name: "视频线索后的第二题" }),
+    ).toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalled();
   });
 
   it("uses a short delay before auto-advancing when no clue is playing", () => {
@@ -288,9 +395,11 @@ describe("QuestSessionView", () => {
       screen.getByRole("heading", { name: "第一道测试题" }),
     ).toBeInTheDocument();
     act(() => vi.advanceTimersByTime(1_500));
+    act(() => vi.advanceTimersByTime(100));
     expect(
       screen.getByRole("heading", { name: "延迟后的第二题" }),
     ).toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalled();
   });
 
   it("reveals the matching combined clue after every selected quest completes", () => {

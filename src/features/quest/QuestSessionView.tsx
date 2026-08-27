@@ -52,6 +52,7 @@ import { BgmControls } from "../audio/BgmControls";
 import { ThemeMenu } from "../../components/ui/ThemeMenu";
 import { useQuestBgm } from "../audio/useQuestBgm";
 import { useHorizontalSwipe } from "../../shared/gestures/useHorizontalSwipe";
+import { useQuestNavigationPosition } from "./useQuestNavigationPosition";
 
 interface QuestSessionViewProps {
   allQuests: readonly Quest[];
@@ -180,7 +181,7 @@ export function QuestSessionView({
   const questNavRef = useRef<HTMLElement>(null);
   const answerFormRef = useRef<HTMLFormElement>(null);
   const activeNavItemRef = useRef<HTMLButtonElement>(null);
-  const previousQuestIdRef = useRef(activeQuest.id);
+  useQuestNavigationPosition(activeQuest.id, questCardRef);
 
   const closeAnswerGuide = useCallback(() => {
     setShowAnswerGuide(false);
@@ -239,24 +240,6 @@ export function QuestSessionView({
   useEffect(() => {
     uiBusyRef.current = isUiBusy;
   }, [isUiBusy]);
-
-  useEffect(() => {
-    if (previousQuestIdRef.current === activeQuest.id) return;
-    previousQuestIdRef.current = activeQuest.id;
-
-    const card = questCardRef.current;
-    if (!card) return;
-    card.focus({ preventScroll: true });
-    if (typeof card.scrollIntoView !== "function") return;
-    const prefersReducedMotion =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    card.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
-      inline: "nearest",
-    });
-  }, [activeQuest.id]);
 
   useEffect(() => {
     const nav = questNavRef.current;
@@ -337,8 +320,7 @@ export function QuestSessionView({
     (quest) => session.attempts[quest.id].status === "completed",
   ).length;
 
-  const moveTo = (index: number) => {
-    if (!canActivateQuest(session, index)) return;
+  const navigateToQuest = useCallback((index: number) => {
     if (autoAdvanceTimerRef.current !== null) {
       window.clearTimeout(autoAdvanceTimerRef.current);
       autoAdvanceTimerRef.current = null;
@@ -350,6 +332,11 @@ export function QuestSessionView({
     setMediaViewer(null);
     setIsVideoPlaying(false);
     setTextClue(null);
+  }, []);
+
+  const moveTo = (index: number) => {
+    if (!canActivateQuest(session, index)) return;
+    navigateToQuest(index);
   };
 
   const openImages = useCallback(
@@ -398,21 +385,21 @@ export function QuestSessionView({
     [activeQuest.step, activeQuest.title, userId],
   );
 
-  const runFlowAction = useCallback((action: FlowAction) => {
-    if (action.type === "advance") {
-      const targetIndex = action.targetIndex;
-      setSession((current) => activateQuest(current, targetIndex));
-      setFeedback("");
-      setFeedbackTone("neutral");
-      return;
-    }
-    if (action.type === "show-multi-completion") {
-      setCompletionFeedback("multi");
-      return;
-    }
-    if (action.revealCombination) setIsMultiClueOpen(true);
-    if (action.destination) setFinalDestination(action.destination);
-  }, []);
+  const runFlowAction = useCallback(
+    (action: FlowAction) => {
+      if (action.type === "advance") {
+        navigateToQuest(action.targetIndex);
+        return;
+      }
+      if (action.type === "show-multi-completion") {
+        setCompletionFeedback("multi");
+        return;
+      }
+      if (action.revealCombination) setIsMultiClueOpen(true);
+      if (action.destination) setFinalDestination(action.destination);
+    },
+    [navigateToQuest],
+  );
 
   const finishPendingFlow = useCallback(() => {
     const pending = pendingFlowRef.current;
@@ -640,11 +627,7 @@ export function QuestSessionView({
       } else if (flowAction?.type === "advance") {
         autoAdvanceTimerRef.current = window.setTimeout(() => {
           autoAdvanceTimerRef.current = null;
-          setSession((current) =>
-            activateQuest(current, flowAction.targetIndex),
-          );
-          setFeedback("");
-          setFeedbackTone("neutral");
+          navigateToQuest(flowAction.targetIndex);
         }, 1_500);
       } else if (flowAction) {
         runFlowAction(flowAction);
