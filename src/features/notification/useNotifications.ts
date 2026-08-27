@@ -11,9 +11,26 @@ export function useNotifications(userId: string, initialDelay = 5_000) {
     () => createNotificationSeenRepository(window.localStorage),
     [],
   );
-  const seenIdsRef = useRef(repository.load());
+  const [seenIds, setSeenIds] = useState(() => repository.load());
+  const seenIdsRef = useRef(seenIds);
+  const queuedIdsRef = useRef(new Set<string>());
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [queue, setQueue] = useState<Notification[]>([]);
+
+  const markRead = useCallback(
+    (id: string) => {
+      if (seenIdsRef.current.has(id)) return;
+      const nextSeenIds = new Set(seenIdsRef.current).add(id);
+      seenIdsRef.current = nextSeenIds;
+      setSeenIds(nextSeenIds);
+      try {
+        repository.markSeen(id);
+      } catch {
+        // The current session still reflects the read state if storage is blocked.
+      }
+    },
+    [repository],
+  );
 
   useEffect(() => {
     let stopped = false;
@@ -35,14 +52,13 @@ export function useNotifications(userId: string, initialDelay = 5_000) {
         setNotifications(remote);
         const next = [...remote]
           .reverse()
-          .find((item) => !seenIdsRef.current.has(item.id));
+          .find(
+            (item) =>
+              !seenIdsRef.current.has(item.id) &&
+              !queuedIdsRef.current.has(item.id),
+          );
         if (next) {
-          seenIdsRef.current.add(next.id);
-          try {
-            repository.markSeen(next.id);
-          } catch {
-            // The current session still avoids duplicate popups if storage is blocked.
-          }
+          queuedIdsRef.current.add(next.id);
           setQueue((current) => [...current, next]);
         }
       } catch (error) {
@@ -73,13 +89,24 @@ export function useNotifications(userId: string, initialDelay = 5_000) {
   }, [initialDelay, repository, userId]);
 
   const dismissCurrent = useCallback(() => {
+    const dismissed = queue[0];
+    if (!dismissed) return;
+    queuedIdsRef.current.delete(dismissed.id);
+    markRead(dismissed.id);
     setQueue((current) => current.slice(1));
-  }, []);
+  }, [markRead, queue]);
+
+  const unreadCount = useMemo(
+    () => notifications.filter((item) => !seenIds.has(item.id)).length,
+    [notifications, seenIds],
+  );
 
   return {
     notifications,
+    unreadCount,
     current: queue[0] ?? null,
     queuedCount: queue.length,
+    markRead,
     dismissCurrent,
   };
 }

@@ -33,8 +33,14 @@ export function NotificationCenter({
   onOpenImages,
   onOpenVideo,
 }: NotificationCenterProps) {
-  const { notifications, current, queuedCount, dismissCurrent } =
-    useNotifications(userId);
+  const {
+    notifications,
+    unreadCount,
+    current,
+    queuedCount,
+    markRead,
+    dismissCurrent,
+  } = useNotifications(userId);
   const [manualNotification, setManualNotification] =
     useState<Notification | null>(null);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -111,6 +117,7 @@ export function NotificationCenter({
                     key={item.id}
                     type="button"
                     onClick={() => {
+                      markRead(item.id);
                       setManualNotification(item);
                       setIsListOpen(false);
                     }}
@@ -159,9 +166,11 @@ export function NotificationCenter({
               <i />
               <span>✦</span>
             </span>
-            <strong>
-              {notifications.length > 9 ? "9+" : notifications.length}
-            </strong>
+            {unreadCount > 0 && (
+              <strong aria-hidden="true">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </strong>
+            )}
           </button>
           <span id="notification-drag-instructions" className="sr-only">
             可拖拽移动；键盘用户可按 Alt 加方向键调整位置。

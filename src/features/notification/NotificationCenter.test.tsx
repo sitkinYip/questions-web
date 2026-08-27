@@ -3,6 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NOTIFICATION_LAUNCHER_POSITION_KEY } from "../../infrastructure/storage/notification.repository";
 import { NotificationCenter } from "./NotificationCenter";
 
+const notificationHookMock = vi.hoisted(() => ({
+  unreadCount: 1,
+  markRead: vi.fn(),
+  dismissCurrent: vi.fn(),
+}));
+
 vi.mock("./useNotifications", () => ({
   useNotifications: () => ({
     notifications: [
@@ -14,14 +20,67 @@ vi.mock("./useNotifications", () => ({
         revision: "r1",
       },
     ],
+    unreadCount: notificationHookMock.unreadCount,
     current: null,
     queuedCount: 0,
-    dismissCurrent: vi.fn(),
+    markRead: notificationHookMock.markRead,
+    dismissCurrent: notificationHookMock.dismissCurrent,
   }),
 }));
 
 describe("NotificationCenter launcher", () => {
-  beforeEach(() => window.localStorage.clear());
+  beforeEach(() => {
+    window.localStorage.clear();
+    notificationHookMock.unreadCount = 1;
+    notificationHookMock.markRead.mockClear();
+    notificationHookMock.dismissCurrent.mockClear();
+  });
+
+  it("shows only the unread count and hides the badge when all messages are read", () => {
+    const { container, rerender } = render(
+      <NotificationCenter
+        userId="alice"
+        blocked={false}
+        onOpenImages={vi.fn()}
+        onOpenVideo={vi.fn()}
+      />,
+    );
+
+    expect(
+      container.querySelector(".notification-bell strong"),
+    ).toHaveTextContent("1");
+
+    notificationHookMock.unreadCount = 0;
+    rerender(
+      <NotificationCenter
+        userId="alice"
+        blocked={false}
+        onOpenImages={vi.fn()}
+        onOpenVideo={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector(".notification-bell strong")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "打开通知列表" }),
+    ).toBeInTheDocument();
+  });
+
+  it("marks an archived notification as read when it is opened", () => {
+    render(
+      <NotificationCenter
+        userId="alice"
+        blocked={false}
+        onOpenImages={vi.fn()}
+        onOpenVideo={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "打开通知列表" }));
+    fireEvent.click(screen.getByRole("button", { name: /测试讯息/ }));
+
+    expect(notificationHookMock.markRead).toHaveBeenCalledWith("notice-1");
+  });
 
   it("snaps after dragging, persists its position and does not toggle the list", () => {
     const { container } = render(
