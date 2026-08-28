@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { trackAnalytics, trackAnalyticsOnce } from "./index";
 import {
   analyticsUserFromSearch,
   createAnalyticsClient,
@@ -30,6 +31,10 @@ const answerEvent = {
 };
 
 describe("Questions analytics client", () => {
+  it("disables the legacy delivery adapter for reused authenticated-game visuals", () => {
+    expect(trackAnalytics(answerEvent, "old-user")).toBe(false);
+    expect(trackAnalyticsOnce("old-key", answerEvent, "old-user")).toBe(false);
+  });
   it("allows delivery only for the explicit production base", () => {
     expect(isAnalyticsAllowed(true, "/questions/")).toBe(true);
     expect(isAnalyticsAllowed(true, "/questions-next/")).toBe(false);

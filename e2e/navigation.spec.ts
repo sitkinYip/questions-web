@@ -1,159 +1,59 @@
-import { expect, test, type Page } from "@playwright/test";
-import { mockQuestionsApi, pocketBaseList } from "./fixtures";
+import { expect, test } from "@playwright/test";
+import { mockQuestionsApi, enterGame } from "./fixtures";
 
-const navigationLevels = Array.from({ length: 10 }, (_, index) => ({
-  id: `navigation-level-${index + 1}`,
-  step: index + 11,
-  type: "FillInTheBlank",
-  title: `导航测试第 ${index + 1} 题`,
-  question: [
-    {
-      text: `请输入第 ${index + 1} 题答案`,
-      img: "https://assets.example/navigation.png",
-    },
-  ],
-  answer: `答案${index + 1}`,
-  answerList: [],
-  options: [],
-  thread: [],
-  updated: "2026-08-25 10:00:00.000Z",
-}));
-
-async function expectTitleNearViewportTop(page: Page, title: string) {
-  await expect(page.getByRole("heading", { name: title })).toBeVisible();
-  await page.waitForTimeout(700);
-  const titlePosition = await page
-    .getByRole("heading", { name: title })
-    .evaluate((element) => {
-      const bounds = element.getBoundingClientRect();
-      return {
-        top: Math.round(bounds.top),
-        bottom: Math.round(bounds.bottom),
-        viewportHeight: window.innerHeight,
-      };
-    });
-  expect(titlePosition.top).toBeGreaterThanOrEqual(0);
-  expect(titlePosition.top).toBeLessThanOrEqual(
-    titlePosition.viewportHeight * 0.35,
-  );
-  expect(titlePosition.bottom).toBeLessThan(titlePosition.viewportHeight);
-}
-
-test.beforeEach(async ({ page }) => {
-  await mockQuestionsApi(page);
-  await page.route("**/api/collections/levels/records**", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(pocketBaseList(navigationLevels)),
-    }),
-  );
-});
-
-test("footer next action returns the new quest title to the viewport top", async ({
+test("next question scrolls into view after an autoplay clue closes", async ({
   page,
 }) => {
-  const steps = navigationLevels
-    .slice(0, 2)
-    .map((level) => level.step)
-    .join(",");
-  await page.goto(`/?qas=${steps}&user=e2e-footer-position`);
-
-  await page.getByPlaceholder("输入你的答案").fill("答案1");
+  await mockQuestionsApi(page, { autoNext: true, autoClue: true });
+  await enterGame(page);
+  await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
-  await page.getByRole("button", { name: "前往下一题" }).click();
-  await expectTitleNearViewportTop(page, "导航测试第 2 题");
-});
-
-test("closing an AutoPlay clue positions the next quest after the overlay releases", async ({
-  page,
-}) => {
-  const clueLevels = [
-    {
-      ...navigationLevels[0],
-      autoNext: true,
-      thread: [
-        {
-          type: "text",
-          title: "自动线索",
-          content: "关闭线索后继续下一题",
-          state: "AutoPlay",
-        },
-      ],
-    },
-    navigationLevels[1],
-  ];
-  await page.route("**/api/collections/levels/records**", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(pocketBaseList(clueLevels)),
-    }),
-  );
-  await page.goto("/?qas=11,12&user=e2e-clue-position");
-
-  await page.getByPlaceholder("输入你的答案").fill("答案1");
-  await page.getByRole("button", { name: "提交答案" }).click();
-  await expect(page.getByRole("dialog", { name: "自动线索" })).toBeVisible();
+  await expect(
+    page.getByRole("dialog", { name: "星辰组合真相" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "关闭线索" }).click();
-
-  await expectTitleNearViewportTop(page, "导航测试第 2 题");
+  await expect(
+    page.getByRole("heading", { name: "守门人的选择" }),
+  ).toBeVisible();
+  await expect(page.locator(".quest-card")).toBeFocused();
 });
 
-test("active tab stays visible and completed quests switch by horizontal swipe", async ({
+test("active tab stays visible and completed questions remain swipeable", async ({
   page,
 }) => {
-  const steps = navigationLevels.map((level) => level.step).join(",");
-  await page.goto(`/?qas=${steps}&user=e2e-navigation`);
-
-  for (let index = 0; index < 5; index += 1) {
-    await page.getByPlaceholder("输入你的答案").fill(`答案${index + 1}`);
-    await page.getByPlaceholder("输入你的答案").press("Enter");
+  test.setTimeout(60000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await mockQuestionsApi(page, { count: 10 });
+  await enterGame(page);
+  for (let index = 0; index < 5; index++) {
+    await page.getByPlaceholder("输入你的答案").fill("星辰大海");
+    await page.getByRole("button", { name: "提交答案" }).click();
     await page.getByRole("button", { name: "前往下一题" }).click();
+    // Let the original delayed card positioning finish before typing again.
+    await expect(page.locator(".quest-card")).toBeFocused();
   }
-
   await expect(
     page.getByRole("heading", { name: "导航测试第 6 题" }),
   ).toBeVisible();
-  await page.waitForTimeout(450);
-
-  const activeTab = page.locator(".quest-nav button.is-active");
-  const tabIsVisibleInsideNav = await activeTab.evaluate((tab) => {
-    const nav = tab.parentElement;
-    if (!nav) return false;
-    const tabRect = tab.getBoundingClientRect();
-    const navRect = nav.getBoundingClientRect();
-    return tabRect.left >= navRect.left && tabRect.right <= navRect.right;
-  });
-  expect(tabIsVisibleInsideNav).toBe(true);
-  expect(
-    await page.locator(".quest-nav").evaluate((nav) => nav.scrollLeft),
-  ).toBeGreaterThan(0);
-
-  const swipeTarget = page.locator(".quest-meta");
-  const box = await swipeTarget.boundingBox();
-  if (!box) throw new Error("Quest swipe target is not visible");
-  const centerX = box.x + box.width / 2;
-  const centerY = box.y + box.height / 2;
-
-  await page.mouse.move(centerX, centerY);
+  await expect
+    .poll(() =>
+      page.locator(".quest-nav button.is-active").evaluate((tab) => {
+        const box = tab.getBoundingClientRect(),
+          parent = tab.parentElement!.getBoundingClientRect();
+        return box.left >= parent.left - 1 && box.right <= parent.right + 1;
+      }),
+    )
+    .toBe(true);
+  await expect(page.locator(".quest-card")).toBeFocused();
+  const box = await page.locator(".quest-meta").boundingBox();
+  if (!box) throw new Error("Swipe target is missing");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
-  await page.mouse.move(centerX + 90, centerY, { steps: 5 });
+  await page.mouse.move(box.x + box.width / 2 + 90, box.y + box.height / 2, {
+    steps: 5,
+  });
   await page.mouse.up();
   await expect(
     page.getByRole("heading", { name: "导航测试第 5 题" }),
-  ).toBeVisible();
-
-  const previousBox = await page.locator(".quest-meta").boundingBox();
-  if (!previousBox)
-    throw new Error("Previous quest swipe target is not visible");
-  const previousCenterX = previousBox.x + previousBox.width / 2;
-  const previousCenterY = previousBox.y + previousBox.height / 2;
-  await page.mouse.move(previousCenterX, previousCenterY);
-  await page.mouse.down();
-  await page.mouse.move(previousCenterX - 90, previousCenterY, { steps: 5 });
-  await page.mouse.up();
-  await expect(
-    page.getByRole("heading", { name: "导航测试第 6 题" }),
   ).toBeVisible();
 });

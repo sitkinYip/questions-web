@@ -29,6 +29,7 @@ jobs:
       SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
       SSH_PORT: ${{ vars.SSH_PORT || '22' }}
       QUESTIONS_ROOT: ${{ secrets.QUESTIONS_ROOT }}
+      VITE_POCKETBASE_URL: ${{ vars.QUESTIONS_POCKETBASE_URL || 'https://api.sitkin.top' }}
     steps:
       - name: Check out latest main
         uses: actions/checkout@v4
@@ -48,6 +49,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Check backend API compatibility (read-only)
+        run: node scripts/verify-game-deployment.mjs
 
       - name: Build production
         run: pnpm build:production

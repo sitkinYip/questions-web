@@ -1,48 +1,50 @@
 # questions-web
 
-Questions 的独立 React 重写工程。旧 `home` 项目的线上 Questions 页面在本项目验收完成前保持不变。
+Questions 的独立 React 游戏工程，正式玩家入口为 https://sitkin.top/questions/。
 
 ## 当前状态
 
-- React 19 + TypeScript 6 + Vite 8 工程已建立。
-- 已定义统一的 `QuestSession / Quest / QuestAttempt` 领域模型。
-- 已实现答案标准化、时间窗口、单/多题推进和选择题惩罚的纯逻辑。
-- 已实现旧通关/惩罚 localStorage key 到 `questions:v1` 的兼容迁移。
-- 已建立 PocketBase Level 的 Zod schema 与 Adapter 边界。
-- 已实现旧内容标记的安全 AST 解析与 React 渲染，不使用 HTML 注入。
-- 已支持题目图片/图片组、选择题媒体和统一全屏图片/视频查看器。
-- 已支持五类通关线索、首条 `AutoPlay` 以及安全的 Letter/链接跳转。
-- 已实现多题顺序解锁、延迟 `autoNext`、恢复至首道未完成题和全部完成后的本场线索。
-- 已实现最终关优先反馈、最终 AutoPlay 时序及 `FinalLevelConfig` 安全继续入口。
-- 已实现 Letter 真实数据、modern/classical/magic 三种信件、逐段打字/配音/BGM 和安全返回。
-- 已接管 `/bless` 专属星空，支持 Phrase 叙事、粒子文字、逐段配音、循环 BGM、谢幕与安全返回。
-- 已实现 `/clearCache` 新旧记录扫描、精确筛选、解除惩罚、单条删除与批量清理。
-- 已实现会话等级展示、多题最高等级、一次性升级反馈和 `rankUpShown` 兼容记录。
-- 已实现按用户过滤的实时通知、可见性轮询、兼容已读记录、顺序弹窗队列和安全富内容预览。
-- 已实现关卡 BGM 自动播放授权、播放偏好记忆，以及视频期间暂停、结束后按用户意图恢复。
-- 已实现面向人工远程协助的 Questions 类型化运营埋点，包含答题对照与完整进度，使用 Beacon/keepalive 非阻塞发送并强制隔离预览环境。
-- 已实现 10 秒请求超时和 HTTP/网络/取消/契约错误分级，以及桌面与移动视口的 Playwright 核心流程验收。
-- 已接入关卡 `mainBgImg/avatar` 视觉字段，并完成弹窗焦点圈定/回收、键盘答题、44px 触控目标和 reduced-motion 验收。
-- 已实现多题导航活动 Tab 自动居中，并支持在题卡非交互区域横向滑动切换已解锁题目。
-- 已将关卡 BGM 控件恢复为视口固定浮标，支持拖拽、位置记忆和 `Alt + 方向键` 调整。
-- 已建立 `system / light / dark` 三态主题系统：默认跟随设备、支持 `?theme=light|dark|system` 链接初始主题、头像菜单手动覆盖和跨标签同步，并为暗金 UI 提供暖象牙纸浅色版本。
+2026-08-28 已完成新后端和两端正式替换，原容器停用、服务器验证端口关闭，公网认证、权限、内容和发布资源验收通过。管理后台为 https://vae.sitkin.top/；详见 [正式部署记录](./docs/production-deployment-20260828.md)。
+
+- 管理员建账号，玩家首次改密、昵称和头像维护；注册不开放。
+- 题目与场次分离，支持单题/多题、等级门槛、时间窗、指定玩家或全部有效玩家下发。
+- 进度、判题、经验、奖品和核销由 PocketBase 服务端维护；重新下发产生独立任务，正常再给奖励。
+- 复用现有主题、媒体、BGM、滑动导航、完成演出和 Letter/Bless；叙事内容需登录并解锁后读取。
+- 旧客户端运营埋点已停用；退出/切换账号清理业务缓存。
+- 新路由为 `/login`、`/`、`/profile`、`/rewards`、`/notifications`、`/play/:id`、`/play/:id/content/:contentId`。
+- 原 `?qa=` / `?qas=`、独立 `/letter` / `/bless`、`/clearCache` 不再作为业务入口；旧模块仍保留供组件复用与测试，不承担新业务的权威状态。
+
+设计与执行记录见 [后端设计](./docs/backend-rebuild-design.md)、[实施计划](./docs/backend-rebuild-plan.md)、[验收说明](./docs/backend-rebuild-verification.md)。后端代码和部署文档在相邻仓库 `sitkin-pb-backend-management/backend/`。
 
 ## 开发
 
+只需 **Node.js 24、pnpm 10.28.2**，不需要 Docker、PocketBase 二进制、SSH 隧道或另一个仓库。
+
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
+```
+
+默认直接连接 **https://api.sitkin.top**，不需要创建 `.env.local`。如果要改接口地址，再复制 `.env.example` 为 `.env.local`，设置 `VITE_POCKETBASE_URL` 为接口根地址（不含 `/api`）。不要在前端环境变量中放密码或管理令牌。
+
+本地浏览器使用 `http://localhost:5173`，或沿用 `http://local.sitkin.top:5173`。旧媒体的 OSS 防盗链规则需要原开发域名；新电脑如需查看这些素材，在 hosts 中添加 `127.0.0.1 local.sitkin.top`。直接用 `127.0.0.1` 浏览会被线上来源规则拦截。
+
+**本地页面操作的也是线上真实数据**：答题会记录进度、发放经验，后台下发/核销同样会生效。请使用专用测试账号，勿用真实玩家账号跑自动化测试。
+
+### 检查与构建
+
+以下单元测试和浏览器测试使用测试夹具，不依赖 Docker 或本地数据库；浏览器测试需先安装 Playwright 浏览器。
+
+```bash
 pnpm check
 pnpm test:e2e
 pnpm test:e2e:all
 pnpm check:all
-pnpm verify:api
-pnpm verify:letter
-pnpm verify:notifications
 ```
 
-复制 `.env.example` 为 `.env.local` 可覆盖 API 和部署 base。
-本地浏览器应访问 `http://local.sitkin.top:5173`，不要使用 `127.0.0.1:5173`，以满足线上接口的域名策略。
+只有修改后端判题/结算/迁移逻辑时才需要另做隔离后端验收，见后台仓库 `backend/README.md`。这不是前端开发的前置步骤。
+
+`verify:api` 等旧只读校验脚本仅供历史内容排查，不验证新游戏 API，不属于新版本验收流程。
 
 ## 部署 base
 
@@ -57,7 +59,9 @@ pnpm build:preview
 pnpm build:production
 ```
 
-`main` 的 CI 通过后，由 `Deploy Questions Preview` 工作流发布预览环境，也可手动触发。
+GitHub Actions 默认使用线上 API，不再要求迁移期间的 `QUESTIONS_BACKEND_V1_READY` 变量。仅当目标接口不同于线上时，才在对应 Environment 设置可选变量 `QUESTIONS_POCKETBASE_URL`（HTTPS 根地址）。部署前会无凭据、只读探测新 API；普通本地构建不做网络探测。
+
+push 到 `main` 并通过 CI 后，由 `Deploy Questions Preview` 工作流发布预览环境，也可手动触发。PR 检查不会触发发布。
 GitHub 的 `preview` Environment 需要配置 `HOST`、`USERNAME`、`SSH_KEY`、
 `SSH_KNOWN_HOSTS` 和 `QUESTIONS_ROOT` Secrets；可选的 `SSH_PORT` 配置为
 Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next/`，
@@ -65,6 +69,10 @@ Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next
 
 正式环境通过 `Deploy Questions Production` 工作流手动发布。运行时必须勾选确认项；
 工作流固定构建 `main` 最新提交并同步到 `<QUESTIONS_ROOT>/questions/`，只验证服务器文件，
-不会修改 OpenResty 或自动切换线上 `/questions/` 路由。正式切换应在工作流成功后手动完成。
+不会修改 OpenResty。现有 `/questions/` 路由已上线，发布到该目录即可更新正式玩家端。
+
+两种工作流只发布当前 Git 提交的静态构建，不上传 PocketBase 数据库或替换后端容器。此次迁移曾通过本地打包、SSH 上线；后续以前端仓库的 Actions 为常规发布入口。未提交、未 push 的本地修改不会出现在 Actions 中。
 
 详细边界和验收标准见 [架构文档](./docs/architecture.md)。
+
+答题页 UI 保留规则、逐状态基准与真实旧题验收入口见 [UI 保留审查](docs/question-ui-preservation.md)。

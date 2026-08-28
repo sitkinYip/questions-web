@@ -1,3 +1,4 @@
+import { QuestCard, QuestAnswerGuide } from "./QuestCard";
 import {
   useCallback,
   useEffect,
@@ -8,12 +9,8 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { createSessionFromSelection } from "../../application/quest/create-session";
-import {
-  EnergyBurst,
-  QuestAtmosphere,
-} from "../../components/effects/QuestAtmosphere";
+import { QuestAtmosphere } from "../../components/effects/QuestAtmosphere";
 import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/FormControls";
 import { normalizeAnswer } from "../../domain/quest/answer";
 import {
   activateQuest,
@@ -38,14 +35,11 @@ import {
 import { createProgressRepository } from "../../infrastructure/storage/progress.repository";
 import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/quest-guide.repository";
 import { createRankRepository } from "../../infrastructure/storage/rank.repository";
-import { CluePanel } from "../clues/CluePanel";
 import { ClueTextDialog } from "../clues/ClueTextDialog";
 import { MultiQuestClueDialog } from "../clues/MultiQuestClueDialog";
 import { CompletionFeedbackDialog } from "../completion/CompletionFeedbackDialog";
 import { FinalDestinationPrompt } from "../completion/FinalDestinationPrompt";
-import { ChoiceOptions } from "../media/ChoiceOptions";
 import { MediaViewer, type MediaViewerState } from "../media/MediaViewer";
-import { QuestContent } from "../media/QuestContent";
 import { NotificationCenter } from "../notification/NotificationCenter";
 import { RankUpDialog } from "../rank/RankUpDialog";
 import { BgmControls } from "../audio/BgmControls";
@@ -80,12 +74,6 @@ type FinalSequence = {
   automaticClue?: QuestClue & { kind: "text" | "image" | "video" };
   action: Extract<FlowAction, { type: "finish-final" }>;
 };
-
-function formatRemaining(milliseconds: number): string {
-  const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
-  const minutes = Math.floor(seconds / 60);
-  return `${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-}
 
 function feedbackForBlocked(reason: "not-started" | "ended" | "penalized") {
   if (reason === "not-started") return "冒险尚未开始，请耐心等待。";
@@ -760,175 +748,53 @@ export function QuestSessionView({
         </nav>
       )}
 
-      <article
-        key={activeQuest.id}
-        ref={questCardRef}
-        className="quest-card"
-        data-answer-state={activeAttempt.status}
-        tabIndex={-1}
-        aria-label={`第 ${activeQuestionNumber} 题`}
-        onPointerMove={updateQuestSpotlight}
-        onPointerLeave={hideQuestSpotlight}
-        {...swipeHandlers}
-      >
-        <div className="quest-meta">
-          <span>第 {activeQuestionNumber} 题</span>
-          <span>{activeQuest.kind === "choice" ? "选择题" : "填空题"}</span>
-        </div>
-        {activeQuest.title && <h1>{activeQuest.title}</h1>}
-        <QuestContent
-          items={activeQuest.content}
-          fallback={activeQuest.prompt}
-          onOpenImages={openImages}
-          onOpenVideo={openVideo}
-        />
-
-        {availability.status !== "available" && (
-          <div className="availability-notice" role="status">
-            {availability.status === "not-started"
-              ? `开放时间：${new Date(availability.startsAt).toLocaleString()}`
-              : `已于 ${new Date(availability.endedAt).toLocaleString()} 结束`}
-          </div>
-        )}
-
-        <form
-          ref={answerFormRef}
-          className="answer-form"
-          data-guide-highlight={highlightAnswerForm || undefined}
-          onSubmit={handleSubmit}
-        >
-          {activeQuest.kind === "choice" ? (
-            <ChoiceOptions
-              questId={activeQuest.id}
-              options={activeQuest.options}
-              value={answer}
-              disabled={
-                isPermanentlyLocked ||
-                isTemporarilyLocked ||
-                activeAttempt.status === "completed"
-              }
-              onChange={setAnswer}
-              onOpenImage={(url) => openImages([url])}
-              onOpenVideo={openVideo}
-            />
-          ) : (
-            <label className="text-answer">
-              <span className="sr-only">答案</span>
-              <Input
-                variant="line"
-                value={answer}
-                onChange={(event) => setAnswer(event.target.value)}
-                placeholder={activeQuest.answerPlaceholder || "输入你的答案"}
-                autoComplete="off"
-                disabled={activeAttempt.status === "completed"}
-              />
-            </label>
-          )}
-
-          {(isPermanentlyLocked || isTemporarilyLocked) && (
-            <p className="penalty-state" role="timer">
-              {isPermanentlyLocked
-                ? "此题已永久锁定"
-                : `距离再次尝试还有 ${formatRemaining((activeAttempt.penaltyEndsAt ?? now) - now)}`}
-            </p>
-          )}
-
-          <div className="answer-actions">
-            {activeAttempt.status !== "completed" && (
-              <Button
-                variant="primary"
-                type="submit"
-                disabled={
-                  isPermanentlyLocked ||
-                  isTemporarilyLocked ||
-                  availability.status !== "available"
-                }
-              >
-                提交答案
-              </Button>
-            )}
-            {canMoveNext && (
-              <Button variant="secondary" onClick={() => moveTo(nextIndex)}>
-                前往下一题
-              </Button>
-            )}
-          </div>
-        </form>
-
-        {feedback && (
-          <>
-            <p
-              key={feedback}
-              className="feedback"
-              data-tone={feedbackTone}
-              role="status"
-              aria-live="polite"
-            >
-              {feedback}
-            </p>
-            {feedbackTone !== "neutral" && <EnergyBurst tone={feedbackTone} />}
-          </>
-        )}
-        {activeAttempt.status === "completed" && (
-          <CluePanel
-            clues={activeQuest.clues}
-            onOpenText={setTextClue}
-            onOpenImages={openImages}
-            onOpenVideo={openVideo}
-            onClueOpen={(clue) =>
-              trackAnalytics(
-                {
-                  name: "clue_opened",
-                  clueId: clue.id,
-                  kind: clue.kind,
-                  step: activeQuest.step,
-                  title: clue.title,
-                  content: clue.content,
-                  urls: [
-                    ...clue.imageUrls,
-                    ...(clue.url ? [clue.url] : []),
-                    ...(clue.href ? [clue.href] : []),
-                  ],
-                  automatic: false,
-                },
-                userId,
-              )
-            }
-          />
-        )}
-        <div className="quest-card-chrome" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
-      </article>
+      <QuestCard
+        activeQuest={activeQuest}
+        activeAttempt={activeAttempt}
+        activeQuestionNumber={activeQuestionNumber}
+        questCardRef={questCardRef}
+        answerFormRef={answerFormRef}
+        swipeHandlers={swipeHandlers}
+        updateQuestSpotlight={updateQuestSpotlight}
+        hideQuestSpotlight={hideQuestSpotlight}
+        availability={availability}
+        highlightAnswerForm={highlightAnswerForm}
+        answer={answer}
+        setAnswer={setAnswer}
+        isPermanentlyLocked={isPermanentlyLocked}
+        isTemporarilyLocked={isTemporarilyLocked}
+        now={now}
+        canMoveNext={canMoveNext}
+        nextIndex={nextIndex}
+        moveTo={moveTo}
+        feedback={feedback}
+        feedbackTone={feedbackTone}
+        openImages={openImages}
+        openVideo={openVideo}
+        setTextClue={setTextClue}
+        handleSubmit={handleSubmit}
+        onClueOpen={(clue) =>
+          trackAnalytics(
+            {
+              name: "clue_opened",
+              clueId: clue.id,
+              kind: clue.kind,
+              step: activeQuest.step,
+              title: clue.title,
+              content: clue.content,
+              urls: [
+                ...clue.imageUrls,
+                ...(clue.url ? [clue.url] : []),
+                ...(clue.href ? [clue.href] : []),
+              ],
+              automatic: false,
+            },
+            userId,
+          )
+        }
+      />
       {showAnswerGuide && (
-        <aside className="answer-guide" aria-label="答题引导">
-          <div className="answer-guide__marker" aria-hidden="true">
-            01
-          </div>
-          <div className="answer-guide__copy">
-            <strong>答案在题目下方</strong>
-            <p>向下阅读题目，在卡片底部填写或选择答案；完成后解锁下一题。</p>
-          </div>
-          <div className="answer-guide__actions">
-            <Button
-              variant="ghost"
-              size="small"
-              onClick={() => dismissAnswerGuide(false)}
-            >
-              知道了
-            </Button>
-            <Button
-              variant="primary"
-              size="small"
-              onClick={() => dismissAnswerGuide(true)}
-            >
-              定位答题区
-            </Button>
-          </div>
-        </aside>
+        <QuestAnswerGuide dismissAnswerGuide={dismissAnswerGuide} />
       )}
       <span className="sr-only" aria-live="polite">
         {isVideoPlaying ? "视频正在播放" : "视频未播放"}

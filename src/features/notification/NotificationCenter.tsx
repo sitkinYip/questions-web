@@ -5,7 +5,7 @@ import { useDraggableFloatingControl } from "../../shared/gestures/useDraggableF
 import { NotificationDialog } from "./NotificationDialog";
 import { useNotifications } from "./useNotifications";
 
-interface NotificationCenterProps {
+export interface NotificationCenterProps {
   userId: string;
   blocked: boolean;
   onOpenImages: (urls: readonly string[]) => void;
@@ -33,14 +33,35 @@ export function NotificationCenter({
   onOpenImages,
   onOpenVideo,
 }: NotificationCenterProps) {
-  const {
-    notifications,
-    unreadCount,
-    current,
-    queuedCount,
-    markRead,
-    dismissCurrent,
-  } = useNotifications(userId);
+  return (
+    <NotificationCenterView
+      userId={userId}
+      blocked={blocked}
+      onOpenImages={onOpenImages}
+      onOpenVideo={onOpenVideo}
+      {...useNotifications(userId)}
+    />
+  );
+}
+export function NotificationCenterView({
+  userId,
+  blocked,
+  onOpenImages,
+  onOpenVideo,
+  notifications,
+  unreadCount,
+  current,
+  queuedCount,
+  markRead,
+  dismissCurrent,
+}: NotificationCenterProps & {
+  notifications: readonly Notification[];
+  unreadCount: number;
+  current: Notification | null;
+  queuedCount: number;
+  markRead: (id: string) => void;
+  dismissCurrent: () => void;
+}) {
   const [manualNotification, setManualNotification] =
     useState<Notification | null>(null);
   const [isListOpen, setIsListOpen] = useState(false);

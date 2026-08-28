@@ -6,6 +6,7 @@
 @import "./styles/features/completion.css";
 @import "./styles/effects/quest-atmosphere.css";
 @import "./styles/features/quest.css";
+@import "./styles/features/game.css";
 @import "./styles/effects/quest-lighting.css";
 @import "./styles/components/media-backdrop.css";
 @import "./styles/features/notifications.css";

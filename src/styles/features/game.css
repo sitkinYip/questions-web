@@ -1,0 +1,221 @@
+.game-shell {
+  width: min(1080px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 32px 0 80px;
+}
+.game-login {
+  width: min(440px, calc(100% - 40px));
+  margin: clamp(40px, 10vh, 120px) auto;
+}
+.game-login h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.35;
+  margin: 24px 0;
+}
+.game-login > p,
+.game-intro > p {
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+.game-login form,
+.game-profile-section form {
+  display: grid;
+  gap: 20px;
+  margin-top: 32px;
+}
+.game-login label,
+.game-profile-section label {
+  display: grid;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+.game-muted {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.game-intro {
+  padding: 32px 0 44px;
+}
+.game-intro h1 {
+  margin: 14px 0;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 44px);
+}
+.game-xp {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(500px, 100%);
+  margin-top: 28px;
+  font-size: 13px;
+  color: var(--color-accent);
+}
+.game-xp progress {
+  width: 100%;
+  height: 6px;
+  accent-color: var(--color-accent);
+}
+.game-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+.game-section-heading h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.game-assignment-list {
+  display: grid;
+  gap: 0;
+}
+.game-assignment {
+  padding: 30px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  border-bottom: 1px solid var(--color-border);
+}
+.game-assignment h3,
+.game-assignment h2 {
+  font-family: var(--font-display);
+  font-size: 25px;
+  margin: 8px 0 16px;
+}
+.game-assignment p {
+  line-height: 1.8;
+}
+.game-action-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 12px 0;
+}
+.game-empty {
+  border: 1px dashed var(--color-border);
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.game-notice {
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid var(--color-danger-border);
+  background: var(--color-danger-surface);
+  color: var(--color-danger);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.game-notice p {
+  margin: 0 0 8px;
+  line-height: 1.6;
+}
+.game-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  margin-top: 40px;
+}
+.game-profile-avatar {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.game-reward-image {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.game-claim-details {
+  background: var(--color-accent-faint);
+  border-left: 2px solid var(--color-accent);
+  padding: 12px 20px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 650px) {
+  .game-shell {
+    width: calc(100% - 32px);
+    padding-top: 16px;
+  }
+  .game-assignment {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .game-profile-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .game-intro {
+    padding-top: 16px;
+  }
+}
+
+/* Account UI stays in a portal; it must not override the existing quest styles. */
+.game-sidebar__content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.game-sidebar__identity h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.game-sidebar__nav {
+  display: grid;
+  border-block: 1px solid var(--color-border);
+  padding-block: 12px;
+}
+.game-sidebar__nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  gap: 12px;
+  padding: 10px 8px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+.game-sidebar__nav a:hover,
+.game-sidebar__nav a[aria-current="page"] {
+  color: var(--color-accent-text);
+  background: var(--color-accent-faint);
+}
+.game-sidebar__theme {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.game-sidebar__theme legend {
+  margin-bottom: 12px;
+  color: var(--color-text-subtle);
+  font-size: 12px;
+}
+.game-sidebar__theme label {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 8px;
+  cursor: pointer;
+}
+.game-sidebar__theme input {
+  accent-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+}
+.game-sidebar__content > .ui-button:last-child {
+  margin-top: auto;
+}

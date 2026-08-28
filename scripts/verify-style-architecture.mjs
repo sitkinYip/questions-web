@@ -16,6 +16,7 @@ const expectedImports = [
   "features/completion.css",
   "effects/quest-atmosphere.css",
   "features/quest.css",
+  "features/game.css",
   "effects/quest-lighting.css",
   "components/media-backdrop.css",
   "features/notifications.css",

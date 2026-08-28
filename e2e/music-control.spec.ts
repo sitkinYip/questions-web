@@ -1,27 +1,12 @@
 import { expect, test } from "@playwright/test";
 import {
-  levels,
   mockLegacyAudioPlayback,
   mockQuestionsApi,
-  pocketBaseList,
+  enterGame,
 } from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
-  await mockQuestionsApi(page);
-  await page.route("**/api/collections/levels/records**", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(
-        pocketBaseList([
-          { ...levels[0], mainAudio: "https://assets.example/bgm.mp3" },
-        ]),
-      ),
-    }),
-  );
-  await page.route("https://assets.example/bgm.mp3", (route) =>
-    route.fulfill({ status: 200, contentType: "audio/mpeg", body: "" }),
-  );
+  await mockQuestionsApi(page, { bgm: true });
 });
 
 test("loads and toggles music when play returns undefined", async ({
@@ -30,7 +15,9 @@ test("loads and toggles music when play returns undefined", async ({
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await mockLegacyAudioPlayback(page);
-  await page.goto("/questions-next/?qa=11&user=e2e-legacy-audio");
+  await enterGame(page);
+  // The restored first-visit answer guide has priority over floating controls.
+  await page.getByRole("button", { name: "知道了", exact: true }).click();
 
   const control = page.locator(".bgm-control");
   await expect(control).toHaveAttribute("aria-pressed", "true");
@@ -45,7 +32,8 @@ test("loads and toggles music when play returns undefined", async ({
 test("music control stays fixed, drags without toggling and restores position", async ({
   page,
 }) => {
-  await page.goto("/?qa=11&user=e2e-music-float");
+  await enterGame(page);
+  await page.getByRole("button", { name: "知道了", exact: true }).click();
   const control = page.locator(".bgm-control");
   await expect(control).toBeVisible();
   await expect(control).toHaveCSS("position", "fixed");
@@ -117,7 +105,7 @@ test("autoplay hint keeps readable horizontal text on a narrow screen", async ({
     });
   });
   await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/?qa=11&user=e2e-music-hint");
+  await enterGame(page);
 
   const hint = page.locator(".bgm-auth-hint");
   const title = hint.locator(".ui-toast__title");

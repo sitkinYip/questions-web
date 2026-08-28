@@ -63,6 +63,39 @@ export function AppDialog({
             onPointerDownOutside={(event) => {
               if (!closeOnOutside) event.preventDefault();
             }}
+            onKeyDown={(event) => {
+              // Safari uses Option-Tab to include buttons. Radix's normal Tab
+              // loop excludes Alt, so handle only its boundary case here.
+              if (
+                event.key !== "Tab" ||
+                !event.altKey ||
+                event.ctrlKey ||
+                event.metaKey
+              )
+                return;
+              const nodes = Array.from(
+                event.currentTarget.querySelectorAll<HTMLElement>(
+                  "button, a[href], input, select, textarea, [tabindex]",
+                ),
+              ).filter(
+                (node) =>
+                  node.tabIndex >= 0 &&
+                  !node.matches(":disabled, [hidden]") &&
+                  node.getClientRects().length > 0,
+              );
+              const first = nodes[0],
+                last = nodes.at(-1);
+              const target =
+                event.shiftKey && document.activeElement === first
+                  ? last
+                  : !event.shiftKey && document.activeElement === last
+                    ? first
+                    : null;
+              if (target) {
+                event.preventDefault();
+                target.focus();
+              }
+            }}
           >
             <Dialog.Title className="sr-only">{accessibleTitle}</Dialog.Title>
             {accessibleDescription && (
