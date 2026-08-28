@@ -206,7 +206,8 @@ export const gameApi = {
   profile: (body: FormData) =>
     gameRequest("/me/profile", {
       method: "PATCH",
-      body,
+      // Text-only edits don't need a multipart upload request.
+      body: body.has("avatar") ? body : Object.fromEntries(body),
       schema: gamePlayerSchema,
     }),
   async changePassword(

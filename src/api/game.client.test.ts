@@ -124,6 +124,37 @@ describe("authenticated game transport", () => {
       fetcher.mock.calls[1][1].body,
     );
   });
+  it("sends nickname-only profile edits as JSON", async () => {
+    authState.set({ token: "token", playerId: "alice" });
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(json({ ...player, displayName: "新昵称" }));
+    vi.stubGlobal("fetch", fetcher);
+    const form = new FormData();
+    form.set("displayName", "新昵称");
+
+    expect((await gameApi.profile(form)).displayName).toBe("新昵称");
+    expect(fetcher.mock.calls[0][0]).toMatch(/\/me\/profile$/);
+    expect(fetcher.mock.calls[0][1]).toMatchObject({
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: "token" },
+      body: JSON.stringify({ displayName: "新昵称" }),
+    });
+  });
+  it("keeps avatar uploads multipart and lets the browser set the boundary", async () => {
+    const fetcher = vi.fn().mockResolvedValue(json(player));
+    vi.stubGlobal("fetch", fetcher);
+    const form = new FormData();
+    form.set("displayName", "新昵称");
+    form.set(
+      "avatar",
+      new File(["image"], "avatar.png", { type: "image/png" }),
+    );
+
+    await gameApi.profile(form);
+    expect(fetcher.mock.calls[0][1].body).toBe(form);
+    expect(fetcher.mock.calls[0][1].headers).not.toHaveProperty("Content-Type");
+  });
 });
 
 it("creates cryptographic request IDs on the original HTTP development domain", async () => {
