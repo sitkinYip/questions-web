@@ -90,7 +90,7 @@
 
 .letter-return {
   position: fixed;
-  top: 24px;
+  top: max(24px, var(--safe-area-top));
   left: 24px;
   z-index: 10;
   padding: 10px 14px;
@@ -502,7 +502,7 @@
   }
 
   .letter-return {
-    top: 12px;
+    top: max(12px, var(--safe-area-top));
     left: 14px;
   }
 

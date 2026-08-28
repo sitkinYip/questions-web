@@ -1,0 +1,76 @@
+.desktop-profile {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.8fr) minmax(290px, 1fr) minmax(
+      290px,
+      1fr
+    );
+  align-items: start;
+  gap: var(--desktop-gap);
+  min-height: 0;
+  overflow: auto;
+  padding: 2px 4px 8px;
+}
+.desktop-profile > :not(.player-passport) {
+  /* Share the grid row's height; neither editor owns its button baseline. */
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 12px 0 0 24px;
+  border-left: 1px solid var(--color-border);
+}
+.desktop-profile .game-section-title h2 {
+  font-size: 21px;
+}
+.desktop-profile .game-muted {
+  font-size: 12px;
+}
+.desktop-profile
+  :is(.desktop-profile__identity, .game-password-section)
+  > .game-muted {
+  margin: 10px 0 20px;
+  line-height: 1.7;
+}
+.desktop-profile .game-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+.desktop-profile .game-form > * {
+  flex-shrink: 0;
+}
+.desktop-profile .game-form .ui-input {
+  min-height: 44px;
+  height: 44px;
+}
+.desktop-profile .profile-editor__avatar {
+  min-height: 76px;
+  padding: 0;
+  gap: 16px;
+}
+.desktop-profile .profile-editor__account {
+  padding-block: 14px;
+}
+.desktop-profile .game-cta {
+  margin-top: auto;
+  min-height: 46px;
+}
+.desktop-profile .player-passport {
+  padding: 24px;
+}
+.desktop-profile .player-passport > .celestial-atlas {
+  width: clamp(110px, 18dvh, 190px);
+  margin-block: 8px 24px;
+}
+.desktop-profile .player-passport__identity {
+  gap: 12px;
+}
+.desktop-profile .player-passport__identity h2 {
+  font-size: 22px;
+}
+.desktop-profile .game-form-success,
+.desktop-profile .game-field-error {
+  font-size: 12px;
+  margin-block: 0;
+}

@@ -80,8 +80,8 @@ test("avatar sidebar contains account actions and closes back to the unchanged q
   await avatar.click();
   const sidebar = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
   await expect(sidebar).toBeVisible();
-  await expect(sidebar.getByRole("link", { name: "个人资料" })).toBeVisible();
-  await expect(sidebar.getByRole("link", { name: "奖品" })).toBeVisible();
+  await expect(sidebar.getByRole("link", { name: "冒险者护照" })).toBeVisible();
+  await expect(sidebar.getByRole("link", { name: "奇遇收藏" })).toBeVisible();
   await expect(sidebar.getByRole("radio", { name: "跟随系统" })).toBeChecked();
   await expect(
     sidebar.getByRole("button", { name: "关闭冒险者菜单" }),
@@ -104,11 +104,13 @@ test("sidebar links navigate to prizes and return to the server-backed question 
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
   const sidebar = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
   await expect(sidebar.getByText("50 EXP", { exact: true })).toBeVisible();
-  await sidebar.getByRole("link", { name: "奖品", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "冒险的收获" })).toBeVisible();
+  await sidebar.getByRole("link", { name: "奇遇收藏", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "把奇遇，收入囊中。" }),
+  ).toBeVisible();
   await expect(sidebar).toHaveCount(0);
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
-  await sidebar.getByRole("link", { name: "返回答题", exact: true }).click();
+  await sidebar.getByRole("link", { name: /返回答题/ }).click();
   await expect(page).toHaveURL(/\/play\/assignment1$/);
   await expect(page.getByLabel("答题进度")).toHaveText("1/2已完成");
   await page.getByRole("button", { name: /01 已完成/ }).click();

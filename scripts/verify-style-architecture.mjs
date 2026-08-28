@@ -11,12 +11,23 @@ const expectedImports = [
   "foundation/tokens.css",
   "foundation/base.css",
   "components/controls-and-overlays.css",
+  "components/password-input.css",
   "layout/shell.css",
+  "layout/game-shell.css",
   "features/clues.css",
   "features/completion.css",
   "effects/quest-atmosphere.css",
   "features/quest.css",
+  "features/question-images.css",
   "features/game.css",
+  "features/game-loading.css",
+  "features/game-auth.css",
+  "features/game-passport.css",
+  "features/game-sidebar.css",
+  "features/game-chapters.css",
+  "features/game-collections.css",
+  "effects/celestial-atlas.css",
+  "effects/game-keyframes.css",
   "effects/quest-lighting.css",
   "components/media-backdrop.css",
   "features/notifications.css",
@@ -35,6 +46,12 @@ const expectedImports = [
   "effects/keyframes.css",
   "effects/letter-keyframes.css",
   "effects/bless-keyframes.css",
+  "desktop/workspace.css",
+  "desktop/quest.css",
+  "desktop/clue-video.css",
+  "desktop/profile.css",
+  "desktop/inbox.css",
+  "desktop/letter.css",
 ];
 
 async function collectCssFiles(directory) {
@@ -117,6 +134,17 @@ for (const token of [
   "--color-shadow",
   "--motion-spring",
   "--z-overlay",
+  "--z-navigation",
+  "--duration-reveal",
+  "--duration-orbit",
+  "--space-4",
+  "--radius-control",
+  "--radius-panel",
+  "--control-height",
+  "--page-width",
+  "--safe-area-top",
+  "--safe-area-bottom",
+  "--page-gutter",
 ]) {
   if (!tokens.includes(`${token}:`))
     failures.push(`Missing required token ${token}.`);
@@ -126,9 +154,20 @@ if (!tokens.includes(':root[data-theme="light"]'))
   failures.push("Missing the light theme token contract.");
 
 const themeStructuralModules = [
+  ...expectedImports.filter((path) => path.startsWith("desktop/")),
+  "components/password-input.css",
+  "layout/game-shell.css",
+  "features/game.css",
+  "features/game-loading.css",
+  "features/game-auth.css",
+  "features/game-passport.css",
+  "features/game-chapters.css",
+  "features/game-collections.css",
+  "effects/celestial-atlas.css",
   "components/controls-and-overlays.css",
   "layout/shell.css",
   "features/quest.css",
+  "features/question-images.css",
   "features/records.css",
 ];
 const literalColorPattern = /#[\da-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)/i;

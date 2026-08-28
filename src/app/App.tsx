@@ -10,13 +10,11 @@ import { ToastProvider } from "../components/ui/ToastProvider";
 import { resolveAppBasename } from "../shared/navigation/app-base";
 import { ThemeProvider } from "../components/ui/ThemeProvider";
 import { GameGate } from "../features/game/GameContext";
-import {
-  GameLoginPage,
-  GameDashboard,
-  GameProfilePage,
-  GameRewardsPage,
-  GameNotificationsPage,
-} from "../features/game/GamePages";
+import { GameLoginPage } from "../features/game/pages/GameLoginPage";
+import { GameDashboard } from "../features/game/pages/GameDashboard";
+import { GameProfilePage } from "../features/game/pages/GameProfilePage";
+import { GameRewardsPage } from "../features/game/pages/GameRewardsPage";
+import { GameNotificationsPage } from "../features/game/pages/GameNotificationsPage";
 import { GamePlayPage } from "../features/game/GamePlayPage";
 import { GameNarrativePage } from "../features/game/GameNarrativePage";
 

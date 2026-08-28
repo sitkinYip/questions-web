@@ -5,7 +5,8 @@
 
 .quest-layout {
   display: grid;
-  align-content: center;
+  /* Short questions start at the safe top padding, not the viewport midpoint. */
+  align-content: start;
   gap: 24px;
 }
 
@@ -275,7 +276,6 @@
   text-underline-offset: 0.22em;
 }
 
-.quest-prompt img,
 .quest-prompt video {
   display: block;
   width: min(100%, 680px);
@@ -301,18 +301,6 @@
   margin: 0;
 }
 
-.question-image,
-.question-gallery {
-  display: grid;
-  gap: 10px;
-}
-
-.question-gallery {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
-
-.question-image button,
-.question-gallery button,
 .video-poster-button {
   position: relative;
   padding: 0;
@@ -326,16 +314,12 @@
     transform 620ms var(--motion-spring);
 }
 
-.question-image button:hover,
-.question-gallery button:hover,
 .video-poster-button:hover {
   border-color: var(--color-accent);
   box-shadow: 0 24px 70px var(--color-shadow-strong);
   transform: translateY(-4px) scale(1.008);
 }
 
-.question-image img,
-.question-gallery img,
 .video-poster-button img {
   display: block;
   width: 100%;
@@ -344,8 +328,6 @@
   transition: transform 900ms var(--motion-ios);
 }
 
-.question-image button:hover img,
-.question-gallery button:hover img,
 .video-poster-button:hover img {
   transform: scale(1.035);
 }

@@ -1,0 +1,198 @@
+.game-auth {
+  min-height: 100dvh;
+  padding: 0 var(--page-gutter);
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+.game-auth__header {
+  --auth-header-height: 106px;
+  --auth-header-clearance: 29px;
+  --auth-header-safe-offset: max(
+    0px,
+    calc(var(--safe-area-top) - var(--auth-header-clearance))
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: calc(var(--auth-header-height) + var(--auth-header-safe-offset));
+  padding-top: var(--auth-header-safe-offset);
+  max-width: 1320px;
+  margin: auto;
+}
+.game-auth__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  align-items: center;
+  min-height: min(730px, calc(100dvh - 168px));
+  max-width: 1180px;
+  margin: auto;
+  gap: clamp(48px, 8vw, 120px);
+}
+.game-auth__story {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  min-height: 500px;
+}
+.game-auth__story > .celestial-atlas {
+  position: absolute;
+  width: 780px;
+  left: -360px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+}
+.game-auth__story-copy {
+  position: relative;
+  z-index: 1;
+  padding-block: var(--space-12);
+}
+.game-auth__story h1 {
+  font-size: clamp(46px, 5.3vw, 76px);
+  line-height: 1.55;
+  letter-spacing: 0.04em;
+  margin: var(--space-6) 0 var(--space-4);
+  text-shadow: 0 4px 24px var(--color-canvas);
+}
+.game-auth__story-copy > p:not(.eyebrow) {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.8;
+  letter-spacing: 0.1em;
+}
+.game-auth__ornament {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+  color: var(--color-accent);
+}
+.game-auth__ornament i {
+  width: 64px;
+  height: 1px;
+  background: var(--color-accent-border);
+}
+.game-auth__ornament svg {
+  width: 18px;
+  height: 18px;
+}
+.game-auth__entry {
+  padding: var(--space-8) 0;
+  width: 100%;
+  max-width: 400px;
+}
+.game-auth__entry > h2 {
+  font: 500 clamp(28px, 2.9vw, 36px)/1.6 var(--font-display);
+  margin: var(--space-4) 0;
+  letter-spacing: 0.035em;
+  color: var(--color-text-strong);
+}
+.game-auth__entry > .game-muted {
+  margin-bottom: var(--space-8);
+}
+.game-auth__seal {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-round);
+  color: var(--color-accent);
+}
+.game-auth__seal svg {
+  width: 28px;
+  height: 28px;
+}
+.game-auth__help {
+  margin-top: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.game-auth__help summary {
+  padding-block: var(--space-3);
+  cursor: pointer;
+}
+.game-auth__help p {
+  margin: var(--space-2) 0 0;
+}
+.game-auth__footer {
+  text-align: center;
+  padding: var(--space-5) 0 var(--space-6);
+  color: var(--color-text-subtle);
+  font: 12px/1.8 var(--font-display);
+  letter-spacing: 0.2em;
+}
+@media (max-width: 760px) {
+  .game-auth__header {
+    --auth-header-height: 84px;
+    --auth-header-clearance: 18px;
+  }
+  .game-auth__header .game-theme-picker span {
+    display: none;
+  }
+  .game-auth__header .game-theme-picker label {
+    padding-inline: 10px;
+  }
+  .game-auth__main {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: auto;
+    max-width: 440px;
+  }
+  .game-auth__story {
+    min-height: auto;
+  }
+  .game-auth__story > .celestial-atlas {
+    width: 420px;
+    left: auto;
+    right: -150px;
+    top: 50%;
+    opacity: 0.22;
+  }
+  .game-auth__story-copy {
+    padding-block: var(--space-8) 0;
+  }
+  .game-auth__story .eyebrow {
+    font-size: 10px;
+  }
+  .game-auth__story h1 {
+    font-size: clamp(34px, 8.5vw, 46px);
+    line-height: 1.4;
+    margin: var(--space-4) 0 var(--space-3);
+  }
+  .game-auth__story-copy > p:not(.eyebrow) {
+    font-size: 13px;
+    letter-spacing: 0.025em;
+  }
+  .game-auth__ornament,
+  .game-auth__seal {
+    display: none;
+  }
+  .game-auth__entry {
+    max-width: none;
+    padding-block: var(--space-5) var(--space-3);
+  }
+  .game-auth__entry > h2 {
+    font-size: 21px;
+    margin: 0 0 var(--space-4);
+  }
+  .game-auth__entry > h2 br {
+    display: none;
+  }
+  .game-auth__entry > .game-muted {
+    display: none;
+  }
+  .game-auth__entry .game-form {
+    gap: var(--space-4);
+  }
+  .game-auth__help {
+    margin-top: var(--space-3);
+  }
+  .game-auth__footer {
+    padding-top: var(--space-3);
+  }
+}

@@ -1,0 +1,232 @@
+.chapter-list {
+  display: grid;
+  gap: var(--space-5);
+}
+.chapter-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 94px minmax(0, 1fr);
+  background:
+    linear-gradient(120deg, var(--color-accent-faint), transparent 75%),
+    var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  transition:
+    border-color var(--duration-medium) var(--motion-ios),
+    transform var(--duration-medium) var(--motion-spring),
+    box-shadow var(--duration-medium) var(--motion-ios);
+}
+.chapter-card[data-state="active"],
+.chapter-card[data-state="ready"] {
+  border-color: var(--color-accent-border);
+}
+.chapter-card__number {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--space-8);
+  gap: var(--space-2);
+  border-right: 1px dashed var(--color-border);
+  color: var(--color-accent-muted);
+}
+.chapter-card__number > span {
+  font: 48px/1 var(--font-display);
+  opacity: 0.7;
+}
+.chapter-card__number small {
+  font: 8px var(--font-mono);
+  letter-spacing: 0.1em;
+}
+.chapter-card__number i {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  bottom: 28px;
+  border-radius: var(--radius-round);
+  border: 1px solid var(--color-border);
+}
+.chapter-card__number i::after {
+  content: "";
+  position: absolute;
+  inset: 15px;
+  border: 1px solid var(--color-accent-border);
+  transform: rotate(45deg);
+}
+.chapter-card__body {
+  min-width: 0;
+  padding: var(--space-6);
+}
+.chapter-card h2 {
+  margin: var(--space-3) 0;
+  font: 500 28px/1.5 var(--font-display);
+  color: var(--color-text-strong);
+  letter-spacing: 0.025em;
+  overflow-wrap: anywhere;
+}
+.chapter-card__description {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.85;
+  margin: 0 0 var(--space-4);
+  overflow-wrap: anywhere;
+}
+.chapter-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+.chapter-card__meta span + span {
+  border-left: 1px solid var(--color-border-interactive);
+  padding-left: var(--space-3);
+}
+.chapter-card__schedule {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+.chapter-card__schedule svg {
+  flex: 0 0 14px;
+  margin-top: 3px;
+}
+.chapter-card__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+.chapter-card__progress {
+  min-width: 85px;
+  flex: 1;
+  max-width: 180px;
+  padding-bottom: 5px;
+  font: 11px var(--font-ui);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.assignment-brief {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-10);
+  padding: var(--space-10);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.assignment-brief__art .celestial-atlas {
+  width: 100%;
+}
+.assignment-brief h1 {
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.5;
+  letter-spacing: 0.025em;
+  margin: var(--space-4) 0;
+  overflow-wrap: anywhere;
+}
+.assignment-brief__description {
+  color: var(--color-text-muted);
+  line-height: 1.9;
+  font-size: 14px;
+}
+.assignment-brief__facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-block: var(--space-6);
+}
+.assignment-brief__facts div {
+  min-width: 0;
+}
+.assignment-brief__facts dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-subtle);
+  font-size: 11px;
+}
+.assignment-brief__facts dd {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+.assignment-brief .game-cta {
+  width: 100%;
+}
+.assignment-brief__body > .game-muted:last-child {
+  font-size: 11px;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .chapter-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-accent);
+    box-shadow: 0 14px 28px var(--color-shadow);
+  }
+}
+@media (max-width: 760px) {
+  .chapter-card {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+  .chapter-card__number {
+    padding-top: var(--space-6);
+  }
+  .chapter-card__number > span {
+    font-size: 32px;
+  }
+  .chapter-card__number small {
+    font-size: 6px;
+  }
+  .chapter-card__number i {
+    width: 38px;
+    height: 38px;
+  }
+  .chapter-card__number i::after {
+    inset: 10px;
+  }
+  .chapter-card__body {
+    padding: var(--space-5) var(--space-4);
+  }
+  .chapter-card h2 {
+    font-size: 24px;
+  }
+  .chapter-card__footer {
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+  .chapter-card__progress {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .chapter-card__footer .game-action-link {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .assignment-brief {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: var(--space-6);
+  }
+  .assignment-brief__art {
+    position: absolute;
+    width: 200px;
+    right: -60px;
+    top: -60px;
+    opacity: 0.16;
+    pointer-events: none;
+  }
+  .assignment-brief__body {
+    position: relative;
+  }
+}

@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => {
           codeSplitting: {
             groups: [
               {
+                name: "icons",
+                test: /@phosphor-icons/,
+                priority: 20,
+              },
+              {
                 name: "vendor",
                 test: "node_modules/",
                 priority: 10,

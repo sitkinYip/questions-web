@@ -1,0 +1,63 @@
+import type { ReactNode } from "react";
+import { CompassIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { Button } from "../../../components/ui/Button";
+
+export function GameFailure({
+  error,
+  retry,
+}: {
+  error: unknown;
+  retry?: () => void;
+}) {
+  return (
+    <section className="game-notice" role="alert">
+      <WarningCircleIcon aria-hidden="true" />
+      <div>
+        <p>
+          {error instanceof Error ? error.message : "暂时无法加载，请稍后重试"}
+        </p>
+        {retry && (
+          <Button size="small" onClick={retry}>
+            重新尝试
+          </Button>
+        )}
+      </div>
+    </section>
+  );
+}
+export function GameEmptyState({
+  title,
+  children,
+  action,
+}: {
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <section className="game-empty">
+      <CompassIcon weight="thin" aria-hidden="true" />
+      <h2>{title}</h2>
+      <p>{children}</p>
+      {action}
+    </section>
+  );
+}
+export function GameLoading({
+  label = "正在展开你的旅程…",
+}: {
+  label?: string;
+}) {
+  return (
+    <section className="game-loading" role="status" aria-busy="true">
+      <span className="sr-only">{label}</span>
+      {[0, 1].map((item) => (
+        <div className="game-loading__card" key={item} aria-hidden="true">
+          <i />
+          <span />
+          <span />
+        </div>
+      ))}
+    </section>
+  );
+}

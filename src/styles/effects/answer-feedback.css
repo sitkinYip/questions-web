@@ -223,6 +223,7 @@
   .quest-layout {
     width: min(100% - 24px, 920px);
     padding: 24px 0 36px;
+    padding-top: max(24px, var(--safe-area-top));
   }
 
   .quest-layout {

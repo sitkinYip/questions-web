@@ -1,0 +1,118 @@
+.desktop-inbox {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.65fr) minmax(0, 1.7fr);
+  gap: var(--desktop-gap);
+  border-top: 1px solid var(--color-border);
+}
+.desktop-inbox__list {
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 16px 8px 0;
+  border-right: 1px solid var(--color-border);
+}
+.desktop-inbox__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px 20px;
+  font: 13px var(--font-display);
+  color: var(--color-accent-text);
+}
+.desktop-inbox__heading small {
+  color: var(--color-text-subtle);
+  font: 11px var(--font-ui);
+}
+.desktop-inbox__list button {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 88px;
+  padding: 16px 14px;
+  text-align: left;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom-color: var(--color-border);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--motion-ios),
+    border-color var(--duration-fast) var(--motion-ios);
+}
+.desktop-inbox__list button[aria-pressed="true"] {
+  background: var(--color-accent-faint);
+  border-color: var(--color-accent-border);
+  color: var(--color-accent-text);
+}
+.desktop-inbox__list button:hover {
+  background: var(--color-accent-faint);
+}
+.desktop-inbox__list svg {
+  width: 24px;
+  height: 24px;
+}
+.desktop-inbox__list strong {
+  display: block;
+  font: 500 16px/1.5 var(--font-display);
+  overflow-wrap: anywhere;
+}
+.desktop-inbox__list time {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+.desktop-inbox__list small {
+  font-size: 10px;
+}
+.desktop-inbox .notification-letter {
+  min-width: 0;
+  min-height: 0;
+  gap: 24px;
+  margin-top: 20px;
+  padding: var(--desktop-panel-padding);
+  background:
+    linear-gradient(140deg, var(--color-accent-faint), transparent 50%),
+    var(--color-surface);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-panel);
+}
+.desktop-inbox .notification-letter__seal {
+  width: 48px;
+  height: 48px;
+  flex-basis: 48px;
+}
+.desktop-inbox .notification-letter__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.desktop-inbox .notification-letter :is(h2, .game-status) {
+  flex-shrink: 0;
+}
+.desktop-inbox .notification-letter h2 {
+  font-size: 30px;
+  margin: 18px 0 24px;
+}
+.desktop-inbox .notification-letter__message {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  font-size: 16px;
+  line-height: 1.95;
+  padding-right: 16px;
+  overflow-wrap: anywhere;
+}
+.desktop-inbox .notification-letter__message :is(img, video) {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+.desktop-inbox .notification-letter__action {
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-border);
+  padding-top: 18px;
+}

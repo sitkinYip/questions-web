@@ -29,6 +29,7 @@
     "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --experimental-strip-types scripts/verify-live-notification-api.ts"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-query": "^5.102.2",
     "radix-ui": "^1.6.7",
     "react": "^19.2.8",

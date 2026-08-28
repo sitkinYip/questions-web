@@ -6,6 +6,7 @@ const POSITION_AFTER_OVERLAY_MS = 80;
 export function useQuestNavigationPosition(
   activeQuestId: string,
   targetRef: RefObject<HTMLElement | null>,
+  scrollToQuestion = true,
 ) {
   const { hasOpenOverlay } = useOverlayStatus();
   const previousQuestIdRef = useRef(activeQuestId);
@@ -25,7 +26,7 @@ export function useQuestNavigationPosition(
       if (!target) return;
 
       target.focus({ preventScroll: true });
-      if (typeof target.scrollIntoView === "function") {
+      if (scrollToQuestion && typeof target.scrollIntoView === "function") {
         const prefersReducedMotion =
           typeof window.matchMedia === "function" &&
           window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -39,5 +40,5 @@ export function useQuestNavigationPosition(
     }, POSITION_AFTER_OVERLAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [activeQuestId, hasOpenOverlay, targetRef]);
+  }, [activeQuestId, hasOpenOverlay, targetRef, scrollToQuestion]);
 }

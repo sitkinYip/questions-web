@@ -16,8 +16,9 @@ test("loads and toggles music when play returns undefined", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await mockLegacyAudioPlayback(page);
   await enterGame(page);
-  // The restored first-visit answer guide has priority over floating controls.
-  await page.getByRole("button", { name: "知道了", exact: true }).click();
+  // The mobile first-visit guide has priority over floating controls.
+  const guide = page.getByRole("button", { name: "知道了", exact: true });
+  if (await guide.isVisible()) await guide.click();
 
   const control = page.locator(".bgm-control");
   await expect(control).toHaveAttribute("aria-pressed", "true");
@@ -33,7 +34,8 @@ test("music control stays fixed, drags without toggling and restores position", 
   page,
 }) => {
   await enterGame(page);
-  await page.getByRole("button", { name: "知道了", exact: true }).click();
+  const guide = page.getByRole("button", { name: "知道了", exact: true });
+  if (await guide.isVisible()) await guide.click();
   const control = page.locator(".bgm-control");
   await expect(control).toBeVisible();
   await expect(control).toHaveCSS("position", "fixed");

@@ -1,0 +1,119 @@
+.letter-page.is-open[data-desktop] {
+  padding: 32px var(--desktop-gutter);
+  height: 100dvh;
+  min-height: 600px;
+  overflow: clip;
+}
+.letter-page[data-desktop] .letter-reader {
+  width: min(1440px, 100%);
+  height: 100%;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 32px;
+}
+.letter-page[data-desktop] .letter-paper {
+  padding: clamp(32px, 3vw, 48px);
+}
+.letter-page[data-desktop] .letter-paper-content > header {
+  padding-bottom: 20px;
+}
+.letter-page[data-desktop] .letter-paper h1 {
+  font-size: 34px;
+  line-height: 1.3;
+}
+.letter-page[data-desktop] .letter-paragraphs {
+  padding-block: 24px 12px;
+}
+/* Includes the hidden pagination measure: rendered text and measuring text must agree. */
+.letter-page[data-desktop] .letter-paragraphs p {
+  font-size: 18px;
+  line-height: 1.85;
+}
+.letter-page[data-desktop] .letter-controls {
+  align-self: center;
+  max-height: 100%;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 20px;
+  padding: 28px 20px;
+  color: var(--letter-ink);
+  background: var(--letter-paper-surface);
+  border-color: var(--letter-paper-edge);
+}
+.letter-page[data-desktop] .letter-controls > * {
+  flex-shrink: 0;
+}
+.letter-desktop-guide > svg {
+  width: 48px;
+  height: 48px;
+  color: var(--letter-accent);
+  margin-bottom: 24px;
+}
+.letter-desktop-guide .eyebrow {
+  color: var(--letter-accent);
+  font-size: 10px;
+}
+.letter-desktop-guide h2 {
+  font: 500 26px/1.4 var(--font-display);
+  margin: 10px 0 16px;
+}
+.letter-desktop-guide > p:not(.eyebrow) {
+  font-size: 13px;
+  line-height: 1.9;
+  opacity: 0.7;
+}
+.letter-desktop-guide > span {
+  display: block;
+  border-top: 1px solid var(--letter-paper-edge);
+  padding-top: 20px;
+  margin-top: 24px;
+  font: 12px var(--font-mono);
+}
+.letter-page[data-desktop] .letter-actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+.letter-page[data-desktop] .letter-controls button {
+  min-height: 44px;
+  padding-inline: 12px;
+  color: var(--letter-ink);
+  border-color: var(--letter-paper-edge);
+}
+.letter-page[data-desktop] .letter-controls button:not(:disabled):hover {
+  color: var(--letter-ink);
+  background: color-mix(in srgb, var(--letter-accent) 12%, transparent);
+  border-color: var(--letter-accent);
+}
+.letter-page[data-desktop] .letter-page-navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.letter-page[data-desktop] .letter-page-navigation > span {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  color: var(--letter-ink);
+  opacity: 0.65;
+}
+.letter-desktop-return {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--letter-ink);
+  text-decoration: none;
+  border-top: 1px solid var(--letter-paper-edge);
+  padding-top: 12px;
+  font-size: 13px;
+}
+.letter-desktop-keyboard {
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.65;
+}

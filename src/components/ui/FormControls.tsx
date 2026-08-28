@@ -1,7 +1,10 @@
 import {
   forwardRef,
+  cloneElement,
+  useId,
   type InputHTMLAttributes,
-  type LabelHTMLAttributes,
+  type HTMLAttributes,
+  type ReactElement,
   type ReactNode,
   type SelectHTMLAttributes,
 } from "react";
@@ -40,10 +43,10 @@ export const Select = forwardRef<
   );
 });
 
-interface FieldProps extends LabelHTMLAttributes<HTMLLabelElement> {
+interface FieldProps extends HTMLAttributes<HTMLDivElement> {
   label: ReactNode;
   hint?: ReactNode;
-  children: ReactNode;
+  children: ReactElement<{ id?: string; "aria-describedby"?: string }>;
 }
 
 export function Field({
@@ -53,11 +56,26 @@ export function Field({
   children,
   ...props
 }: FieldProps) {
+  const generatedId = useId();
+  const controlId = children.props.id ?? generatedId;
+  const hintId = `${controlId}-hint`;
   return (
-    <label className={joinClasses("ui-field", className)} {...props}>
-      <span className="ui-field__label">{label}</span>
-      {children}
-      {hint && <small className="ui-field__hint">{hint}</small>}
-    </label>
+    <div className={joinClasses("ui-field", className)} {...props}>
+      <label className="ui-field__label" htmlFor={controlId}>
+        {label}
+      </label>
+      {cloneElement(children, {
+        id: controlId,
+        "aria-describedby":
+          [children.props["aria-describedby"], hint ? hintId : undefined]
+            .filter(Boolean)
+            .join(" ") || undefined,
+      })}
+      {hint && (
+        <small id={hintId} className="ui-field__hint">
+          {hint}
+        </small>
+      )}
+    </div>
   );
 }

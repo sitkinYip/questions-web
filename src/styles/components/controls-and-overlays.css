@@ -226,6 +226,7 @@
   height: 100dvh;
   overflow: auto;
   padding: 28px;
+  padding-top: max(28px, var(--safe-area-top));
   color: var(--color-text);
   background: var(--color-surface);
   border-inline-start: 1px solid var(--color-border-strong);
@@ -265,6 +266,42 @@
   padding-top: 24px;
 }
 
+.ui-sheet__close {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+}
+
+.ui-sheet__close svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ui-sheet__close:hover:not(:disabled) {
+  /* A header control must not lift into the notch's reserved space. */
+  transform: none;
+  color: var(--color-accent-text);
+  background: var(--color-accent-soft);
+}
+
+.ui-sheet--compact {
+  padding: max(var(--space-4), var(--safe-area-top)) var(--space-4)
+    var(--space-4);
+}
+
+.ui-sheet--compact .ui-sheet__header {
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+
+.ui-sheet--compact .ui-sheet__body {
+  padding-top: var(--space-3);
+}
+
 .ui-sheet-overlay[data-state="open"] {
   animation: ui-overlay-enter 220ms var(--motion-ios) both;
 }
@@ -280,7 +317,7 @@
 .ui-toast-viewport {
   position: fixed;
   z-index: var(--z-toast);
-  top: 16px;
+  top: max(16px, var(--safe-area-top));
   left: 50%;
   width: min(420px, calc(100% - 32px));
   margin: 0;

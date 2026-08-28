@@ -88,6 +88,7 @@ h1 {
   min-height: 100vh;
   margin: 0 auto;
   padding: 64px 0;
+  padding-top: max(64px, var(--safe-area-top));
 }
 
 .centered-state {

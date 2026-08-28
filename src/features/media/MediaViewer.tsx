@@ -15,6 +15,7 @@ export type MediaViewerState =
   | null;
 
 interface MediaViewerProps {
+  className?: string;
   state: MediaViewerState;
   onClose: () => void;
   onImageIndexChange: (index: number) => void;
@@ -23,6 +24,7 @@ interface MediaViewerProps {
 }
 
 export function MediaViewer({
+  className,
   state,
   onClose,
   onImageIndexChange,
@@ -121,7 +123,9 @@ export function MediaViewer({
       }}
       accessibleTitle={state.type === "images" ? "图片预览" : "视频播放器"}
       overlayClassName="media-viewer-backdrop"
-      contentClassName="media-viewer"
+      contentClassName={
+        className ? `media-viewer ${className}` : "media-viewer"
+      }
     >
       <div className="media-viewer-ambient" aria-hidden="true">
         <i />

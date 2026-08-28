@@ -1,0 +1,86 @@
+@keyframes atlas-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes atlas-breathe {
+  from {
+    opacity: 0.6;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes game-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes game-skeleton {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+@keyframes game-loading-glimmer {
+  from {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 0.9;
+    transform: scale(1.2);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .game-page-enter,
+  .game-auth__entry,
+  .assignment-brief {
+    animation: game-reveal var(--duration-reveal) var(--motion-impact) both;
+  }
+  .game-auth__story-copy {
+    animation: game-reveal 850ms var(--motion-impact) both;
+  }
+  .chapter-card,
+  .reward-card,
+  .notification-letter {
+    animation: game-reveal var(--duration-reveal) var(--motion-impact) both;
+  }
+  .chapter-card:nth-child(2),
+  .reward-card:nth-child(2),
+  .notification-letter:nth-child(2) {
+    animation-delay: 70ms;
+  }
+  .chapter-card:nth-child(n + 3),
+  .reward-card:nth-child(n + 3),
+  .notification-letter:nth-child(n + 3) {
+    animation-delay: 120ms;
+  }
+  .game-sidebar__nav a {
+    animation: game-reveal 440ms var(--motion-impact) both;
+  }
+  .game-sidebar__nav a:nth-child(2) {
+    animation-delay: 45ms;
+  }
+  .game-sidebar__nav a:nth-child(3) {
+    animation-delay: 90ms;
+  }
+  .game-sidebar__nav a:nth-child(4) {
+    animation-delay: 135ms;
+  }
+  .game-loading__card {
+    animation: game-skeleton 1s var(--motion-ios) infinite alternate;
+  }
+  .game-form-success {
+    animation: game-reveal var(--duration-medium) var(--motion-impact) both;
+  }
+}

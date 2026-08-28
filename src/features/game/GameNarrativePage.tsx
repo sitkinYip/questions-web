@@ -7,6 +7,7 @@ import { LetterExperience } from "../letter/LetterExperience";
 import { BlessExperience } from "../bless/BlessExperience";
 import { GameFailure, GameHeader } from "./GameContext";
 import { useGame } from "./useGame";
+import { GameLoadingScreen } from "./components/GameLoadingScreen";
 
 const media = z
   .string()
@@ -72,12 +73,7 @@ export function GameNarrativePage() {
     gcTime: 0,
   });
   if (query.isPending)
-    return (
-      <main className="game-shell">
-        <GameHeader />
-        <p>正在准备这份专属内容…</p>
-      </main>
-    );
+    return <GameLoadingScreen scene="narrative" header={<GameHeader />} />;
   if (query.isError)
     return (
       <main className="game-shell">

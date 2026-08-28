@@ -7,6 +7,8 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { useDesktopLayout } from "../../shared/layout/useDesktopLayout";
+import { LetterControls } from "./LetterControls";
 import type { Letter } from "../../domain/letter/types";
 import { playAudio } from "../../shared/media/play-audio";
 import {
@@ -29,6 +31,7 @@ interface LetterExperienceProps {
 const PAGE_TURN_DURATION_MS = 920;
 
 export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
+  const isDesktop = useDesktopLayout();
   const [isOpen, setIsOpen] = useState(false);
   const [paragraphIndex, setParagraphIndex] = useState(-1);
   const [characterIndex, setCharacterIndex] = useState(0);
@@ -483,6 +486,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
 
   return (
     <main
+      data-desktop={isDesktop || undefined}
       className={`letter-page letter-${letter.variant} ${isOpen ? "is-open" : "is-sealed"}`}
     >
       {letter.pageBackgroundUrl && (
@@ -548,67 +552,19 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
             }
             aria-hidden="true"
           />
-          <footer className="letter-controls">
-            {pages.length > 1 && (
-              <div
-                className="letter-page-navigation"
-                data-locked={canTurnPages ? "false" : "true"}
-              >
-                <button
-                  type="button"
-                  disabled={!canTurnPages || pageIndex === 0}
-                  title={
-                    !isFinished
-                      ? "全文显示后可翻页"
-                      : previousPage !== null
-                        ? "翻页中"
-                        : undefined
-                  }
-                  onClick={() => turnPage("previous")}
-                >
-                  上一页
-                </button>
-                <span
-                  aria-label={`第 ${pageIndex + 1} 页，共 ${pages.length} 页`}
-                >
-                  {pageIndex + 1} / {pages.length}
-                </span>
-                <button
-                  type="button"
-                  disabled={!canTurnPages || pageIndex === pages.length - 1}
-                  title={
-                    !isFinished
-                      ? "全文显示后可翻页"
-                      : previousPage !== null
-                        ? "翻页中"
-                        : undefined
-                  }
-                  onClick={() => turnPage("next")}
-                >
-                  下一页
-                </button>
-              </div>
-            )}
-            {pages.length > 1 && (
-              <span id="letter-page-gesture-instructions" className="sr-only">
-                {isFinished
-                  ? swipeAxis === "horizontal"
-                    ? "可左右滑动翻页。"
-                    : "可上下滑动翻页。"
-                  : "打字完成或显示全文后可以翻页。"}
-              </span>
-            )}
-            <div className="letter-actions">
-              {!isFinished && (
-                <button type="button" onClick={skipTyping}>
-                  显示全文
-                </button>
-              )}
-              <button type="button" onClick={closeLetter}>
-                收起信件
-              </button>
-            </div>
-          </footer>
+          <LetterControls
+            desktop={isDesktop}
+            pageCount={pages.length}
+            pageIndex={pageIndex}
+            canTurnPages={canTurnPages}
+            isFinished={isFinished}
+            turning={previousPage !== null}
+            swipeAxis={swipeAxis}
+            turnPage={turnPage}
+            skipTyping={skipTyping}
+            closeLetter={closeLetter}
+            returnTo={returnTo}
+          />
         </section>
       )}
 

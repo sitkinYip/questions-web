@@ -10,25 +10,12 @@ import {
 } from "../../api/game.client";
 import { GameSidebar } from "./GameSidebar";
 import { Button } from "../../components/ui/Button";
-import { PasswordPage } from "./GamePages";
+import { PasswordPage } from "./pages/PasswordPage";
+import { GameFailure } from "./components/GameState";
+import { GameLoadingScreen } from "./components/GameLoadingScreen";
 
 import { GameContext, useGame } from "./useGame";
-export function GameFailure({
-  error,
-  retry,
-}: {
-  error: unknown;
-  retry?: () => void;
-}) {
-  return (
-    <section className="game-notice" role="alert">
-      <p>
-        {error instanceof Error ? error.message : "暂时无法加载，请稍后重试"}
-      </p>
-      {retry && <Button onClick={retry}>重新尝试</Button>}
-    </section>
-  );
-}
+export { GameFailure } from "./components/GameState";
 export function GameGate() {
   const auth = useSyncExternalStore(authState.subscribe, authState.get);
   const queryClient = useQueryClient();
@@ -65,12 +52,7 @@ export function GameGate() {
   });
   if (!auth)
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  if (query.isPending)
-    return (
-      <main className="centered-state" aria-busy="true">
-        <p>正在读取冒险者资料…</p>
-      </main>
-    );
+  if (query.isPending) return <GameLoadingScreen scene="player" />;
   if (query.isError)
     return (
       <main className="game-shell">

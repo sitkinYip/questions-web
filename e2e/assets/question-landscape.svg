@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#202720"/>
+  <rect x="18" y="18" width="1164" height="639" rx="2" fill="none" stroke="#bda66f" stroke-width="3"/>
+  <g fill="none" stroke="#bda66f" stroke-width="2">
+    <circle cx="600" cy="305" r="190"/><circle cx="600" cy="305" r="155"/>
+    <path d="M410 305h380M600 115v380M490 195l220 220M490 415l220-220"/>
+    <path d="M130 200l125 90 110-120 120 190 115-55 155 65 110-150 145 80"/>
+  </g>
+  <g fill="#e1cb90"><circle cx="130" cy="200" r="6"/><circle cx="255" cy="290" r="8"/><circle cx="365" cy="170" r="5"/><circle cx="485" cy="360" r="7"/><circle cx="600" cy="305" r="10"/><circle cx="755" cy="370" r="6"/><circle cx="865" cy="220" r="8"/><circle cx="1010" cy="300" r="5"/></g>
+  <text x="600" y="565" text-anchor="middle" fill="#e1cb90" font-family="Georgia,serif" font-size="38" letter-spacing="12">THE NORTHERN SKY</text>
+  <text x="600" y="610" text-anchor="middle" fill="#bda66f" font-family="monospace" font-size="18" letter-spacing="5">OBSERVATORY ARCHIVE · 16:9</text>
+</svg>

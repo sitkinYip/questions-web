@@ -1,45 +1,35 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ListIcon,
+  SignOutIcon,
+} from "@phosphor-icons/react";
 import { Sheet } from "../../components/ui/Sheet";
 import { Button } from "../../components/ui/Button";
 import { overlayPriority } from "../../components/ui/overlay-context";
-import { useTheme } from "../../components/ui/theme-context";
+import { GameThemePicker } from "./components/GameThemePicker";
+import { GameSidebarIdentity } from "./components/GameSidebarIdentity";
+import { gameNavigation, gameReturnPath } from "./game-navigation";
 import { useGame } from "./useGame";
 
 export function GameSidebar() {
   const { player, avatarUrl, logout } = useGame();
-  const theme = useTheme();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const returnTo =
-    location.pathname.match(/^\/play\/[^/]+/)?.[0] ||
-    (typeof location.state?.returnTo === "string" &&
-    /^\/play\/[^/]+$/.test(location.state.returnTo)
-      ? location.state.returnTo
-      : undefined);
-  const progress = player.nextLevel
-    ? Math.min(
-        100,
-        Math.max(
-          0,
-          ((player.totalXp - player.level.minTotalXp) /
-            (player.nextLevel.minTotalXp - player.level.minTotalXp)) *
-            100,
-        ),
-      )
-    : 100;
+  const returnTo = gameReturnPath(location.pathname, location.state);
   return (
     <>
       <button
-        className="theme-avatar-trigger"
+        className="theme-avatar-trigger game-menu-trigger"
         type="button"
         aria-label="打开冒险者菜单"
         aria-haspopup="dialog"
         aria-expanded={open}
         title="冒险者菜单"
         onClick={(event) => {
-          // Touch Safari doesn't focus buttons on click. Capture the trigger as
-          // the dialog's return target without moving the underlying question.
+          // Safari touch clicks do not focus buttons; preserve the dialog return target.
           event.currentTarget.focus({ preventScroll: true });
           setOpen(true);
         }}
@@ -56,7 +46,9 @@ export function GameSidebar() {
             {Array.from(player.displayName.trim() || "旅")[0]}
           </span>
         )}
-        <span className="theme-avatar-indicator" aria-hidden="true" />
+        <span className="game-menu-trigger__glyph" aria-hidden="true">
+          <ListIcon />
+        </span>
       </button>
       <Sheet
         overlayId="game-sidebar"
@@ -65,53 +57,25 @@ export function GameSidebar() {
         onOpenChange={setOpen}
         title="冒险者菜单"
         side="left"
+        density="compact"
+        className="game-sidebar"
+        headerContent={
+          <GameSidebarIdentity player={player} avatarUrl={avatarUrl} />
+        }
       >
         <div className="game-sidebar__content">
-          <section className="game-sidebar__identity" aria-label="用户信息">
-            <h2>{player.displayName}</h2>
-            <p className="traveler-rank">
-              RANK {player.level.order} · {player.level.name}
-            </p>
-            <p className="game-muted">账号：{player.account}</p>
-            <div className="game-xp">
-              <span>{player.totalXp} EXP</span>
-              <progress value={progress} max={100} aria-label="等级经验进度" />
-              <span>
-                {player.nextLevel
-                  ? `距离 ${player.nextLevel.name} 还需 ${Math.max(0, player.nextLevel.minTotalXp - player.totalXp)} 经验`
-                  : "已达到当前最高等级"}
-              </span>
-            </div>
-          </section>
-          <fieldset className="game-sidebar__theme">
-            <legend>界面主题</legend>
-            {(
-              [
-                { value: "system", label: "跟随系统" },
-                { value: "light", label: "浅色" },
-                { value: "dark", label: "深色" },
-              ] as const
-            ).map((option) => (
-              <label key={option.value}>
-                <input
-                  type="radio"
-                  name="game-theme"
-                  value={option.value}
-                  checked={theme.preference === option.value}
-                  onChange={() => theme.setPreference(option.value)}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </fieldset>
           <nav className="game-sidebar__nav" aria-label="个人导航">
-            {[
-              ...(returnTo ? [[returnTo, "返回答题"]] : []),
-              ["/", "我的场次"],
-              ["/profile", "个人资料"],
-              ["/rewards", "奖品"],
-              ["/notifications", "通知"],
-            ].map(([to, label]) => (
+            {returnTo && location.pathname !== returnTo && (
+              <Link to={returnTo} onClick={() => setOpen(false)}>
+                <span className="game-sidebar__nav-icon">
+                  <ArrowLeftIcon aria-hidden="true" />
+                </span>
+                <span className="game-sidebar__nav-copy">
+                  返回答题<small aria-hidden="true">接着刚才的线索继续</small>
+                </span>
+              </Link>
+            )}
+            {gameNavigation.map(({ to, description, hint, Icon }) => (
               <Link
                 key={to}
                 to={to}
@@ -119,21 +83,34 @@ export function GameSidebar() {
                 aria-current={location.pathname === to ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
-                {label}
-                <span aria-hidden="true">→</span>
+                <span className="game-sidebar__nav-icon">
+                  <Icon aria-hidden="true" />
+                </span>
+                <span className="game-sidebar__nav-copy">
+                  {description}
+                  <small aria-hidden="true">{hint}</small>
+                </span>
+                <ArrowRightIcon aria-hidden="true" />
               </Link>
             ))}
           </nav>
-
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setOpen(false);
-              logout();
-            }}
-          >
-            退出登录
-          </Button>
+          <footer className="game-sidebar__footer">
+            <div className="game-sidebar__settings">
+              <p aria-hidden="true">旅途光线</p>
+              <GameThemePicker />
+            </div>
+            <Button
+              variant="ghost"
+              className="game-sidebar__logout"
+              onClick={() => {
+                setOpen(false);
+                logout();
+              }}
+            >
+              <SignOutIcon aria-hidden="true" />
+              退出登录
+            </Button>
+          </footer>
         </div>
       </Sheet>
     </>

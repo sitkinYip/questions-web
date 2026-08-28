@@ -4,13 +4,14 @@ import { parseLegacyContent } from "../../domain/content/parser";
 interface RichContentProps {
   source: string;
   className?: string;
+  tabIndex?: number;
 }
 
-export function RichContent({ source, className }: RichContentProps) {
+export function RichContent({ source, className, tabIndex }: RichContentProps) {
   const segments = parseLegacyContent(source);
 
   return (
-    <div className={className}>
+    <div className={className} tabIndex={tabIndex}>
       {segments.map((segment, index) => {
         const key = `${segment.type}-${index}`;
         switch (segment.type) {

@@ -1,0 +1,63 @@
+/* Shared by desktop and mobile. Video posters keep their separate surface. */
+.question-image,
+.question-gallery {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.question-gallery {
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+}
+
+.question-image button,
+.question-gallery button {
+  display: block;
+  justify-self: center;
+  align-self: start;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.question-image img,
+.question-gallery img,
+.quest-prompt img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  background: transparent;
+  /* The frame belongs to the actual image, never its grid cell. */
+  border: 1px solid var(--color-border-strong);
+  transition:
+    border-color var(--duration-medium) var(--motion-ios),
+    box-shadow var(--duration-medium) var(--motion-ios);
+}
+
+.quest-prompt img {
+  max-width: min(100%, 680px);
+  max-height: 62vh;
+  margin: 22px auto;
+}
+
+.question-image button:is(:hover, :focus-visible) img,
+.question-gallery button:is(:hover, :focus-visible) img {
+  border-color: var(--color-accent);
+  box-shadow: 0 12px 32px -12px var(--color-shadow-strong);
+  /* No inner zoom: even on hover every edge of the image remains visible. */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .question-image img,
+  .question-gallery img,
+  .quest-prompt img {
+    transition: none;
+  }
+}

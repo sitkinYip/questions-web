@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1200" viewBox="0 0 600 1200">
+  <rect width="600" height="1200" fill="#202720"/>
+  <rect x="12" y="12" width="576" height="1176" fill="none" stroke="#bda66f" stroke-width="3"/>
+  <g fill="none" stroke="#bda66f" stroke-width="3"><circle cx="300" cy="490" r="200"/><circle cx="300" cy="490" r="170"/><path d="M300 100v800M100 490h400M160 350l280 280M160 630l280-280"/></g>
+  <path d="M300 360l28 102 102 28-102 28-28 102-28-102-102-28 102-28z" fill="#d4bc7d"/>
+  <text x="300" y="1000" text-anchor="middle" fill="#d4bc7d" font-family="Georgia,serif" font-size="28" letter-spacing="6">NORTH</text>
+  <text x="300" y="1070" text-anchor="middle" fill="#bda66f" font-family="monospace" font-size="24">PORTRAIT · 1:2</text>
+</svg>

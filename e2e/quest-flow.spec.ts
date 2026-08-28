@@ -78,7 +78,9 @@ test("new players must change password; logout removes access to private pages",
   await page.getByLabel("新密码", { exact: true }).fill("New-password-123");
   await page.getByLabel("确认新密码", { exact: true }).fill("New-password-123");
   await page.getByRole("button", { name: /保存新密码/ }).click();
-  await expect(page.getByRole("heading", { name: "我的场次" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "下一段故事，等你落笔。" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
   await page.getByRole("button", { name: "退出登录", exact: true }).click();
   await expect(page.getByLabel("登录账号", { exact: true })).toBeVisible();
@@ -96,7 +98,8 @@ test("empty text, whitespace and unselected choices use the original inline hint
     if (request.url().endsWith("/answers")) attempts++;
   });
   await enterGame(page);
-  await page.getByRole("button", { name: "知道了", exact: true }).click();
+  const guide = page.getByRole("button", { name: "知道了", exact: true });
+  if (await guide.isVisible()) await guide.click();
   const submit = page.getByRole("button", { name: "提交答案" });
   await submit.click();
   const hint = page.locator(".quest-card .feedback");

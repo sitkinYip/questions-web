@@ -1,0 +1,281 @@
+/* The sheet owns a real height; its contents respond to usable space after safe areas. */
+.game-sidebar {
+  --sidebar-gutter: clamp(16px, 2.5dvh, 28px);
+  display: flex;
+  flex-direction: column;
+  container: game-sidebar / size;
+  padding: max(var(--sidebar-gutter), var(--safe-area-top))
+    var(--sidebar-gutter) var(--sidebar-gutter);
+  background:
+    radial-gradient(ellipse at 0 0, var(--color-accent-soft), transparent 56%),
+    var(--color-surface);
+}
+.game-sidebar .ui-sheet__header {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  padding-bottom: var(--space-3);
+  border-color: var(--color-accent-border);
+}
+.game-sidebar .ui-sheet__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.game-sidebar .ui-sheet__body {
+  display: flex;
+  flex: 1 0 auto;
+  padding-top: var(--space-3);
+}
+.game-sidebar__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.game-sidebar-identity {
+  min-width: 0;
+}
+.game-sidebar-identity__stamp {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding-right: 56px;
+  color: var(--color-accent-text);
+  font: 12px/1.5 var(--font-display);
+  letter-spacing: 0.18em;
+}
+.game-sidebar-identity__stamp svg {
+  width: 20px;
+  height: 20px;
+}
+.game-sidebar-identity__player {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding-right: 56px;
+}
+.game-sidebar-identity__player > div {
+  min-width: 0;
+}
+.game-sidebar-identity__crest {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+}
+.game-sidebar-identity__crest .celestial-atlas {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.game-sidebar-identity__crest .player-avatar {
+  position: relative;
+  width: 44px;
+  height: 44px;
+}
+.game-sidebar-identity__player h3,
+.game-sidebar-identity__player p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.game-sidebar-identity__player h3 {
+  margin: 0;
+  color: var(--color-text-strong);
+  font: 500 20px/1.4 var(--font-display);
+}
+.game-sidebar .game-sidebar-identity__player p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-accent-text);
+  font: 11px/1.4 var(--font-ui);
+}
+.game-sidebar__nav {
+  display: grid;
+  grid-auto-rows: minmax(44px, 1fr);
+  flex: 1 0 auto;
+  gap: var(--space-1);
+}
+.game-sidebar__nav a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: linear-gradient(
+    110deg,
+    var(--color-accent-faint),
+    transparent 75%
+  );
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition:
+    border-color var(--duration-fast) var(--motion-ios),
+    background-color var(--duration-fast) var(--motion-ios),
+    transform var(--duration-medium) var(--motion-ios);
+}
+.game-sidebar__nav-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  color: var(--color-accent-muted);
+}
+.game-sidebar__nav-icon svg {
+  width: 23px;
+  height: 23px;
+}
+.game-sidebar__nav a > svg {
+  margin-left: auto;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: var(--color-accent-muted);
+}
+.game-sidebar__nav-copy {
+  min-width: 0;
+  font-size: 14px;
+}
+.game-sidebar__nav-copy small {
+  display: none;
+  margin-top: 6px;
+  color: var(--color-text-subtle);
+  font-size: 11px;
+  font-weight: 400;
+}
+.game-sidebar__nav a[aria-current="page"],
+.game-sidebar__nav a:hover {
+  color: var(--color-accent-text);
+  border-color: var(--color-accent-border);
+  background-color: var(--color-accent-soft);
+}
+.game-sidebar__nav a:active {
+  transform: scale(0.98);
+}
+.game-sidebar__footer {
+  display: grid;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+}
+.game-sidebar__settings > p {
+  display: none;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  color: var(--color-accent-muted);
+  font: 11px/1.5 var(--font-display);
+  letter-spacing: 0.14em;
+}
+.game-sidebar__settings > p::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.game-sidebar__settings .game-theme-picker {
+  display: flex;
+}
+.game-sidebar__settings .game-theme-picker label {
+  flex: 1;
+  min-height: 44px;
+  padding-inline: var(--space-1);
+}
+.game-sidebar__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+}
+/* Medium-height sheets keep the emblem but prioritize room for all five links. */
+@container game-sidebar (min-height: 620px) {
+  .game-sidebar .ui-sheet__header {
+    padding-bottom: var(--space-4);
+  }
+  .game-sidebar .ui-sheet__body {
+    padding-top: var(--space-4);
+  }
+  .game-sidebar-identity__stamp,
+  .game-sidebar__settings > p {
+    display: flex;
+  }
+  .game-sidebar-identity__player {
+    padding-right: 0;
+    gap: var(--space-4);
+  }
+  .game-sidebar-identity__crest {
+    width: 96px;
+  }
+  .game-sidebar-identity__crest .celestial-atlas {
+    display: block;
+  }
+  .game-sidebar-identity__crest .celestial-atlas__star {
+    visibility: hidden;
+  }
+  .game-sidebar-identity__crest .player-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 23px;
+    box-shadow: 0 0 28px var(--glow-gold-soft);
+  }
+  .game-sidebar-identity__player h3 {
+    font-size: 24px;
+  }
+  .game-sidebar__nav,
+  .game-sidebar__footer {
+    gap: var(--space-2);
+  }
+  .game-sidebar__content {
+    gap: var(--space-4);
+  }
+}
+/* On tall screens the crest, navigation and breathing room grow together. */
+@container game-sidebar (min-height: 740px) {
+  .game-sidebar .ui-sheet__header {
+    padding-bottom: var(--space-6);
+  }
+  .game-sidebar .ui-sheet__body {
+    padding-top: var(--space-5);
+  }
+  .game-sidebar-identity__crest {
+    width: clamp(120px, 18cqh, 200px);
+  }
+  .game-sidebar-identity__crest .player-avatar {
+    width: clamp(60px, 8cqh, 80px);
+    height: clamp(60px, 8cqh, 80px);
+    font-size: 28px;
+  }
+  .game-sidebar-identity__player h3 {
+    font-size: clamp(24px, 3cqh, 30px);
+  }
+  .game-sidebar .game-sidebar-identity__player p {
+    margin-top: var(--space-2);
+    font-size: 12px;
+  }
+  .game-sidebar__nav a {
+    min-height: 60px;
+    padding-block: var(--space-2);
+    gap: var(--space-4);
+  }
+  .game-sidebar__nav-copy {
+    font-size: 16px;
+  }
+  .game-sidebar__nav-copy small {
+    display: block;
+  }
+  .game-sidebar__nav-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-accent-border);
+    border-radius: var(--radius-round);
+    background: var(--color-accent-faint);
+  }
+}

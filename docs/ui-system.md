@@ -3,7 +3,8 @@
 ## 基础组件
 
 - `Button` 统一 `primary`、`secondary`、`danger`、`ghost`、`icon` 变体及 disabled、hover、active、focus 状态。
-- `Input` 与 `Select` 统一表单表面；`Field` 负责可访问标签和辅助说明，业务组件不自行拼接标签结构。
+- `Input` 与 `Select` 统一表单表面；`Field` 用稳定 ID 关联独立 label、控件和辅助说明，避免密码显隐按钮或提示文案混入输入框名称。
+- `PasswordInput` 复用 Input，显隐切换保留值且不提交表单；按钮有独立可访问名称。
 - `AppDialog` 与 `Sheet` 使用同一 Overlay 调度和 Radix 焦点模型；Sheet 只定义抽屉接口，具体内容仍属于 feature。
 - `AppToast` 只承载可忽略或可稍后处理的短暂反馈。必须立即做决定的操作继续使用 Dialog/AlertDialog，而不是 Toast。
 
@@ -32,7 +33,7 @@ type ResolvedTheme = "light" | "dark";
 - 默认偏好是 `system`。`ThemeProvider` 监听 `(prefers-color-scheme: dark)`，只在 system 状态下把设备变化反映到界面。
 - `?theme=light|dark|system` 可指定链接级初始偏好；合法 query 优先于本地存储但不自动持久化，非法或缺失时回退本地偏好。
 - `index.html` 在样式和 React 首次绘制前按 query → 存储 → 设备的优先级解析，设置 `html[data-theme]`、`color-scheme` 和 `theme-color`，避免首屏闪烁。
-- 头像使用 Radix DropdownMenu 提供三项单选；始终渲染按钮，没有图片时显示旅行者名称首字。
+- 头像打开基于 Radix 的 Sheet；`GameThemePicker` 提供三项原生 radio，登录页也可切换主题。移动端收起文字时仍保留可访问名称。
 - 偏好按应用和浏览器保存，不按业务用户隔离；其他标签页通过 `storage` 事件同步。
 
 ### 语义色板
@@ -74,13 +75,78 @@ src/styles/
 ├── components/  跨业务复用的控件、Overlay、媒体与音频组件
 ├── layout/      应用级布局和可访问性辅助类
 ├── effects/     环境效果、反馈效果与统一 keyframes
-└── features/    quest、clues、records、letter 等业务专属样式
+├── features/    quest、clues、records、letter 等业务专属样式
+└── desktop/     仅桌面启用的工作区与分屏组合，不改变手机布局
 ```
 
 - 颜色、层级、运动曲线等跨模块决策先进入 `foundation/tokens.css`，业务特有色彩留在 feature 内，避免把主题变量变成无意义的颜色字典。
 - `effects` 可以拥有装饰色和主题 recipe，但不得直接拥有 `.ui-button`、`.ui-input` 等复用控件选择器。
-- `effects/keyframes.css` 是动画定义的唯一入口；触发条件和 reduced-motion 规则仍由拥有该状态的 feature/component 维护。
+- 动画定义只允许进入 `effects/*keyframes.css`；游戏外壳使用 `game-keyframes.css`，与原有答题、信件和星空动效分开维护。
 - 新增样式先判断所有权。仅单个业务使用的规则不得进入 components；通用组件不得引用 feature 选择器。
 - `pnpm check:styles` 校验组合入口、模块清单、动画归属、主题契约、结构层颜色字面量、复用控件所有权和单文件体积；它已纳入 `pnpm check`。
 
 当前不引入 Tailwind 或 Less。Tailwind 适合 utility-first 的新实现，但迁移现有语义 class 会同时扩大 JSX 变更面；Less 能减少书写重复，却不会自动提供模块所有权。现阶段使用 Vite 原生 CSS 拆分和变量，后续新建或大改的封闭组件可单独采用 CSS Modules。
+
+## 星图探险外壳（2026-08）
+
+新增页面从 `GamePages.tsx` 拆为 `features/game/pages/` 下的独立页面。保留 React、Radix、TanStack Query 和现有服务端契约，不引入第二套样式语言或动画运行时。
+
+| 所有者                               | 职责                                                          |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `game-queries.ts`                    | 按玩家隔离的 query key、统一查询与轮询；不保存本地表单草稿    |
+| `game-presentation.ts`               | XP 百分比、场次展示状态、日期和等级文案；不替代服务端权限判定 |
+| `game-navigation.ts`                 | 桌面/手机/侧栏共用导航定义和安全的答题返回路径                |
+| `GameLayout`                         | 桌面顶栏、移动底栏、跳转焦点、返回正在探索的场次              |
+| `PlayerPassport` / `ExperienceMeter` | 共享玩家名片与 XP；数据始终来自当前玩家                       |
+| `AssignmentCard` / `AssignmentBrief` | 章节票券、出发前说明、真实场次限制与时间                      |
+| `ProfileEditor` / `useProfileEditor` | 共享表单展示 / 昵称草稿、头像预览生命周期、multipart 提交     |
+| `GameState`                          | 与最终布局接近的 skeleton、空状态、可重试错误                 |
+| `CelestialAtlas`                     | 纯装饰几何，不参与输入、焦点和业务状态                        |
+
+### 视觉约束
+
+- 保留原有深橄榄黑 / 金色与浅纸色两套语义色板；不把全站强行改成深色。
+- 游戏标题沿用适合星图手稿的衬线字体，表单和正文使用 UI 无衬线字体；数值使用等宽/等宽数字。
+- 共享尺寸进入 tokens：`--space-*`、`--radius-control`（10px）、`--radius-panel`（18px）、`--control-height`（52px）、`--page-width`、`--page-gutter`。
+- 控件圆角不覆盖老答题控件：新表单/新 CTA 按新尺度；原谜题卡、媒体弹窗、BGM 与叙事页面维持现有视觉协议。
+- 桌面大厅为章节 + 护照双区，760px 以下单列；手机底栏考虑 safe-area，正文预留底部空间。答题页不显示常驻底栏。
+- 答题中的顶部只保留玩家与进度，头像打开导航；场次说明仅在开场前展示，不再插入返回/详情行挤压题目。
+- 侧栏使用 `Sheet` 的 `className` 与 `headerContent` 插槽；`GameSidebarIdentity` 复用头像、经验条与装饰星盘，完整护照不复用到侧栏。侧栏规则独立归属 `features/game-sidebar.css`，不影响其他抽屉。
+- 侧栏按扣除 padding / safe-area 后的可用高度做 container query：低于 620px 保留紧凑身份与完整操作；620px 起恢复星盘徽章；740px 起恢复导航说明与更大的徽章。`cqh` 连续调整头像/星盘尺度，导航等分剩余高度，主题与退出自然落底，不依赖绝对定位或 JS 测量。
+- 高屏和短屏都保留无障碍标题、焦点返回、44px 关闭/导航点击区。极矮横屏或放大文字时允许滚动兜底，不裁切操作。测试同时检查可操作性、无滚动、底部贴合与区块占用率，不能只用“无溢出”代表视觉通过。
+- 安全区统一使用 `--safe-area-top/bottom`，入口开启 `viewport-fit=cover`。显式顶部留白取 `max(原间距, 安全区)`；居中顶栏只补足安全区超过原有留白的差值，非刘海屏不变。底部额外留白仅随移动端底栏出现，不加到答题页或登录页。
+- Phosphor 为新增图标的唯一来源，细线用于大装饰、常规线重用于小控件；图标独立分包。
+- 文案以“启程 / 收藏 / 来信 / 护照”为主，但等级限制、核销、账号来源、密码要求等真实规则不藏进隐喻。
+
+### 动效约束
+
+- 章节和页面：14px 位移 + 透明度入场；列表错峰最多 120ms，不随列表长度累计等待。
+- 星盘：仅轨道 transform 旋转；中心星透明度呼吸；移动端减少一层持续运动。
+- 按钮/菜单：按压与悬浮反馈，沿用统一弹性曲线；不添加滚动劫持。
+- `prefers-reduced-motion` 关闭新增持续/入场动画，缩短共享时长变量。静态内容不依赖动画完成才可见。
+- `GameLoadingScreen` 统一账号初始化、场次和叙事的整页加载状态，复用 `CelestialAtlas`，样式归属 `features/game-loading.css`，光点 keyframes 归属 `effects/game-keyframes.css`。只在真实 query pending 时挂载，不伪造进度、不延时退出、不等待动画或额外媒体下载；错误交还原有重试界面。叙事加载保留头像导航，列表局部加载继续使用原骨架屏。
+- 加载预览：`/e2e/preview.html?screen=/loading&theme=dark`，可用 `screen=/loading/player` 或 `screen=/loading/narrative` 查看其他文案。全屏加载采用居中构图，与移动答题页从顶部向下排列的布局分离。
+- 原生 progress 展示真实值，不用假的动画进度代替服务端进度。
+
+### 开发预览与验证
+
+- `pnpm dev` 后访问 `/e2e/preview.html?theme=dark`，可在隔离模拟数据里检查大厅、收藏、来信、护照；`screen=/profile` 等可直达页面。
+- 预览入口仅供 Vite 开发服务器使用，无生产路由、不会进入生产入口依赖图；模拟 API 不访问真实用户数据。登录和实际解谜仍用端到端 API 拦截测试。
+- 五张内置 ImageGen 参考用于确定登录、章节、手机护照、收藏与来信的布局。它们只是设计参考，不作为页面截图背景、真实玩家或奖品资产。成品中的星盘由 CSS 几何和图标实现，因此可缩放、可换肤、无额外大图下载。
+- 参考提示词核心：`Chinese narrative puzzle game; antique celestial atlas; charcoal olive #10110f, parchment gold #d4bc7d; Chinese serif display, sans body; readable standalone screen; no nested cards; chapter tickets / traveler passport / correspondence; mobile 48px touch targets.`
+- `pnpm check:styles` 包含新增模块所有权、语义色消费与单文件体积；`e2e/game-pages.spec.ts` 覆盖 320px 溢出、主题、密码显隐、场次限制、草稿切换、保存失败、奖品线索与来信确认。
+
+## 桌面工作区（2026-08）
+
+- `shared/layout/useDesktopLayout.ts` 是唯一桌面能力边界（1100 CSS px）。监听 matchMedia，使用 useSyncExternalStore；业务逻辑不判断设备型号。低于边界使用原有手机/平板 DOM 与交互。
+- 桌面 CSS 不再复制断点数值：只匹配该 hook 启用的 `.quest-desktop`、`.game-world[data-desktop]` 和 `.letter-page[data-desktop]`。登录、大厅和侧栏不加入桌面工作区标记，保持原有布局。
+- `styles/desktop/workspace.css` 统一桌面栏间距、页边距、最大宽度、滚动区和精简外壳；quest、profile、inbox、letter 分文件拥有各自布局。全部消费现有颜色/动效 token 或信纸局部主题变量，仍受架构检查约束。
+- `GamePlayView` 保存唯一的答案草稿、进度、API 提交与演出队列。`QuestAnswerForm` 共享控件与校验展示；`QuestCard` 保留手机结构，`desktop/DesktopQuestCard` 只负责桌面阅读区与答题区。`QuestWorkspace` 在没有线索时不留空侧栏，有线索时显示服务端已解锁的非组合线索；不从题库推导或提前请求未解锁内容。
+- 桌面题干、选项、线索分别可滚动，题目切换仍恢复焦点，但不滚动整个页面。图片保持比例并可打开原媒体查看器；自动线索、完成仪式、升级提示仍由同一演出队列处理。
+- 题干单图、图集与正文内图片由 `features/question-images.css` 共享透明底与等比尺寸规则；单图及图集按钮按实际图片尺寸收拢，边框和悬停阴影归图片所有，不再对图内放大裁切。桌面只覆写最大高度，视频封面、选项缩略图和媒体查看器保持各自样式边界。
+- `DesktopClueVideoTrigger` 与 `desktop/clue-video.css` 独立拥有桌面视频入口的星环、描边和交互反馈，复用主题/动效变量，不覆盖移动端或通用按钮。视频、图片 URL 只交给站内媒体查看器，只有 link / letter 类型生成导航，避免把防盗链 CDN 资源误当外链打开。
+- `useProfileEditor` / `usePasswordEditor` 在页面层创建，桌面并列编辑与手机 Tabs 共享草稿；切换断点不清空输入、不释放仍使用的头像预览。头像对象 URL 在替换、保存或离开页面时才释放。强制改密页继续使用原登录外壳。
+- `DesktopInbox` 仅持有选中来信 ID；查询和确认逻辑复用 `NotificationLetter`。列表/正文独立滚动，确认操作不跳到下一封未读信，正文支持键盘滚动。
+- `LetterControls` 共享翻页/打字/收起操作。桌面增加直接返回和键盘提示；宽幅信纸仍使用原分页引擎、音频与翻页动效。可见正文与隐藏分页测量区消费相同字体和间距，避免三种信纸主题出现截字。手机结构不增加桌面手记。
+- 常见 1100×700、1280×720、1366×768、1920×1080 视口以主要操作同屏为目标；极矮窗口或长错误反馈保留区域滚动兜底，不裁切数据或禁止页面缩放。
+- `/e2e/preview.html?screen=/play/preview-journey` 和 `screen=/letter` 提供静态解锁题目/线索和信纸示例。`e2e/desktop-layout.spec.ts` 覆盖分屏关系、短屏操作、长正文/选项、来信选择、头像/输入草稿跨断点以及三种信纸分页；原移动端测试继续保留。

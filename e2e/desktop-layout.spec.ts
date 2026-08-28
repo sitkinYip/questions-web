@@ -1,0 +1,353 @@
+import { expect, test, type Page } from "@playwright/test";
+import { fulfillJson, login, mockQuestionsApi, questions } from "./fixtures";
+import { desktopAssignment, desktopLetter } from "./desktop-preview-data";
+import { makeNotifications } from "../src/test/game-fixtures";
+
+async function expectPageFits(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() => ({
+        horizontal: document.documentElement.scrollWidth > innerWidth + 1,
+        vertical: document.documentElement.scrollHeight > innerHeight + 1,
+      })),
+    )
+    .toEqual({ horizontal: false, vertical: false });
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1280, height: 720 });
+});
+
+async function expectProfileActionsAligned(page: Page) {
+  // Measure the resting layout, not the hovered button's intentional lift.
+  await page.mouse.move(0, 0);
+  const actions = page.locator(".desktop-profile .game-cta");
+  await expect(actions).toHaveCount(2);
+  await expect
+    .poll(() =>
+      actions.evaluateAll((buttons) => {
+        const [left, right] = buttons.map((button) =>
+          button.getBoundingClientRect(),
+        );
+        return Math.max(
+          Math.abs(left.top - right.top),
+          Math.abs(left.bottom - right.bottom),
+        );
+      }),
+    )
+    .toBeLessThanOrEqual(1);
+}
+
+test("desktop profile exposes both editors at laptop sizes and retains drafts across the boundary", async ({
+  page,
+}) => {
+  await mockQuestionsApi(page);
+  await login(page, "/profile");
+  for (const size of [
+    { width: 1100, height: 700 },
+    { width: 1280, height: 720 },
+    { width: 1366, height: 768 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(size);
+    await expect(page.locator(".game-world")).toHaveAttribute(
+      "data-desktop",
+      "profile",
+    );
+    await expect(page.getByRole("button", { name: "保存资料" })).toBeInViewport(
+      { ratio: 1 },
+    );
+    await expect(
+      page.getByRole("button", { name: "保存新密码" }),
+    ).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole("tab", { name: "账号安全" })).toHaveCount(0);
+    await expectProfileActionsAligned(page);
+    await expectPageFits(page);
+  }
+  await page.getByLabel("显示昵称", { exact: true }).fill("未保存的旅人");
+  await page.getByLabel("新密码", { exact: true }).fill("private-local-draft");
+  await page.getByLabel("上传头像").setInputFiles({
+    name: "avatar.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  });
+  const preview = await page
+    .locator(".profile-editor__avatar img")
+    .getAttribute("src");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("tab", { name: "我的名片" })).toBeVisible();
+  await expect(page.getByLabel("显示昵称", { exact: true })).toHaveValue(
+    "未保存的旅人",
+  );
+  await expect(page.locator(".profile-editor__avatar img")).toHaveAttribute(
+    "src",
+    preview!,
+  );
+  await page.getByRole("tab", { name: "账号安全" }).click();
+  await expect(page.getByLabel("新密码", { exact: true })).toHaveValue(
+    "private-local-draft",
+  );
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await expect(page.getByLabel("显示昵称", { exact: true })).toHaveValue(
+    "未保存的旅人",
+  );
+  await expect(page.getByLabel("新密码", { exact: true })).toHaveValue(
+    "private-local-draft",
+  );
+  await expect(page.locator(".profile-editor__avatar img")).toHaveAttribute(
+    "src",
+    preview!,
+  );
+});
+
+test("desktop profile save buttons stay aligned when either editor shows feedback", async ({
+  page,
+}) => {
+  const { player } = await mockQuestionsApi(page);
+  await page.route("**/api/questions/v1/me/profile", (route) =>
+    fulfillJson(route, { ...player, displayName: "更新后的旅人" }),
+  );
+  await login(page, "/profile?theme=light");
+  await expectProfileActionsAligned(page);
+
+  await page
+    .getByLabel("当前密码", { exact: true })
+    .fill("current-test-password");
+  await page.getByLabel("新密码", { exact: true }).fill("new-test-password");
+  await page
+    .getByLabel("确认新密码", { exact: true })
+    .fill("different-test-password");
+  await page.getByRole("button", { name: "保存新密码" }).click();
+  await expect(page.locator("#password-validation")).toBeVisible();
+  await expectProfileActionsAligned(page);
+
+  await page.getByLabel("上传头像").setInputFiles({
+    name: "bad.svg",
+    mimeType: "image/svg+xml",
+    buffer: Buffer.from("<svg />"),
+  });
+  await expect(page.locator(".profile-editor [role=alert]")).toBeVisible();
+  await expectProfileActionsAligned(page);
+
+  await page.getByLabel("显示昵称", { exact: true }).fill("更新后的旅人");
+  await page.getByRole("button", { name: "保存资料" }).click();
+  await expect(page.locator(".profile-editor [role=status]")).toContainText(
+    "资料已保存",
+  );
+  await expectProfileActionsAligned(page);
+  await expectPageFits(page);
+});
+
+test("desktop keeps unlocked clues beside the current question, without revealing locked content", async ({
+  page,
+}) => {
+  const { assignment } = await mockQuestionsApi(page);
+  Object.assign(assignment, structuredClone(desktopAssignment), {
+    id: "assignment1",
+    player: "playeralice",
+  });
+  await login(page, "/play/assignment1");
+  const shelf = page.getByRole("complementary", { name: "线索手记" });
+  await expect(shelf).toBeVisible();
+  const card = await page.locator(".desktop-question").boundingBox();
+  const clues = await shelf.boundingBox();
+  expect(card!.x + card!.width).toBeLessThan(clues!.x);
+  await expect
+    .poll(async () => {
+      const questionBox = await page.locator(".desktop-question").boundingBox();
+      const clueBox = await shelf.boundingBox();
+      return Math.abs(questionBox!.y - clueBox!.y);
+    })
+    .toBeLessThan(2);
+  await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
+    ratio: 1,
+  });
+  await expect(page.getByRole("button", { name: "03 第 3 题" })).toBeDisabled();
+  await expect(page.getByRole("heading", { name: "最后一枚星印" })).toHaveCount(
+    0,
+  );
+  await expect(page.getByLabel("答题引导")).toHaveCount(0);
+  await page.getByRole("radio", { name: "B 北极星" }).check();
+  await page
+    .getByRole("button", { name: "旧观测台的罗盘", exact: true })
+    .click();
+  await page.getByRole("button", { name: "放大线索图片 1" }).click();
+  await expect(page.getByRole("dialog", { name: "图片预览" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "守夜人的手记", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "守夜人的手记" }),
+  ).toContainText("北方一直在那里");
+  await expectPageFits(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(shelf).toHaveCount(0);
+  await expect(page.getByRole("radio", { name: "B 北极星" })).toBeChecked();
+  await expect(page.locator(".quest-card > .quest-content")).toBeVisible();
+});
+
+test("long questions scroll independently while the answer action stays visible", async ({
+  page,
+}) => {
+  const { assignment } = await mockQuestionsApi(page, { single: true });
+  assignment.status = "active";
+  assignment.startedAt = new Date().toISOString();
+  assignment.levels[0].question = structuredClone(questions[0]);
+  assignment.levels[0].question.content[0].text =
+    "沿着微光继续探索。\n\n".repeat(70);
+  await login(page, "/play/assignment1");
+  await expect(page.locator(".desktop-question")).toBeVisible();
+  await expect(page.locator(".desktop-clues")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
+    ratio: 1,
+  });
+  const reading = page.locator(".desktop-question__reading");
+  expect(
+    await reading.evaluate((el) => el.scrollHeight > el.clientHeight),
+  ).toBe(true);
+  await reading.focus();
+  await page.keyboard.press("End");
+  await expect
+    .poll(() => reading.evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await expectPageFits(page);
+  await page.getByPlaceholder("输入你的答案").fill("桌面草稿");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByPlaceholder("输入你的答案")).toHaveValue("桌面草稿");
+});
+
+test("many choices scroll inside the answer area without hiding submit", async ({
+  page,
+}) => {
+  const { assignment } = await mockQuestionsApi(page);
+  Object.assign(assignment, structuredClone(desktopAssignment), {
+    id: "assignment1",
+    player: "playeralice",
+  });
+  assignment.levels[1].question!.options = Array.from(
+    { length: 20 },
+    (_, i) => ({
+      key: String(i),
+      text: `备选星象 ${i + 1}`,
+      imageUrl: "",
+      videoUrl: "",
+    }),
+  );
+  await login(page, "/play/assignment1");
+  await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
+    ratio: 1,
+  });
+  expect(
+    await page
+      .locator(".desktop-question fieldset")
+      .evaluate((el) => el.scrollHeight > el.clientHeight),
+  ).toBe(true);
+  await expect(
+    page.getByRole("heading", { name: "星图上的北方" }),
+  ).toBeInViewport();
+  await expectPageFits(page);
+});
+
+test("desktop inbox keeps long lists and bodies local, and acknowledging does not jump selection", async ({
+  page,
+}) => {
+  await mockQuestionsApi(page);
+  const notes = Array.from({ length: 25 }, (_, i) => ({
+    ...makeNotifications()[0],
+    id: `note-${i}`,
+    title: `第 ${i + 1} 封来信`,
+    content: i === 1 ? "第二封信的正文" : "旅途中的长信。\n\n".repeat(50),
+  }));
+  await page.route("**/api/questions/v1/notifications", (route) =>
+    fulfillJson(route, { items: notes }),
+  );
+  await page.route("**/api/questions/v1/notifications/note-1/read", (route) => {
+    notes[1].readAt = new Date().toISOString();
+    return fulfillJson(route, {});
+  });
+  await login(page, "/notifications");
+  const message = page.locator(".notification-letter__message");
+  await expect(page.getByRole("button", { name: "收到消息" })).toBeInViewport({
+    ratio: 1,
+  });
+  expect(
+    await message.evaluate((el) => el.scrollHeight > el.clientHeight),
+  ).toBe(true);
+  expect(
+    await page
+      .locator(".desktop-inbox__list")
+      .evaluate((el) => el.scrollHeight > el.clientHeight),
+  ).toBe(true);
+  await message.focus();
+  await page.keyboard.press("End");
+  await expect
+    .poll(() => message.evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(0);
+  await page.getByRole("button", { name: /^第 2 封来信 / }).click();
+  await page.getByRole("button", { name: "收到消息" }).click();
+  await expect(
+    page.getByRole("heading", { name: "第 2 封来信" }),
+  ).toBeVisible();
+  await expect(page.getByRole("status")).toHaveText("来信已收好");
+  await expect(message).toHaveText("第二封信的正文");
+  await expectPageFits(page);
+});
+
+for (const variant of ["modern", "classical", "magic"] as const) {
+  test(`desktop ${variant} letter fits, paginates and keeps direct return visible`, async ({
+    page,
+  }) => {
+    await mockQuestionsApi(page);
+    await page.route(
+      "**/api/questions/v1/assignments/assignment1/narratives/desktop-letter",
+      (route) =>
+        fulfillJson(route, {
+          id: "desktop-letter",
+          kind: "letter",
+          title: desktopLetter.title,
+          payload: {
+            ...desktopLetter,
+            variant,
+            paragraphs: [
+              ...desktopLetter.paragraphs,
+              ...desktopLetter.paragraphs,
+              ...desktopLetter.paragraphs,
+            ],
+          },
+        }),
+    );
+    await login(page, "/play/assignment1/content/desktop-letter");
+    await page.getByRole("button", { name: /轻触信封/ }).click();
+    await page.getByRole("button", { name: "显示全文" }).click();
+    await expect(
+      page.getByRole("link", { name: "返回冒险", exact: true }),
+    ).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole("button", { name: "下一页" })).toBeInViewport({
+      ratio: 1,
+    });
+    const reader = await page.locator(".letter-reader").boundingBox();
+    expect(reader!.y).toBeGreaterThanOrEqual(24);
+    expect(reader!.y + reader!.height).toBeLessThanOrEqual(720 - 24);
+    await expectPageFits(page);
+    await page.keyboard.press("ArrowRight");
+    await expect(page.locator(".letter-page-navigation span")).toContainText(
+      "2 /",
+    );
+    const paragraphs = page.locator(".letter-paper-current .letter-paragraphs");
+    await expect
+      .poll(() =>
+        paragraphs.evaluate(
+          (el) =>
+            el.scrollHeight <= el.clientHeight + 1 &&
+            el.scrollWidth <= el.clientWidth + 1,
+        ),
+      )
+      .toBe(true);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator(".letter-desktop-guide")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "收起信件" })).toBeVisible();
+  });
+}

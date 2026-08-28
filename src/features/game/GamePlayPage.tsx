@@ -37,6 +37,11 @@ import {
 import { useHorizontalSwipe } from "../../shared/gestures/useHorizontalSwipe";
 import { useQuestNavigationPosition } from "../quest/useQuestNavigationPosition";
 import { QuestCard, QuestAnswerGuide } from "../quest/QuestCard";
+import { AssignmentBrief } from "./components/AssignmentBrief";
+import { useDesktopLayout } from "../../shared/layout/useDesktopLayout";
+import { DesktopQuestCard } from "./desktop/DesktopQuestCard";
+import { QuestWorkspace } from "./desktop/QuestWorkspace";
+import { GameLoadingScreen } from "./components/GameLoadingScreen";
 
 function clueView(clue: GameClue, assignmentId: string): QuestClue {
   const narrative = clue.kind === "letter" || clue.kind === "bless";
@@ -87,12 +92,7 @@ export function GamePlayPage() {
     queryFn: ({ signal }) => gameApi.assignment(id, signal),
     refetchInterval: 5000,
   });
-  if (query.isPending)
-    return (
-      <main className="centered-state" aria-busy="true">
-        <p>正在准备本场冒险…</p>
-      </main>
-    );
+  if (query.isPending) return <GameLoadingScreen scene="journey" />;
   if (query.isError)
     return (
       <main className="game-shell">
@@ -104,6 +104,8 @@ export function GamePlayPage() {
 }
 
 export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
+  const isDesktop = useDesktopLayout();
+  const QuestionCard = isDesktop ? DesktopQuestCard : QuestCard;
   const { player, setPlayer } = useGame(),
     client = useQueryClient();
   const [activeIndex, setActiveIndex] = useState(assignment.currentIndex);
@@ -181,7 +183,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     assignment.levels[assignment.currentIndex];
   const cardRef = useRef<HTMLElement | null>(null),
     navRef = useRef<HTMLElement | null>(null);
-  useQuestNavigationPosition(step?.id || "", cardRef);
+  useQuestNavigationPosition(step?.id || "", cardRef, !isDesktop);
   useEffect(() => {
     const nav = navRef.current,
       active = nav?.querySelector<HTMLButtonElement>(".is-active");
@@ -348,9 +350,6 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   const cooling = Boolean(
     step?.cooldownUntil && Date.parse(step.cooldownUntil) > serverNow,
   );
-  const eligible =
-    player.level.order >= assignment.minLevel &&
-    (assignment.maxLevel === null || player.level.order <= assignment.maxLevel);
   const availability: QuestAvailability = waiting
     ? { status: "not-started", startsAt: Date.parse(assignment.startsAt) }
     : expired
@@ -402,7 +401,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     submit.mutate();
   }
   return (
-    <main className="quest-layout">
+    <main className={`quest-layout${isDesktop ? " quest-desktop" : ""}`}>
       {background && (
         <div
           className="quest-background"
@@ -418,27 +417,14 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         }}
       />
       {assignment.status === "assigned" && (
-        <section className="quest-card">
-          <h2>本场冒险尚未开始</h2>
-          <p>{assignment.description}</p>
-          <p>
-            参与等级：{assignment.minLevel}
-            {assignment.maxLevel ? `～${assignment.maxLevel}` : " 及以上"}
-          </p>
-          {!eligible && <p>当前等级不符合参与要求。</p>}
-          {waiting && (
-            <p>开放时间：{new Date(assignment.startsAt).toLocaleString()}</p>
-          )}
-          {expired && <p>本次场次已过期，请联系工作人员。</p>}
-          {start.isError && <GameFailure error={start.error} />}
-          <Button
-            variant="primary"
-            onClick={() => start.mutate()}
-            disabled={start.isPending || !eligible || waiting || expired}
-          >
-            {start.isPending ? "正在进入…" : "开始本场冒险"}
-          </Button>
-        </section>
+        <AssignmentBrief
+          assignment={assignment}
+          rank={player.level.order}
+          now={serverNow}
+          pending={start.isPending}
+          error={start.error}
+          onStart={() => start.mutate()}
+        />
       )}
       {assignment.status === "cancelled" && (
         <section className="game-empty">
@@ -467,79 +453,90 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
               ))}
             </nav>
           )}
-          {content && (
-            <QuestCard
-              key={step.id}
-              activeQuest={{
-                id: step.id,
-                kind: content.kind,
-                title:
-                  (override?.hideTitle ?? assignment.presentation.hideTitle)
-                    ? undefined
-                    : content.title,
-                prompt: content.content[0]?.text || "",
-                content: content.content,
-                options: content.options,
-                answerPlaceholder: content.placeholder,
-                clues: assignment.clues
-                  .filter(
-                    (clue) =>
-                      !isCombination(clue) &&
-                      (!clue.sessionLevel || clue.sessionLevel === step.id),
+          <QuestWorkspace
+            desktop={isDesktop}
+            clues={assignment.clues
+              .filter((clue) => !isCombination(clue))
+              .map((clue) => clueView(clue, assignment.id))}
+            openText={flow.openText}
+            openImages={flow.openImages}
+            openVideo={flow.openVideo}
+          >
+            {content && (
+              <QuestionCard
+                key={step.id}
+                activeQuest={{
+                  id: step.id,
+                  kind: content.kind,
+                  title:
+                    (override?.hideTitle ?? assignment.presentation.hideTitle)
+                      ? undefined
+                      : content.title,
+                  prompt: content.content[0]?.text || "",
+                  content: content.content,
+                  options: content.options,
+                  answerPlaceholder: content.placeholder,
+                  clues: assignment.clues
+                    .filter(
+                      (clue) =>
+                        !isCombination(clue) &&
+                        (!clue.sessionLevel || clue.sessionLevel === step.id),
+                    )
+                    .map((clue) => clueView(clue, assignment.id)),
+                }}
+                activeAttempt={{
+                  status: step.completedAt
+                    ? "completed"
+                    : step.locked || step.cooldownUntil
+                      ? "penalized"
+                      : step.wrongCount
+                        ? "incorrect"
+                        : "unanswered",
+                  penaltyEndsAt: step.locked
+                    ? -1
+                    : step.cooldownUntil
+                      ? Date.parse(step.cooldownUntil)
+                      : null,
+                }}
+                activeQuestionNumber={activeIndex + 1}
+                questCardRef={cardRef}
+                answerFormRef={answerFormRef}
+                swipeHandlers={swipe}
+                updateQuestSpotlight={updateQuestSpotlight}
+                hideQuestSpotlight={(event) =>
+                  event.currentTarget.style.setProperty(
+                    "--spotlight-opacity",
+                    "0",
                   )
-                  .map((clue) => clueView(clue, assignment.id)),
-              }}
-              activeAttempt={{
-                status: step.completedAt
-                  ? "completed"
-                  : step.locked || step.cooldownUntil
-                    ? "penalized"
-                    : step.wrongCount
-                      ? "incorrect"
-                      : "unanswered",
-                penaltyEndsAt: step.locked
-                  ? -1
-                  : step.cooldownUntil
-                    ? Date.parse(step.cooldownUntil)
-                    : null,
-              }}
-              activeQuestionNumber={activeIndex + 1}
-              questCardRef={cardRef}
-              answerFormRef={answerFormRef}
-              swipeHandlers={swipe}
-              updateQuestSpotlight={updateQuestSpotlight}
-              hideQuestSpotlight={(event) =>
-                event.currentTarget.style.setProperty(
-                  "--spotlight-opacity",
-                  "0",
-                )
-              }
-              availability={availability}
-              highlightAnswerForm={highlightAnswerForm}
-              handleSubmit={onSubmit}
-              answer={answers[step.id] ?? step.lastAnswer}
-              setAnswer={(value) => {
-                closeAnswerGuide();
-                setAnswers((previous) => ({ ...previous, [step.id]: value }));
-              }}
-              isPermanentlyLocked={step.locked}
-              isTemporarilyLocked={cooling}
-              now={serverNow}
-              pending={submit.isPending}
-              canMoveNext={
-                !!step.completedAt &&
-                !!assignment.levels[activeIndex + 1]?.question
-              }
-              nextIndex={activeIndex + 1}
-              moveTo={moveTo}
-              feedback={feedback}
-              feedbackTone={feedbackTone}
-              openImages={flow.openImages}
-              openVideo={flow.openVideo}
-              setTextClue={flow.openText}
-            />
-          )}
-          {!guideSeen &&
+                }
+                availability={availability}
+                highlightAnswerForm={highlightAnswerForm}
+                handleSubmit={onSubmit}
+                answer={answers[step.id] ?? step.lastAnswer}
+                setAnswer={(value) => {
+                  closeAnswerGuide();
+                  setAnswers((previous) => ({ ...previous, [step.id]: value }));
+                }}
+                isPermanentlyLocked={step.locked}
+                isTemporarilyLocked={cooling}
+                now={serverNow}
+                pending={submit.isPending}
+                canMoveNext={
+                  !!step.completedAt &&
+                  !!assignment.levels[activeIndex + 1]?.question
+                }
+                nextIndex={activeIndex + 1}
+                moveTo={moveTo}
+                feedback={feedback}
+                feedbackTone={feedbackTone}
+                openImages={flow.openImages}
+                openVideo={flow.openVideo}
+                setTextClue={flow.openText}
+              />
+            )}
+          </QuestWorkspace>
+          {!isDesktop &&
+            !guideSeen &&
             assignment.totalLevels > 1 &&
             assignment.status === "active" && (
               <QuestAnswerGuide dismissAnswerGuide={closeAnswerGuide} />
@@ -550,6 +547,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         {flow.videoPlaying ? "视频正在播放" : "视频未播放"}
       </span>
       <MediaViewer
+        className={isDesktop ? "desktop-media-viewer" : undefined}
         state={flow.media}
         onClose={flow.closeMedia}
         onImageIndexChange={flow.changeImageIndex}

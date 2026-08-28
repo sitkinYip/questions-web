@@ -1,0 +1,166 @@
+/* Desktop media entry owns its layout; shared/mobile buttons stay untouched. */
+.desktop-clues__reading--video {
+  padding-block: clamp(16px, 2dvh, 24px);
+}
+.desktop-clues__reading--video h3 {
+  margin-bottom: var(--space-3);
+}
+.desktop-clue-video {
+  --clue-video-seal-size: 64px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: var(--clue-video-seal-size) minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  min-height: clamp(108px, 15dvh, 132px);
+  margin-top: clamp(12px, 2dvh, 24px);
+  padding: var(--space-4) var(--space-5);
+  overflow: hidden;
+  border: 1px solid var(--color-accent-border);
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 12% 50%, var(--glow-gold-soft), transparent 65%),
+    linear-gradient(115deg, var(--color-accent-soft), transparent),
+    var(--color-surface-raised);
+  color: var(--color-accent-text);
+  text-align: left;
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 5px var(--color-surface),
+    inset 0 0 0 6px var(--color-accent-soft),
+    0 8px 24px -12px var(--color-shadow);
+  transition:
+    border-color var(--duration-medium) var(--motion-ios),
+    box-shadow var(--duration-medium) var(--motion-ios),
+    transform var(--duration-fast) var(--motion-spring);
+}
+.desktop-clue-video::before,
+.desktop-clue-video::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+}
+.desktop-clue-video::before {
+  inset: 9px;
+  border-inline: 2px solid var(--color-accent-border);
+  opacity: 0.55;
+}
+.desktop-clue-video::after {
+  inset: -50% 0;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    var(--color-accent-soft) 50%,
+    transparent 65%
+  );
+  transform: translateX(-110%);
+  transition: transform var(--duration-reveal) var(--motion-ios);
+}
+.desktop-clue-video__seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--clue-video-seal-size);
+  height: var(--clue-video-seal-size);
+  border: 1px solid var(--color-accent-border);
+  border-radius: 50%;
+  background: var(--color-accent-faint);
+  box-shadow:
+    inset 0 0 0 5px var(--color-surface),
+    inset 0 0 0 6px var(--color-accent-soft),
+    0 0 24px var(--glow-gold-soft);
+}
+.desktop-clue-video__seal > svg {
+  width: 23px;
+  height: 23px;
+  /* Optical centering for the triangular play glyph. */
+  transform: translateX(2px);
+}
+.desktop-clue-video__orbit {
+  position: absolute;
+  inset: -5px;
+  border: 1px dashed var(--color-accent-border);
+  border-radius: 50%;
+  transition: transform var(--duration-reveal) var(--motion-spring);
+}
+.desktop-clue-video__orbit::before,
+.desktop-clue-video__orbit::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  transform: rotate(45deg);
+}
+.desktop-clue-video__orbit::before {
+  top: -3px;
+}
+.desktop-clue-video__orbit::after {
+  bottom: -3px;
+}
+.desktop-clue-video__copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.desktop-clue-video__eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+.desktop-clue-video__copy strong {
+  color: var(--color-text-strong);
+  font: 500 22px/1.4 var(--font-display);
+  text-wrap: balance;
+}
+.desktop-clue-video__hint {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+.desktop-clue-video__star {
+  width: 16px;
+  height: 16px;
+  opacity: 0.65;
+  transition:
+    transform var(--duration-reveal) var(--motion-spring),
+    opacity var(--duration-medium) var(--motion-ios);
+}
+.desktop-clue-video:is(:hover, :focus-visible) {
+  border-color: var(--color-accent);
+  box-shadow:
+    inset 0 0 0 5px var(--color-surface),
+    inset 0 0 0 6px var(--color-accent-border),
+    0 8px 28px -8px var(--glow-gold-soft);
+}
+.desktop-clue-video:is(:hover, :focus-visible)::after {
+  transform: translateX(110%);
+}
+.desktop-clue-video:is(:hover, :focus-visible) .desktop-clue-video__orbit {
+  transform: rotate(70deg);
+}
+.desktop-clue-video:is(:hover, :focus-visible) .desktop-clue-video__star {
+  opacity: 1;
+  transform: rotate(90deg);
+}
+.desktop-clue-video:active {
+  transform: scale(0.985);
+}
+@media (prefers-reduced-motion: reduce) {
+  .desktop-clue-video,
+  .desktop-clue-video *,
+  .desktop-clue-video::after {
+    transition: none;
+    transform: none;
+  }
+  .desktop-clue-video:is(:hover, :focus-visible) .desktop-clue-video__orbit,
+  .desktop-clue-video:is(:hover, :focus-visible) .desktop-clue-video__star,
+  .desktop-clue-video:active {
+    transform: none;
+  }
+  .desktop-clue-video::after {
+    display: none;
+  }
+}

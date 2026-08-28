@@ -13,6 +13,31 @@
   --motion-spring: cubic-bezier(0.22, 0.78, 0.18, 1);
   --motion-ios: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-impact: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 180ms;
+  --duration-medium: 360ms;
+  --duration-reveal: 640ms;
+  --duration-orbit: 100s;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-control: 10px;
+  --radius-panel: 18px;
+  --radius-round: 999px;
+  --control-height: 52px;
+  --page-width: 1180px;
+  --page-gutter: clamp(20px, 4vw, 48px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --text-small: 13px;
+  --z-navigation: 100;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
   --font-ui:
     "Avenir Next", "Segoe UI Variable", "Noto Sans SC", system-ui, sans-serif;
   --font-display: Georgia, "Noto Serif SC", "Songti SC", serif;
@@ -108,4 +133,12 @@
   --glow-gold-soft: rgba(118, 96, 47, 0.1);
   --glow-danger: rgba(157, 75, 64, 0.26);
   --glow-success: rgba(79, 111, 59, 0.24);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0.01ms;
+    --duration-medium: 0.01ms;
+    --duration-reveal: 0.01ms;
+  }
 }
