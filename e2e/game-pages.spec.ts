@@ -59,16 +59,11 @@ test("assignment briefing disables start before the opening time", async ({
   ).toBeVisible();
 });
 
-test("profile saves through the existing multipart contract and preserves a tabbed draft", async ({
+test("nickname-only profile saves use JSON and preserve a tabbed draft", async ({
   page,
 }) => {
   const { player } = await mockQuestionsApi(page);
   await page.route("**/api/questions/v1/me/profile", async (route) => {
-    expect(route.request().method()).toBe("PATCH");
-    expect(route.request().headers()["content-type"]).toContain(
-      "multipart/form-data",
-    );
-    expect(route.request().postData()).toContain("追星旅人");
     player.displayName = "追星旅人";
     await fulfillJson(route, player);
   });
@@ -82,9 +77,80 @@ test("profile saves through the existing multipart contract and preserves a tabb
     await expect(page.getByLabel("当前密码", { exact: true })).toBeInViewport();
   }
   await expect(name).toHaveValue("追星旅人");
+  const requestPending = page.waitForRequest("**/api/questions/v1/me/profile");
   await page.getByRole("button", { name: "保存资料" }).click();
+  const request = await requestPending;
+  expect(request.method()).toBe("PATCH");
+  expect(request.headers()["content-type"]).toContain("application/json");
+  expect(request.postDataJSON()).toEqual({ displayName: "追星旅人" });
   await expect(page.getByRole("status")).toContainText("资料已保存");
   await expect(page.locator(".player-passport h2")).toHaveText("追星旅人");
+});
+
+test("avatar uploads keep multipart fields, file bytes and the browser boundary", async ({
+  page,
+  browserName,
+}) => {
+  const { player } = await mockQuestionsApi(page);
+  const avatar = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=",
+    "base64",
+  );
+  await page.route("**/api/questions/v1/me/profile", async (route) => {
+    player.displayName = "追星旅人";
+    player.avatar = "avatar_saved.png";
+    await fulfillJson(route, player);
+  });
+  await page.route("**/api/files/token", (route) =>
+    fulfillJson(route, { token: "avatar-test-token" }),
+  );
+  await page.route("**/api/files/game_players/**", (route) =>
+    route.fulfill({ contentType: "image/png", body: avatar }),
+  );
+  await login(page, "/profile");
+  await page.getByLabel("显示昵称", { exact: true }).fill("追星旅人");
+  const upload = page.getByLabel("上传头像");
+  await upload.setInputFiles({
+    name: "avatar.png",
+    mimeType: "image/png",
+    buffer: avatar,
+  });
+  const preview = page.locator(".profile-editor__avatar img");
+  await expect(preview).toHaveAttribute("src", /^blob:/);
+  if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
+    await page.getByRole("tab", { name: "账号安全" }).click();
+    await page.getByRole("tab", { name: "我的名片" }).click();
+    await expect(preview).toHaveAttribute("src", /^blob:/);
+  }
+  const selectedBytes = await upload.evaluate(async (input: HTMLInputElement) =>
+    Array.from(new Uint8Array(await input.files![0].arrayBuffer())),
+  );
+  expect(Buffer.from(selectedBytes)).toEqual(avatar);
+
+  const requestPending = page.waitForRequest("**/api/questions/v1/me/profile");
+  await page.getByRole("button", { name: "保存资料" }).click();
+  const request = await requestPending;
+  expect(request.method()).toBe("PATCH");
+  const contentType = request.headers()["content-type"];
+  expect(contentType).toMatch(/^multipart\/form-data;\s*boundary=.+/);
+  const form = await new Response(request.postDataBuffer(), {
+    headers: { "Content-Type": contentType },
+  }).formData();
+  expect(Array.from(form.keys()).sort()).toEqual(["avatar", "displayName"]);
+  expect(form.get("displayName")).toBe("追星旅人");
+  const file = form.get("avatar") as File;
+  expect(file.name).toBe("avatar.png");
+  expect(file.type).toBe("image/png");
+  // WebKit's intercepted body exposes multipart metadata but omits file bytes.
+  // Check the selected file above on every engine, and wire bytes in Chromium.
+  if (browserName !== "webkit") {
+    expect(Buffer.from(await file.arrayBuffer())).toEqual(avatar);
+  }
+  await expect(page.getByRole("status")).toContainText("资料已保存");
+  await expect(page.locator(".player-passport h2")).toHaveText("追星旅人");
+  await expect(preview).toHaveAttribute("src", /\/avatar_saved\.png\?/);
+  await expect(upload).toHaveValue("");
+  await expect(page.locator(".profile-editor__filename")).toHaveCount(0);
 });
 
 test("invalid avatar and mismatched passwords never call write endpoints", async ({

@@ -12,12 +12,15 @@
 
 .question-image button,
 .question-gallery button {
-  display: block;
+  display: grid;
+  place-items: center;
   justify-self: center;
   align-self: start;
   width: fit-content;
   max-width: 100%;
-  min-width: 0;
+  /* Tiny images retain an accessible target without enlarging their frame. */
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   border: 0;
   background: transparent;

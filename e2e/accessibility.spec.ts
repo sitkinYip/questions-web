@@ -41,9 +41,22 @@ test("answer flow works with keyboard and interactive targets meet touch size", 
   await answer.press("Enter");
   await expect(page.locator(".quest-card").getByRole("status")).toBeVisible();
 
-  const mediaButton = page.getByRole("button", { name: "查看题目图片 1" });
-  const box = await mediaButton.boundingBox();
-  expect(box?.height).toBeGreaterThanOrEqual(44);
+  const mediaButtons = page.locator(
+    ".question-image button, .question-gallery button",
+  );
+  await expect(mediaButtons).toHaveCount(2);
+  for (const button of await mediaButtons.all()) {
+    // Wait for the answer feedback transform to settle before measuring.
+    await expect
+      .poll(async () => {
+        const box = await button.boundingBox();
+        return Math.min(box?.width ?? 0, box?.height ?? 0);
+      })
+      .toBeGreaterThanOrEqual(44);
+    await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(button).toHaveCSS("border-width", "0px");
+    await expect(button.locator("img")).toHaveCSS("border-width", "1px");
+  }
 });
 
 test("reduced motion preference collapses decorative animation", async ({

@@ -99,7 +99,7 @@ src/styles/
 | `GameLayout`                         | 桌面顶栏、移动底栏、跳转焦点、返回正在探索的场次              |
 | `PlayerPassport` / `ExperienceMeter` | 共享玩家名片与 XP；数据始终来自当前玩家                       |
 | `AssignmentCard` / `AssignmentBrief` | 章节票券、出发前说明、真实场次限制与时间                      |
-| `ProfileEditor` / `useProfileEditor` | 共享表单展示 / 昵称草稿、头像预览生命周期、multipart 提交     |
+| `ProfileEditor` / `useProfileEditor` | 共享表单展示 / 昵称草稿、头像预览生命周期、资料提交           |
 | `GameState`                          | 与最终布局接近的 skeleton、空状态、可重试错误                 |
 | `CelestialAtlas`                     | 纯装饰几何，不参与输入、焦点和业务状态                        |
 
@@ -143,9 +143,10 @@ src/styles/
 - `styles/desktop/workspace.css` 统一桌面栏间距、页边距、最大宽度、滚动区和精简外壳；quest、profile、inbox、letter 分文件拥有各自布局。全部消费现有颜色/动效 token 或信纸局部主题变量，仍受架构检查约束。
 - `GamePlayView` 保存唯一的答案草稿、进度、API 提交与演出队列。`QuestAnswerForm` 共享控件与校验展示；`QuestCard` 保留手机结构，`desktop/DesktopQuestCard` 只负责桌面阅读区与答题区。`QuestWorkspace` 在没有线索时不留空侧栏，有线索时显示服务端已解锁的非组合线索；不从题库推导或提前请求未解锁内容。
 - 桌面题干、选项、线索分别可滚动，题目切换仍恢复焦点，但不滚动整个页面。图片保持比例并可打开原媒体查看器；自动线索、完成仪式、升级提示仍由同一演出队列处理。
-- 题干单图、图集与正文内图片由 `features/question-images.css` 共享透明底与等比尺寸规则；单图及图集按钮按实际图片尺寸收拢，边框和悬停阴影归图片所有，不再对图内放大裁切。桌面只覆写最大高度，视频封面、选项缩略图和媒体查看器保持各自样式边界。
+- 题干单图、图集与正文内图片由 `features/question-images.css` 共享透明底与等比尺寸规则；单图及图集按钮按实际图片尺寸收拢，小图保留至少 44×44px 的透明点击区，边框和悬停阴影归图片所有，不再对图内放大裁切。桌面只覆写最大高度，视频封面、选项缩略图和媒体查看器保持各自样式边界。
 - `DesktopClueVideoTrigger` 与 `desktop/clue-video.css` 独立拥有桌面视频入口的星环、描边和交互反馈，复用主题/动效变量，不覆盖移动端或通用按钮。视频、图片 URL 只交给站内媒体查看器，只有 link / letter 类型生成导航，避免把防盗链 CDN 资源误当外链打开。
 - `useProfileEditor` / `usePasswordEditor` 在页面层创建，桌面并列编辑与手机 Tabs 共享草稿；切换断点不清空输入、不释放仍使用的头像预览。头像对象 URL 在替换、保存或离开页面时才释放。强制改密页继续使用原登录外壳。
+- `gameApi.profile` 将仅昵称编辑转成 JSON，有头像文件时保留 multipart，由浏览器生成 boundary；浏览器回归分别验证两种请求、文件内容与保存后状态，不把所有资料修改都当成上传。
 - `DesktopInbox` 仅持有选中来信 ID；查询和确认逻辑复用 `NotificationLetter`。列表/正文独立滚动，确认操作不跳到下一封未读信，正文支持键盘滚动。
 - `LetterControls` 共享翻页/打字/收起操作。桌面增加直接返回和键盘提示；宽幅信纸仍使用原分页引擎、音频与翻页动效。可见正文与隐藏分页测量区消费相同字体和间距，避免三种信纸主题出现截字。手机结构不增加桌面手记。
 - 常见 1100×700、1280×720、1366×768、1920×1080 视口以主要操作同屏为目标；极矮窗口或长错误反馈保留区域滚动兜底，不裁切数据或禁止页面缩放。
