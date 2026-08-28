@@ -149,6 +149,26 @@ export interface AdminQuestion extends GameQuestion {
   revision: number;
   status: "draft" | "published" | "archived";
   acceptedAnswers: string[];
+  usage?: AdminQuestionUsage;
+}
+export interface AdminSessionReference {
+  id: string;
+  title: string;
+  revision: number;
+  status: "draft" | "published" | "archived";
+}
+export interface AdminQuestionUsage {
+  online: AdminSessionReference[];
+  drafts: AdminSessionReference[];
+  historyCount: number;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+export interface AdminAssignmentSummary extends GameAssignmentSummary {
+  sessionStatus: "draft" | "published" | "archived";
+}
+export interface AdminAssignment extends GameAssignment {
+  sessionStatus: "draft" | "published" | "archived";
 }
 export interface AdminSessionLevel {
   id?: string;
@@ -191,6 +211,13 @@ export interface AdminSession {
   levels: AdminSessionLevel[];
   clues: AdminClue[];
   rewardRules: AdminRewardRule[];
+  assignmentCounts?: {
+    total: number;
+    assigned: number;
+    active: number;
+    completed: number;
+    cancelled: number;
+  };
 }
 export interface AdminRewardDefinition {
   id: string;

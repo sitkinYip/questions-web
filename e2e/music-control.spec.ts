@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   mockLegacyAudioPlayback,
   mockQuestionsApi,
@@ -8,6 +8,35 @@ import {
 test.beforeEach(async ({ page }) => {
   await mockQuestionsApi(page, { bgm: true });
 });
+
+async function waitForControlMotion(control: Locator) {
+  // Await the actual snap/feedback transitions, not a guessed delay. Descendant
+  // music-wave animations intentionally keep running and are not layout motion.
+  await expect
+    .poll(() =>
+      control.evaluate(
+        (element) =>
+          element
+            .getAnimations()
+            .filter(
+              (animation) =>
+                animation.effect?.getComputedTiming().iterations !== Infinity &&
+                animation.playState !== "finished",
+            ).length,
+      ),
+    )
+    .toBe(0);
+}
+
+async function restingControlBox(page: Page, control: Locator) {
+  // Hover lifts/scales the button; compare saved positions in the same state.
+  await page.mouse.move(0, 0);
+  await expect(control).toHaveCSS("transform", "none");
+  await waitForControlMotion(control);
+  const box = await control.boundingBox();
+  if (!box) throw new Error("Music control is not visible");
+  return box;
+}
 
 test("loads and toggles music when play returns undefined", async ({
   page,
@@ -30,72 +59,77 @@ test("loads and toggles music when play returns undefined", async ({
   expect(errors).toEqual([]);
 });
 
-test("music control stays fixed, drags without toggling and restores position", async ({
-  page,
-}) => {
-  await enterGame(page);
-  const guide = page.getByRole("button", { name: "知道了", exact: true });
-  if (await guide.isVisible()) await guide.click();
-  const control = page.locator(".bgm-control");
-  await expect(control).toBeVisible();
-  await expect(control).toHaveCSS("position", "fixed");
-  const initialPressed = await control.getAttribute("aria-pressed");
-  expect(initialPressed).toMatch(/true|false/);
-  await expect(
-    control.locator(
-      initialPressed === "true" ? ".bgm-pause-glyph" : ".bgm-play-glyph",
-    ),
-  ).toBeVisible();
+for (const leaveHovered of [false, true]) {
+  test(`music control stays fixed, drags without toggling and restores position${leaveHovered ? " after hover feedback" : ""}`, async ({
+    page,
+  }) => {
+    await enterGame(page);
+    const guide = page.getByRole("button", { name: "知道了", exact: true });
+    if (await guide.isVisible()) await guide.click();
+    const control = page.locator(".bgm-control");
+    await expect(control).toBeVisible();
+    await expect(control).toHaveCSS("position", "fixed");
+    const initialPressed = await control.getAttribute("aria-pressed");
+    expect(initialPressed).toMatch(/true|false/);
+    await expect(
+      control.locator(
+        initialPressed === "true" ? ".bgm-pause-glyph" : ".bgm-play-glyph",
+      ),
+    ).toBeVisible();
 
-  const initialBox = await control.boundingBox();
-  if (!initialBox) throw new Error("Music control is not visible");
-  expect(initialBox.y + initialBox.height).toBeLessThanOrEqual(
-    page.viewportSize()?.height ?? Number.POSITIVE_INFINITY,
-  );
+    const initialBox = await restingControlBox(page, control);
+    expect(initialBox.y + initialBox.height).toBeLessThanOrEqual(
+      page.viewportSize()?.height ?? Number.POSITIVE_INFINITY,
+    );
 
-  await page.mouse.move(
-    initialBox.x + initialBox.width / 2,
-    initialBox.y + initialBox.height / 2,
-  );
-  await page.mouse.down();
-  await page.mouse.move(96, 136, { steps: 8 });
-  await page.mouse.up();
-  await page.waitForTimeout(380);
+    await page.mouse.move(
+      initialBox.x + initialBox.width / 2,
+      initialBox.y + initialBox.height / 2,
+    );
+    await page.mouse.down();
+    await page.mouse.move(96, 136, { steps: 8 });
+    await page.mouse.up();
+    await expect(control).not.toHaveClass(/\bis-dragging\b/);
+    if (leaveHovered) {
+      // Reproduce WebKit retaining hover after a captured drag: the visual box
+      // moves by ~3px even though the saved layout position is unchanged.
+      await control.hover();
+      await expect(control).not.toHaveCSS("transform", "none");
+      await waitForControlMotion(control);
+    }
 
-  await expect(control).toHaveAttribute(
-    "aria-pressed",
-    initialPressed ?? "false",
-  );
-  const draggedBox = await control.boundingBox();
-  if (!draggedBox) throw new Error("Dragged music control is not visible");
-  expect(draggedBox.x).toBeLessThan(initialBox.x);
-  expect(draggedBox.y).toBeLessThan(initialBox.y);
-  expect(draggedBox.x).toBeLessThanOrEqual(14);
+    await expect(control).toHaveAttribute(
+      "aria-pressed",
+      initialPressed ?? "false",
+    );
+    const draggedBox = await restingControlBox(page, control);
+    expect(draggedBox.x).toBeLessThan(initialBox.x);
+    expect(draggedBox.y).toBeLessThan(initialBox.y);
+    expect(draggedBox.x).toBeLessThanOrEqual(14);
 
-  const storedPosition = await page.evaluate(() => {
-    const value = window.localStorage.getItem("questions:v1:bgm");
-    return value ? JSON.parse(value).position : null;
+    const storedPosition = await page.evaluate(() => {
+      const value = window.localStorage.getItem("questions:v1:bgm");
+      return value ? JSON.parse(value).position : null;
+    });
+    expect(storedPosition).toEqual({
+      x: 0,
+      y: expect.any(Number),
+    });
+
+    await page.reload();
+    await expect(control).toBeVisible();
+    const restoredBox = await restingControlBox(page, control);
+    expect(Math.abs(restoredBox.x - draggedBox.x)).toBeLessThanOrEqual(2);
+    expect(Math.abs(restoredBox.y - draggedBox.y)).toBeLessThanOrEqual(2);
+
+    await page.evaluate(() => {
+      document.body.style.minHeight = "200vh";
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    const scrolledBox = await restingControlBox(page, control);
+    expect(Math.abs(scrolledBox.y - restoredBox.y)).toBeLessThanOrEqual(1);
   });
-  expect(storedPosition).toEqual({
-    x: 0,
-    y: expect.any(Number),
-  });
-
-  await page.reload();
-  await expect(control).toBeVisible();
-  const restoredBox = await control.boundingBox();
-  if (!restoredBox) throw new Error("Restored music control is not visible");
-  expect(Math.abs(restoredBox.x - draggedBox.x)).toBeLessThanOrEqual(2);
-  expect(Math.abs(restoredBox.y - draggedBox.y)).toBeLessThanOrEqual(2);
-
-  await page.evaluate(() => {
-    document.body.style.minHeight = "200vh";
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-  const scrolledBox = await control.boundingBox();
-  if (!scrolledBox) throw new Error("Fixed music control is not visible");
-  expect(Math.abs(scrolledBox.y - restoredBox.y)).toBeLessThanOrEqual(1);
-});
+}
 
 test("autoplay hint keeps readable horizontal text on a narrow screen", async ({
   page,
