@@ -24,6 +24,13 @@ export interface GamePresentation {
   backgroundUrl?: string;
   completionStyle?: "normal" | "finale";
 }
+export interface GameLivePresentation {
+  backgroundMode?: "inherit" | "custom" | "none";
+  hideTitle?: boolean;
+  bgmMode?: "inherit" | "custom" | "silent";
+  bgmUrl?: string;
+  backgroundUrl?: string;
+}
 export interface GameContentBlock {
   text: string;
   hint: string;
@@ -76,24 +83,38 @@ export interface GameLevel {
   question: GameQuestion | null;
   lastAnswer: string;
 }
+export interface GameClueContent {
+  title: string;
+  text: string;
+  url: string;
+  imageUrls: string[];
+  buttonText: string;
+  description?: string;
+  tips?: string;
+}
 export interface GameClue {
-  trigger: "start" | "level_completed" | "session_completed" | "manual";
+  trigger:
+    | "start"
+    | "level_completed"
+    | "session_completed"
+    | "manual"
+    | "question_completed";
   id: string;
+  source: "session" | "question";
+  definitionId: string;
+  question: string;
   sessionLevel: string;
   kind: "text" | "image" | "video" | "link" | "letter" | "bless";
   position: number;
   narrative: string;
   autoPlay: boolean;
-  content: {
-    title: string;
-    text: string;
-    url: string;
-    imageUrls: string[];
-    buttonText: string;
-    description?: string;
-    tips?: string;
-  };
+  content: GameClueContent;
   unlockedAt: string;
+}
+export interface GameClueEffect {
+  type: "clue";
+  clueId: string;
+  autoPlay?: boolean;
 }
 export type GameCompletionTarget =
   { kind: "narrative"; id: string } | { kind: "link"; url: string };
@@ -104,11 +125,13 @@ export interface GameAssignment extends GameAssignmentSummary {
   clues: GameClue[];
   levels: GameLevel[];
   serverTime: string;
+  transitionEffects?: GameClueEffect[];
 }
 export interface GameAnswerResult {
   result: "correct" | "incorrect" | "already_completed";
   xpDelta: number;
   rewardIds: string[];
+  effects?: GameClueEffect[];
   assignment: GameAssignment;
   player: GamePlayer;
 }
@@ -149,7 +172,35 @@ export interface AdminQuestion extends GameQuestion {
   revision: number;
   status: "draft" | "published" | "archived";
   acceptedAnswers: string[];
+  commonClueCount: number;
   usage?: AdminQuestionUsage;
+}
+export interface AdminQuestionClue {
+  id: string;
+  question: string;
+  position: number;
+  kind: "text" | "image" | "video" | "link";
+  content: GameClueContent;
+  autoPlay: boolean;
+  status: "active" | "archived";
+  updated: string;
+}
+export interface AdminQuestionClueInput {
+  id?: string;
+  position?: number;
+  kind: AdminQuestionClue["kind"];
+  content: GameClueContent;
+  autoPlay?: boolean;
+}
+export interface AdminQuestionClueSet {
+  items: AdminQuestionClue[];
+  version: string;
+}
+export interface AdminQuestionClueSaveInput {
+  requestId: string;
+  reason: string;
+  expectedVersion: string;
+  clues: AdminQuestionClueInput[];
 }
 export interface AdminSessionReference {
   id: string;
@@ -181,11 +232,12 @@ export interface AdminSessionLevel {
 }
 export interface AdminClue {
   id?: string;
+  position?: number;
   sessionLevel?: string;
   levelIndex?: number;
   trigger: "start" | "level_completed" | "session_completed" | "manual";
   kind: GameClue["kind"];
-  content: GameClue["content"];
+  content: GameClueContent;
   narrative?: string;
   autoPlay?: boolean;
 }
@@ -211,6 +263,7 @@ export interface AdminSession {
   levels: AdminSessionLevel[];
   clues: AdminClue[];
   rewardRules: AdminRewardRule[];
+  liveSettingsVersion: string;
   assignmentCounts?: {
     total: number;
     assigned: number;
@@ -218,6 +271,25 @@ export interface AdminSession {
     completed: number;
     cancelled: number;
   };
+}
+export interface AdminSessionLiveSettingsInput {
+  requestId: string;
+  reason: string;
+  expectedVersion: string;
+  title?: string;
+  description?: string;
+  presentation?: GameLivePresentation;
+  levels?: { id: string; presentationOverride: GameLivePresentation }[];
+  clues?: {
+    id: string;
+    position: number;
+    content: GameClueContent;
+    autoPlay: boolean;
+  }[];
+}
+export interface AdminSessionLiveSettingsResult {
+  id: string;
+  version: string;
 }
 export interface AdminRewardDefinition {
   id: string;

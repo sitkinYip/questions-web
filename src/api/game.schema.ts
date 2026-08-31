@@ -7,6 +7,7 @@ import type {
   GameReward,
   GameNotification,
   GameAssignmentSummary,
+  GameClue,
 } from "./game.contracts";
 
 const media = z
@@ -80,6 +81,77 @@ const question = z.object({
     }),
   ),
 });
+const gameClue = z.preprocess(
+  (value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return value;
+    const clue = { ...(value as Record<string, unknown>) };
+    if (!clue.source) clue.source = "session";
+    if (!clue.definitionId) clue.definitionId = clue.id;
+    if (clue.question === undefined) clue.question = "";
+    return clue;
+  },
+  z.object({
+    id: z.string(),
+    source: z.enum(["session", "question"]),
+    definitionId: z.string().min(1),
+    question: z.string(),
+    sessionLevel: z.string(),
+    trigger: z.enum([
+      "start",
+      "level_completed",
+      "session_completed",
+      "manual",
+      "question_completed",
+    ]),
+    kind: z.enum(["text", "image", "video", "link", "letter", "bless"]),
+    position: z.number(),
+    narrative: z.string(),
+    autoPlay: z.boolean(),
+    unlockedAt: z.string(),
+    content: z.object({
+      title: z.string(),
+      text: z.string(),
+      url: media,
+      imageUrls: z.array(media),
+      buttonText: z.string(),
+      description: z.string().optional(),
+      tips: z.string().optional(),
+    }),
+  }),
+);
+export const gameClueEffectSchema = z.object({
+  type: z.literal("clue"),
+  clueId: z.string(),
+  autoPlay: z.boolean().optional(),
+});
+export const gameClueSchema: z.ZodType<GameClue> = gameClue.superRefine(
+  (clue, context) => {
+    if (clue.source !== "question") return;
+    for (const [field, value] of [
+      ["question", clue.question],
+      ["sessionLevel", clue.sessionLevel],
+    ] as const)
+      if (!value)
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: `Question clue requires ${field}`,
+        });
+    if (clue.trigger !== "question_completed")
+      context.addIssue({
+        code: "custom",
+        path: ["trigger"],
+        message: "Question clue requires question_completed",
+      });
+    if (clue.kind === "letter" || clue.kind === "bless")
+      context.addIssue({
+        code: "custom",
+        path: ["kind"],
+        message: "Question clues cannot reference narratives",
+      });
+  },
+);
 export const gameAssignmentSchema: z.ZodType<GameAssignment> = summary.extend({
   presentation,
   completionTarget: z
@@ -105,37 +177,14 @@ export const gameAssignmentSchema: z.ZodType<GameAssignment> = summary.extend({
       lastAnswer: z.string(),
     }),
   ),
-  clues: z.array(
-    z.object({
-      id: z.string(),
-      sessionLevel: z.string(),
-      trigger: z.enum([
-        "start",
-        "level_completed",
-        "session_completed",
-        "manual",
-      ]),
-      kind: z.enum(["text", "image", "video", "link", "letter", "bless"]),
-      position: z.number(),
-      narrative: z.string(),
-      autoPlay: z.boolean(),
-      unlockedAt: z.string(),
-      content: z.object({
-        title: z.string(),
-        text: z.string(),
-        url: media,
-        imageUrls: z.array(media),
-        buttonText: z.string(),
-        description: z.string().optional(),
-        tips: z.string().optional(),
-      }),
-    }),
-  ),
+  clues: z.array(gameClueSchema),
+  transitionEffects: z.array(gameClueEffectSchema).optional(),
 });
 export const gameAnswerSchema: z.ZodType<GameAnswerResult> = z.object({
   result: z.enum(["correct", "incorrect", "already_completed"]),
   xpDelta: z.number(),
   rewardIds: z.array(z.string()),
+  effects: z.array(gameClueEffectSchema).optional(),
   assignment: gameAssignmentSchema,
   player: gamePlayerSchema,
 });

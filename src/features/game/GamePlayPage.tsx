@@ -11,9 +11,7 @@ import { useParams } from "react-router-dom";
 import { gameApi } from "../../api/game.client";
 import type { GameAssignment, GameClue } from "../../api/game.contracts";
 import type {
-  MultiQuestClue,
   QuestAvailability,
-  QuestClue,
   QuestFinalDestination,
 } from "../../domain/quest/types";
 import { Button } from "../../components/ui/Button";
@@ -42,34 +40,28 @@ import { useDesktopLayout } from "../../shared/layout/useDesktopLayout";
 import { DesktopQuestCard } from "./desktop/DesktopQuestCard";
 import { QuestWorkspace } from "./desktop/QuestWorkspace";
 import { GameLoadingScreen } from "./components/GameLoadingScreen";
+import {
+  clueBelongsToLevel,
+  clueView,
+  combinationView,
+  compareClues,
+  isCombinationClue,
+  selectClueViews,
+  selectCombinationClues,
+  selectExplicitEffectClues,
+} from "./clue-presentation";
 
-function clueView(clue: GameClue, assignmentId: string): QuestClue {
-  const narrative = clue.kind === "letter" || clue.kind === "bless";
-  return {
-    id: clue.id,
-    kind: narrative ? "letter" : (clue.kind as QuestClue["kind"]),
-    title: clue.content.title || undefined,
-    content: clue.content.text,
-    autoPlay: clue.autoPlay,
-    url: clue.content.url || undefined,
-    imageUrls: clue.content.imageUrls,
-    tips: clue.content.tips,
-    href: narrative
-      ? `/play/${assignmentId}/content/${clue.narrative}`
-      : clue.content.url || undefined,
-    linkTarget: narrative ? "internal" : "external",
-  };
-}
-function combinationView(clue: GameClue): MultiQuestClue {
-  return {
-    id: clue.id,
-    qas: "",
-    revision: clue.unlockedAt,
-    title: clue.content.title,
-    content: clue.content.text,
-    buttonText: clue.content.buttonText,
-    description: clue.content.description,
-  };
+function fallbackAnswerClues(
+  previous: readonly GameClue[],
+  current: readonly GameClue[],
+  sessionLevel: string,
+) {
+  const known = new Set(previous.map((clue) => clue.id));
+  return current
+    .filter(
+      (clue) => !known.has(clue.id) && clueBelongsToLevel(clue, sessionLevel),
+    )
+    .toSorted(compareClues);
 }
 function destinationView(
   assignment: GameAssignment,
@@ -223,14 +215,10 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
           (assignment.presentation.backgroundMode === "none"
             ? undefined
             : assignment.presentation.backgroundUrl);
-  const isCombination = (clue: GameClue) =>
-    assignment.totalLevels > 1 &&
-    clue.trigger === "session_completed" &&
-    !clue.sessionLevel &&
-    clue.kind === "text";
-  const combinations = assignment.clues
-    .filter(isCombination)
-    .map(combinationView);
+  const combinations = selectCombinationClues(
+    assignment.clues,
+    assignment.totalLevels,
+  ).map(combinationView);
   const start = useMutation({
     mutationFn: () => gameApi.start(assignment.id, startKey),
     onSuccess: (value) => {
@@ -238,10 +226,33 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         ["game", player.id, "assignment", assignment.id],
         value,
       );
+      const explicit = selectExplicitEffectClues(
+        value.clues,
+        value.transitionEffects,
+        value.levels.map((level) => level.id),
+      );
       const known = new Set(assignment.clues.map((clue) => clue.id));
-      flow.start(
+      const unlocked =
+        explicit ??
         value.clues
-          .filter((clue) => clue.autoPlay && !known.has(clue.id))
+          .filter((clue) => !known.has(clue.id))
+          .toSorted(compareClues);
+      const effectAutoPlay =
+        value.transitionEffects === undefined
+          ? null
+          : new Map(
+              value.transitionEffects.map((effect) => [
+                effect.clueId,
+                effect.autoPlay,
+              ]),
+            );
+      flow.start(
+        unlocked
+          .filter(
+            (clue) =>
+              (effectAutoPlay?.get(clue.id) ?? clue.autoPlay) &&
+              !isCombinationClue(clue, value.totalLevels),
+          )
           .map((clue) => ({ type: "clue", clue: clueView(clue, value.id) })),
       );
     },
@@ -284,37 +295,53 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         return;
       }
       if (result.result === "already_completed") return;
-      const completed = result.assignment.status === "completed";
+      const settled = result.assignment;
+      const settledStep = settled.levels.find((level) => level.id === step.id);
+      const completed = settled.status === "completed";
       setFeedback(
         completed ? "全部题目已经完成。" : "回答正确，当前题目已完成。",
       );
       setFeedbackTone("success");
-      const known = new Set(assignment.clues.map((clue) => clue.id));
-      const unlocked = result.assignment.clues.filter(
-        (clue) => !known.has(clue.id),
+      const explicit = selectExplicitEffectClues(
+        settled.clues,
+        result.effects,
+        settled.levels.map((level) => level.id),
       );
+      const unlocked =
+        explicit ??
+        fallbackAnswerClues(assignment.clues, settled.clues, step.id);
+      const effectAutoPlay =
+        result.effects === undefined
+          ? null
+          : new Map(
+              result.effects.map((effect) => [effect.clueId, effect.autoPlay]),
+            );
       const automatic = unlocked.filter(
-        (clue) => clue.autoPlay && !isCombination(clue),
+        (clue) =>
+          (effectAutoPlay?.get(clue.id) ?? clue.autoPlay) &&
+          !isCombinationClue(clue, settled.totalLevels),
       );
       const sequence: PresentationStep[] = automatic.map((clue) => ({
         type: "clue",
-        clue: clueView(clue, assignment.id),
+        clue: clueView(clue, settled.id),
       }));
       const finale =
-        completed && assignment.presentation.completionStyle === "finale";
+        completed && settled.presentation.completionStyle === "finale";
       if (finale) sequence.unshift({ type: "completion", variant: "final" });
-      else if (completed && assignment.totalLevels > 1)
+      else if (completed && settled.totalLevels > 1)
         sequence.push({ type: "completion", variant: "multi" });
       if (completed) {
-        for (const clue of unlocked.filter(isCombination))
+        for (const clue of unlocked.filter((clue) =>
+          isCombinationClue(clue, settled.totalLevels),
+        ))
           sequence.push({ type: "combination", clue: combinationView(clue) });
-        const destination = destinationView(result.assignment);
+        const destination = destinationView(settled);
         if (finale && destination)
           sequence.push({ type: "destination", destination });
-      } else if (step.autoNext)
+      } else if (settledStep?.autoNext)
         sequence.push({
           type: "advance",
-          index: result.assignment.currentIndex,
+          index: settled.currentIndex,
           delay: automatic.length ? 0 : 1500,
         });
       if (result.player.level.order > player.level.order)
@@ -400,6 +427,19 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       return;
     submit.mutate();
   }
+  const workspaceClues = selectClueViews(assignment.clues, {
+    assignmentId: assignment.id,
+    totalLevels: assignment.totalLevels,
+    levelOrder: assignment.levels.map((level) => level.id),
+  });
+  const activeClues = step
+    ? selectClueViews(assignment.clues, {
+        assignmentId: assignment.id,
+        totalLevels: assignment.totalLevels,
+        sessionLevel: step.id,
+        levelOrder: assignment.levels.map((level) => level.id),
+      })
+    : [];
   return (
     <main className={`quest-layout${isDesktop ? " quest-desktop" : ""}`}>
       {background && (
@@ -455,9 +495,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
           )}
           <QuestWorkspace
             desktop={isDesktop}
-            clues={assignment.clues
-              .filter((clue) => !isCombination(clue))
-              .map((clue) => clueView(clue, assignment.id))}
+            clues={workspaceClues}
             openText={flow.openText}
             openImages={flow.openImages}
             openVideo={flow.openVideo}
@@ -476,13 +514,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
                   content: content.content,
                   options: content.options,
                   answerPlaceholder: content.placeholder,
-                  clues: assignment.clues
-                    .filter(
-                      (clue) =>
-                        !isCombination(clue) &&
-                        (!clue.sessionLevel || clue.sessionLevel === step.id),
-                    )
-                    .map((clue) => clueView(clue, assignment.id)),
+                  clues: activeClues,
                 }}
                 activeAttempt={{
                   status: step.completedAt

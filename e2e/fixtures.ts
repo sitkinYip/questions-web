@@ -128,6 +128,9 @@ export async function mockQuestionsApi(
   };
   const clue: GameClue = {
     id: "clue1",
+    source: "session",
+    definitionId: "clue1",
+    question: "",
     sessionLevel: options.autoClue ? "step0" : "",
     trigger: options.autoClue ? "level_completed" : "session_completed",
     kind: "text",

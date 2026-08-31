@@ -4,6 +4,9 @@ import { makeAssignment } from "../src/test/game-fixtures";
 
 export const desktopVideoClue: GameClue = {
   id: "preview-scene",
+  source: "session",
+  definitionId: "preview-scene",
+  question: "",
   sessionLevel: "preview-step-0",
   trigger: "level_completed",
   kind: "video",
@@ -69,6 +72,9 @@ export const desktopAssignment: GameAssignment = {
     desktopVideoClue,
     {
       id: "preview-map",
+      source: "session",
+      definitionId: "preview-map",
+      question: "",
       sessionLevel: "preview-step-0",
       trigger: "level_completed",
       kind: "image",
@@ -86,6 +92,9 @@ export const desktopAssignment: GameAssignment = {
     },
     {
       id: "preview-journal",
+      source: "session",
+      definitionId: "preview-journal",
+      question: "",
       sessionLevel: "preview-step-0",
       trigger: "level_completed",
       kind: "text",
