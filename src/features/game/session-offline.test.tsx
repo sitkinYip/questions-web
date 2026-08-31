@@ -154,3 +154,47 @@ describe("existing player pages support server-side session closure", () => {
     }
   });
 });
+
+describe("narrative return navigation", () => {
+  it("keeps the return target inside the deployed application base", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            id: "letter",
+            kind: "letter",
+            title: "来自星空的信",
+            payload: {
+              from: "北方",
+              variant: "modern",
+              hintText: "轻触信封",
+              paragraphs: [{ content: "愿你找到自己的北方。" }],
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+    window.history.replaceState(
+      null,
+      "",
+      "/questions/play/assignment1/content/letter",
+    );
+
+    try {
+      mount(
+        <GameNarrativePage />,
+        "/play/assignment1/content/letter",
+        "/play/:id/content/:contentId",
+      );
+
+      expect(
+        await screen.findByRole("link", { name: "← 返回冒险" }),
+      ).toHaveAttribute("href", "/questions/play/assignment1");
+    } finally {
+      window.history.replaceState(null, "", "/");
+      vi.unstubAllGlobals();
+    }
+  });
+});

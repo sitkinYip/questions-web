@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import { z } from "zod";
 import { gameRequest } from "../../api/game.client";
 import { sanitizeMediaUrl } from "../../domain/content/parser";
+import {
+  resolveAppBasename,
+  withAppBasename,
+} from "../../shared/navigation/app-base";
 import { LetterExperience } from "../letter/LetterExperience";
 import { BlessExperience } from "../bless/BlessExperience";
 import { GameFailure, GameHeader } from "./GameContext";
@@ -81,8 +85,12 @@ export function GameNarrativePage() {
         <GameFailure error={query.error} retry={() => void query.refetch()} />
       </main>
     );
-  const data = query.data,
-    returnTo = `/play/${id}`;
+  const data = query.data;
+  const appBasename = resolveAppBasename(
+    import.meta.env.BASE_URL,
+    window.location.pathname,
+  );
+  const returnTo = withAppBasename(`/play/${id}`, appBasename);
   return data.kind === "letter" ? (
     <LetterExperience
       letter={{
