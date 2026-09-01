@@ -5,15 +5,36 @@
 
 .feedback {
   position: relative;
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px 13px 14px;
   overflow: hidden;
+  color: var(--color-accent-text);
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      var(--color-accent-soft),
+      transparent 38%
+    ),
+    color-mix(in srgb, var(--color-surface-inset) 94%, transparent);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-control);
+  box-shadow:
+    0 18px 52px var(--color-shadow),
+    0 0 36px var(--glow-accent-faint),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 5%, transparent);
   animation: feedback-enter 620ms var(--motion-spring) both;
 }
 
 .feedback::after {
   position: absolute;
-  inset: 50% auto auto 18px;
-  width: 18px;
-  height: 18px;
+  top: 50%;
+  left: 38px;
+  width: 38px;
+  height: 38px;
   content: "";
   opacity: 0;
   border: 1px solid currentColor;
@@ -28,17 +49,81 @@
   inset: 0 auto 0 0;
   width: 3px;
   content: "";
-  background: #b99b54;
-  box-shadow: 0 0 22px rgba(203, 169, 84, 0.42);
+  background: var(--color-accent);
+  box-shadow: 0 0 24px var(--glow-accent);
+}
+
+.feedback__emblem {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  color: var(--color-accent-text);
+  background: var(--color-accent-faint);
+  border: 1px solid var(--color-accent-border);
+  border-radius: 50%;
+  box-shadow: 0 0 24px var(--glow-accent-soft);
+}
+
+.feedback__emblem svg {
+  width: 24px;
+  height: 24px;
+}
+
+.feedback__emblem i {
+  position: absolute;
+  inset: 4px;
+  border: 1px dashed color-mix(in srgb, currentColor 34%, transparent);
+  border-radius: inherit;
+  animation: feedback-emblem-orbit 5s linear infinite;
+}
+
+.feedback__content {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.feedback__content strong {
+  color: currentColor;
+  font: 600 10px/1.2 var(--font-mono);
+  letter-spacing: 0.16em;
+}
+
+.feedback__content > span {
+  color: var(--color-text);
+  font-size: 13px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.feedback__lifeline {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: currentColor;
+  box-shadow: 0 0 14px currentColor;
+  transform-origin: left center;
+  animation: feedback-lifeline 3s linear both;
 }
 
 .feedback[data-tone="success"] {
-  color: #d8e4ca;
-  background: rgba(22, 35, 22, 0.9);
-  border-color: rgba(103, 143, 90, 0.54);
+  color: var(--color-success);
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      color-mix(in srgb, var(--color-success) 18%, transparent),
+      transparent 38%
+    ),
+    color-mix(in srgb, var(--color-success-surface) 92%, transparent);
+  border-color: var(--color-success-border);
   box-shadow:
-    inset 0 1px rgba(226, 247, 210, 0.035),
-    0 18px 48px rgba(18, 45, 21, 0.16);
+    inset 0 1px color-mix(in srgb, var(--color-success) 8%, transparent),
+    0 18px 52px color-mix(in srgb, var(--color-success) 14%, transparent),
+    0 0 38px color-mix(in srgb, var(--glow-success) 36%, transparent);
 }
 
 .quest-card:has(.feedback[data-tone="success"]) {
@@ -46,14 +131,28 @@
 }
 
 .feedback[data-tone="success"]::before {
-  background: #94bd79;
-  box-shadow: 0 0 24px rgba(133, 185, 107, 0.52);
+  background: var(--color-success);
+  box-shadow: 0 0 24px var(--glow-success);
 }
 
-.quest-card > .feedback[data-tone="danger"] {
-  color: #e1c4b9;
-  background: rgba(38, 22, 18, 0.9);
-  border-color: rgba(151, 85, 70, 0.58);
+.feedback[data-tone="danger"] {
+  color: var(--color-danger-strong);
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      color-mix(in srgb, var(--color-danger) 18%, transparent),
+      transparent 40%
+    ),
+    color-mix(
+      in srgb,
+      var(--color-danger-surface) 94%,
+      var(--color-surface-inset)
+    );
+  border-color: var(--color-danger-border);
+  box-shadow:
+    0 18px 52px color-mix(in srgb, var(--color-danger) 14%, transparent),
+    0 0 42px color-mix(in srgb, var(--glow-danger) 42%, transparent),
+    inset 0 1px color-mix(in srgb, var(--color-danger) 9%, transparent);
   animation:
     feedback-enter 520ms var(--motion-spring) both,
     feedback-shake 480ms 80ms var(--motion-spring) both;
@@ -64,8 +163,22 @@
 }
 
 .feedback[data-tone="danger"]::before {
-  background: #bc7364;
-  box-shadow: 0 0 22px rgba(190, 102, 83, 0.45);
+  background: var(--color-danger);
+  box-shadow: 0 0 24px var(--glow-danger);
+}
+
+.feedback[data-tone="danger"] .feedback__emblem {
+  color: var(--color-danger);
+  background: var(--color-danger-surface);
+  border-color: var(--color-danger-border);
+  box-shadow: 0 0 26px var(--glow-danger);
+}
+
+.feedback[data-tone="success"] .feedback__emblem {
+  color: var(--color-success);
+  background: var(--color-success-surface);
+  border-color: var(--color-success-border);
+  box-shadow: 0 0 26px var(--glow-success);
 }
 
 .energy-burst {
@@ -390,7 +503,7 @@
     color-mix(in srgb, var(--color-success) 12%, transparent);
 }
 
-:root[data-theme="light"] .quest-card > .feedback[data-tone="danger"] {
+:root[data-theme="light"] .feedback[data-tone="danger"] {
   color: var(--color-danger);
   background: var(--color-danger-surface);
   border-color: var(--color-danger-border);
@@ -416,6 +529,8 @@
   .quest-card:has(.feedback[data-tone="success"]),
   .quest-card:has(.feedback[data-tone="danger"]),
   .feedback::after,
+  .feedback__emblem i,
+  .feedback__lifeline,
   .energy-burst::before,
   .energy-burst::after {
     animation: none;

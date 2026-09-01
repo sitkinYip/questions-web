@@ -122,6 +122,7 @@ describe("existing player pages support server-side session closure", () => {
     );
     mount(<GamePlayPage />, "/play/closed", "/play/:id");
     expect(await screen.findByText("该场次已下线")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "回到首页" })).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /提交答案/ }),
     ).not.toBeInTheDocument();

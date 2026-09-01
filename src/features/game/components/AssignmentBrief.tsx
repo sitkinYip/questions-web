@@ -3,7 +3,9 @@ import {
   PuzzlePieceIcon,
   ClockIcon,
   ArrowRightIcon,
+  HouseLineIcon,
 } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
 import type { GameAssignment } from "../../../api/game.contracts";
 import { Button } from "../../../components/ui/Button";
 import { CelestialAtlas } from "../../../components/effects/CelestialAtlas";
@@ -93,15 +95,23 @@ export function AssignmentBrief({
           </p>
         )}
         {!!error && <GameFailure error={error} />}
-        <Button
-          variant="primary"
-          className="game-cta"
-          onClick={onStart}
-          disabled={pending || !state.canStart}
-        >
-          {pending ? "正在进入…" : "开始本场冒险"}
-          <ArrowRightIcon aria-hidden="true" />
-        </Button>
+        <div className="assignment-brief__actions">
+          <Button
+            variant="primary"
+            className="game-cta"
+            onClick={onStart}
+            disabled={pending || !state.canStart}
+          >
+            {pending ? "正在进入…" : "开始本场冒险"}
+            <ArrowRightIcon aria-hidden="true" />
+          </Button>
+          {state.kind === "expired" && (
+            <Link className="game-action-link game-action-link--primary" to="/">
+              <HouseLineIcon aria-hidden="true" />
+              回到首页
+            </Link>
+          )}
+        </div>
         <p className="game-muted">解谜进度会自动保存，随时可以回来继续。</p>
       </div>
     </section>

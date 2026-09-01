@@ -1,3 +1,4 @@
+import { LightningIcon } from "@phosphor-icons/react";
 import { AppDialog } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
 import { RitualParticles } from "../../components/effects/RitualParticles";
@@ -26,14 +27,40 @@ export function RankUpDialog({ rank, onClose }: RankUpDialogProps) {
     >
       <div className="rank-up-rays" aria-hidden="true" />
       <RitualParticles variant="gold" />
-      <div className="rank-up-orbit" aria-hidden="true">
-        <div className="rank-up-core">{rank.code}</div>
+      <div className="rank-up-frame" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
       </div>
-      <p className="eyebrow">Rank ascension</p>
-      <p className="rank-up-label">等级提升</p>
+      <div className="rank-up-emblem" aria-hidden="true">
+        <div className="rank-up-wings">
+          <i />
+          <i />
+        </div>
+        <div className="rank-up-orbit">
+          <div className="rank-up-core">
+            <small>RANK</small>
+            <strong>{rank.code}</strong>
+          </div>
+        </div>
+      </div>
+      <p className="rank-up-label">等级突破</p>
       <h2 id="rank-up-title">{rank.name}</h2>
-      <p className="rank-up-description">冒险者的力量得到了升华</p>
-      <Button variant="primary" onClick={onClose} data-modal-initial-focus>
+      <p className="rank-up-description">新的冒险等级已经生效</p>
+      <div className="rank-up-status">
+        <LightningIcon weight="fill" aria-hidden="true" />
+        <span>
+          <strong>RANK {rank.code}</strong>
+          <small>能力权限已同步</small>
+        </span>
+      </div>
+      <Button
+        variant="primary"
+        className="rank-up-action"
+        onClick={onClose}
+        data-modal-initial-focus
+      >
         继续冒险
       </Button>
     </AppDialog>

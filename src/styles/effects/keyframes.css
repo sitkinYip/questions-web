@@ -547,6 +547,94 @@
     transform: rotate(360deg) scale(1.04);
   }
 }
+
+@keyframes rank-stage-pulse {
+  from {
+    opacity: 0.28;
+    transform: translate3d(-50%, -50%, 0) scaleY(0.38) rotate(-9deg)
+      scaleX(0.96);
+  }
+  to {
+    opacity: 0.72;
+    transform: translate3d(-50%, -50%, 0) scaleY(0.46) rotate(7deg) scaleX(1.06);
+  }
+}
+
+@keyframes rank-stage-orbit {
+  to {
+    transform: translate3d(-50%, -50%, 0) scaleY(0.42) rotate(351deg);
+  }
+}
+
+@keyframes rank-dialog-awaken {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 44px, 0) scale(0.86);
+  }
+}
+
+@keyframes rank-surface-sweep {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) skewX(-18deg);
+  }
+  42% {
+    opacity: 0.68;
+  }
+  76%,
+  100% {
+    opacity: 0;
+    transform: translate3d(460%, 0, 0) skewX(-18deg);
+  }
+}
+
+@keyframes rank-core-pulse {
+  to {
+    opacity: 0.74;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes feedback-emblem-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes feedback-lifeline {
+  to {
+    opacity: 0.3;
+    transform: scaleX(0);
+  }
+}
+
+@keyframes narrative-signal {
+  from {
+    opacity: 0.34;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.012);
+  }
+}
+
+@keyframes narrative-sweep {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translate3d(-30%, 0, 0) skewX(-14deg);
+  }
+  58% {
+    opacity: 0.74;
+  }
+  82%,
+  100% {
+    opacity: 0;
+    transform: translate3d(720%, 0, 0) skewX(-14deg);
+  }
+}
 @keyframes ui-menu-enter {
   from {
     opacity: 0;

@@ -80,7 +80,7 @@ export function clueView(clue: GameClue, assignmentId: string): QuestClue {
   const narrative = clue.kind === "letter" || clue.kind === "bless";
   return {
     id: clue.id,
-    kind: narrative ? "letter" : (clue.kind as QuestClue["kind"]),
+    kind: clue.kind as QuestClue["kind"],
     title: clue.content.title || undefined,
     content: clue.content.text,
     autoPlay: clue.autoPlay,

@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
-import { CompassIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import {
+  CompassIcon,
+  HouseLineIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
 import { Button } from "../../../components/ui/Button";
 
 export function GameFailure({
@@ -12,15 +17,21 @@ export function GameFailure({
   return (
     <section className="game-notice" role="alert">
       <WarningCircleIcon aria-hidden="true" />
-      <div>
+      <div className="game-notice__body">
         <p>
           {error instanceof Error ? error.message : "暂时无法加载，请稍后重试"}
         </p>
-        {retry && (
-          <Button size="small" onClick={retry}>
-            重新尝试
-          </Button>
-        )}
+        <div className="game-notice__actions">
+          {retry && (
+            <Button size="small" onClick={retry}>
+              重新尝试
+            </Button>
+          )}
+          <Link className="game-action-link game-action-link--primary" to="/">
+            <HouseLineIcon aria-hidden="true" />
+            回到首页
+          </Link>
+        </div>
       </div>
     </section>
   );

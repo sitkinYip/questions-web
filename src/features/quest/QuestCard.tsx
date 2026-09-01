@@ -1,8 +1,10 @@
+import { Fragment } from "react";
 import { EnergyBurst } from "../../components/effects/QuestAtmosphere";
 import { Button } from "../../components/ui/Button";
 import { CluePanel } from "../clues/CluePanel";
 import { QuestContent } from "../media/QuestContent";
 import { QuestAnswerForm } from "./QuestAnswerForm";
+import { AnswerFeedback } from "./AnswerFeedback";
 import type { QuestCardProps } from "./quest-card.types";
 export type { QuestCardProps } from "./quest-card.types";
 
@@ -19,6 +21,9 @@ export function QuestCard(props: QuestCardProps) {
     availability,
     feedback,
     feedbackTone,
+    feedbackKey,
+    feedbackAutoDismiss,
+    attentionClueIds,
     openImages,
     openVideo,
     setTextClue,
@@ -59,18 +64,14 @@ export function QuestCard(props: QuestCardProps) {
       <QuestAnswerForm {...props} />
 
       {feedback && (
-        <>
-          <p
-            key={feedback}
-            className="feedback"
-            data-tone={feedbackTone}
-            role="status"
-            aria-live="polite"
-          >
-            {feedback}
-          </p>
+        <Fragment key={`${feedback}-${feedbackKey ?? 0}`}>
+          <AnswerFeedback
+            message={feedback}
+            tone={feedbackTone}
+            autoDismiss={feedbackAutoDismiss}
+          />
           {feedbackTone !== "neutral" && <EnergyBurst tone={feedbackTone} />}
-        </>
+        </Fragment>
       )}
       {activeAttempt.status === "completed" && (
         <CluePanel
@@ -79,6 +80,7 @@ export function QuestCard(props: QuestCardProps) {
           onOpenImages={openImages}
           onOpenVideo={openVideo}
           onClueOpen={onClueOpen}
+          attentionClueIds={attentionClueIds}
         />
       )}
       <div className="quest-card-chrome" aria-hidden="true">

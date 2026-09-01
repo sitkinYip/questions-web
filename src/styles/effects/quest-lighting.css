@@ -1,16 +1,16 @@
 .session-header {
-  text-shadow: 0 2px 24px rgba(219, 187, 105, 0.08);
+  text-shadow: 0 2px 24px var(--glow-accent-faint);
 }
 
 .traveler-avatar {
-  outline: 1px solid rgba(255, 229, 158, 0.13);
+  outline: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
   outline-offset: 5px;
 }
 
 .session-progress strong {
   text-shadow:
-    0 0 22px rgba(225, 195, 119, 0.3),
-    0 8px 28px rgba(6, 7, 5, 0.54);
+    0 0 22px var(--glow-accent),
+    0 8px 28px var(--color-shadow-strong);
 }
 
 .quest-nav button {
@@ -27,7 +27,7 @@
   opacity: 0;
   background: radial-gradient(
     circle at 50% 110%,
-    rgba(224, 190, 103, 0.26),
+    color-mix(in srgb, var(--color-accent) 28%, transparent),
     transparent 64%
   );
   transform: scale(0.72);
@@ -47,10 +47,10 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(246, 218, 145, 0.94),
+    color-mix(in srgb, var(--color-accent) 92%, var(--color-text-strong)),
     transparent
   );
-  box-shadow: 0 0 16px rgba(227, 191, 101, 0.58);
+  box-shadow: 0 0 16px var(--glow-accent);
   transform: scaleX(0.24);
 }
 
@@ -64,24 +64,39 @@
   animation: quest-nav-glint 2.8s var(--motion-ios) infinite alternate;
 }
 
+.quest-nav button.is-active {
+  box-shadow:
+    0 14px 38px var(--color-shadow),
+    0 0 30px var(--glow-accent-soft),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 9%, transparent);
+}
+
 .quest-card {
   --spotlight-x: 50%;
   --spotlight-y: 20%;
   --spotlight-opacity: 0;
-  outline: 1px solid rgba(255, 233, 174, 0.04);
+  outline: 1px solid color-mix(in srgb, var(--color-accent) 9%, transparent);
   outline-offset: -7px;
+  box-shadow:
+    0 34px 110px var(--color-shadow-strong),
+    0 0 58px var(--glow-accent-faint),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 6%, transparent),
+    inset 0 0 0 6px
+      color-mix(in srgb, var(--color-text-strong) 1.8%, transparent);
   transition:
     border-color 520ms var(--motion-ios),
     box-shadow 720ms var(--motion-ios);
 }
 
 .quest-card:hover {
-  border-color: rgba(144, 127, 84, 0.5);
+  border-color: var(--color-accent-border);
   box-shadow:
-    0 42px 140px rgba(9, 10, 8, 0.56),
-    0 0 70px rgba(175, 142, 64, 0.065),
-    inset 0 1px rgba(255, 248, 225, 0.07),
-    inset 0 0 0 6px rgba(255, 255, 255, 0.014);
+    0 42px 140px var(--color-shadow-strong),
+    0 0 82px var(--glow-accent-faint),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 10%, transparent),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 8%, transparent),
+    inset 0 0 0 6px
+      color-mix(in srgb, var(--color-text-strong) 1.8%, transparent);
 }
 
 .quest-card-chrome {
@@ -99,8 +114,8 @@
   opacity: var(--spotlight-opacity);
   background: radial-gradient(
     420px circle at var(--spotlight-x) var(--spotlight-y),
-    rgba(242, 214, 140, 0.13),
-    rgba(213, 177, 89, 0.035) 35%,
+    color-mix(in srgb, var(--color-accent) 20%, transparent),
+    var(--glow-accent-faint) 35%,
     transparent 68%
   );
   transition: opacity 420ms var(--motion-ios);
@@ -117,7 +132,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 234, 177, 0.72),
+    color-mix(in srgb, var(--color-text-strong) 56%, transparent),
     transparent
   );
   filter: blur(10px);
@@ -130,7 +145,7 @@
   width: 28px;
   height: 28px;
   opacity: 0.48;
-  border-color: rgba(225, 192, 107, 0.46);
+  border-color: color-mix(in srgb, var(--color-accent) 52%, transparent);
 }
 
 .quest-card-chrome i:nth-child(1) {
@@ -163,8 +178,8 @@
 
 .quest-card h1 {
   text-shadow:
-    0 2px 0 rgba(255, 255, 255, 0.025),
-    0 18px 54px rgba(4, 5, 4, 0.64);
+    0 2px 0 color-mix(in srgb, var(--color-text-strong) 3%, transparent),
+    0 18px 54px var(--color-shadow-strong);
 }
 
 .choice-option {
@@ -181,7 +196,7 @@
   opacity: 0;
   background: radial-gradient(
     circle at 8% 50%,
-    rgba(223, 188, 97, 0.24),
+    color-mix(in srgb, var(--color-accent) 24%, transparent),
     transparent 62%
   );
   transform: translate3d(-12%, 0, 0) scaleX(0.72);
@@ -203,8 +218,8 @@
 .play-badge,
 .choice-media-button > span:last-child {
   box-shadow:
-    0 0 0 7px rgba(218, 184, 99, 0.08),
-    0 0 34px rgba(218, 184, 99, 0.3);
+    0 0 0 7px var(--glow-accent-faint),
+    0 0 34px var(--glow-accent);
   transition:
     box-shadow 520ms var(--motion-ios),
     transform 620ms var(--motion-impact);
@@ -212,8 +227,8 @@
 
 .video-poster-button:hover .play-badge {
   box-shadow:
-    0 0 0 12px rgba(218, 184, 99, 0.06),
-    0 0 58px rgba(218, 184, 99, 0.46);
+    0 0 0 12px var(--glow-accent-faint),
+    0 0 58px var(--glow-accent);
   transform: translate(-50%, -50%) scale(1.09);
 }
 
@@ -241,10 +256,15 @@
   }
 }
 
-:root[data-theme="light"] .session-header,
+:root[data-theme="light"] .session-header {
+  text-shadow: 0 2px 28px var(--glow-accent-faint);
+}
+
 :root[data-theme="light"] .session-progress strong,
 :root[data-theme="light"] .quest-card h1 {
-  text-shadow: none;
+  text-shadow:
+    0 0 24px var(--glow-accent-soft),
+    0 10px 30px var(--color-shadow);
 }
 
 :root[data-theme="light"] .traveler-avatar {
@@ -253,19 +273,28 @@
 
 :root[data-theme="light"] .quest-card {
   outline-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  box-shadow:
+    0 34px 100px var(--color-shadow),
+    0 0 64px var(--glow-accent-soft),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 13%, transparent),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 8%, transparent),
+    inset 0 0 0 6px var(--glow-accent-faint);
 }
 
 :root[data-theme="light"] .quest-card:hover {
   border-color: var(--color-accent-border);
   box-shadow:
     0 42px 110px var(--color-shadow),
-    0 0 52px var(--color-accent-faint),
-    inset 0 1px rgba(255, 255, 255, 0.72),
-    inset 0 0 0 6px rgba(118, 96, 47, 0.025);
+    0 0 64px var(--glow-accent-soft),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 8%, transparent),
+    inset 0 0 0 6px var(--glow-accent-faint);
 }
 
-:root[data-theme="light"] .quest-card-chrome::before,
+:root[data-theme="light"] .quest-card-chrome::before {
+  opacity: calc(var(--spotlight-opacity, 0) * 0.86);
+  mix-blend-mode: normal;
+}
+
 :root[data-theme="light"] .choice-option::before {
-  opacity: calc(var(--spotlight-opacity, 0) * 0.45);
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
 }

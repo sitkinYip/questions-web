@@ -76,6 +76,103 @@
   height: 18px;
   flex: 0 0 auto;
 }
+.narrative-attention-beacon {
+  position: fixed;
+  z-index: calc(var(--z-floating) + 10);
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(18px, calc(var(--safe-area-bottom) + 8px));
+  left: max(16px, env(safe-area-inset-left));
+  width: min(430px, calc(100% - 32px));
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-inline: auto;
+  padding: 12px 14px 12px 11px;
+  overflow: hidden;
+  color: var(--color-text);
+  text-decoration: none;
+  background:
+    radial-gradient(circle at 0% 50%, var(--glow-accent-soft), transparent 48%),
+    color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
+  border: 1px solid var(--color-accent);
+  box-shadow:
+    0 24px 76px var(--color-shadow-strong),
+    0 0 54px var(--glow-accent-soft),
+    inset 0 0 42px var(--glow-accent-faint);
+  backdrop-filter: blur(18px) saturate(124%);
+  animation: narrative-signal 1.8s var(--motion-ios) infinite alternate;
+}
+.quest-layout:has(> .narrative-attention-beacon) {
+  padding-bottom: calc(112px + var(--safe-area-bottom));
+}
+.narrative-attention-beacon::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -18%;
+  width: 18%;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent) 36%, transparent),
+    transparent
+  );
+  animation: narrative-sweep 3.4s var(--motion-impact) infinite;
+}
+.narrative-attention-beacon__emblem {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 30px var(--glow-accent);
+}
+.narrative-attention-beacon__emblem svg {
+  width: 23px;
+  height: 23px;
+}
+.narrative-attention-beacon__emblem i {
+  position: absolute;
+  inset: -6px;
+  border: 1px dashed var(--color-accent);
+  border-radius: 50%;
+  animation: feedback-emblem-orbit 8s linear infinite;
+}
+.narrative-attention-beacon__copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.narrative-attention-beacon__copy small {
+  color: var(--color-accent-text);
+  font: 8px/1 var(--font-mono);
+  letter-spacing: 0.16em;
+}
+.narrative-attention-beacon__copy strong,
+.narrative-attention-beacon__copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.narrative-attention-beacon__copy strong {
+  color: var(--color-text-strong);
+  font-size: 14px;
+}
+.narrative-attention-beacon__copy span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+.narrative-attention-beacon__arrow {
+  width: 20px;
+  height: 20px;
+  color: var(--color-accent-text);
+}
 .game-text-link,
 .game-return-link {
   display: inline-flex;
@@ -159,12 +256,23 @@
   flex: 0 0 22px;
   margin-top: 2px;
 }
+.game-notice__body {
+  min-width: 0;
+}
 .game-notice p {
   margin: 0;
   line-height: 1.7;
 }
-.game-notice button {
+.game-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
   margin-top: var(--space-3);
+}
+.game-notice__actions .game-action-link {
+  min-height: 40px;
+  padding: 7px 14px;
 }
 .game-field-error {
   margin: 0;
@@ -265,9 +373,22 @@
   margin: 0;
 }
 @media (prefers-reduced-motion: reduce) {
+  .narrative-attention-beacon,
+  .narrative-attention-beacon::after,
+  .narrative-attention-beacon__emblem i {
+    animation: none;
+  }
   .game-action-link,
   .game-cta svg,
   .game-tabs__list button::after {
     transition: none;
+  }
+}
+@media (max-width: 420px) {
+  .narrative-attention-beacon {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .narrative-attention-beacon__arrow {
+    display: none;
   }
 }

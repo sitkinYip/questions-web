@@ -22,7 +22,8 @@ export interface QuestContentItem {
   videoUrl?: string;
 }
 
-export type QuestClueKind = "text" | "image" | "video" | "link" | "letter";
+export type QuestClueKind =
+  "text" | "image" | "video" | "link" | "letter" | "bless";
 
 export interface QuestClue {
   id: string;

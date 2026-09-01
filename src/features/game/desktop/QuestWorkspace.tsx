@@ -13,6 +13,8 @@ export function QuestWorkspace({
   openText: (clue: QuestClue) => void;
   openImages: (urls: readonly string[], index?: number) => void;
   openVideo: (url: string) => void;
+  attentionClueIds?: ReadonlySet<string>;
+  onClueOpen?: (clue: QuestClue) => void;
 }) {
   if (!desktop) return children;
   return (

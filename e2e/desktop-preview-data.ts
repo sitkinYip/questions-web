@@ -113,6 +113,34 @@ export const desktopAssignment: GameAssignment = {
   ],
 };
 
+export const desktopNarrativeAssignment: GameAssignment = {
+  ...desktopAssignment,
+  id: "preview-narrative",
+  clues: [
+    ...desktopAssignment.clues,
+    {
+      id: "preview-letter-clue",
+      source: "session",
+      definitionId: "preview-letter-clue",
+      question: "",
+      sessionLevel: "preview-step-0",
+      trigger: "level_completed",
+      kind: "letter",
+      position: 3,
+      narrative: "preview-letter",
+      autoPlay: false,
+      unlockedAt: "2026-08-28T08:10:00Z",
+      content: {
+        title: "写给仍在寻找的你",
+        text: "守夜人留下了一封只属于你的来信。",
+        url: "",
+        imageUrls: [],
+        buttonText: "开启来信",
+      },
+    },
+  ],
+};
+
 export const desktopLetter: Letter = {
   id: "preview-letter",
   from: "守夜人",

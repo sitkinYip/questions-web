@@ -1,3 +1,9 @@
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  EnvelopeSimpleOpenIcon,
+  SparkleIcon,
+} from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import type { QuestClue } from "../../domain/quest/types";
 import { RichContent } from "../content/RichContent";
@@ -8,6 +14,7 @@ interface CluePanelProps {
   onOpenImages: (urls: readonly string[], index?: number) => void;
   onOpenVideo: (url: string) => void;
   onClueOpen?: (clue: QuestClue) => void;
+  attentionClueIds?: ReadonlySet<string>;
 }
 
 const clueLabels = {
@@ -16,6 +23,7 @@ const clueLabels = {
   video: "时空回溯",
   link: "位面传送",
   letter: "星海情笺",
+  bless: "星辉祝福",
 } as const;
 
 function withReturnTo(href: string, returnTo: string) {
@@ -29,6 +37,7 @@ export function CluePanel({
   onOpenImages,
   onOpenVideo,
   onClueOpen,
+  attentionClueIds,
 }: CluePanelProps) {
   if (clues.length === 0) return null;
 
@@ -55,6 +64,10 @@ export function CluePanel({
       <div className="clue-list">
         {clues.map((clue, index) => {
           const label = clue.title || clueLabels[clue.kind];
+          const isNarrative = clue.kind === "letter" || clue.kind === "bless";
+          const needsAttention = Boolean(
+            isNarrative && attentionClueIds?.has(clue.id),
+          );
           const archiveNumber = String(index + 1).padStart(2, "0");
           const preview = clue.content ? (
             <RichContent source={clue.content} className="clue-preview" />
@@ -69,7 +82,15 @@ export function CluePanel({
           );
           const content = (
             <div className="clue-card-body">
-              <span className="clue-card-status">Archive verified</span>
+              <span className="clue-card-status">
+                {needsAttention
+                  ? clue.kind === "letter"
+                    ? "一封来信等待开启"
+                    : "一份祝福正在回响"
+                  : isNarrative
+                    ? "叙事内容已解锁"
+                    : "Archive verified"}
+              </span>
               <strong>{label}</strong>
               {preview}
             </div>
@@ -77,7 +98,15 @@ export function CluePanel({
           const action = (
             <span className="clue-card-action" aria-hidden="true">
               <i />
-              <span>{clue.kind === "link" ? "↗" : "→"}</span>
+              {clue.kind === "letter" ? (
+                <EnvelopeSimpleOpenIcon weight="duotone" />
+              ) : clue.kind === "bless" ? (
+                <SparkleIcon weight="duotone" />
+              ) : clue.kind === "link" ? (
+                <ArrowUpRightIcon />
+              ) : (
+                <ArrowRightIcon />
+              )}
             </span>
           );
 
@@ -95,6 +124,7 @@ export function CluePanel({
                 key={clue.id}
                 to={clue.href}
                 data-kind={clue.kind}
+                data-attention={needsAttention || undefined}
                 onClick={() => onClueOpen?.(clue)}
               >
                 {body}
@@ -107,6 +137,7 @@ export function CluePanel({
                 target="_blank"
                 rel="noopener noreferrer"
                 data-kind={clue.kind}
+                data-attention={needsAttention || undefined}
                 onClick={() => onClueOpen?.(clue)}
               >
                 {body}
@@ -114,7 +145,7 @@ export function CluePanel({
             );
           }
 
-          if (clue.kind === "letter" && clue.href) {
+          if (isNarrative && clue.href) {
             const returnTo = `${window.location.pathname}${window.location.search}`;
             return (
               <Link
@@ -122,6 +153,7 @@ export function CluePanel({
                 key={clue.id}
                 to={withReturnTo(clue.href, returnTo)}
                 data-kind={clue.kind}
+                data-attention={needsAttention || undefined}
                 onClick={() => onClueOpen?.(clue)}
               >
                 {lead}
@@ -143,6 +175,7 @@ export function CluePanel({
               type="button"
               key={clue.id}
               data-kind={clue.kind}
+              data-attention={needsAttention || undefined}
               onClick={open}
             >
               {lead}

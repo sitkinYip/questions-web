@@ -1,17 +1,19 @@
 import { createRequestId } from "../../shared/request-id";
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
   type PointerEvent,
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { gameApi } from "../../api/game.client";
 import type { GameAssignment, GameClue } from "../../api/game.contracts";
 import type {
   QuestAvailability,
+  QuestClue,
   QuestFinalDestination,
 } from "../../domain/quest/types";
 import { Button } from "../../components/ui/Button";
@@ -19,8 +21,10 @@ import { QuestAtmosphere } from "../../components/effects/QuestAtmosphere";
 import { MediaViewer } from "../media/MediaViewer";
 import { ClueTextDialog } from "../clues/ClueTextDialog";
 import { MultiQuestClueDialog } from "../clues/MultiQuestClueDialog";
+import { NarrativeAttentionBeacon } from "../clues/NarrativeAttentionBeacon";
 import { FinalDestinationPrompt } from "../completion/FinalDestinationPrompt";
 import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/quest-guide.repository";
+import { createNarrativeAttentionRepository } from "../../infrastructure/storage/narrative-attention.repository";
 import { CompletionFeedbackDialog } from "../completion/CompletionFeedbackDialog";
 import { RankUpDialog } from "../rank/RankUpDialog";
 import { BgmControls } from "../audio/BgmControls";
@@ -106,8 +110,18 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   const [feedbackTone, setFeedbackTone] = useState<
     "neutral" | "success" | "danger"
   >("neutral");
+  const [feedbackKey, setFeedbackKey] = useState(0);
+  const [feedbackAutoDismiss, setFeedbackAutoDismiss] = useState(false);
   const answerFormRef = useRef<HTMLFormElement | null>(null);
   const guideTimer = useRef<number | null>(null);
+  const feedbackTimer = useRef<number | null>(null);
+  const narrativeAttentionRepository = useMemo(
+    () => createNarrativeAttentionRepository(window.localStorage),
+    [],
+  );
+  const [openedNarrativeIds, setOpenedNarrativeIds] = useState(() =>
+    narrativeAttentionRepository.load(player.id, assignment.id),
+  );
   const [guideSeen, setGuideSeen] = useState(() => {
     try {
       return createQuestAnswerGuideRepository(window.localStorage).hasSeen(
@@ -118,6 +132,40 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     }
   });
   const [highlightAnswerForm, setHighlightAnswerForm] = useState(false);
+  function clearFeedback() {
+    if (feedbackTimer.current !== null) {
+      window.clearTimeout(feedbackTimer.current);
+      feedbackTimer.current = null;
+    }
+    setFeedback("");
+    setFeedbackTone("neutral");
+    setFeedbackAutoDismiss(false);
+  }
+  function showFeedback(
+    message: string,
+    tone: "neutral" | "success" | "danger",
+    dismissAfterMs?: number,
+  ) {
+    if (feedbackTimer.current !== null)
+      window.clearTimeout(feedbackTimer.current);
+    setFeedback(message);
+    setFeedbackTone(tone);
+    setFeedbackKey((current) => current + 1);
+    setFeedbackAutoDismiss(Boolean(dismissAfterMs));
+    feedbackTimer.current = dismissAfterMs
+      ? window.setTimeout(() => {
+          feedbackTimer.current = null;
+          setFeedback("");
+          setFeedbackTone("neutral");
+          setFeedbackAutoDismiss(false);
+        }, dismissAfterMs)
+      : null;
+  }
+  function markNarrativeOpened(clue: QuestClue) {
+    if (clue.kind !== "letter" && clue.kind !== "bless") return;
+    narrativeAttentionRepository.markOpened(player.id, assignment.id, clue.id);
+    setOpenedNarrativeIds((current) => new Set(current).add(clue.id));
+  }
   function closeAnswerGuide(locate = false) {
     setGuideSeen(true);
     try {
@@ -142,13 +190,14 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   useEffect(
     () => () => {
       if (guideTimer.current !== null) window.clearTimeout(guideTimer.current);
+      if (feedbackTimer.current !== null)
+        window.clearTimeout(feedbackTimer.current);
     },
     [],
   );
   const flow = useGamePresentation((index) => {
     setActiveIndex(index);
-    setFeedback("");
-    setFeedbackTone("neutral");
+    clearFeedback();
   });
   const request = useRef<{ answer: string; level: string; key: string } | null>(
     null,
@@ -284,24 +333,25 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         const attempt = result.assignment.levels.find(
           (level) => level.id === step.id,
         );
-        setFeedback(
+        showFeedback(
           attempt?.locked
             ? "回答错误，当前题目已永久锁定。请联系工作人员处理。"
             : attempt?.cooldownUntil
               ? "回答错误，已进入惩罚时间。"
               : "答案不正确，可以继续尝试。",
+          "danger",
+          3000,
         );
-        setFeedbackTone("danger");
         return;
       }
       if (result.result === "already_completed") return;
       const settled = result.assignment;
       const settledStep = settled.levels.find((level) => level.id === step.id);
       const completed = settled.status === "completed";
-      setFeedback(
+      showFeedback(
         completed ? "全部题目已经完成。" : "回答正确，当前题目已完成。",
+        "success",
       );
-      setFeedbackTone("success");
       const explicit = selectExplicitEffectClues(
         settled.clues,
         result.effects,
@@ -360,8 +410,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       });
     },
     onError: (error) => {
-      setFeedback(error.message);
-      setFeedbackTone("danger");
+      showFeedback(error.message, "danger");
       void client.invalidateQueries({
         queryKey: ["game", player.id, "assignment", assignment.id],
       });
@@ -386,8 +435,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     if (!assignment.levels[index]?.question || submit.isPending) return;
     flow.reset();
     setActiveIndex(index);
-    setFeedback("");
-    setFeedbackTone("neutral");
+    clearFeedback();
     submit.reset();
   };
   const swipe = useHorizontalSwipe({
@@ -411,8 +459,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (!(answers[step.id] ?? step.lastAnswer).trim()) {
-      setFeedback("请先输入或选择答案。");
-      setFeedbackTone("neutral");
+      showFeedback("请先输入或选择答案。", "danger", 3000);
       return;
     }
     if (
@@ -432,6 +479,15 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     totalLevels: assignment.totalLevels,
     levelOrder: assignment.levels.map((level) => level.id),
   });
+  const attentionClueIds = new Set(
+    workspaceClues
+      .filter(
+        (clue) =>
+          (clue.kind === "letter" || clue.kind === "bless") &&
+          !openedNarrativeIds.has(clue.id),
+      )
+      .map((clue) => clue.id),
+  );
   const activeClues = step
     ? selectClueViews(assignment.clues, {
         assignmentId: assignment.id,
@@ -440,6 +496,10 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         levelOrder: assignment.levels.map((level) => level.id),
       })
     : [];
+  const activeClueIds = new Set(activeClues.map((clue) => clue.id));
+  const nextNarrativeAttention = workspaceClues.find(
+    (clue) => attentionClueIds.has(clue.id) && !activeClueIds.has(clue.id),
+  );
   return (
     <main className={`quest-layout${isDesktop ? " quest-desktop" : ""}`}>
       {background && (
@@ -470,6 +530,9 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         <section className="game-empty">
           <h2>本次场次已撤回</h2>
           <p>如需继续，请联系工作人员重新安排。</p>
+          <Link className="game-action-link game-action-link--primary" to="/">
+            回到首页
+          </Link>
         </section>
       )}
       {assignment.startedAt && assignment.status !== "cancelled" && (
@@ -499,6 +562,8 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
             openText={flow.openText}
             openImages={flow.openImages}
             openVideo={flow.openVideo}
+            attentionClueIds={attentionClueIds}
+            onClueOpen={markNarrativeOpened}
           >
             {content && (
               <QuestionCard
@@ -547,6 +612,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
                 answer={answers[step.id] ?? step.lastAnswer}
                 setAnswer={(value) => {
                   closeAnswerGuide();
+                  if (feedback && feedbackTone !== "success") clearFeedback();
                   setAnswers((previous) => ({ ...previous, [step.id]: value }));
                 }}
                 isPermanentlyLocked={step.locked}
@@ -561,9 +627,13 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
                 moveTo={moveTo}
                 feedback={feedback}
                 feedbackTone={feedbackTone}
+                feedbackKey={feedbackKey}
+                feedbackAutoDismiss={feedbackAutoDismiss}
+                attentionClueIds={attentionClueIds}
                 openImages={flow.openImages}
                 openVideo={flow.openVideo}
                 setTextClue={flow.openText}
+                onClueOpen={markNarrativeOpened}
               />
             )}
           </QuestWorkspace>
@@ -573,6 +643,12 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
             assignment.status === "active" && (
               <QuestAnswerGuide dismissAnswerGuide={closeAnswerGuide} />
             )}
+          {!isDesktop && nextNarrativeAttention && (
+            <NarrativeAttentionBeacon
+              clue={nextNarrativeAttention}
+              onOpen={markNarrativeOpened}
+            />
+          )}
         </>
       )}
       <span className="sr-only" aria-live="polite">

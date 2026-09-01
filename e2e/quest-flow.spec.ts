@@ -89,7 +89,7 @@ test("new players must change password; logout removes access to private pages",
   await expect(page.getByText("星辰之门", { exact: true })).toHaveCount(0);
 });
 
-test("empty text, whitespace and unselected choices use the original inline hint without an API attempt", async ({
+test("empty text, whitespace and unselected choices use the timed danger alert without an API attempt", async ({
   page,
 }) => {
   await mockQuestionsApi(page);
@@ -103,20 +103,20 @@ test("empty text, whitespace and unselected choices use the original inline hint
   const submit = page.getByRole("button", { name: "提交答案" });
   await submit.click();
   const hint = page.locator(".quest-card .feedback");
-  await expect(hint).toHaveText("请先输入或选择答案。");
-  await expect(hint).toHaveAttribute("data-tone", "neutral");
+  await expect(hint).toContainText("请先输入或选择答案。");
+  await expect(hint).toHaveAttribute("data-tone", "danger");
   await expect(page.getByPlaceholder("输入你的答案")).not.toHaveAttribute(
     "required",
   );
   await page.getByPlaceholder("输入你的答案").fill("   ");
   await submit.click();
-  await expect(hint).toHaveText("请先输入或选择答案。");
+  await expect(hint).toContainText("请先输入或选择答案。");
   expect(attempts).toBe(0);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await submit.click();
   await page.getByRole("button", { name: "前往下一题" }).click();
   await submit.click();
-  await expect(hint).toHaveText("请先输入或选择答案。");
+  await expect(hint).toContainText("请先输入或选择答案。");
   expect(attempts).toBe(1);
   await expect(page.getByRole("timer")).toHaveCount(0);
 });

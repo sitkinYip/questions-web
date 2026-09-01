@@ -54,7 +54,7 @@ export type AnalyticsEvent =
   | {
       name: "clue_opened";
       clueId: string;
-      kind: "text" | "image" | "video" | "link" | "letter";
+      kind: "text" | "image" | "video" | "link" | "letter" | "bless";
       step?: number;
       title?: string;
       content: string;

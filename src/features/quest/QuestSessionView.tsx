@@ -137,6 +137,14 @@ export function QuestSessionView({
   const [feedbackTone, setFeedbackTone] = useState<
     "neutral" | "success" | "danger"
   >("neutral");
+  useEffect(() => {
+    if (!feedback || feedbackTone === "success") return;
+    const timer = window.setTimeout(() => {
+      setFeedback("");
+      setFeedbackTone("neutral");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [feedback, feedbackTone]);
   const [now, setNow] = useState(() => Date.now());
   const [mediaViewer, setMediaViewer] = useState<MediaViewerState>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -511,7 +519,7 @@ export function QuestSessionView({
         userId,
       );
       setFeedback("请先输入或选择答案。");
-      setFeedbackTone("neutral");
+      setFeedbackTone("danger");
       return;
     }
 
@@ -769,6 +777,7 @@ export function QuestSessionView({
         moveTo={moveTo}
         feedback={feedback}
         feedbackTone={feedbackTone}
+        feedbackAutoDismiss={Boolean(feedback && feedbackTone !== "success")}
         openImages={openImages}
         openVideo={openVideo}
         setTextClue={setTextClue}

@@ -1,6 +1,7 @@
 import { EnergyBurst } from "../../../components/effects/QuestAtmosphere";
 import { QuestContent } from "../../media/QuestContent";
 import { QuestAnswerForm } from "../../quest/QuestAnswerForm";
+import { AnswerFeedback } from "../../quest/AnswerFeedback";
 import type { QuestCardProps } from "../../quest/quest-card.types";
 
 /** Desktop reading pane and persistent answer area, with no judgement/persistence logic. */
@@ -13,6 +14,8 @@ export function DesktopQuestCard(props: QuestCardProps) {
     availability,
     feedback,
     feedbackTone,
+    feedbackKey,
+    feedbackAutoDismiss,
     swipeHandlers,
   } = props;
   return (
@@ -51,14 +54,12 @@ export function DesktopQuestCard(props: QuestCardProps) {
       <div className="desktop-question__answer">
         <QuestAnswerForm {...props} />
         {feedback && (
-          <p
-            className="feedback"
-            data-tone={feedbackTone}
-            role="status"
-            aria-live="polite"
-          >
-            {feedback}
-          </p>
+          <AnswerFeedback
+            key={`${feedback}-${feedbackKey ?? 0}`}
+            message={feedback}
+            tone={feedbackTone}
+            autoDismiss={feedbackAutoDismiss}
+          />
         )}
       </div>
       {feedback && feedbackTone !== "neutral" && (

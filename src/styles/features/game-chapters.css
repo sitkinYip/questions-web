@@ -160,8 +160,16 @@
   color: var(--color-text);
   line-height: 1.6;
 }
-.assignment-brief .game-cta {
-  width: 100%;
+.assignment-brief__actions {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+.assignment-brief__actions .game-cta {
+  flex: 1 1 auto;
+}
+.assignment-brief__actions .game-action-link {
+  flex: 0 0 auto;
 }
 .assignment-brief__body > .game-muted:last-child {
   font-size: 11px;
@@ -228,5 +236,12 @@
   }
   .assignment-brief__body {
     position: relative;
+  }
+  .assignment-brief__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .assignment-brief__actions .game-action-link {
+    justify-content: center;
   }
 }

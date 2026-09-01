@@ -13,7 +13,12 @@ import { GameRewardsPage } from "../src/features/game/pages/GameRewardsPage";
 import { GameNotificationsPage } from "../src/features/game/pages/GameNotificationsPage";
 import { GamePlayView } from "../src/features/game/GamePlayPage";
 import { LetterExperience } from "../src/features/letter/LetterExperience";
-import { desktopAssignment, desktopLetter } from "./desktop-preview-data";
+import { RankUpDialog } from "../src/features/rank/RankUpDialog";
+import {
+  desktopAssignment,
+  desktopLetter,
+  desktopNarrativeAssignment,
+} from "./desktop-preview-data";
 import { imageAssignment } from "./question-image-fixtures";
 import { GameLoadingScreen } from "../src/features/game/components/GameLoadingScreen";
 import {
@@ -102,8 +107,40 @@ export function Preview() {
                   element={<GamePlayView assignment={imageAssignment} />}
                 />
                 <Route
+                  path="/play/preview-narrative"
+                  element={
+                    <GamePlayView assignment={desktopNarrativeAssignment} />
+                  }
+                />
+                <Route
+                  path="/rank-preview"
+                  element={
+                    <>
+                      <GamePlayView assignment={desktopAssignment} />
+                      <RankUpDialog
+                        rank={{
+                          code: "07",
+                          name: "星穹领航者",
+                          isSpecial: false,
+                          numericValue: 7,
+                        }}
+                        onClose={() => undefined}
+                      />
+                    </>
+                  }
+                />
+                <Route
                   path="/play/:id"
                   element={<GamePlayView assignment={desktopAssignment} />}
+                />
+                <Route
+                  path="/play/:id/content/:contentId"
+                  element={
+                    <LetterExperience
+                      letter={desktopLetter}
+                      returnTo="/e2e/preview.html?screen=/play/preview-narrative"
+                    />
+                  }
                 />
                 <Route
                   path="/letter"
@@ -122,4 +159,6 @@ export function Preview() {
     </ThemeProvider>
   );
 }
-createRoot(document.getElementById("root")!).render(<Preview />);
+const previewRoot = createRoot(document.getElementById("root")!);
+previewRoot.render(<Preview />);
+if (import.meta.hot) import.meta.hot.dispose(() => previewRoot.unmount());

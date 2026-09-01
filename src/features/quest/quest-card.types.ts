@@ -40,6 +40,9 @@ export interface QuestCardProps {
   moveTo: (index: number) => void;
   feedback: string;
   feedbackTone: "neutral" | "success" | "danger";
+  feedbackKey?: number;
+  feedbackAutoDismiss?: boolean;
+  attentionClueIds?: ReadonlySet<string>;
   openImages: (urls: readonly string[], index?: number) => void;
   openVideo: (url: string, poster?: string) => void;
   setTextClue: (clue: QuestClue) => void;

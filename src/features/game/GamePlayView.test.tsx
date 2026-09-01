@@ -224,6 +224,23 @@ afterEach(() => {
 });
 
 describe("original question-card presentation parity", () => {
+  it("dismisses empty-answer feedback after three seconds", () => {
+    vi.useFakeTimers();
+    try {
+      renderGame();
+      submit();
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "请先输入或选择答案。",
+      );
+
+      act(() => vi.advanceTimersByTime(3000));
+
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it.each([undefined, "", "   "])(
     "keeps the original empty-answer feedback for %s without submitting to the server",
     async (value) => {
@@ -430,7 +447,97 @@ it.each(["cooldown", "locked"])(
   },
 );
 
+it("offers a home route when an assigned session has expired", () => {
+  const value = assignment();
+  value.status = "assigned";
+  value.startedAt = "";
+  value.endsAt = "2020-01-01T00:00:00.000Z";
+  value.serverTime = "2026-09-01T00:00:00.000Z";
+
+  renderGame(value);
+
+  expect(screen.getByText(/请联系现场工作人员/)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "回到首页" })).toHaveAttribute(
+    "href",
+    "/",
+  );
+});
+
 describe("session and question clue integration", () => {
+  it("keeps an important narrative from a previous level visible on mobile", () => {
+    const value = assignment();
+    value.levels[0].completedAt = "2026-08-31T00:00:00Z";
+    value.completedLevels = 1;
+    appendLevel(value, "step2", "第二道题");
+    value.currentIndex = 1;
+    value.clues = [
+      gameClue({
+        id: "previous-letter",
+        kind: "letter",
+        narrative: "letter-content",
+        sessionLevel: "step1",
+        content: {
+          ...gameClue().content,
+          title: "上一题解锁的来信",
+          text: "这封信不能因为自动进入下一题而消失。",
+        },
+      }),
+    ];
+
+    renderGame(value);
+    const beacon = screen.getByRole("link", {
+      name: /一封来信等待开启：上一题解锁的来信/,
+    });
+    expect(beacon).toHaveClass("narrative-attention-beacon");
+    expect(beacon).toHaveAttribute("data-attention", "true");
+
+    fireEvent.click(beacon);
+    expect(
+      screen.queryByRole("link", {
+        name: /一封来信等待开启：上一题解锁的来信/,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["letter", "故事来信", "一封来信等待开启"],
+    ["bless", "星辉祝福", "一份祝福正在回响"],
+  ] as const)(
+    "keeps a newly unlocked %s highlighted until its narrative is opened",
+    (kind, title, attentionCopy) => {
+      const value = assignment();
+      value.status = "completed";
+      value.completedLevels = 1;
+      value.levels[0].completedAt = "2026-08-31T00:00:00Z";
+      value.clues = [
+        gameClue({
+          id: `${kind}-narrative`,
+          kind,
+          narrative: `${kind}-content`,
+          content: {
+            ...gameClue().content,
+            title,
+            text: "重要叙事已经解锁。",
+          },
+        }),
+      ];
+
+      const { unmount } = renderGame(value);
+      const launcher = screen.getByRole("link", { name: new RegExp(title) });
+      expect(launcher).toHaveAttribute("data-attention", "true");
+      expect(launcher).toHaveTextContent(attentionCopy);
+
+      fireEvent.click(launcher);
+      expect(launcher).not.toHaveAttribute("data-attention");
+
+      unmount();
+      renderGame(value);
+      expect(
+        screen.getByRole("link", { name: new RegExp(title) }),
+      ).not.toHaveAttribute("data-attention");
+    },
+  );
+
   it.each([
     {
       clueAutoPlay: true,

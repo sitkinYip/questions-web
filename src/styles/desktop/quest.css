@@ -134,21 +134,35 @@
 }
 .desktop-question__answer .feedback {
   margin: 12px 0 0;
+  min-height: 64px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
   font-size: 13px;
-  padding: 10px 14px;
+  padding: 10px 14px 10px 11px;
   line-height: 1.6;
   border: 1px solid var(--color-accent-border);
   color: var(--color-accent-text);
-  background: var(--color-accent-faint);
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      var(--color-accent-soft),
+      transparent 40%
+    ),
+    var(--color-surface-inset);
+  box-shadow:
+    0 14px 38px var(--color-shadow),
+    0 0 30px var(--glow-accent-faint);
+}
+.desktop-question__answer .feedback__emblem {
+  width: 38px;
+  height: 38px;
 }
 .desktop-question__answer .feedback[data-tone="danger"] {
   color: var(--color-danger);
-  background: var(--color-danger-surface);
   border-color: var(--color-danger-border);
 }
 .desktop-question__answer .feedback[data-tone="success"] {
   color: var(--color-success);
-  background: var(--color-success-surface);
   border-color: var(--color-success-border);
 }
 .desktop-clues {
@@ -194,6 +208,9 @@
   border-bottom: 1px solid var(--color-border);
 }
 .desktop-clues__index button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -207,6 +224,23 @@
   font: 12px var(--font-ui);
   cursor: pointer;
 }
+.desktop-clues__index button[data-attention="true"] {
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+  box-shadow:
+    0 0 30px var(--glow-accent-soft),
+    inset 0 0 18px var(--glow-accent-faint);
+  animation: narrative-signal 1.8s var(--motion-ios) infinite alternate;
+}
+.desktop-clues__index button[data-attention="true"]::after {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  content: "";
+  border: 1px solid var(--color-accent-soft);
+  animation: narrative-signal 1.8s var(--motion-ios) infinite alternate;
+}
 .desktop-clues__index button[aria-pressed="true"] {
   color: var(--color-accent-text);
   border-color: var(--color-accent-border);
@@ -217,11 +251,80 @@
   color: var(--color-accent-muted);
 }
 .desktop-clues__reading {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;
   padding: 24px;
   overflow-wrap: anywhere;
+}
+.desktop-clues__reading[data-attention="true"]::after {
+  position: absolute;
+  top: 0;
+  right: 24px;
+  left: 24px;
+  height: 1px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent),
+    transparent
+  );
+  box-shadow: 0 0 20px var(--glow-accent);
+  animation: narrative-signal 1.8s var(--motion-ios) infinite alternate;
+}
+.desktop-clues__reading[data-attention="true"] {
+  isolation: isolate;
+  background:
+    radial-gradient(
+      circle at 14% 12%,
+      var(--glow-accent-soft),
+      transparent 42%
+    ),
+    linear-gradient(145deg, var(--glow-accent-faint), transparent 64%);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    inset 0 0 86px var(--glow-accent-faint);
+}
+.desktop-clues__signal {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 9px 12px 9px 10px;
+  color: var(--color-accent-text);
+  background: var(--color-accent-faint);
+  border: 1px solid var(--color-accent);
+  box-shadow:
+    0 12px 34px var(--color-shadow),
+    0 0 38px var(--glow-accent-soft);
+  animation: narrative-signal 1.8s var(--motion-ios) infinite alternate;
+}
+.desktop-clues__signal > svg {
+  width: 26px;
+  height: 26px;
+  filter: drop-shadow(0 0 9px var(--glow-accent));
+}
+.desktop-clues__signal > span {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.desktop-clues__signal small {
+  font: 8px/1 var(--font-mono);
+  letter-spacing: 0.16em;
+}
+.desktop-clues__reading .game-action-link[data-attention="true"] {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow:
+    0 12px 32px var(--color-shadow),
+    0 0 30px var(--glow-accent-soft);
+  animation: narrative-signal 1.8s var(--motion-ios) infinite alternate;
 }
 .desktop-clues__reading h3 {
   margin: 0 0 18px;
@@ -282,6 +385,12 @@
   .quest-desktop .quest-nav,
   .quest-desktop .session-header,
   .quest-desktop .feedback {
+    animation: none;
+  }
+  .desktop-clues__index button[data-attention="true"]::after,
+  .desktop-clues__reading[data-attention="true"]::after,
+  .desktop-clues__signal,
+  .desktop-clues__reading .game-action-link[data-attention="true"] {
     animation: none;
   }
 }
