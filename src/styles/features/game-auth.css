@@ -32,10 +32,15 @@
 }
 .game-auth__story {
   position: relative;
-  align-self: stretch;
+  /*
+   * Keep the decorative stage independent from the entry column's content.
+   * Expanding login help must not resize the shared grid row and move the
+   * atlas that is positioned from this element's vertical midpoint.
+   */
+  align-self: start;
   display: flex;
   align-items: center;
-  min-height: 500px;
+  height: clamp(500px, calc(100dvh - 168px), 730px);
 }
 .game-auth__story > .celestial-atlas {
   position: absolute;
@@ -144,6 +149,7 @@
     max-width: 440px;
   }
   .game-auth__story {
+    height: auto;
     min-height: auto;
   }
   .game-auth__story > .celestial-atlas {

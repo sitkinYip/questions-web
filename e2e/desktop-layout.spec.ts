@@ -19,6 +19,53 @@ test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
 });
 
+test("desktop login help does not move or resize the celestial artwork", async ({
+  page,
+}) => {
+  await page.goto("/login?theme=light");
+  const artwork = page.locator(".game-auth__story");
+  const atlas = page.locator(".game-auth__story > .celestial-atlas");
+  const copy = page.locator(".game-auth__story-copy");
+
+  const documentRect = (selector: string) =>
+    page.locator(selector).evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        height: rect.height,
+      };
+    });
+
+  const before = {
+    artwork: await documentRect(".game-auth__story"),
+    atlas: await documentRect(".game-auth__story > .celestial-atlas"),
+    copy: await documentRect(".game-auth__story-copy"),
+  };
+
+  await page.getByText("还没有账号，或忘记了密码？", { exact: true }).click();
+
+  await expect(page.locator(".game-auth__help")).toHaveAttribute("open", "");
+  const after = {
+    artwork: await documentRect(".game-auth__story"),
+    atlas: await documentRect(".game-auth__story > .celestial-atlas"),
+    copy: await documentRect(".game-auth__story-copy"),
+  };
+  expect(after).toEqual(before);
+  expect(Math.abs(after.atlas.width - after.atlas.height)).toBeLessThanOrEqual(
+    1,
+  );
+  await expect(artwork).toBeVisible();
+  await expect(atlas).toBeVisible();
+  await expect(copy).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+    ),
+  ).toBe(true);
+});
+
 async function expectProfileActionsAligned(page: Page) {
   // Measure the resting layout, not the hovered button's intentional lift.
   await page.mouse.move(0, 0);
@@ -187,6 +234,55 @@ test("desktop keeps unlocked clues beside the current question, without revealin
   await expect(shelf).toHaveCount(0);
   await expect(page.getByRole("radio", { name: "B 北极星" })).toBeChecked();
   await expect(page.locator(".quest-card > .quest-content")).toBeVisible();
+});
+
+test("desktop question growth stays inside its reading and answer panes", async ({
+  page,
+}) => {
+  const { assignment } = await mockQuestionsApi(page);
+  Object.assign(assignment, structuredClone(desktopAssignment), {
+    id: "assignment1",
+    player: "playeralice",
+  });
+  assignment.levels[1].question!.content[0].hint =
+    "提示只应扩展题目阅读区。\n\n".repeat(40);
+  await login(page, "/play/assignment1");
+  await expect(page.locator(".desktop-question")).toBeVisible();
+  await expect(page.locator(".desktop-clues")).toBeVisible();
+
+  const stablePanels = () =>
+    page
+      .locator(".quest-desktop__workspace, .desktop-question, .desktop-clues")
+      .evaluateAll((elements) =>
+        elements.map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          };
+        }),
+      );
+  const before = await stablePanels();
+
+  await page.getByText("查看提示", { exact: true }).click();
+  await expect(page.locator(".quest-hint")).toHaveAttribute("open", "");
+  expect(await stablePanels()).toEqual(before);
+  expect(
+    await page
+      .locator(".desktop-question__reading")
+      .evaluate((element) => element.scrollHeight > element.clientHeight),
+  ).toBe(true);
+
+  await page.getByRole("radio", { name: "A 启明星" }).check();
+  await page.getByRole("button", { name: "提交答案" }).click();
+  await expect(page.getByText("回答错误，已进入惩罚时间。")).toBeVisible();
+  expect(await stablePanels()).toEqual(before);
+  await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
+    ratio: 1,
+  });
+  await expectPageFits(page);
 });
 
 test("long questions scroll independently while the answer action stays visible", async ({
