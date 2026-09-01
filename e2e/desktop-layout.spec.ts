@@ -1,5 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi, questions } from "./fixtures";
+import {
+  fulfillJson,
+  login,
+  mockLegacyAudioPlayback,
+  mockQuestionsApi,
+  questions,
+} from "./fixtures";
 import { desktopAssignment, desktopLetter } from "./desktop-preview-data";
 import { makeNotifications } from "../src/test/game-fixtures";
 
@@ -234,6 +240,192 @@ test("desktop keeps unlocked clues beside the current question, without revealin
   await expect(shelf).toHaveCount(0);
   await expect(page.getByRole("radio", { name: "B 北极星" })).toBeChecked();
   await expect(page.locator(".quest-card > .quest-content")).toBeVisible();
+});
+
+test("desktop clue index follows the auto-selected unlocked clue", async ({
+  page,
+}) => {
+  const { assignment } = await mockQuestionsApi(page);
+  Object.assign(assignment, structuredClone(desktopAssignment), {
+    id: "assignment1",
+    player: "playeralice",
+  });
+  assignment.clues = Array.from({ length: 8 }, (_, index) => ({
+    ...structuredClone(desktopAssignment.clues[2]),
+    id: `overflow-clue-${index + 1}`,
+    definitionId: `overflow-clue-${index + 1}`,
+    position: index,
+    content: {
+      ...structuredClone(desktopAssignment.clues[2].content),
+      title: `自动解锁线索 ${index + 1}`,
+    },
+  }));
+
+  await login(page, "/play/assignment1");
+  const index = page.getByRole("navigation", { name: "已解锁线索" });
+  await expect(index.locator('[aria-pressed="true"]')).toContainText(
+    "自动解锁线索 8",
+  );
+  await expect
+    .poll(() =>
+      index.evaluate((element) => {
+        const selected = element.querySelector<HTMLElement>(
+          '[aria-pressed="true"]',
+        );
+        if (!selected) return null;
+        const indexRect = element.getBoundingClientRect();
+        const selectedRect = selected.getBoundingClientRect();
+        return {
+          overflow: element.scrollWidth > element.clientWidth,
+          scrolled: element.scrollLeft > 0,
+          selectedVisible:
+            selectedRect.left >= indexRect.left &&
+            selectedRect.right <= indexRect.right,
+        };
+      }),
+    )
+    .toEqual({ overflow: true, scrolled: true, selectedVisible: true });
+});
+
+test("completed desktop prioritizes narrative jumps and keeps the combined archive draggable", async ({
+  page,
+}) => {
+  await mockLegacyAudioPlayback(page);
+  const { assignment } = await mockQuestionsApi(page);
+  Object.assign(assignment, structuredClone(desktopAssignment), {
+    id: "assignment1",
+    player: "playeralice",
+    status: "completed",
+    completedLevels: desktopAssignment.totalLevels,
+    currentIndex: desktopAssignment.totalLevels - 1,
+    completedAt: new Date().toISOString(),
+    presentation: {
+      ...desktopAssignment.presentation,
+      bgmMode: "custom",
+      bgmUrl: "https://assets.example/archive.mp3",
+    },
+  });
+  assignment.levels.forEach((level) => {
+    level.completedAt = new Date().toISOString();
+  });
+  const regularClues = Array.from({ length: 9 }, (_, index) => ({
+    ...structuredClone(desktopAssignment.clues[2]),
+    id: `completed-clue-${index + 1}`,
+    definitionId: `completed-clue-${index + 1}`,
+    position: index < 3 ? index : index + 2,
+    content: {
+      ...structuredClone(desktopAssignment.clues[2].content),
+      title: `普通线索 ${index + 1}`,
+    },
+  }));
+  assignment.clues = [
+    ...regularClues,
+    {
+      ...structuredClone(desktopAssignment.clues[2]),
+      id: "completed-letter",
+      definitionId: "completed-letter",
+      kind: "letter",
+      position: 3,
+      narrative: "letter-finale",
+      content: {
+        ...structuredClone(desktopAssignment.clues[2].content),
+        title: "终章来信",
+      },
+    },
+    {
+      ...structuredClone(desktopAssignment.clues[2]),
+      id: "completed-bless",
+      definitionId: "completed-bless",
+      kind: "bless",
+      position: 4,
+      narrative: "bless-finale",
+      content: {
+        ...structuredClone(desktopAssignment.clues[2].content),
+        title: "终章祝福",
+      },
+    },
+    {
+      ...structuredClone(desktopAssignment.clues[2]),
+      id: "combined-archive",
+      definitionId: "combined-archive",
+      sessionLevel: "",
+      trigger: "session_completed",
+      kind: "text",
+      position: 20,
+      content: {
+        title: "完整旅途档案",
+        text: "所有谜题的答案在这里汇合。",
+        url: "",
+        imageUrls: [],
+        buttonText: "收好档案",
+      },
+    },
+  ];
+
+  await login(page, "/play/assignment1");
+  const index = page.getByRole("navigation", { name: "已解锁线索" });
+  const letter = index.getByRole("button", { name: /终章来信/ });
+  const blessing = index.getByRole("button", { name: /终章祝福/ });
+  await expect
+    .poll(async () => {
+      const indexRect = await index.boundingBox();
+      const letterRect = await letter.boundingBox();
+      const blessingRect = await blessing.boundingBox();
+      if (!indexRect || !letterRect || !blessingRect) return false;
+      return [letterRect, blessingRect].every(
+        (rect) =>
+          rect.x >= indexRect.x &&
+          rect.x + rect.width <= indexRect.x + indexRect.width,
+      );
+    })
+    .toBe(true);
+
+  const launcher = page.getByRole("button", { name: "查看本场线索" });
+  const music = page.getByRole("button", { name: "暂停背景音乐" });
+  await expect(launcher).toBeVisible();
+  const [launcherRect, musicRect] = await Promise.all([
+    launcher.boundingBox(),
+    music.boundingBox(),
+  ]);
+  expect(launcherRect).not.toBeNull();
+  expect(musicRect).not.toBeNull();
+  expect(
+    launcherRect!.x < musicRect!.x + musicRect!.width &&
+      launcherRect!.x + launcherRect!.width > musicRect!.x &&
+      launcherRect!.y < musicRect!.y + musicRect!.height &&
+      launcherRect!.y + launcherRect!.height > musicRect!.y,
+  ).toBe(false);
+
+  await page.mouse.move(
+    launcherRect!.x + launcherRect!.width / 2,
+    launcherRect!.y + launcherRect!.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(36, 360, { steps: 6 });
+  await page.mouse.up();
+  await expect(launcher).toHaveAttribute("data-horizontal", "left");
+  await expect(page.getByRole("dialog", { name: "完整旅途档案" })).toHaveCount(
+    0,
+  );
+
+  await launcher.click();
+  const archive = page.getByRole("dialog", { name: "完整旅途档案" });
+  await expect(archive).toContainText("所有谜题的答案在这里汇合");
+  await archive.getByRole("button", { name: "收好档案" }).click();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(launcher).toBeInViewport({ ratio: 1 });
+  await expect(music).toBeInViewport({ ratio: 1 });
+  const [mobileLauncherRect, mobileMusicRect] = await Promise.all([
+    launcher.boundingBox(),
+    music.boundingBox(),
+  ]);
+  expect(
+    mobileLauncherRect!.x < mobileMusicRect!.x + mobileMusicRect!.width &&
+      mobileLauncherRect!.x + mobileLauncherRect!.width > mobileMusicRect!.x &&
+      mobileLauncherRect!.y < mobileMusicRect!.y + mobileMusicRect!.height &&
+      mobileLauncherRect!.y + mobileLauncherRect!.height > mobileMusicRect!.y,
+  ).toBe(false);
 });
 
 test("desktop question growth stays inside its reading and answer panes", async ({

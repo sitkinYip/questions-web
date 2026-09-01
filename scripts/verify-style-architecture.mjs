@@ -32,6 +32,7 @@ const expectedImports = [
   "components/media-backdrop.css",
   "features/notifications.css",
   "components/audio-control.css",
+  "components/multi-clue-launcher.css",
   "components/media-viewer.css",
   "effects/archive-lighting.css",
   "effects/archive-keyframes.css",

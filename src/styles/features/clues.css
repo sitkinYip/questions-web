@@ -567,20 +567,6 @@
   }
 }
 
-.multi-clue-launcher {
-  position: fixed;
-  right: max(20px, calc((100vw - 920px) / 2));
-  bottom: 24px;
-  z-index: 50;
-  min-height: 46px;
-  padding: 0 18px;
-  color: #dce7e1;
-  background: #17231f;
-  border: 1px solid #4a665e;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
 :root[data-theme="light"] .multi-clue-backdrop {
   background: rgba(28, 48, 43, 0.38);
 }
@@ -607,10 +593,4 @@
 
 :root[data-theme="light"] .multi-clue-dialog footer p {
   color: #60766f;
-}
-
-:root[data-theme="light"] .multi-clue-launcher {
-  color: #f6fbf8;
-  background: #31584e;
-  border-color: #31584e;
 }

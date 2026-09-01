@@ -10,7 +10,6 @@ import {
 } from "react";
 import { createSessionFromSelection } from "../../application/quest/create-session";
 import { QuestAtmosphere } from "../../components/effects/QuestAtmosphere";
-import { Button } from "../../components/ui/Button";
 import { normalizeAnswer } from "../../domain/quest/answer";
 import {
   activateQuest,
@@ -37,6 +36,7 @@ import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/q
 import { createRankRepository } from "../../infrastructure/storage/rank.repository";
 import { ClueTextDialog } from "../clues/ClueTextDialog";
 import { MultiQuestClueDialog } from "../clues/MultiQuestClueDialog";
+import { MultiClueLauncher } from "../clues/MultiClueLauncher";
 import { CompletionFeedbackDialog } from "../completion/CompletionFeedbackDialog";
 import { FinalDestinationPrompt } from "../completion/FinalDestinationPrompt";
 import { MediaViewer, type MediaViewerState } from "../media/MediaViewer";
@@ -826,13 +826,7 @@ export function QuestSessionView({
         multiQuestClue &&
         !completionFeedback &&
         !isMultiClueOpen && (
-          <Button
-            variant="secondary"
-            className="multi-clue-launcher"
-            onClick={() => setIsMultiClueOpen(true)}
-          >
-            查看本场线索
-          </Button>
+          <MultiClueLauncher onOpen={() => setIsMultiClueOpen(true)} />
         )}
       <MultiQuestClueDialog
         clue={multiQuestClue}

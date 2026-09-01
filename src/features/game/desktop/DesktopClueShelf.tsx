@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ScrollIcon,
@@ -30,6 +30,78 @@ export function DesktopClueShelf({
 }: DesktopClueShelfProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = clues.find((clue) => clue.id === selectedId) ?? clues.at(-1);
+  const selectedClueId = selected?.id;
+  const indexRef = useRef<HTMLElement | null>(null);
+  const itemRefs = useRef(new Map<string, HTMLButtonElement>());
+  const narrativeAttentionIds = clues
+    .filter(
+      (clue) =>
+        (clue.kind === "letter" || clue.kind === "bless") &&
+        attentionClueIds?.has(clue.id),
+    )
+    .map((clue) => clue.id);
+  const narrativeAttentionKey = narrativeAttentionIds.join("\u0000");
+  const blessingAttentionId = clues.findLast(
+    (clue) => clue.kind === "bless" && narrativeAttentionIds.includes(clue.id),
+  )?.id;
+  useLayoutEffect(() => {
+    const index = indexRef.current;
+    if (!index || typeof index.scrollTo !== "function") return;
+    const indexRect = index.getBoundingClientRect();
+    const attentionItems = (
+      selectedId === null && narrativeAttentionKey
+        ? narrativeAttentionKey.split("\u0000")
+        : []
+    )
+      .map((id) => itemRefs.current.get(id))
+      .filter((item): item is HTMLButtonElement => Boolean(item));
+    let targetItems = attentionItems;
+    if (attentionItems.length > 0) {
+      const attentionRects = attentionItems.map((item) =>
+        item.getBoundingClientRect(),
+      );
+      const groupWidth =
+        Math.max(...attentionRects.map((rect) => rect.right)) -
+        Math.min(...attentionRects.map((rect) => rect.left));
+      if (groupWidth > indexRect.width) {
+        const priorityItem = blessingAttentionId
+          ? itemRefs.current.get(blessingAttentionId)
+          : attentionItems.at(-1);
+        targetItems = priorityItem ? [priorityItem] : [];
+      }
+    } else {
+      const selectedItem = selectedClueId
+        ? itemRefs.current.get(selectedClueId)
+        : undefined;
+      targetItems = selectedItem ? [selectedItem] : [];
+    }
+    if (targetItems.length === 0) return;
+    const targetRects = targetItems.map((item) => item.getBoundingClientRect());
+    const targetLeft = Math.min(...targetRects.map((rect) => rect.left));
+    const targetRight = Math.max(...targetRects.map((rect) => rect.right));
+    const isFullyVisible =
+      targetLeft >= indexRect.left && targetRight <= indexRect.right;
+    if (isFullyVisible) return;
+    const maxLeft = Math.max(0, index.scrollWidth - index.clientWidth);
+    const centeredLeft =
+      index.scrollLeft +
+      (targetLeft + targetRight) / 2 -
+      (indexRect.left + indexRect.width / 2);
+    index.scrollTo({
+      left: Math.min(maxLeft, Math.max(0, centeredLeft)),
+      behavior:
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+    });
+  }, [
+    blessingAttentionId,
+    clues.length,
+    narrativeAttentionKey,
+    selectedId,
+    selectedClueId,
+  ]);
   if (!selected) return null;
   const selectedNeedsAttention = Boolean(
     attentionClueIds?.has(selected.id) &&
@@ -46,11 +118,19 @@ export function DesktopClueShelf({
           </h2>
         </div>
       </header>
-      <nav className="desktop-clues__index" aria-label="已解锁线索">
+      <nav
+        ref={indexRef}
+        className="desktop-clues__index"
+        aria-label="已解锁线索"
+      >
         {clues.map((clue, index) => (
           <button
             key={clue.id}
             type="button"
+            ref={(node) => {
+              if (node) itemRefs.current.set(clue.id, node);
+              else itemRefs.current.delete(clue.id);
+            }}
             aria-pressed={clue.id === selected.id}
             data-attention={attentionClueIds?.has(clue.id) || undefined}
             onClick={() => setSelectedId(clue.id)}

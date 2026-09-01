@@ -17,6 +17,8 @@ interface DraggableFloatingControlOptions {
   initialPosition?: FloatingPosition;
   margin?: number;
   fallbackSize?: number;
+  fallbackWidth?: number;
+  fallbackHeight?: number;
   onPositionCommit?: (position: FloatingPosition) => void;
 }
 
@@ -30,6 +32,8 @@ export function useDraggableFloatingControl({
   initialPosition = { x: 1, y: 1 },
   margin = 12,
   fallbackSize = 56,
+  fallbackWidth = fallbackSize,
+  fallbackHeight = fallbackSize,
   onPositionCommit,
 }: DraggableFloatingControlOptions = {}) {
   const controlRef = useRef<HTMLButtonElement>(null);
@@ -59,8 +63,8 @@ export function useDraggableFloatingControl({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const travelX = Math.max(0, viewport.width - fallbackSize - margin * 2);
-  const travelY = Math.max(0, viewport.height - fallbackSize - margin * 2);
+  const travelX = Math.max(0, viewport.width - fallbackWidth - margin * 2);
+  const travelY = Math.max(0, viewport.height - fallbackHeight - margin * 2);
   const pixels = {
     left: margin + position.x * travelX,
     top: margin + position.y * travelY,

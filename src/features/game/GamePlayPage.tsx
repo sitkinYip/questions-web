@@ -16,11 +16,11 @@ import type {
   QuestClue,
   QuestFinalDestination,
 } from "../../domain/quest/types";
-import { Button } from "../../components/ui/Button";
 import { QuestAtmosphere } from "../../components/effects/QuestAtmosphere";
 import { MediaViewer } from "../media/MediaViewer";
 import { ClueTextDialog } from "../clues/ClueTextDialog";
 import { MultiQuestClueDialog } from "../clues/MultiQuestClueDialog";
+import { MultiClueLauncher } from "../clues/MultiClueLauncher";
 import { NarrativeAttentionBeacon } from "../clues/NarrativeAttentionBeacon";
 import { FinalDestinationPrompt } from "../completion/FinalDestinationPrompt";
 import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/quest-guide.repository";
@@ -268,6 +268,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     assignment.clues,
     assignment.totalLevels,
   ).map(combinationView);
+  const retainedCombination = combinations.at(-1);
   const start = useMutation({
     mutationFn: () => gameApi.start(assignment.id, startKey),
     onSuccess: (value) => {
@@ -671,16 +672,11 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       {assignment.status === "completed" &&
         !flow.completion &&
         !flow.combination &&
-        combinations.map((clue) => (
-          <Button
-            key={clue.id}
-            variant="secondary"
-            className="multi-clue-launcher"
-            onClick={() => flow.openCombination(clue)}
-          >
-            查看本场线索
-          </Button>
-        ))}
+        retainedCombination && (
+          <MultiClueLauncher
+            onOpen={() => flow.openCombination(retainedCombination)}
+          />
+        )}
       <MultiQuestClueDialog
         clue={flow.combination}
         open={!!flow.combination}
