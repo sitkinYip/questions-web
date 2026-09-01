@@ -48,9 +48,10 @@ test("keeps the dark media viewer legible in light mode", async ({ page }) => {
   await expect(nextButton).toHaveCSS("color", "rgb(215, 211, 199)");
 });
 
-test("avatar sidebar contains account actions and closes back to the unchanged question layout", async ({
+test("desktop avatar hover opens an account bubble without moving the question layout", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await enterGame(page);
   const avatar = page.getByRole("button", { name: "打开冒险者菜单" });
@@ -77,40 +78,54 @@ test("avatar sidebar contains account actions and closes back to the unchanged q
   await expect(page.getByRole("navigation", { name: "个人导航" })).toHaveCount(
     0,
   );
-  await avatar.click();
-  const sidebar = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
-  await expect(sidebar).toBeVisible();
-  await expect(sidebar.getByRole("link", { name: "冒险者护照" })).toBeVisible();
-  await expect(sidebar.getByRole("link", { name: "奇遇收藏" })).toBeVisible();
-  await expect(sidebar.getByRole("radio", { name: "跟随系统" })).toBeChecked();
-  await expect(
-    sidebar.getByRole("button", { name: "关闭冒险者菜单" }),
-  ).toBeFocused();
+  await avatar.hover();
+  const menu = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
+  await expect(menu).toBeVisible();
+  await expect(page.locator(".ui-sheet-overlay")).toHaveCount(0);
+  await expect(menu.getByRole("link", { name: "冒险者护照" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "奇遇收藏" })).toBeVisible();
+  await expect(menu.getByRole("radio", { name: "跟随系统" })).toBeChecked();
+  await expect(menu).toHaveCSS("border-radius", "18px");
+  const logout = menu.getByRole("button", { name: "退出登录" });
+  await logout.hover();
+  const logoutAlignment = await logout.evaluate((button) => {
+    const control = button.getBoundingClientRect();
+    const icon = button.querySelector("svg")!.getBoundingClientRect();
+    const label = button.querySelector("span")!.getBoundingClientRect();
+    const center = control.top + control.height / 2;
+    return {
+      icon: Math.abs(icon.top + icon.height / 2 - center),
+      label: Math.abs(label.top + label.height / 2 - center),
+    };
+  });
+  expect(logoutAlignment.icon).toBeLessThanOrEqual(1);
+  expect(logoutAlignment.label).toBeLessThanOrEqual(1);
   await page.keyboard.press("Escape");
-  await expect(sidebar).toHaveCount(0);
+  await expect(menu).toHaveCount(0);
   await expect(avatar).toBeFocused();
   await expect
     .poll(async () => await page.locator(".quest-card").boundingBox())
     .toEqual(before);
 });
 
-test("sidebar links navigate to prizes and return to the server-backed question progress", async ({
+test("account bubble links navigate to prizes and return to the server-backed question progress", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
   await enterGame(page);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
   await expect(page.locator(".quest-card").getByRole("status")).toBeVisible();
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
-  const sidebar = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
-  await expect(sidebar.getByText("50 EXP", { exact: true })).toBeVisible();
-  await sidebar.getByRole("link", { name: "奇遇收藏", exact: true }).click();
+  const menu = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
+  await expect(menu.getByText("50 EXP", { exact: true })).toBeVisible();
+  await menu.getByRole("link", { name: "奇遇收藏", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "把奇遇，收入囊中。" }),
   ).toBeVisible();
-  await expect(sidebar).toHaveCount(0);
+  await expect(menu).toHaveCount(0);
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
-  await sidebar.getByRole("link", { name: /返回答题/ }).click();
+  await menu.getByRole("link", { name: /返回答题/ }).click();
   await expect(page).toHaveURL(/\/play\/assignment1$/);
   await expect(page.getByLabel("答题进度")).toHaveText("1/2已完成");
   await page.getByRole("button", { name: /01 已完成/ }).click();

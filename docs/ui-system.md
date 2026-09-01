@@ -33,7 +33,7 @@ type ResolvedTheme = "light" | "dark";
 - 默认偏好是 `system`。`ThemeProvider` 监听 `(prefers-color-scheme: dark)`，只在 system 状态下把设备变化反映到界面。
 - `?theme=light|dark|system` 可指定链接级初始偏好；合法 query 优先于本地存储但不自动持久化，非法或缺失时回退本地偏好。
 - `index.html` 在样式和 React 首次绘制前按 query → 存储 → 设备的优先级解析，设置 `html[data-theme]`、`color-scheme` 和 `theme-color`，避免首屏闪烁。
-- 头像打开基于 Radix 的 Sheet；`GameThemePicker` 提供三项原生 radio，登录页也可切换主题。移动端收起文字时仍保留可访问名称。
+- 手机与平板头像继续打开基于 Radix 的 Sheet；桌面头像使用非模态 hover / focus 气泡菜单，不遮罩当前工作区。`GameThemePicker` 提供三项原生 radio，登录页也可切换主题。移动端收起文字时仍保留可访问名称。
 - 偏好按应用和浏览器保存，不按业务用户隔离；其他标签页通过 `storage` 事件同步。
 
 ### 语义色板
@@ -109,9 +109,9 @@ src/styles/
 - 游戏标题沿用适合星图手稿的衬线字体，表单和正文使用 UI 无衬线字体；数值使用等宽/等宽数字。
 - 共享尺寸进入 tokens：`--space-*`、`--radius-control`（10px）、`--radius-panel`（18px）、`--control-height`（52px）、`--page-width`、`--page-gutter`。
 - 控件圆角不覆盖老答题控件：新表单/新 CTA 按新尺度；原谜题卡、媒体弹窗、BGM 与叙事页面维持现有视觉协议。
-- 桌面大厅为章节 + 护照双区，760px 以下单列；手机底栏考虑 safe-area，正文预留底部空间。答题页不显示常驻底栏。
+- 桌面大厅为章节 + 护照双区，760px 以下单列；手机底栏使用悬浮圆角玻璃容器与独立选中气泡，避开 safe-area 并为正文预留底部空间。Web 玻璃效果由半透明表面、内描边与 `backdrop-filter` 近似实现，在降低透明度偏好或不支持模糊时回退为实体表面。答题页不显示常驻底栏。
 - 答题中的顶部只保留玩家与进度，头像打开导航；场次说明仅在开场前展示，不再插入返回/详情行挤压题目。
-- 侧栏使用 `Sheet` 的 `className` 与 `headerContent` 插槽；`GameSidebarIdentity` 复用头像、经验条与装饰星盘，完整护照不复用到侧栏。侧栏规则独立归属 `features/game-sidebar.css`，不影响其他抽屉。
+- 移动侧栏使用 `Sheet` 的 `className` 与 `headerContent` 插槽；`GameSidebarIdentity` 复用头像、经验条与装饰星盘，完整护照不复用到侧栏。桌面气泡复用同一导航、主题与退出动作，支持 hover、点击、焦点进入、Esc 和外部点击关闭。两种菜单规则都归属 `features/game-sidebar.css`，不影响其他抽屉。
 - 侧栏按扣除 padding / safe-area 后的可用高度做 container query：低于 620px 保留紧凑身份与完整操作；620px 起恢复星盘徽章；740px 起恢复导航说明与更大的徽章。`cqh` 连续调整头像/星盘尺度，导航等分剩余高度，主题与退出自然落底，不依赖绝对定位或 JS 测量。
 - 高屏和短屏都保留无障碍标题、焦点返回、44px 关闭/导航点击区。极矮横屏或放大文字时允许滚动兜底，不裁切操作。测试同时检查可操作性、无滚动、底部贴合与区块占用率，不能只用“无溢出”代表视觉通过。
 - 安全区统一使用 `--safe-area-top/bottom`，入口开启 `viewport-fit=cover`。显式顶部留白取 `max(原间距, 安全区)`；居中顶栏只补足安全区超过原有留白的差值，非刘海屏不变。底部额外留白仅随移动端底栏出现，不加到答题页或登录页。

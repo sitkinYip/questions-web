@@ -195,6 +195,218 @@
   gap: var(--space-2);
   min-height: 44px;
 }
+
+/* Desktop keeps account actions near the avatar instead of opening a modal sheet. */
+.game-account-menu {
+  position: relative;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+.session-header:has(.game-account-popover),
+.game-topbar:has(.game-account-popover) {
+  position: relative;
+  z-index: var(--z-floating);
+}
+.game-account-menu::after {
+  position: absolute;
+  top: 100%;
+  right: -14px;
+  left: -14px;
+  height: 18px;
+  content: "";
+}
+.game-account-popover {
+  position: absolute;
+  z-index: var(--z-floating);
+  top: calc(100% + 14px);
+  left: -6px;
+  width: min(304px, calc(100vw - 32px));
+  padding: var(--space-2);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-text-strong) 12%, var(--color-border));
+  border-radius: var(--radius-panel);
+  box-shadow:
+    0 24px 72px var(--color-shadow-strong),
+    inset 0 1px color-mix(in srgb, var(--color-text-strong) 12%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--color-text-strong) 3%, transparent);
+  backdrop-filter: blur(24px) saturate(138%);
+  -webkit-backdrop-filter: blur(24px) saturate(138%);
+  transform-origin: 32px -10px;
+}
+.game-account-popover::before {
+  position: absolute;
+  top: -7px;
+  left: 27px;
+  width: 13px;
+  height: 13px;
+  content: "";
+  background: color-mix(in srgb, var(--color-surface-raised) 96%, transparent);
+  border-top: 1px solid
+    color-mix(in srgb, var(--color-text-strong) 12%, var(--color-border));
+  border-left: 1px solid
+    color-mix(in srgb, var(--color-text-strong) 12%, var(--color-border));
+  transform: rotate(45deg);
+}
+.game-topbar__player .game-account-popover {
+  right: -6px;
+  left: auto;
+  transform-origin: calc(100% - 32px) -10px;
+}
+.game-topbar__player .game-account-popover::before {
+  right: 27px;
+  left: auto;
+}
+.game-account-popover__header {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px 12px;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--color-border);
+}
+.game-account-popover__header > span {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 500 18px/1.35 var(--font-display);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.game-account-popover__header small {
+  color: var(--color-accent-muted);
+  font: 10px/1.4 var(--font-mono);
+}
+.game-account-popover__header small strong {
+  font-weight: 500;
+}
+.game-account-popover__nav {
+  display: grid;
+  gap: 2px;
+  padding-block: 6px;
+}
+.game-account-popover__nav a {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 11px;
+  min-height: 54px;
+  padding: 7px 10px 7px 8px;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+  text-decoration: none;
+  border-radius: 13px;
+  transition:
+    color var(--duration-fast) var(--motion-ios),
+    background-color var(--duration-fast) var(--motion-ios),
+    transform var(--duration-medium) var(--motion-spring);
+}
+.game-account-popover__nav a > span:nth-child(2) {
+  min-width: 0;
+  font-size: 14px;
+}
+.game-account-popover__nav a small {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--color-text-subtle);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.game-account-popover__nav a > svg {
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-subtle);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition:
+    opacity var(--duration-fast) var(--motion-ios),
+    transform var(--duration-medium) var(--motion-spring);
+}
+.game-account-popover__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--color-accent-muted);
+  background: var(--color-accent-faint);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-round);
+}
+.game-account-popover__icon svg {
+  width: 20px;
+  height: 20px;
+}
+.game-account-popover__nav a:is(:hover, :focus-visible, [aria-current="page"]) {
+  color: var(--color-accent-text);
+  background: var(--color-accent-faint);
+  outline-offset: -2px;
+}
+.game-account-popover__nav a:is(:hover, :focus-visible) > svg {
+  opacity: 1;
+  transform: none;
+}
+.game-account-popover__nav a:active {
+  transform: scale(0.98);
+}
+.game-account-popover__settings {
+  display: grid;
+  gap: var(--space-2);
+  padding: 12px 8px;
+  line-height: 1;
+  border-top: 1px solid var(--color-border);
+}
+.game-account-popover__settings > span {
+  color: var(--color-text-subtle);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.game-account-popover__settings .game-theme-picker {
+  display: flex;
+  width: 100%;
+  background: color-mix(in srgb, var(--color-surface-inset) 72%, transparent);
+}
+.game-account-popover__settings .game-theme-picker label {
+  flex: 1;
+  padding-inline: 6px;
+}
+.game-account-popover__logout {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  padding-inline: 14px;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+.game-account-popover__logout svg {
+  width: 19px;
+  height: 19px;
+}
+
+:root[data-theme="light"] .game-account-popover {
+  background: color-mix(in srgb, var(--color-surface-raised) 96%, transparent);
+}
+:root[data-theme="light"] .game-account-popover::before {
+  background: color-mix(in srgb, var(--color-surface-raised) 98%, transparent);
+}
+
+@supports not ((backdrop-filter: blur(1px))) {
+  .game-account-popover {
+    background: var(--color-surface-raised);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .game-account-popover {
+    background: var(--color-surface-raised);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
 /* Medium-height sheets keep the emblem but prioritize room for all five links. */
 @container game-sidebar (min-height: 620px) {
   .game-sidebar .ui-sheet__header {

@@ -180,6 +180,7 @@ for (const viewport of [
 test("an open sidebar adapts across height thresholds without losing actions or leaving a blank tail", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 1200 });
   await mockQuestionsApi(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await login(page);
@@ -272,14 +273,20 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
     if (width < 760) {
       await expect(page.locator(".game-navigation")).toHaveCSS(
         "padding-bottom",
-        "42px",
+        "6px",
+      );
+      await expect(page.locator(".game-navigation")).toHaveCSS(
+        "border-radius",
+        "999px",
       );
       await expect(page.locator(".game-world")).toHaveCSS(
         "padding-bottom",
-        "114px",
+        "126px",
       );
       const nav = await page.locator(".game-navigation").boundingBox();
-      expect(nav!.y + nav!.height).toBe(900);
+      expect(nav!.x).toBeGreaterThan(0);
+      expect(nav!.x + nav!.width).toBeLessThan(width + 1);
+      expect(nav!.y + nav!.height).toBe(866);
     } else {
       await expect(page.locator(".game-world")).toHaveCSS(
         "padding-bottom",
@@ -287,4 +294,32 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
       );
     }
   }
+});
+
+test("mobile navigation uses a floating liquid-glass active bubble", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await mockQuestionsApi(page);
+  await login(page);
+  const navigation = page.getByRole("navigation", { name: "冒险导航" });
+  const home = navigation.getByRole("link", { name: "启程" });
+  await expect(home).toHaveAttribute("aria-current", "page");
+  const appearance = await navigation.evaluate((element) => {
+    const active = element.querySelector('[aria-current="page"]')!;
+    return {
+      backdrop: getComputedStyle(element).backdropFilter,
+      surfaceOpacity: getComputedStyle(active, "::before").opacity,
+      glowAnimation: getComputedStyle(active, "::after").animationName,
+    };
+  });
+  expect(appearance.backdrop).toContain("blur(24px)");
+  expect(appearance.surfaceOpacity).toBe("1");
+  expect(appearance.glowAnimation).toBe("game-tab-breathe");
+  await navigation.getByRole("link", { name: "收藏" }).click();
+  await expect(navigation.getByRole("link", { name: "收藏" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 });
