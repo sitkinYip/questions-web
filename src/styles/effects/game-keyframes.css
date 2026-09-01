@@ -41,16 +41,6 @@
     transform: scale(1.2);
   }
 }
-@keyframes game-account-popover-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 @keyframes game-tab-breathe {
   from {
     opacity: 0.22;
@@ -113,9 +103,6 @@
   }
   .game-form-success {
     animation: game-reveal var(--duration-medium) var(--motion-impact) both;
-  }
-  .game-account-popover {
-    animation: game-account-popover-enter 260ms var(--motion-impact) both;
   }
 }
 @media (prefers-reduced-motion: no-preference) and (max-width: 760px) {

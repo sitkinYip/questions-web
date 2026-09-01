@@ -108,6 +108,39 @@ test("desktop avatar hover opens an account bubble without moving the question l
     .toEqual(before);
 });
 
+test("desktop account bubble eases in and finishes its exit before unmounting", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await enterGame(page);
+
+  const avatar = page.getByRole("button", { name: "打开冒险者菜单" });
+  await avatar.hover();
+  const bubble = page.locator(".game-account-popover");
+  await expect(bubble).toHaveAttribute("data-state", "open");
+
+  const motion = await bubble.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      properties: style.transitionProperty
+        .split(",")
+        .map((item) => item.trim()),
+      durations: style.transitionDuration
+        .split(",")
+        .map((item) => Number.parseFloat(item) * 1000),
+    };
+  });
+  expect(motion.properties).toEqual(
+    expect.arrayContaining(["opacity", "transform"]),
+  );
+  expect(Math.max(...motion.durations)).toBeGreaterThanOrEqual(220);
+
+  await page.mouse.move(640, 700);
+  await expect(bubble).toHaveAttribute("data-state", "closed");
+  await expect(bubble).toHaveCount(0);
+});
+
 test("account bubble links navigate to prizes and return to the server-backed question progress", async ({
   page,
 }) => {

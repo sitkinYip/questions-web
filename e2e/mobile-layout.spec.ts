@@ -68,6 +68,7 @@ for (const single of [true, false]) {
       ),
     ).toHaveCount(1);
     await page.getByRole("button", { name: "打开冒险者菜单" }).click();
+    await expect(page.locator(".game-sidebar")).toHaveClass(/ui-sheet--left/);
     await expect(
       page.getByRole("navigation", { name: "个人导航" }).getByRole("link"),
     ).toHaveCount(4);
@@ -188,6 +189,14 @@ test("an open sidebar adapts across height thresholds without losing actions or 
   await setSafeInsets(page, 44);
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
   const sidebar = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
+  await expect(sidebar).toHaveClass(/ui-sheet--right/);
+  await expect
+    .poll(() =>
+      sidebar.evaluate(
+        (element) => window.innerWidth - element.getBoundingClientRect().right,
+      ),
+    )
+    .toBeCloseTo(0, 0);
   for (const height of [
     1200, 1024, 900, 820, 808, 800, 740, 688, 680, 640, 568,
   ]) {

@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -22,6 +23,9 @@ import { GameThemePicker } from "./components/GameThemePicker";
 import { GameSidebarIdentity } from "./components/GameSidebarIdentity";
 import { gameNavigation, gameReturnPath } from "./game-navigation";
 import { useGame } from "./useGame";
+
+const accountPopoverCloseDelay = 100;
+const accountPopoverExitDuration = 240;
 
 function GameMenuAvatar({
   expanded,
@@ -77,38 +81,77 @@ function DesktopGameMenu() {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | null>(null);
+  const exitTimer = useRef<number | null>(null);
+  const openFrame = useRef<number | null>(null);
   const suppressFocusOpen = useRef(false);
+  const [rendered, setRendered] = useState(false);
   const [open, setOpen] = useState(false);
 
-  function cancelClose() {
+  const cancelClose = useCallback(() => {
     if (closeTimer.current === null) return;
     window.clearTimeout(closeTimer.current);
     closeTimer.current = null;
-  }
+  }, []);
 
-  function showMenu() {
+  const cancelExit = useCallback(() => {
+    if (exitTimer.current !== null) {
+      window.clearTimeout(exitTimer.current);
+      exitTimer.current = null;
+    }
+    if (openFrame.current !== null) {
+      window.cancelAnimationFrame(openFrame.current);
+      openFrame.current = null;
+    }
+  }, []);
+
+  const showMenu = useCallback(() => {
     cancelClose();
-    setOpen(true);
-  }
+    cancelExit();
+    if (rendered) {
+      setOpen(true);
+      return;
+    }
+    setRendered(true);
+    openFrame.current = window.requestAnimationFrame(() => {
+      openFrame.current = null;
+      setOpen(true);
+    });
+  }, [cancelClose, cancelExit, rendered]);
 
-  function scheduleClose() {
+  const hideMenu = useCallback(() => {
+    cancelClose();
+    cancelExit();
+    setOpen(false);
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    exitTimer.current = window.setTimeout(
+      () => {
+        exitTimer.current = null;
+        setRendered(false);
+      },
+      reduceMotion ? 0 : accountPopoverExitDuration,
+    );
+  }, [cancelClose, cancelExit]);
+
+  const scheduleClose = useCallback(() => {
     cancelClose();
     closeTimer.current = window.setTimeout(() => {
       closeTimer.current = null;
-      setOpen(false);
-    }, 180);
-  }
+      hideMenu();
+    }, accountPopoverCloseDelay);
+  }, [cancelClose, hideMenu]);
 
   useEffect(() => {
     if (!open) return;
     const closeFromOutside = (event: globalThis.PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(event.target as Node)) hideMenu();
     };
     const closeFromKeyboard = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       suppressFocusOpen.current = true;
-      setOpen(false);
+      hideMenu();
       triggerRef.current?.querySelector("button")?.focus();
       queueMicrotask(() => {
         suppressFocusOpen.current = false;
@@ -120,13 +163,14 @@ function DesktopGameMenu() {
       document.removeEventListener("pointerdown", closeFromOutside);
       document.removeEventListener("keydown", closeFromKeyboard);
     };
-  }, [open]);
+  }, [hideMenu, open]);
 
   useEffect(
     () => () => {
-      if (closeTimer.current !== null) window.clearTimeout(closeTimer.current);
+      cancelClose();
+      cancelExit();
     },
-    [],
+    [cancelClose, cancelExit],
   );
 
   function handlePointerEnter(event: PointerEvent<HTMLDivElement>) {
@@ -162,12 +206,15 @@ function DesktopGameMenu() {
       <div ref={triggerRef}>
         <GameMenuAvatar controls={popupId} expanded={open} onClick={showMenu} />
       </div>
-      {open && (
+      {rendered && (
         <section
           id={popupId}
           className="game-account-popover"
+          data-state={open ? "open" : "closed"}
           role="dialog"
           aria-label="冒险者菜单"
+          aria-hidden={!open}
+          inert={!open}
         >
           <header className="game-account-popover__header">
             <span title={player.displayName}>{player.displayName}</span>
@@ -231,6 +278,7 @@ function MobileGameSidebar() {
   const { player, avatarUrl, logout } = useGame();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [sheetSide, setSheetSide] = useState<"left" | "right">("left");
   const returnTo = gameReturnPath(location.pathname, location.state);
   return (
     <>
@@ -240,6 +288,12 @@ function MobileGameSidebar() {
         onClick={(event) => {
           // Safari touch clicks do not focus buttons; preserve the dialog return target.
           event.currentTarget.focus({ preventScroll: true });
+          const bounds = event.currentTarget.getBoundingClientRect();
+          setSheetSide(
+            bounds.left + bounds.width / 2 > window.innerWidth / 2
+              ? "right"
+              : "left",
+          );
           setOpen(true);
         }}
       />
@@ -249,7 +303,7 @@ function MobileGameSidebar() {
         open={open}
         onOpenChange={setOpen}
         title="冒险者菜单"
-        side="left"
+        side={sheetSide}
         density="compact"
         className="game-sidebar"
         headerContent={
