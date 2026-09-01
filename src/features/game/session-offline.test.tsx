@@ -35,6 +35,9 @@ vi.mock("./components/PlayerPassport", () => ({ PlayerPassport: () => null }));
 vi.mock("../../components/effects/CelestialAtlas", () => ({
   CelestialAtlas: () => null,
 }));
+vi.mock("../bless/canvas-engine", () => ({
+  useBlessCanvas: () => ({ formText: vi.fn(), releaseText: vi.fn() }),
+}));
 vi.mock("./GameContext", async () => {
   const { GameFailure } = await import("./components/GameState");
   return { GameHeader: () => null, GameFailure };
@@ -192,6 +195,46 @@ describe("narrative return navigation", () => {
 
       expect(
         await screen.findByRole("link", { name: "← 返回冒险" }),
+      ).toHaveAttribute("href", "/questions/play/assignment1");
+    } finally {
+      window.history.replaceState(null, "", "/");
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("keeps the Bless return target inside the deployed application base", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            id: "bless",
+            kind: "bless",
+            title: "来自星空的祝福",
+            payload: {
+              from: "北方",
+              phrases: [{ text: "愿你找到自己的北方。" }],
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+    window.history.replaceState(
+      null,
+      "",
+      "/questions/play/assignment1/content/bless",
+    );
+
+    try {
+      mount(
+        <GameNarrativePage />,
+        "/play/assignment1/content/bless",
+        "/play/:id/content/:contentId",
+      );
+
+      expect(
+        await screen.findByRole("link", { name: "返回冒险" }),
       ).toHaveAttribute("href", "/questions/play/assignment1");
     } finally {
       window.history.replaceState(null, "", "/");
