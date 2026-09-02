@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { parseLegacyContent } from "../../domain/content/parser";
+import { NativeVideo } from "../media/NativeVideo";
 
 interface RichContentProps {
   source: string;
@@ -48,15 +49,13 @@ export function RichContent({ source, className, tabIndex }: RichContentProps) {
             );
           case "video":
             return (
-              <video
+              <NativeVideo
                 key={key}
                 src={segment.url}
                 poster={segment.poster}
                 controls
                 preload="metadata"
-              >
-                当前浏览器无法播放此视频。
-              </video>
+              />
             );
         }
       })}

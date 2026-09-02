@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MediaViewer } from "./MediaViewer";
+
+afterEach(() => vi.restoreAllMocks());
 
 describe("MediaViewer", () => {
   it("navigates an image gallery and closes with Escape", () => {
@@ -41,6 +43,33 @@ describe("MediaViewer", () => {
     fireEvent.pause(video!);
     fireEvent.ended(video!);
     expect(onVideoPlayingChange.mock.calls).toEqual([[true], [false], [false]]);
+  });
+
+  it("keeps Quark sound controls outside the video frame and preserves events", () => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue("Quark/7.0");
+    const onVideoPlayingChange = vi.fn();
+    const onVideoEnded = vi.fn();
+    render(
+      <MediaViewer
+        state={{ type: "video", url: "https://video.example/movie.mp4" }}
+        onClose={vi.fn()}
+        onImageIndexChange={vi.fn()}
+        onVideoPlayingChange={onVideoPlayingChange}
+        onVideoEnded={onVideoEnded}
+      />,
+    );
+    const video = document.querySelector("video")!;
+    expect(video.muted).toBe(true);
+    expect(video.autoplay).toBe(true);
+    fireEvent.play(video);
+    const soundButton = screen.getByRole("button", { name: "开启声音" });
+    expect(soundButton.closest(".media-viewer-stage")).toBeNull();
+    fireEvent.click(soundButton);
+    expect(video.muted).toBe(false);
+    fireEvent.pause(video);
+    fireEvent.ended(video);
+    expect(onVideoPlayingChange.mock.calls).toEqual([[true], [false], [false]]);
+    expect(onVideoEnded).toHaveBeenCalledOnce();
   });
 
   it("navigates with deliberate horizontal touch swipes", () => {

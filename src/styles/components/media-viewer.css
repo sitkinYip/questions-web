@@ -33,6 +33,28 @@
   -webkit-user-drag: none;
 }
 
+.media-viewer-stage--video > video[data-muted-start="true"] {
+  max-height: calc(100vh - 190px);
+}
+
+.video-sound-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  max-width: 100%;
+  margin-block: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.video-sound-control > button {
+  min-height: 44px;
+}
+
 .media-viewer-close {
   position: absolute;
   z-index: 2;

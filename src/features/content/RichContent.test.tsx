@@ -1,9 +1,25 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { RichContent } from "./RichContent";
 
+afterEach(() => vi.restoreAllMocks());
+
 describe("RichContent", () => {
+  it("offers sound controls for a playing Quark video in rich content", () => {
+    vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue("Quark/7.0");
+    const { container } = render(
+      <RichContent source="<<https://video.example/movie.mp4>>" />,
+    );
+    const video = container.querySelector("video")!;
+    expect(video.muted).toBe(true);
+    expect(video.autoplay).toBe(false);
+    expect(video.preload).toBe("metadata");
+    fireEvent.play(video);
+    fireEvent.click(screen.getByRole("button", { name: "开启声音" }));
+    expect(video.muted).toBe(false);
+  });
+
   it("renders safe semantic elements without HTML injection", () => {
     const { container } = render(
       <MemoryRouter>

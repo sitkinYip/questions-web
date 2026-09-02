@@ -8,6 +8,7 @@ import {
 import { AppDialog } from "../../components/ui/Dialog";
 import { Button } from "../../components/ui/Button";
 import { overlayPriority } from "../../components/ui/overlay-context";
+import { NativeVideo } from "./NativeVideo";
 
 export type MediaViewerState =
   | { type: "images"; urls: readonly string[]; index: number }
@@ -195,25 +196,26 @@ export function MediaViewer({
           )}
         </>
       ) : (
-        <div className="media-viewer-stage media-viewer-stage--video">
-          <video
-            src={state.url}
-            poster={state.poster}
-            controls
-            autoPlay
-            playsInline
-            onPlay={() => onVideoPlayingChange(true)}
-            onPause={() => onVideoPlayingChange(false)}
-            onEnded={() => {
-              setImageDirection("initial");
-              onVideoPlayingChange(false);
-              onVideoEnded?.();
-            }}
-          >
-            当前浏览器无法播放此视频。
-          </video>
-          <span className="media-viewer-frame" aria-hidden="true" />
-        </div>
+        <NativeVideo
+          src={state.url}
+          poster={state.poster}
+          controls
+          autoPlay
+          playsInline
+          onPlay={() => onVideoPlayingChange(true)}
+          onPause={() => onVideoPlayingChange(false)}
+          onEnded={() => {
+            setImageDirection("initial");
+            onVideoPlayingChange(false);
+            onVideoEnded?.();
+          }}
+          renderVideo={(video) => (
+            <div className="media-viewer-stage media-viewer-stage--video">
+              {video}
+              <span className="media-viewer-frame" aria-hidden="true" />
+            </div>
+          )}
+        />
       )}
     </AppDialog>
   );
