@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRightIcon, KeyIcon } from "@phosphor-icons/react";
-import { gameApi } from "../../../api/game.client";
+import { authState, gameApi } from "../../../api/game.client";
 import { Button } from "../../../components/ui/Button";
 import { Field, Input } from "../../../components/ui/FormControls";
 import { PasswordInput } from "../../../components/ui/PasswordInput";
@@ -10,6 +10,7 @@ import { AuthLayout } from "../components/AuthLayout";
 import { GameFailure } from "../components/GameState";
 
 export function GameLoginPage() {
+  const auth = useSyncExternalStore(authState.subscribe, authState.get);
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export function GameLoginPage() {
       );
     },
   });
+  if (auth) return <Navigate to="/" replace />;
   return (
     <AuthLayout>
       <div className="game-auth__seal">

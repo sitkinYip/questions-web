@@ -8,8 +8,8 @@ import {
 import { Button } from "../../components/ui/Button";
 
 const browserVideoAttributes = {
-  renderer: "hybrid",
-  "keep-stack": "true",
+  // renderer: "hybrid",
+  // "keep-stack": "true",
 } as const;
 
 type NativeVideoProps = Omit<
