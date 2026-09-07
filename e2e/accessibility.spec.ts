@@ -81,3 +81,51 @@ test("reduced motion preference collapses decorative animation", async ({
     "none",
   );
 });
+
+test.describe("touch feedback", () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
+
+  test("touch controls suppress native highlights and retain keyboard focus feedback", async ({
+    page,
+    browserName,
+  }) => {
+    await enterGame(page);
+    const avatar = page.getByRole("button", {
+      name: "打开冒险者菜单",
+      includeHidden: true,
+    });
+    await expect(avatar).toHaveCSS("appearance", "none");
+    await avatar.tap();
+    const sidebar = page.getByRole("navigation", { name: "个人导航" });
+    await expect(sidebar).toBeVisible();
+    await expect(avatar).toHaveCSS("outline-style", "none");
+    const home = sidebar.getByRole("link").filter({ hasText: "我的场次" });
+    await home.tap();
+    const navigation = page.getByRole("navigation", { name: "冒险导航" });
+    await expect(navigation).toBeVisible();
+    await navigation.getByRole("link", { name: "收藏" }).tap();
+    await expect(
+      navigation.getByRole("link", { name: "收藏" }),
+    ).toHaveAttribute("aria-current", "page");
+    // Includes SVG descendants and any controls mounted outside the app root.
+    expect(
+      await page
+        .locator(
+          "a, button, input, select, textarea, summary, [tabindex], a svg, button svg",
+        )
+        .evaluateAll((elements) =>
+          elements.every(
+            (element) =>
+              getComputedStyle(element).getPropertyValue(
+                "-webkit-tap-highlight-color",
+              ) === "rgba(0, 0, 0, 0)",
+          ),
+        ),
+    ).toBe(true);
+    await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+    const focused = page.locator(":focus-visible");
+    await expect(focused).toHaveCount(1);
+    await expect(focused).toHaveCSS("outline-style", "solid");
+    await expect(focused).toHaveCSS("outline-width", "2px");
+  });
+});

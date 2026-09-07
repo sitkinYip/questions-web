@@ -17,7 +17,6 @@
 
 .media-viewer-stage[data-swipe-enabled="true"] {
   touch-action: pan-y pinch-zoom;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .media-viewer-stage > img,

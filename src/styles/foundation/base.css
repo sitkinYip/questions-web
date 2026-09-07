@@ -1,5 +1,7 @@
 * {
   box-sizing: border-box;
+  /* Suppress native touch rectangles, including nested SVG and portal content. */
+  -webkit-tap-highlight-color: transparent;
 }
 body {
   margin: 0;
@@ -50,11 +52,39 @@ select {
   touch-action: manipulation;
 }
 
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-a:focus-visible,
+/* Custom controls own their appearance; keep native select/file/radio behavior. */
+button,
+input:is([type="button"], [type="submit"], [type="reset"]),
+.ui-input,
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Pointer focus must not leave a browser outline on a rounded control. */
+:where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex],
+    [role="button"]
+  ):focus:not(:focus-visible) {
+  outline: none;
+}
+
+:where(
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [tabindex],
+  [role="button"]
+):focus-visible,
 label:has(input:focus-visible) {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;

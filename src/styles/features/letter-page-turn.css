@@ -157,7 +157,6 @@
 }
 
 .letter-paper-current[data-swipe-enabled="true"] {
-  -webkit-tap-highlight-color: transparent;
 }
 
 .letter-paper-current[data-swipe-enabled="true"][data-swipe-axis="horizontal"] {
