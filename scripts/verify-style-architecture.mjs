@@ -54,6 +54,7 @@ const expectedImports = [
   "desktop/profile.css",
   "desktop/inbox.css",
   "desktop/letter.css",
+  "features/version.css",
 ];
 
 async function collectCssFiles(directory) {

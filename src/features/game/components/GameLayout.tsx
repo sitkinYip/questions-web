@@ -1,11 +1,8 @@
+import { VersionSecret } from "../../version/VersionSecret";
 import { GameNavigation } from "./GameNavigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import {
-  ArrowLeftIcon,
-  CompassIcon,
-  StarFourIcon,
-} from "@phosphor-icons/react";
+import { ArrowLeftIcon, StarFourIcon } from "@phosphor-icons/react";
 import { GameSidebar } from "../GameSidebar";
 import { useGame } from "../useGame";
 
@@ -14,12 +11,16 @@ import { useDesktopLayout } from "../../../shared/layout/useDesktopLayout";
 
 export function GameBrand() {
   return (
-    <Link className="game-brand" to="/" aria-label="Questions · 回到启程">
-      <CompassIcon weight="thin" aria-hidden="true" />
-      <span>
+    <div className="game-brand">
+      <VersionSecret />
+      <Link
+        className="game-brand__wordmark"
+        to="/"
+        aria-label="Questions · 回到启程"
+      >
         QUESTIONS<small>答案之外 · 另有天地</small>
-      </span>
-    </Link>
+      </Link>
+    </div>
   );
 }
 

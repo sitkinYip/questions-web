@@ -30,11 +30,13 @@
   color: var(--color-accent-text);
   flex-shrink: 0;
 }
-.game-brand > svg {
+.version-secret {
   width: 44px;
   height: 44px;
 }
-.game-brand > span {
+.game-brand__wordmark {
+  color: inherit;
+  text-decoration: none;
   font: 19px/1.5 var(--font-display);
   letter-spacing: 0.13em;
 }
@@ -222,11 +224,11 @@
     --topbar-clearance: 12px;
     padding-bottom: calc(92px + var(--safe-area-bottom));
   }
-  .game-brand > svg {
+  .version-secret {
     width: 36px;
     height: 36px;
   }
-  .game-brand > span {
+  .game-brand__wordmark {
     font-size: 16px;
   }
   .game-navigation {

@@ -155,3 +155,39 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes version-signal {
+  from {
+    transform: scale(0.75);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+@keyframes version-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(34px) scale(0.88);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+@keyframes version-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  40% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}

@@ -29,6 +29,8 @@ jobs:
     timeout-minutes: 15
     environment: preview
     env:
+      QUESTIONS_RELEASE_NUMBER: ${{ github.run_number }}
+      QUESTIONS_RELEASE_ATTEMPT: ${{ github.run_attempt }}
       REMOTE_HOST: ${{ secrets.HOST }}
       REMOTE_USER: ${{ secrets.USERNAME }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
@@ -69,6 +71,10 @@ jobs:
             echo 'Preview build contains a root /assets/ reference.' >&2
             exit 1
           fi
+
+      - name: Record release identity
+        run: |
+          node -e 'const v=require("./dist/version.json"); const fs=require("node:fs"); fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Release: ${v.channel} v${v.version}\n\nCommit: ${v.commit}\n\nBuilt: ${v.builtAt}\n`);'
 
       - name: Configure SSH
         run: |
