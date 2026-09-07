@@ -1,5 +1,6 @@
+import { GameNavigation } from "./GameNavigation";
 import { useEffect, useRef, type ReactNode } from "react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   ArrowLeftIcon,
   CompassIcon,
@@ -8,7 +9,7 @@ import {
 import { GameSidebar } from "../GameSidebar";
 import { useGame } from "../useGame";
 
-import { gameNavigation, gameReturnPath } from "../game-navigation";
+import { gameReturnPath } from "../game-navigation";
 import { useDesktopLayout } from "../../../shared/layout/useDesktopLayout";
 
 export function GameBrand() {
@@ -22,16 +23,16 @@ export function GameBrand() {
   );
 }
 
-export function GameLayout({
-  children,
-  desktopMode,
-}: {
-  children: ReactNode;
-  desktopMode?: "profile" | "inbox";
-}) {
+export function GameLayout() {
   const isDesktop = useDesktopLayout();
   const { player } = useGame();
   const location = useLocation();
+  const desktopMode =
+    location.pathname === "/profile"
+      ? "profile"
+      : location.pathname === "/notifications"
+        ? "inbox"
+        : undefined;
   const contentRef = useRef<HTMLElement>(null);
   const returnTo = gameReturnPath(location.pathname, location.state);
   useEffect(() => {
@@ -56,14 +57,7 @@ export function GameLayout({
           <GameSidebar />
         </div>
       </header>
-      <nav className="game-navigation" aria-label="冒险导航">
-        {gameNavigation.map(({ to, label, Icon }) => (
-          <NavLink key={to} to={to} end={to === "/"} state={{ returnTo }}>
-            <Icon aria-hidden="true" />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      <GameNavigation returnTo={returnTo} />
       <main
         id="game-content"
         ref={contentRef}
@@ -77,7 +71,7 @@ export function GameLayout({
           </Link>
         )}
         <div key={location.pathname} className="game-page-enter">
-          {children}
+          <Outlet />
         </div>
       </main>
       <footer className="game-footer">

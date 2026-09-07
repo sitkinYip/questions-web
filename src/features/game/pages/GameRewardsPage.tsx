@@ -2,7 +2,7 @@ import { SparkleIcon } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import type { GameReward } from "../../../api/game.contracts";
 import { RichContent } from "../../content/RichContent";
-import { GameLayout, GamePageHeading } from "../components/GameLayout";
+import { GamePageHeading } from "../components/GameLayout";
 import {
   GameEmptyState,
   GameFailure,
@@ -68,7 +68,7 @@ function RewardCard({ item }: { item: GameReward }) {
 export function GameRewardsPage() {
   const query = useRewards();
   return (
-    <GameLayout>
+    <>
       <GamePageHeading eyebrow="冒险的收获" title="把奇遇，收入囊中。">
         那些解开的谜，留下了这些礼物。领取后记得请现场工作人员核销。
       </GamePageHeading>
@@ -93,6 +93,6 @@ export function GameRewardsPage() {
           还没有获得奖品。完成场次后，再来看看你的收获。
         </GameEmptyState>
       )}
-    </GameLayout>
+    </>
   );
 }

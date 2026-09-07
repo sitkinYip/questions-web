@@ -18,6 +18,8 @@ import { GameNotificationsPage } from "../features/game/pages/GameNotificationsP
 import { GamePlayPage } from "../features/game/GamePlayPage";
 import { GameNarrativePage } from "../features/game/GameNarrativePage";
 
+import { GameLayout } from "../features/game/components/GameLayout";
+
 const appBasename = resolveAppBasename(
   import.meta.env.BASE_URL,
   window.location.pathname,
@@ -47,10 +49,15 @@ const router = createBrowserRouter(
       path: "/",
       element: <GameGate />,
       children: [
-        { index: true, element: <GameDashboard /> },
-        { path: "profile", element: <GameProfilePage /> },
-        { path: "rewards", element: <GameRewardsPage /> },
-        { path: "notifications", element: <GameNotificationsPage /> },
+        {
+          element: <GameLayout />,
+          children: [
+            { index: true, element: <GameDashboard /> },
+            { path: "profile", element: <GameProfilePage /> },
+            { path: "rewards", element: <GameRewardsPage /> },
+            { path: "notifications", element: <GameNotificationsPage /> },
+          ],
+        },
         { path: "play/:id", element: <GamePlayPage /> },
         { path: "play/:id/content/:contentId", element: <GameNarrativePage /> },
       ],

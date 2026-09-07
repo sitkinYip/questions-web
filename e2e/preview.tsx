@@ -1,3 +1,4 @@
+import { GameLayout } from "../src/features/game/components/GameLayout";
 /** Dev-only visual fixture. Not referenced by the production entry or build. */
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -95,13 +96,15 @@ export function Preview() {
                   path="/loading/narrative"
                   element={<GameLoadingScreen scene="narrative" />}
                 />
-                <Route path="/" element={<GameDashboard />} />
-                <Route path="/profile" element={<GameProfilePage />} />
-                <Route path="/rewards" element={<GameRewardsPage />} />
-                <Route
-                  path="/notifications"
-                  element={<GameNotificationsPage />}
-                />
+                <Route element={<GameLayout />}>
+                  <Route path="/" element={<GameDashboard />} />
+                  <Route path="/profile" element={<GameProfilePage />} />
+                  <Route path="/rewards" element={<GameRewardsPage />} />
+                  <Route
+                    path="/notifications"
+                    element={<GameNotificationsPage />}
+                  />
+                </Route>
                 <Route
                   path="/play/preview-images"
                   element={<GamePlayView assignment={imageAssignment} />}

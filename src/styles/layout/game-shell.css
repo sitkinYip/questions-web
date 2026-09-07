@@ -230,6 +230,9 @@
     font-size: 16px;
   }
   .game-navigation {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
     position: fixed;
     z-index: var(--z-navigation);
     top: auto;
@@ -245,7 +248,7 @@
     isolation: isolate;
     background: color-mix(
       in srgb,
-      var(--color-surface-raised) 74%,
+      var(--color-surface-raised) 62%,
       transparent
     );
     border: 1px solid
@@ -256,8 +259,8 @@
       inset 0 1px color-mix(in srgb, var(--color-text-strong) 16%, transparent),
       inset 0 0 0 1px
         color-mix(in srgb, var(--color-text-strong) 3%, transparent);
-    backdrop-filter: blur(24px) saturate(138%);
-    -webkit-backdrop-filter: blur(24px) saturate(138%);
+    backdrop-filter: blur(40px) saturate(165%);
+    -webkit-backdrop-filter: blur(40px) saturate(165%);
   }
   .game-navigation a {
     z-index: 0;
@@ -286,66 +289,69 @@
     transform-origin: center;
     transition: transform var(--duration-medium) var(--motion-spring);
   }
-  .game-navigation a::before,
-  .game-navigation a::after {
-    position: absolute;
-    z-index: 1;
-    inset: 3px;
-    width: auto;
-    height: auto;
+  .game-navigation::before {
     content: "";
-    border-radius: var(--radius-round);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 116px;
+    height: 86px;
     pointer-events: none;
+    background: radial-gradient(
+      ellipse,
+      color-mix(in srgb, var(--color-accent) 42%, transparent),
+      transparent 70%
+    );
+    filter: blur(9px);
+    transform: translate3d(
+      calc(var(--touch-x, 0px) - 58px),
+      calc(var(--touch-y, 0px) - 43px),
+      0
+    );
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+  .game-navigation[data-tracking]::before {
+    opacity: 1;
   }
   .game-navigation a::before {
-    opacity: 0;
-    background:
-      linear-gradient(
-        145deg,
-        color-mix(in srgb, var(--color-text-strong) 12%, transparent),
-        transparent 52%
-      ),
-      var(--color-accent-soft);
-    border: 1px solid
-      color-mix(in srgb, var(--color-accent) 44%, var(--color-border));
-    box-shadow:
-      inset 0 1px color-mix(in srgb, var(--color-text-strong) 17%, transparent),
-      inset 0 -8px 18px var(--color-accent-faint);
-    transform: scale(0.76);
-    transition:
-      opacity var(--duration-fast) var(--motion-ios),
-      transform var(--duration-medium) var(--motion-spring);
+    content: none;
   }
   .game-navigation a::after {
-    left: 14%;
-    right: 14%;
-    bottom: 7px;
-    opacity: 0;
+    z-index: 1;
+    left: calc(50% - 27px);
+    top: -6px;
+    bottom: auto;
+    width: 54px;
+    height: 54px;
+    pointer-events: none;
     background: radial-gradient(
-      ellipse at 50% 72%,
-      var(--glow-accent-soft),
+      circle,
+      color-mix(in srgb, var(--color-accent) 48%, transparent),
       transparent 68%
     );
-    filter: blur(7px);
-    transform: scale(0.82);
+    filter: blur(8px);
+    opacity: 0;
+  }
+  .game-navigation a:hover:not([aria-current="page"]) {
+    color: var(--color-text-muted);
   }
   .game-navigation a[aria-current="page"] {
     color: var(--color-accent-text);
   }
-  .game-navigation a[aria-current="page"]::before {
-    opacity: 1;
-    transform: none;
+  .game-navigation a[aria-current="page"] svg {
+    filter: drop-shadow(0 0 5px var(--glow-accent-soft));
   }
   .game-navigation a[aria-current="page"]::after {
-    opacity: 0.42;
+    opacity: 0.5;
     transform: none;
+  }
+  .game-navigation a:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: -3px;
   }
   .game-navigation a:active {
     transform: scale(0.95);
-  }
-  .game-navigation a:active::before {
-    opacity: 0.8;
-    transform: scale(0.9);
   }
   .game-shell {
     padding-block: var(--space-6) var(--space-8);

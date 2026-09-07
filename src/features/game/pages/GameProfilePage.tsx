@@ -1,5 +1,5 @@
 import { Tabs } from "radix-ui";
-import { GameLayout, GamePageHeading } from "../components/GameLayout";
+import { GamePageHeading } from "../components/GameLayout";
 import { PlayerPassport } from "../components/PlayerPassport";
 import { ProfileEditor } from "../components/ProfileEditor";
 import { PasswordEditor } from "../components/PasswordEditor";
@@ -13,7 +13,7 @@ export function GameProfilePage() {
   const profile = useProfileEditor();
   const security = usePasswordEditor();
   return (
-    <GameLayout desktopMode="profile">
+    <>
       <GamePageHeading eyebrow="每一个名字，都有自己的故事" title="冒险者护照">
         让旅途记住你的模样。
       </GamePageHeading>
@@ -43,6 +43,6 @@ export function GameProfilePage() {
           </Tabs.Root>
         </div>
       )}
-    </GameLayout>
+    </>
   );
 }

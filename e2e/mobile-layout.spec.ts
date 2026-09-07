@@ -305,7 +305,7 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
   }
 });
 
-test("mobile navigation uses a floating liquid-glass active bubble", async ({
+test("mobile navigation uses a frosted glass and an unframed breathing icon", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -319,16 +319,121 @@ test("mobile navigation uses a floating liquid-glass active bubble", async ({
     const active = element.querySelector('[aria-current="page"]')!;
     return {
       backdrop: getComputedStyle(element).backdropFilter,
-      surfaceOpacity: getComputedStyle(active, "::before").opacity,
+      surfaceContent: getComputedStyle(active, "::before").content,
       glowAnimation: getComputedStyle(active, "::after").animationName,
     };
   });
-  expect(appearance.backdrop).toContain("blur(24px)");
-  expect(appearance.surfaceOpacity).toBe("1");
+  expect(appearance.backdrop).toContain("blur(40px)");
+  expect(appearance.surfaceContent).toBe("none");
   expect(appearance.glowAnimation).toBe("game-tab-breathe");
   await navigation.getByRole("link", { name: "收藏" }).click();
   await expect(navigation.getByRole("link", { name: "收藏" })).toHaveAttribute(
     "aria-current",
     "page",
   );
+});
+
+test("bottom navigation tracks a continuous drag, clamps edges and releases cleanly", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockQuestionsApi(page);
+  await login(page);
+  const nav = page.getByRole("navigation", { name: "冒险导航" });
+  const links = nav.getByRole("link");
+  const boxes = await Promise.all(
+    [0, 1, 2, 3].map((i) => links.nth(i).boundingBox()),
+  );
+  const center = (i: number) => ({
+    x: boxes[i]!.x + boxes[i]!.width / 2,
+    y: boxes[i]!.y + boxes[i]!.height / 2,
+  });
+  const start = center(0);
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await expect(nav).toHaveAttribute("data-tracking", "true");
+  for (const i of [1, 2, 3, 0, 2]) {
+    const point = center(i);
+    await page.mouse.move(point.x, point.y, { steps: 5 });
+    await expect(links.nth(i)).toHaveAttribute("aria-current", "page");
+  }
+  // Vertical escape must not select the tab under the new horizontal position.
+  await page.mouse.move(center(0).x, start.y - 110);
+  await expect(nav).not.toHaveAttribute("data-tracking");
+  await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
+  await page.mouse.move(389, start.y);
+  await expect(links.nth(3)).toHaveAttribute("aria-current", "page");
+  await page.mouse.move(0, start.y);
+  await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
+  const boundary = (center(0).x + center(1).x) / 2;
+  await page.mouse.move(boundary + 2, start.y);
+  await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
+  await page.mouse.move(center(1).x, start.y);
+  await page.mouse.up();
+  await expect(nav).not.toHaveAttribute("data-tracking");
+  await expect(links.nth(1)).toHaveAttribute("aria-current", "page");
+  await page.goBack();
+  await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
+  await links.nth(2).focus();
+  await page.keyboard.press("Enter");
+  await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.evaluate(() =>
+    document.documentElement.setAttribute("data-theme", "dark"),
+  );
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(216, 196, 134)");
+  await page.screenshot({
+    path: test.info().outputPath("bottom-nav-dark.png"),
+  });
+  await page.evaluate(() =>
+    document.documentElement.setAttribute("data-theme", "light"),
+  );
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(21, 95, 159)");
+  await page.screenshot({
+    path: test.info().outputPath("bottom-nav-light.png"),
+  });
+});
+
+test("bottom navigation follows touch and cleans up a cancelled touch", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName !== "chromium",
+    "Chromium CDP provides real touch movement",
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockQuestionsApi(page);
+  await login(page);
+  const nav = page.getByRole("navigation", { name: "冒险导航" });
+  const links = nav.getByRole("link");
+  const home = (await links.nth(0).boundingBox())!;
+  const inbox = (await links.nth(2).boundingBox())!;
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ x: home.x + home.width / 2, y: home.y + home.height / 2 }],
+  });
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchMove",
+    touchPoints: [
+      { x: inbox.x + inbox.width / 2, y: inbox.y + inbox.height / 2 },
+    ],
+  });
+  await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
+  await expect(nav).toHaveAttribute("data-tracking", "true");
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchCancel",
+    touchPoints: [],
+  });
+  await expect(nav).not.toHaveAttribute("data-tracking");
+  await links.nth(1).tap();
+  await expect(links.nth(1)).toHaveAttribute("aria-current", "page");
+  await expect(nav).not.toHaveAttribute("data-tracking");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(
+    await links
+      .nth(1)
+      .evaluate((el) => getComputedStyle(el, "::after").animationName),
+  ).toBe("none");
 });

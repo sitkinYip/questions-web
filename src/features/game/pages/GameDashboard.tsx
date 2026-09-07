@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Tabs } from "radix-ui";
 import { CelestialAtlas } from "../../../components/effects/CelestialAtlas";
-import { GameLayout, GamePageHeading } from "../components/GameLayout";
+import { GamePageHeading } from "../components/GameLayout";
 import { PlayerPassport } from "../components/PlayerPassport";
 import { AssignmentCard } from "../components/AssignmentCard";
 import {
@@ -29,7 +29,7 @@ export function GameDashboard() {
       (item) => item.status === "completed" || item.status === "cancelled",
     ) ?? [];
   return (
-    <GameLayout>
+    <>
       <div className="game-lobby">
         <div className="game-lobby__journeys">
           <div className="game-lobby__intro">
@@ -101,6 +101,6 @@ export function GameDashboard() {
           <PlayerPassport editable />
         </aside>
       </div>
-    </GameLayout>
+    </>
   );
 }
