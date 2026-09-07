@@ -394,46 +394,52 @@ test("bottom navigation tracks a continuous drag, clamps edges and releases clea
   });
 });
 
-test("bottom navigation follows touch and cleans up a cancelled touch", async ({
-  page,
-  browserName,
-}) => {
-  test.skip(
-    browserName !== "chromium",
-    "Chromium CDP provides real touch movement",
-  );
-  await page.setViewportSize({ width: 390, height: 844 });
-  await mockQuestionsApi(page);
-  await login(page);
-  const nav = page.getByRole("navigation", { name: "冒险导航" });
-  const links = nav.getByRole("link");
-  const home = (await links.nth(0).boundingBox())!;
-  const inbox = (await links.nth(2).boundingBox())!;
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchStart",
-    touchPoints: [{ x: home.x + home.width / 2, y: home.y + home.height / 2 }],
+test.describe("touch navigation", () => {
+  test.use({ hasTouch: true });
+
+  test("bottom navigation follows touch and cleans up a cancelled touch", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Chromium CDP provides real touch movement",
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mockQuestionsApi(page);
+    await login(page);
+    const nav = page.getByRole("navigation", { name: "冒险导航" });
+    const links = nav.getByRole("link");
+    const home = (await links.nth(0).boundingBox())!;
+    const inbox = (await links.nth(2).boundingBox())!;
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [
+        { x: home.x + home.width / 2, y: home.y + home.height / 2 },
+      ],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [
+        { x: inbox.x + inbox.width / 2, y: inbox.y + inbox.height / 2 },
+      ],
+    });
+    await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
+    await expect(nav).toHaveAttribute("data-tracking", "true");
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchCancel",
+      touchPoints: [],
+    });
+    await expect(nav).not.toHaveAttribute("data-tracking");
+    await links.nth(1).tap();
+    await expect(links.nth(1)).toHaveAttribute("aria-current", "page");
+    await expect(nav).not.toHaveAttribute("data-tracking");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    expect(
+      await links
+        .nth(1)
+        .evaluate((el) => getComputedStyle(el, "::after").animationName),
+    ).toBe("none");
   });
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchMove",
-    touchPoints: [
-      { x: inbox.x + inbox.width / 2, y: inbox.y + inbox.height / 2 },
-    ],
-  });
-  await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
-  await expect(nav).toHaveAttribute("data-tracking", "true");
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchCancel",
-    touchPoints: [],
-  });
-  await expect(nav).not.toHaveAttribute("data-tracking");
-  await links.nth(1).tap();
-  await expect(links.nth(1)).toHaveAttribute("aria-current", "page");
-  await expect(nav).not.toHaveAttribute("data-tracking");
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  expect(
-    await links
-      .nth(1)
-      .evaluate((el) => getComputedStyle(el, "::after").animationName),
-  ).toBe("none");
 });
