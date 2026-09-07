@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { z } from "zod";
-import { gameRequest } from "../../api/game.client";
+import { gameRequest, isFatalGameError } from "../../api/game.client";
 import { sanitizeMediaUrl } from "../../domain/content/parser";
 import {
   resolveAppBasename,
@@ -78,14 +78,14 @@ export function GameNarrativePage() {
   });
   if (query.isPending)
     return <GameLoadingScreen scene="narrative" header={<GameHeader />} />;
-  if (query.isError)
+  if (query.isError && (!query.data || isFatalGameError(query.error)))
     return (
       <main className="game-shell">
         <GameHeader />
         <GameFailure error={query.error} retry={() => void query.refetch()} />
       </main>
     );
-  const data = query.data;
+  const data = query.data!;
   const appBasename = resolveAppBasename(
     import.meta.env.BASE_URL,
     window.location.pathname,

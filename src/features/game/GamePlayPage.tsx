@@ -1,3 +1,4 @@
+import { GameRetryDialog } from "./components/GameRequestFeedback";
 import { createRequestId } from "../../shared/request-id";
 import {
   useEffect,
@@ -9,7 +10,11 @@ import {
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
-import { gameApi } from "../../api/game.client";
+import {
+  gameApi,
+  isFatalGameError,
+  isRetryableGameError,
+} from "../../api/game.client";
 import type { GameAssignment, GameClue } from "../../api/game.contracts";
 import type {
   QuestAvailability,
@@ -89,14 +94,14 @@ export function GamePlayPage() {
     refetchInterval: 5000,
   });
   if (query.isPending) return <GameLoadingScreen scene="journey" />;
-  if (query.isError)
+  if (query.isError && (!query.data || isFatalGameError(query.error)))
     return (
       <main className="game-shell">
         <GameHeader />
         <GameFailure error={query.error} retry={() => void query.refetch()} />
       </main>
     );
-  return <GamePlayView key={id} assignment={query.data} />;
+  return <GamePlayView key={id} assignment={query.data!} />;
 }
 
 export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
@@ -202,6 +207,9 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   const request = useRef<{ answer: string; level: string; key: string } | null>(
     null,
   );
+  const [retryAction, setRetryAction] = useState<"answer" | "start" | null>(
+    null,
+  );
   const [startKey] = useState(createRequestId);
   const [now, setNow] = useState(Date.now);
   const [offset, setOffset] = useState(
@@ -271,7 +279,11 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   const retainedCombination = combinations.at(-1);
   const start = useMutation({
     mutationFn: () => gameApi.start(assignment.id, startKey),
+    onError: (error) => {
+      setRetryAction(isRetryableGameError(error) ? "start" : null);
+    },
     onSuccess: (value) => {
+      setRetryAction(null);
       client.setQueryData(
         ["game", player.id, "assignment", assignment.id],
         value,
@@ -308,7 +320,14 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     },
   });
   const submit = useMutation({
-    mutationFn: () => {
+    mutationFn: (original?: { answer: string; level: string; key: string }) => {
+      if (original)
+        return gameApi.answer(
+          assignment.id,
+          original.level,
+          original.answer,
+          original.key,
+        );
       const answer = answers[step.id] ?? step.lastAnswer;
       if (
         !request.current ||
@@ -324,6 +343,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       );
     },
     onSuccess: (result) => {
+      setRetryAction(null);
       request.current = null;
       client.setQueryData(
         ["game", player.id, "assignment", assignment.id],
@@ -411,7 +431,11 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       });
     },
     onError: (error) => {
-      showFeedback(error.message, "danger");
+      if (isRetryableGameError(error)) setRetryAction("answer");
+      else {
+        setRetryAction(null);
+        showFeedback(error.message, "danger");
+      }
       void client.invalidateQueries({
         queryKey: ["game", player.id, "assignment", assignment.id],
       });
@@ -523,7 +547,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
           rank={player.level.order}
           now={serverNow}
           pending={start.isPending}
-          error={start.error}
+          error={isRetryableGameError(start.error) ? null : start.error}
           onStart={() => start.mutate()}
         />
       )}
@@ -655,6 +679,16 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       <span className="sr-only" aria-live="polite">
         {flow.videoPlaying ? "视频正在播放" : "视频未播放"}
       </span>
+      <GameRetryDialog
+        open={retryAction !== null}
+        action={retryAction ?? "answer"}
+        pending={submit.isPending || start.isPending}
+        onDismiss={() => setRetryAction(null)}
+        onRetry={() => {
+          if (retryAction === "start") start.mutate();
+          else submit.mutate(request.current ?? undefined);
+        }}
+      />
       <MediaViewer
         className={isDesktop ? "desktop-media-viewer" : undefined}
         state={flow.media}

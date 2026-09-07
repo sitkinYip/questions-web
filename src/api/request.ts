@@ -1,4 +1,5 @@
 import { ApiError } from "./errors";
+import { withSilentRetry, isTransientStatus } from "./retry";
 
 interface RequestJsonOptions {
   signal?: AbortSignal;
@@ -6,7 +7,19 @@ interface RequestJsonOptions {
   resource: string;
 }
 
-export async function requestJson(
+export function requestJson(url: string, options: RequestJsonOptions) {
+  return withSilentRetry(() => requestJsonAttempt(url, options), {
+    signal: options.signal,
+    cancelled: () => new ApiError("cancelled", `已取消加载${options.resource}`),
+    shouldRetry: (error) =>
+      error instanceof ApiError &&
+      (error.kind === "network" ||
+        error.kind === "timeout" ||
+        (error.kind === "http" && isTransientStatus(error.status ?? 0))),
+  });
+}
+
+async function requestJsonAttempt(
   url: string,
   { signal, timeoutMs = 10_000, resource }: RequestJsonOptions,
 ): Promise<{ data: unknown; status: number }> {
@@ -32,6 +45,7 @@ export async function requestJson(
     try {
       return { data: await response.json(), status: response.status };
     } catch (error) {
+      if (controller.signal.aborted || error instanceof TypeError) throw error;
       throw new ApiError("contract", `${resource}返回了无效 JSON`, {
         status: response.status,
         cause: error,

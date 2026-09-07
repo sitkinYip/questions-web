@@ -113,3 +113,45 @@
     animation: game-tab-settle 520ms var(--motion-spring) both;
   }
 }
+
+@keyframes game-signal-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes game-signal-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes game-signal-pulse {
+  from {
+    opacity: 0.75;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+@keyframes game-signal-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes game-signal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

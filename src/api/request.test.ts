@@ -65,7 +65,7 @@ describe("API request error classification", () => {
     const assertion = expect(request).rejects.toMatchObject({
       kind: "timeout",
     });
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.runAllTimersAsync();
     await assertion;
   });
 

@@ -4,7 +4,6 @@ import {
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
-import { GameApiError } from "../api/game.client";
 import { OverlayProvider } from "../components/ui/OverlayProvider";
 import { ToastProvider } from "../components/ui/ToastProvider";
 import { resolveAppBasename } from "../shared/navigation/app-base";
@@ -29,16 +28,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
-      retry: (failureCount, error) => {
-        if (
-          error instanceof GameApiError &&
-          (error.code === "CONTRACT_ERROR" ||
-            error.code === "CANCELLED" ||
-            Boolean(error.status && error.status < 500))
-        )
-          return false;
-        return failureCount < 2;
-      },
+      retry: false, // The transport owns retries within a single Promise.
     },
   },
 });

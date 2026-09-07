@@ -1,8 +1,10 @@
+import { GameSyncMessage } from "./components/GameRequestFeedback";
 import { useEffect, useSyncExternalStore } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { z } from "zod";
 import {
+  isFatalGameError,
   authState,
   gameApi,
   gameRequest,
@@ -21,6 +23,20 @@ export function GameGate() {
   const queryClient = useQueryClient();
   const location = useLocation();
   const playerId = auth?.playerId;
+  const cache = queryClient.getQueryCache();
+  const hasSyncError = useSyncExternalStore(
+    (notify) => cache.subscribe(notify),
+    () =>
+      cache
+        .findAll({ queryKey: ["game", playerId] })
+        .some(
+          (item) =>
+            item.getObserversCount() > 0 &&
+            item.state.status === "error" &&
+            item.state.data !== undefined &&
+            !isFatalGameError(item.state.error),
+        ),
+  );
   useEffect(
     () => () => {
       if (playerId) {
@@ -53,14 +69,14 @@ export function GameGate() {
   if (!auth)
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (query.isPending) return <GameLoadingScreen scene="player" />;
-  if (query.isError)
+  if (query.isError && (!query.data || isFatalGameError(query.error)))
     return (
       <main className="game-shell">
         <GameFailure error={query.error} retry={() => void query.refetch()} />
         <Button onClick={() => authState.set(null)}>重新登录</Button>
       </main>
     );
-  const player = query.data;
+  const player = query.data!;
   const avatarUrl =
     player.avatar && file.data
       ? `${pocketBaseUrl}/api/files/game_players/${encodeURIComponent(player.id)}/${encodeURIComponent(player.avatar)}?token=${encodeURIComponent(file.data.token)}`
@@ -76,6 +92,7 @@ export function GameGate() {
       }}
     >
       <div key={player.id}>
+        {hasSyncError && <GameSyncMessage />}
         {player.mustChangePassword ? <PasswordPage forced /> : <Outlet />}
       </div>
     </GameContext.Provider>

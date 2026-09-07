@@ -1,3 +1,4 @@
+import { withSilentRetry, isTransientStatus } from "./retry";
 import { z } from "zod";
 import {
   gameAnswerSchema,
@@ -61,18 +62,66 @@ export class GameApiError extends Error {
     this.status = status;
   }
 }
-export async function gameRequest<T>(
+interface GameRequestOptions<T> {
+  method?: string;
+  body?: unknown;
+  signal?: AbortSignal;
+  schema?: z.ZodType<T>;
+  publicPath?: boolean;
+  token?: string;
+  retry?: boolean;
+}
+
+export function isRetryableGameError(error: unknown) {
+  return (
+    error instanceof GameApiError &&
+    (error.code === "NETWORK_ERROR" ||
+      error.code === "TIMEOUT" ||
+      isTransientStatus(error.status))
+  );
+}
+
+export function isFatalGameError(error: unknown) {
+  return (
+    error instanceof GameApiError &&
+    ([401, 403, 404, 410].includes(error.status) ||
+      error.code === "SESSION_OFFLINE")
+  );
+}
+
+export function gameRequest<T>(
   path: string,
-  options: {
-    method?: string;
-    body?: unknown;
-    signal?: AbortSignal;
-    schema?: z.ZodType<T>;
-    publicPath?: boolean;
-    token?: string;
-  } = {},
+  options: GameRequestOptions<T> = {},
 ): Promise<T> {
   const token = options.token ?? auth?.token;
+  // Capture the payload and credentials once, including the command's requestId.
+  const body =
+    options.body instanceof FormData
+      ? options.body
+      : options.body
+        ? JSON.stringify(options.body)
+        : undefined;
+  return withSilentRetry(
+    () => {
+      if (!options.token && token !== auth?.token)
+        throw new GameApiError("CANCELLED", "账号已切换");
+      return gameRequestAttempt(path, options, token, body);
+    },
+    {
+      signal: options.signal,
+      retries: options.retry === false ? 0 : 3,
+      cancelled: () => new GameApiError("CANCELLED", "请求已取消"),
+      shouldRetry: isRetryableGameError,
+    },
+  );
+}
+
+async function gameRequestAttempt<T>(
+  path: string,
+  options: GameRequestOptions<T>,
+  token: string | undefined,
+  body: string | FormData | undefined,
+): Promise<T> {
   const controller = new AbortController();
   const abort = () => controller.abort();
   if (options.signal?.aborted) abort();
@@ -91,15 +140,23 @@ export async function gameRequest<T>(
             ? { "Content-Type": "application/json" }
             : {}),
         },
-        body: form
-          ? (options.body as FormData)
-          : options.body
-            ? JSON.stringify(options.body)
-            : undefined,
+        body,
         signal: controller.signal,
       },
     );
-    const data = await response.json();
+    // Proxies can return HTML or an empty body even for valid HTTP errors.
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      if (controller.signal.aborted || error instanceof TypeError) throw error;
+      if (response.ok)
+        throw new GameApiError(
+          "CONTRACT_ERROR",
+          "服务端数据版本不匹配，请联系管理员",
+        );
+      data = {};
+    }
     if (!response.ok) {
       if (
         response.status === 401 &&
@@ -108,8 +165,8 @@ export async function gameRequest<T>(
       )
         authState.set(null);
       throw new GameApiError(
-        data.error?.code || "REQUEST_FAILED",
-        data.error?.message ||
+        data?.error?.code || "REQUEST_FAILED",
+        data?.error?.message ||
           (response.status === 401
             ? "账号或密码不正确"
             : "请求失败，请检查输入或联系工作人员"),
@@ -132,6 +189,8 @@ export async function gameRequest<T>(
     if (error instanceof GameApiError) throw error;
     if (options.signal?.aborted)
       throw new GameApiError("CANCELLED", "请求已取消");
+    if (controller.signal.aborted)
+      throw new GameApiError("TIMEOUT", "连接等待超时，请稍后重试");
     throw new GameApiError(
       "NETWORK_ERROR",
       "连接中断，提交可能已生效；请重试原操作确认结果",
@@ -218,6 +277,8 @@ export const gameApi = {
     const result = await gameRequest("/me/change-password", {
       method: "POST",
       body: { oldPassword, password, passwordConfirm },
+      // Replaying a password change after a lost response can reject the old password.
+      retry: false,
       schema: z.object({ token: z.string(), player: gamePlayerSchema }),
     });
     authState.set({ token: result.token, playerId: result.player.id });

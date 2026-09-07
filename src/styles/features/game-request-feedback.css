@@ -1,0 +1,117 @@
+.game-retry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: max(20px, var(--safe-area-top)) 20px
+    max(20px, var(--safe-area-bottom));
+  background: var(--color-overlay);
+  backdrop-filter: blur(12px);
+  animation: game-signal-appear 280ms ease-out both;
+}
+.game-retry-dialog {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100%, 460px);
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-panel);
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      var(--color-accent-soft),
+      transparent 65%
+    ),
+    var(--color-surface-raised);
+  box-shadow:
+    0 30px 100px var(--color-shadow-strong),
+    0 0 65px var(--glow-accent-soft);
+  text-align: center;
+  animation: game-signal-arrive 640ms var(--motion-impact) both;
+}
+.game-retry-dialog::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    var(--glow-accent-soft),
+    transparent 65%
+  );
+  animation: game-signal-sweep 1.2s ease-out both;
+}
+.game-retry-dialog h2 {
+  margin: 16px 0;
+  font: 500 clamp(24px, 5vw, 30px)/1.3 var(--font-display);
+  color: var(--color-text-strong);
+  text-wrap: balance;
+}
+.game-retry-detail {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.9;
+}
+.game-retry-signal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  margin: 8px auto 28px;
+  border-radius: 50%;
+  color: var(--color-accent-text);
+  background: var(--color-accent-soft);
+  box-shadow:
+    0 0 40px var(--glow-accent-soft),
+    inset 0 0 24px var(--glow-accent-soft);
+}
+.game-retry-signal svg {
+  width: 42px;
+  height: 42px;
+}
+.game-retry-signal::before,
+.game-retry-signal::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 1px solid var(--color-accent-border);
+  border-radius: 50%;
+  animation: game-signal-pulse 2.4s ease-out infinite;
+}
+.game-retry-signal::after {
+  animation-delay: 1.2s;
+}
+.game-retry-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 28px;
+}
+.game-retry-actions svg {
+  width: 20px;
+  height: 20px;
+}
+.game-retry-actions[aria-busy="true"] svg {
+  animation: game-signal-spin 1s linear infinite;
+}
+.game-sync-message {
+  border-color: var(--color-accent-border);
+  box-shadow:
+    0 12px 40px var(--color-shadow),
+    0 0 24px var(--glow-accent-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-retry-overlay,
+  .game-retry-dialog,
+  .game-retry-dialog::before,
+  .game-retry-signal::before,
+  .game-retry-signal::after,
+  .game-retry-actions[aria-busy="true"] svg {
+    animation: none;
+  }
+}
