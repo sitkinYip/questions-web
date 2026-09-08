@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check formatting
+        run: pnpm format:check
+
       - name: Check style architecture
         run: pnpm check:styles
 
@@ -63,6 +66,3 @@ jobs:
 
       - name: Run iOS audio regression tests
         run: pnpm exec playwright test e2e/music-control.spec.ts e2e/bless-flow.spec.ts --project=mobile-webkit
-
-      - name: Check formatting
-        run: pnpm format:check

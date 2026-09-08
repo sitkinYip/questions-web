@@ -411,7 +411,13 @@ export interface ExtraPreview {
 export const EDITOR_PREVIEW_VERSION = 1;
 export type EditorPreviewDraft =
   | { kind: "question"; value: GameQuestion }
-  | { kind: "notification"; value: Pick<GameNotification, "title" | "content" | "popupTitle" | "buttonText"> };
+  | {
+      kind: "notification";
+      value: Pick<
+        GameNotification,
+        "title" | "content" | "popupTitle" | "buttonText"
+      >;
+    };
 export interface EditorPreviewMessage {
   type: "sitkin:preview:update";
   version: typeof EDITOR_PREVIEW_VERSION;

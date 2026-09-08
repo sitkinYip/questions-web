@@ -43,6 +43,8 @@ pnpm test:e2e:all
 pnpm check:all
 ```
 
+`pnpm check` 从全仓库 `format:check` 开始；CI 也在安装依赖后立即检查格式。生成的 `src/api/game.contracts.ts` 同样参与检查：应先格式化后台协议源，再执行同步脚本，不能只修生成副本。
+
 `pnpm typecheck` 检查应用、Vite 配置及 E2E 测试（含预览 TSX 和 Playwright 配置）。E2E 使用 `e2e/tsconfig.json`，继承项目的路径别名；这些文件也会随 `pnpm build` 和 `pnpm check` 一起检查。
 
 只有修改后端判题/结算/迁移逻辑时才需要另做隔离后端验收，见后台仓库 `backend/README.md`。这不是前端开发的前置步骤。
