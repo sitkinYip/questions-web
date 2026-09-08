@@ -136,7 +136,9 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
   });
   const cropDialog = page.getByRole("dialog", { name: "裁剪头像" });
   await expect(cropDialog).toBeVisible();
-  await expect(page.getByRole("button", { name: "保存资料" })).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "保存资料", includeHidden: true }),
+  ).toBeDisabled();
   await cropDialog.getByRole("button", { name: "使用此头像" }).click();
   await expect(cropDialog).toBeHidden();
   await expect(page.locator(".profile-editor__avatar img")).toHaveAttribute(
