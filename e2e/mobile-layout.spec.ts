@@ -333,7 +333,7 @@ test("mobile navigation uses a frosted glass and an unframed breathing icon", as
   );
 });
 
-test("bottom navigation tracks a continuous drag, clamps edges and releases cleanly", async ({
+test("bottom navigation only commits a valid release and ignores gaps or overshoot", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -355,19 +355,29 @@ test("bottom navigation tracks a continuous drag, clamps edges and releases clea
   for (const i of [1, 2, 3, 0, 2]) {
     const point = center(i);
     await page.mouse.move(point.x, point.y, { steps: 5 });
-    await expect(links.nth(i)).toHaveAttribute("aria-current", "page");
+    await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
   }
-  // Vertical escape must not select the tab under the new horizontal position.
-  await page.mouse.move(center(0).x, start.y - 110);
-  await expect(nav).not.toHaveAttribute("data-tracking");
+  await page.mouse.up();
   await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
-  await page.mouse.move(389, start.y);
-  await expect(links.nth(3)).toHaveAttribute("aria-current", "page");
-  await page.mouse.move(0, start.y);
+  await page.goBack();
   await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
-  const boundary = (center(0).x + center(1).x) / 2;
-  await page.mouse.move(boundary + 2, start.y);
-  await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
+  // Releasing in gaps, padding or outside must not activate a nearest tab.
+  for (const point of [
+    { x: (center(0).x + center(1).x) / 2, y: start.y },
+    { x: 389, y: start.y },
+    { x: 0, y: start.y },
+    { x: center(2).x, y: start.y - 110 },
+    { x: center(3).x, y: start.y + 60 },
+  ]) {
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(point.x, point.y, { steps: 4 });
+    await page.mouse.up();
+    await expect(nav).not.toHaveAttribute("data-tracking");
+    await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
+  }
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
   await page.mouse.move(center(1).x, start.y);
   await page.mouse.up();
   await expect(nav).not.toHaveAttribute("data-tracking");
@@ -425,13 +435,14 @@ test.describe("touch navigation", () => {
         { x: inbox.x + inbox.width / 2, y: inbox.y + inbox.height / 2 },
       ],
     });
-    await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
+    await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
     await expect(nav).toHaveAttribute("data-tracking", "true");
     await cdp.send("Input.dispatchTouchEvent", {
       type: "touchCancel",
       touchPoints: [],
     });
     await expect(nav).not.toHaveAttribute("data-tracking");
+    await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
     await links.nth(1).tap();
     await expect(links.nth(1)).toHaveAttribute("aria-current", "page");
     await expect(nav).not.toHaveAttribute("data-tracking");

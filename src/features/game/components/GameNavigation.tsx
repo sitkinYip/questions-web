@@ -7,9 +7,6 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
   const location = useLocation();
   const gesture = useRef<{
     id: number;
-    path: string;
-    navigated: boolean;
-    index: number;
   } | null>(null);
   const suppressClick = useRef(false);
 
@@ -18,8 +15,12 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
     if (!current || current.id !== event.pointerId) return;
     const nav = event.currentTarget;
     const rect = nav.getBoundingClientRect();
-    // A vertical escape pauses selection; horizontal overshoot stays at an end tab.
-    if (event.clientY < rect.top - 12 || event.clientY > rect.bottom + 12) {
+    if (
+      event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom
+    ) {
       nav.removeAttribute("data-tracking");
       return;
     }
@@ -28,30 +29,35 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
     nav.style.setProperty("--touch-x", `${x}px`);
     nav.style.setProperty("--touch-y", `${y}px`);
     nav.setAttribute("data-tracking", "true");
-    const links = Array.from(nav.querySelectorAll("a"));
-    const centers = links.map((link) => {
-      const box = link.getBoundingClientRect();
-      return box.left + box.width / 2;
-    });
-    let index = centers.reduce(
-      (best, center, i) =>
-        Math.abs(center - event.clientX) <
-        Math.abs(centers[best]! - event.clientX)
-          ? i
-          : best,
-      0,
+  }
+
+  function release(event: PointerEvent<HTMLElement>) {
+    if (gesture.current?.id !== event.pointerId) return;
+    // Test the actual release position, never the clamped glow or nearest tab.
+    const link = Array.from(event.currentTarget.querySelectorAll("a")).find(
+      (element) => {
+        const box = element.getBoundingClientRect();
+        const center = box.left + box.width / 2;
+        const halfWidth = Math.min(48, box.width) / 2;
+        return (
+          event.clientX >= center - halfWidth &&
+          event.clientX <= center + halfWidth &&
+          event.clientY >= box.top &&
+          event.clientY <= box.bottom
+        );
+      },
     );
-    // Small hysteresis prevents flicker when a finger rests between two tabs.
-    if (current.index >= 0 && index !== current.index) {
-      const boundary = (centers[index]! + centers[current.index]!) / 2;
-      if (Math.abs(event.clientX - boundary) < 5) index = current.index;
-    }
-    current.index = index;
-    const path = gameNavigation[index]!.to;
-    if (path !== current.path) {
-      current.path = path;
-      void navigate(path, { state: { returnTo }, replace: current.navigated });
-      current.navigated = true;
+    const index = link
+      ? Array.from(event.currentTarget.querySelectorAll("a")).indexOf(link)
+      : -1;
+    const target = gameNavigation[index];
+    finish(event);
+    if (
+      window.matchMedia("(max-width: 760px)").matches &&
+      target &&
+      target.to !== location.pathname
+    ) {
+      void navigate(target.to, { state: { returnTo } });
     }
   }
 
@@ -85,18 +91,12 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
         suppressClick.current = true;
         gesture.current = {
           id: event.pointerId,
-          path: location.pathname,
-          navigated: false,
-          index: -1,
         };
         event.currentTarget.setPointerCapture(event.pointerId);
         track(event);
       }}
       onPointerMove={track}
-      onPointerUp={(event) => {
-        track(event);
-        finish(event);
-      }}
+      onPointerUp={release}
       onPointerCancel={finish}
       onLostPointerCapture={finish}
       onClickCapture={(event) => {
