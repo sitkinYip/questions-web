@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { NotificationDialog } from "./NotificationDialog";
+import { NotificationDialog } from "@/features/notification/NotificationDialog";
 
 describe("NotificationDialog", () => {
   it("renders legacy rich content safely and delegates media previews", () => {

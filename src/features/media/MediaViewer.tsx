@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   useCallback,
   useEffect,
@@ -5,10 +6,10 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { AppDialog } from "../../components/ui/Dialog";
-import { Button } from "../../components/ui/Button";
-import { overlayPriority } from "../../components/ui/overlay-context";
-import { NativeVideo } from "./NativeVideo";
+import { AppDialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import { NativeVideo } from "@/features/media/NativeVideo";
 
 export type MediaViewerState =
   | { type: "images"; urls: readonly string[]; index: number }
@@ -122,7 +123,11 @@ export function MediaViewer({
       onOpenChange={(open) => {
         if (!open) closeViewer();
       }}
-      accessibleTitle={state.type === "images" ? "图片预览" : "视频播放器"}
+      accessibleTitle={
+        state.type === "images"
+          ? uiCopy.mediaViewer.imageTitle
+          : uiCopy.mediaViewer.videoTitle
+      }
       overlayClassName="media-viewer-backdrop"
       contentClassName={
         className ? `media-viewer ${className}` : "media-viewer"
@@ -137,7 +142,7 @@ export function MediaViewer({
         className="media-viewer-close"
         onClick={closeViewer}
         data-modal-initial-focus
-        aria-label="关闭媒体预览"
+        aria-label={uiCopy.mediaViewer.close}
       >
         ×
       </Button>
@@ -160,7 +165,7 @@ export function MediaViewer({
             <img
               key={`${state.urls[state.index]}-${state.index}`}
               src={state.urls[state.index]}
-              alt={`预览图片 ${state.index + 1}`}
+              alt={uiCopy.mediaViewer.imageAlt(state.index + 1)}
               draggable={false}
               referrerPolicy="strict-origin-when-cross-origin"
             />
@@ -174,7 +179,7 @@ export function MediaViewer({
                 disabled={state.index === 0}
                 onClick={() => navigateImage("previous")}
               >
-                上一张
+                {uiCopy.mediaViewer.previous}
               </Button>
               <span>
                 {state.index + 1} / {state.urls.length}
@@ -185,13 +190,13 @@ export function MediaViewer({
                 disabled={state.index === state.urls.length - 1}
                 onClick={() => navigateImage("next")}
               >
-                下一张
+                {uiCopy.mediaViewer.next}
               </Button>
             </div>
           )}
           {state.urls.length > 1 && (
             <span id="media-viewer-swipe-instructions" className="sr-only">
-              可左右滑动切换图片。
+              {uiCopy.mediaViewer.swipeHint}
             </span>
           )}
         </>

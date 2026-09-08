@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { enterGame, login, mockQuestionsApi } from "./fixtures";
-import { imageAssignment } from "./question-image-fixtures";
+import { enterGame, login, mockQuestionsApi } from "@e2e/fixtures";
+import { imageAssignment } from "@e2e/question-image-fixtures";
 
 // Device emulation does not expose a physical notch. Exercise the same tokens
 // consumed by env(safe-area-inset-*) with explicit inset values instead.

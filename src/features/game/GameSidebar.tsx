@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   useCallback,
   useEffect,
@@ -15,14 +16,17 @@ import {
   ListIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
-import { Sheet } from "../../components/ui/Sheet";
-import { Button } from "../../components/ui/Button";
-import { overlayPriority } from "../../components/ui/overlay-context";
-import { useDesktopLayout } from "../../shared/layout/useDesktopLayout";
-import { GameThemePicker } from "./components/GameThemePicker";
-import { GameSidebarIdentity } from "./components/GameSidebarIdentity";
-import { gameNavigation, gameReturnPath } from "./game-navigation";
-import { useGame } from "./useGame";
+import { Sheet } from "@/components/ui/Sheet";
+import { Button } from "@/components/ui/Button";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
+import { GameThemePicker } from "@/features/game/components/GameThemePicker";
+import { GameSidebarIdentity } from "@/features/game/components/GameSidebarIdentity";
+import {
+  gameNavigation,
+  gameReturnPath,
+} from "@/features/game/game-navigation";
+import { useGame } from "@/features/game/useGame";
 
 const accountPopoverCloseDelay = 100;
 const accountPopoverExitDuration = 240;
@@ -45,23 +49,27 @@ function GameMenuAvatar({
         showGlyph ? "" : " game-menu-trigger--desktop"
       }`}
       type="button"
-      aria-label="打开冒险者菜单"
+      aria-label={uiCopy.gameSidebar.openMenu}
       aria-haspopup="dialog"
       aria-controls={controls}
       aria-expanded={expanded}
-      title="冒险者菜单"
+      title={uiCopy.gameSidebar.menu}
       onClick={onClick}
     >
       {avatarUrl ? (
         <img
           className="traveler-avatar"
           src={avatarUrl}
-          alt={`${player.displayName}的头像`}
+          alt={uiCopy.gameSidebar.avatarAlt(player.displayName)}
           referrerPolicy="strict-origin-when-cross-origin"
         />
       ) : (
         <span className="traveler-avatar traveler-avatar--fallback">
-          {Array.from(player.displayName.trim() || "旅")[0]}
+          {
+            Array.from(
+              player.displayName.trim() || uiCopy.gameSidebar.avatarFallback,
+            )[0]
+          }
         </span>
       )}
       {showGlyph && (
@@ -212,24 +220,31 @@ function DesktopGameMenu() {
           className="game-account-popover"
           data-state={open ? "open" : "closed"}
           role="dialog"
-          aria-label="冒险者菜单"
+          aria-label={uiCopy.gameSidebar.menu}
           aria-hidden={!open}
           inert={!open}
         >
           <header className="game-account-popover__header">
             <span title={player.displayName}>{player.displayName}</span>
             <small>
-              {player.level.name} · <strong>{player.totalXp} EXP</strong>
+              {player.level.name} ·{" "}
+              <strong>{uiCopy.gameSidebar.experience(player.totalXp)}</strong>
             </small>
           </header>
-          <nav className="game-account-popover__nav" aria-label="个人导航">
+          <nav
+            className="game-account-popover__nav"
+            aria-label={uiCopy.gameSidebar.navigation}
+          >
             {returnTo && location.pathname !== returnTo && (
               <Link to={returnTo} onClick={() => setOpen(false)}>
                 <span className="game-account-popover__icon">
                   <ArrowLeftIcon aria-hidden="true" />
                 </span>
                 <span>
-                  返回答题<small aria-hidden="true">接着刚才的线索继续</small>
+                  {uiCopy.gameSidebar.backToQuest}
+                  <small aria-hidden="true">
+                    {uiCopy.gameSidebar.backHint}
+                  </small>
                 </span>
                 <ArrowRightIcon aria-hidden="true" />
               </Link>
@@ -254,7 +269,7 @@ function DesktopGameMenu() {
             ))}
           </nav>
           <div className="game-account-popover__settings">
-            <span>界面主题</span>
+            <span>{uiCopy.gameSidebar.theme}</span>
             <GameThemePicker />
           </div>
           <Button
@@ -266,7 +281,7 @@ function DesktopGameMenu() {
             }}
           >
             <SignOutIcon aria-hidden="true" />
-            <span>退出登录</span>
+            <span>{uiCopy.gameSidebar.logout}</span>
           </Button>
         </section>
       )}
@@ -302,7 +317,7 @@ function MobileGameSidebar() {
         priority={overlayPriority.confirmation}
         open={open}
         onOpenChange={setOpen}
-        title="冒险者菜单"
+        title={uiCopy.gameSidebar.menu}
         side={sheetSide}
         density="compact"
         className="game-sidebar"
@@ -311,14 +326,20 @@ function MobileGameSidebar() {
         }
       >
         <div className="game-sidebar__content">
-          <nav className="game-sidebar__nav" aria-label="个人导航">
+          <nav
+            className="game-sidebar__nav"
+            aria-label={uiCopy.gameSidebar.navigation}
+          >
             {returnTo && location.pathname !== returnTo && (
               <Link to={returnTo} onClick={() => setOpen(false)}>
                 <span className="game-sidebar__nav-icon">
                   <ArrowLeftIcon aria-hidden="true" />
                 </span>
                 <span className="game-sidebar__nav-copy">
-                  返回答题<small aria-hidden="true">接着刚才的线索继续</small>
+                  {uiCopy.gameSidebar.backToQuest}
+                  <small aria-hidden="true">
+                    {uiCopy.gameSidebar.backHint}
+                  </small>
                 </span>
               </Link>
             )}
@@ -343,7 +364,7 @@ function MobileGameSidebar() {
           </nav>
           <footer className="game-sidebar__footer">
             <div className="game-sidebar__settings">
-              <p aria-hidden="true">旅途光线</p>
+              <p aria-hidden="true">{uiCopy.gameSidebar.lightTitle}</p>
               <GameThemePicker />
             </div>
             <Button
@@ -355,7 +376,7 @@ function MobileGameSidebar() {
               }}
             >
               <SignOutIcon aria-hidden="true" />
-              退出登录
+              {uiCopy.gameSidebar.logout}
             </Button>
           </footer>
         </div>

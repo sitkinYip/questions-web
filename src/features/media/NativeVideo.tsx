@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   useCallback,
   useRef,
@@ -5,7 +6,7 @@ import {
   type ReactNode,
   type VideoHTMLAttributes,
 } from "react";
-import { Button } from "../../components/ui/Button";
+import { Button } from "@/components/ui/Button";
 
 const browserVideoAttributes = {
   // renderer: "hybrid",
@@ -31,7 +32,7 @@ export function NativeVideo(props: NativeVideoProps) {
   const { renderVideo, ...videoProps } = props;
   const video = (
     <video {...videoProps} {...browserVideoAttributes}>
-      当前浏览器无法播放此视频。
+      {uiCopy.nativeVideo.unsupported}
     </video>
   );
   return renderVideo ? renderVideo(video) : video;
@@ -69,7 +70,7 @@ function MutedVideo({
         onVolumeChange?.(event);
       }}
     >
-      当前浏览器无法播放此视频。
+      {uiCopy.nativeVideo.unsupported}
     </video>
   );
 
@@ -78,7 +79,9 @@ function MutedVideo({
       {renderVideo ? renderVideo(video) : video}
       {hasPlayed && (
         <div className="video-sound-control">
-          <span>{muted ? "视频已静音" : "声音已开启"}</span>
+          <span>
+            {muted ? uiCopy.nativeVideo.muted : uiCopy.nativeVideo.unmuted}
+          </span>
           <Button
             size="small"
             onClick={() => {
@@ -89,7 +92,7 @@ function MutedVideo({
               setMuted(element.muted);
             }}
           >
-            {muted ? "开启声音" : "静音"}
+            {muted ? uiCopy.nativeVideo.unmute : uiCopy.nativeVideo.mute}
           </Button>
         </div>
       )}

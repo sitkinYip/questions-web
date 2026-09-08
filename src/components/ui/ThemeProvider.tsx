@@ -9,7 +9,7 @@ import {
 import {
   createThemePreferencesRepository,
   THEME_PREFERENCES_KEY,
-} from "../../infrastructure/storage/theme.repository";
+} from "@/infrastructure/storage/theme.repository";
 import {
   resolveTheme,
   SYSTEM_THEME_QUERY,
@@ -17,8 +17,8 @@ import {
   themePreferenceFromSearch,
   type ResolvedTheme,
   type ThemePreference,
-} from "../../shared/theme/theme";
-import { ThemeContext } from "./theme-context";
+} from "@/shared/theme/theme";
+import { ThemeContext } from "@/components/ui/theme-context";
 
 function readSystemTheme(): ResolvedTheme {
   if (typeof window.matchMedia !== "function") return "dark";

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
-import { Field } from "./FormControls";
-import { PasswordInput } from "./PasswordInput";
+import { Field } from "@/components/ui/FormControls";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 it("keeps a stable field name and value when toggling visibility without submitting", () => {
   const submit = vi.fn((event) => event.preventDefault());

@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { ResolvedTheme, ThemePreference } from "../../shared/theme/theme";
+import type { ResolvedTheme, ThemePreference } from "@/shared/theme/theme";
 
 export interface ThemeContextValue {
   preference: ThemePreference;

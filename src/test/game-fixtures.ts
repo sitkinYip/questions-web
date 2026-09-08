@@ -3,7 +3,7 @@ import type {
   GameNotification,
   GamePlayer,
   GameReward,
-} from "../api/game.contracts";
+} from "@/api/game.contracts";
 
 export function makePlayer(): GamePlayer {
   return {

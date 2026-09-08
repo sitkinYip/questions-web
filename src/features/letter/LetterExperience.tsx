@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   useCallback,
   useEffect,
@@ -7,21 +8,18 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { useDesktopLayout } from "../../shared/layout/useDesktopLayout";
-import { LetterControls } from "./LetterControls";
-import type { Letter } from "../../domain/letter/types";
-import { playAudio } from "../../shared/media/play-audio";
-import {
-  trackAnalytics,
-  trackAnalyticsOnce,
-} from "../../infrastructure/analytics";
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
+import { LetterControls } from "@/features/letter/LetterControls";
+import type { Letter } from "@/domain/letter/types";
+import { playAudio } from "@/shared/media/play-audio";
+import { trackAnalytics, trackAnalyticsOnce } from "@/infrastructure/analytics";
 import {
   paginateLetterParagraphs,
   resolveLetterPageSwipe,
   type LetterPage,
   type LetterPageDirection,
   type LetterSwipeAxis,
-} from "./letterPagination";
+} from "@/features/letter/letterPagination";
 
 interface LetterExperienceProps {
   letter: Letter;
@@ -445,7 +443,9 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
         <div className="letter-paper-frame" aria-hidden="true" />
         <div className="letter-paper-content">
           <header>
-            <p className="eyebrow">{letter.variant} letter</p>
+            <p className="eyebrow">
+              {uiCopy.letterExperience.label(letter.variant)}
+            </p>
             {letter.title && <h1>{letter.title}</h1>}
             {letter.description && <p>{letter.description}</p>}
           </header>
@@ -500,7 +500,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
       <div className="letter-atmosphere" aria-hidden="true" />
       {!isOpen && returnTo && (
         <a className="letter-return" href={returnTo}>
-          ← 返回冒险
+          {uiCopy.letterExperience.back}
         </a>
       )}
 
@@ -511,7 +511,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
             {letter.title?.[0] || letter.hintText[0] || "✦"}
           </span>
           <span className="letter-recipient">
-            {letter.title || "一封未署名的来信"}
+            {letter.title || uiCopy.letterExperience.untitled}
           </span>
           {letter.description && (
             <span className="letter-description">{letter.description}</span>
@@ -521,7 +521,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
       ) : (
         <section
           className="letter-reader"
-          aria-label={letter.title || "信件内容"}
+          aria-label={letter.title || uiCopy.letterExperience.contentLabel}
         >
           <div
             className="letter-paper-stack"
@@ -573,7 +573,11 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
           className={`letter-audio ${bgmPlaying ? "is-playing" : ""}`}
           type="button"
           onClick={toggleBgm}
-          aria-label={bgmPlaying ? "暂停背景音乐" : "播放背景音乐"}
+          aria-label={
+            bgmPlaying
+              ? uiCopy.letterExperience.pause
+              : uiCopy.letterExperience.play
+          }
         >
           {bgmPlaying ? "Ⅱ" : "♪"}
         </button>

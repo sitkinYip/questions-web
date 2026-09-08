@@ -1,6 +1,6 @@
-import { classifySafeUrl, sanitizeMediaUrl } from "../domain/content/parser.ts";
-import type { QuestClue } from "../domain/quest/types.ts";
-import type { LevelRecord } from "./level.schema.ts";
+import { classifySafeUrl, sanitizeMediaUrl } from "@/domain/content/parser.ts";
+import type { QuestClue } from "@/domain/quest/types.ts";
+import type { LevelRecord } from "@/api/level.schema.ts";
 
 type ThreadItem = LevelRecord["thread"][number];
 

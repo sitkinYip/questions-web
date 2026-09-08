@@ -1,4 +1,4 @@
-import { isAcceptedAnswer } from "./answer";
+import { isAcceptedAnswer } from "@/domain/quest/answer";
 import type {
   Quest,
   QuestAttempt,
@@ -6,7 +6,7 @@ import type {
   QuestCompletionTransition,
   QuestSession,
   SubmitAnswerResult,
-} from "./types";
+} from "@/domain/quest/types";
 
 const DEFAULT_PENALTIES = [3 * 60 * 1000, -1] as const;
 

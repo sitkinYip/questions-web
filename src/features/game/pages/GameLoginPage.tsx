@@ -1,13 +1,14 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useState, useSyncExternalStore } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRightIcon, KeyIcon } from "@phosphor-icons/react";
-import { authState, gameApi } from "../../../api/game.client";
-import { Button } from "../../../components/ui/Button";
-import { Field, Input } from "../../../components/ui/FormControls";
-import { PasswordInput } from "../../../components/ui/PasswordInput";
-import { AuthLayout } from "../components/AuthLayout";
-import { GameFailure } from "../components/GameState";
+import { authState, gameApi } from "@/api/game.client";
+import { Button } from "@/components/ui/Button";
+import { Field, Input } from "@/components/ui/FormControls";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { AuthLayout } from "@/features/game/components/AuthLayout";
+import { GameFailure } from "@/features/game/components/GameState";
 
 export function GameLoginPage() {
   const auth = useSyncExternalStore(authState.subscribe, authState.get);
@@ -32,11 +33,11 @@ export function GameLoginPage() {
         <KeyIcon weight="thin" aria-hidden="true" />
       </div>
       <h2>
-        以你的名字，
+        {uiCopy.gameLoginPage.titleFirstLine}
         <br />
-        开启冒险。
+        {uiCopy.gameLoginPage.titleSecondLine}
       </h2>
-      <p className="game-muted">带上你的账号，剩下的交给好奇心。</p>
+      <p className="game-muted">{uiCopy.gameLoginPage.description}</p>
       <form
         className="game-form"
         onSubmit={(event) => {
@@ -45,23 +46,23 @@ export function GameLoginPage() {
         }}
         aria-busy={mutation.isPending}
       >
-        <Field label="登录账号">
+        <Field label={uiCopy.gameLoginPage.username}>
           <Input
             autoComplete="username"
             autoCapitalize="none"
             spellCheck={false}
             required
-            placeholder="你的冒险者账号"
+            placeholder={uiCopy.gameLoginPage.usernamePlaceholder}
             value={account}
             disabled={mutation.isPending}
             onChange={(event) => setAccount(event.target.value)}
           />
         </Field>
-        <Field label="密码">
+        <Field label={uiCopy.gameLoginPage.password}>
           <PasswordInput
             autoComplete="current-password"
             required
-            placeholder="输入通行密语"
+            placeholder={uiCopy.gameLoginPage.passwordPlaceholder}
             value={password}
             disabled={mutation.isPending}
             onChange={(event) => setPassword(event.target.value)}
@@ -74,15 +75,15 @@ export function GameLoginPage() {
           className="game-cta"
           disabled={mutation.isPending}
         >
-          {mutation.isPending ? "正在打开故事…" : "进入冒险"}
+          {mutation.isPending
+            ? uiCopy.gameLoginPage.pending
+            : uiCopy.gameLoginPage.submit}
           <ArrowRightIcon aria-hidden="true" />
         </Button>
       </form>
       <details className="game-auth__help">
-        <summary>还没有账号，或忘记了密码？</summary>
-        <p>
-          账号由现场工作人员提供，暂不开放注册。忘记密码时，请联系工作人员重置。
-        </p>
+        <summary>{uiCopy.gameLoginPage.helpTitle}</summary>
+        <p>{uiCopy.gameLoginPage.helpDescription}</p>
       </details>
     </AuthLayout>
   );

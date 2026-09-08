@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { DesktopClueShelf } from "./DesktopClueShelf";
-import type { QuestClue } from "../../../domain/quest/types";
+import { DesktopClueShelf } from "@/features/game/desktop/DesktopClueShelf";
+import type { QuestClue } from "@/domain/quest/types";
 
 export function QuestWorkspace({
   desktop,

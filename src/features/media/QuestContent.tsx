@@ -1,5 +1,6 @@
-import type { QuestContentItem } from "../../domain/quest/types";
-import { RichContent } from "../content/RichContent";
+import { uiCopy } from "@/config/ui-copy";
+import type { QuestContentItem } from "@/domain/quest/types";
+import { RichContent } from "@/features/content/RichContent";
 
 interface QuestContentProps {
   items: readonly QuestContentItem[];
@@ -35,12 +36,18 @@ export function QuestContent({
                 type="button"
                 className="video-poster-button"
                 onClick={() => onOpenVideo(item.videoUrl!, item.imageUrl)}
-                aria-label={`播放题目视频 ${itemIndex + 1}`}
+                aria-label={uiCopy.questContent.playVideo(itemIndex + 1)}
               >
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt="视频封面" loading="lazy" />
+                  <img
+                    src={item.imageUrl}
+                    alt={uiCopy.questContent.videoPoster}
+                    loading="lazy"
+                  />
                 ) : (
-                  <span className="video-placeholder">影像记录</span>
+                  <span className="video-placeholder">
+                    {uiCopy.questContent.videoPlaceholder}
+                  </span>
                 )}
                 <span className="play-badge" aria-hidden="true">
                   ▶
@@ -57,11 +64,11 @@ export function QuestContent({
                     type="button"
                     key={url}
                     onClick={() => onOpenImages(images, index)}
-                    aria-label={`查看题目图片 ${index + 1}`}
+                    aria-label={uiCopy.questContent.viewImage(index + 1)}
                   >
                     <img
                       src={url}
-                      alt={`题目图片 ${index + 1}`}
+                      alt={uiCopy.questContent.imageAlt(index + 1)}
                       loading="lazy"
                     />
                   </button>
@@ -74,7 +81,7 @@ export function QuestContent({
             )}
             {item.hint && (
               <details className="quest-hint">
-                <summary>查看提示</summary>
+                <summary>{uiCopy.questContent.hint}</summary>
                 <RichContent source={item.hint} />
               </details>
             )}

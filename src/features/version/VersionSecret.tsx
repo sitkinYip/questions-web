@@ -1,7 +1,8 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useRef, useState } from "react";
 import { CompassIcon, StarFourIcon, XIcon } from "@phosphor-icons/react";
-import { AppDialog } from "../../components/ui/Dialog";
-import { overlayPriority } from "../../components/ui/overlay-context";
+import { AppDialog } from "@/components/ui/Dialog";
+import { overlayPriority } from "@/components/ui/overlay-context";
 
 export function VersionSecret() {
   const taps = useRef({ count: 0, last: 0 });
@@ -9,14 +10,16 @@ export function VersionSecret() {
   const [pulse, setPulse] = useState(0);
   const build = __APP_BUILD__;
   const channel =
-    { preview: "预览航线", production: "正式航线", local: "本地星图" }[
-      build.channel
-    ] ?? build.channel;
+    {
+      preview: uiCopy.versionSecret.preview,
+      production: uiCopy.versionSecret.production,
+      local: uiCopy.versionSecret.local,
+    }[build.channel] ?? build.channel;
   return (
     <>
       <button
         className="version-secret"
-        aria-label="Questions · 星图"
+        aria-label={uiCopy.versionSecret.label}
         onClick={(event) => {
           const now = performance.now();
           taps.current.count =
@@ -40,14 +43,14 @@ export function VersionSecret() {
         priority={overlayPriority.confirmation}
         open={open}
         onOpenChange={setOpen}
-        accessibleTitle="星图档案"
-        accessibleDescription="当前页面的版本与构建信息"
+        accessibleTitle={uiCopy.versionSecret.title}
+        accessibleDescription={uiCopy.versionSecret.description}
         overlayClassName="version-backdrop"
         contentClassName="version-dialog"
       >
         <button
           className="version-close"
-          aria-label="关闭星图档案"
+          aria-label={uiCopy.versionSecret.close}
           onClick={() => setOpen(false)}
         >
           <XIcon />
@@ -58,20 +61,20 @@ export function VersionSecret() {
           <i />
           <CompassIcon weight="thin" />
         </div>
-        <p className="version-eyebrow">QUESTIONS · HIDDEN ARCHIVE</p>
-        <h2>星图档案</h2>
-        <p className="version-caption">你找到了，故事背后的坐标。</p>
+        <p className="version-eyebrow">{uiCopy.versionSecret.eyebrow}</p>
+        <h2>{uiCopy.versionSecret.title}</h2>
+        <p className="version-caption">{uiCopy.versionSecret.caption}</p>
         <div className="version-number">
           <small>{channel}</small>
-          <strong>v{build.version}</strong>
+          <strong>{uiCopy.versionSecret.version(build.version)}</strong>
         </div>
         <dl className="version-details">
           <div>
-            <dt>提交坐标</dt>
+            <dt>{uiCopy.versionSecret.commit}</dt>
             <dd title={build.commit}>{build.commit.slice(0, 12)}</dd>
           </div>
           <div>
-            <dt>构建时刻</dt>
+            <dt>{uiCopy.versionSecret.builtAt}</dt>
             <dd>
               {new Date(build.builtAt).toLocaleString("zh-CN", {
                 hour12: false,
@@ -81,7 +84,7 @@ export function VersionSecret() {
         </dl>
         <p className="version-note">
           <StarFourIcon aria-hidden="true" />
-          这是当前页面载入的版本
+          {uiCopy.versionSecret.footer}
         </p>
       </AppDialog>
     </>

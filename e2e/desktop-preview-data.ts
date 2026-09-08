@@ -1,6 +1,6 @@
-import type { GameAssignment, GameClue } from "../src/api/game.contracts";
-import type { Letter } from "../src/domain/letter/types";
-import { makeAssignment } from "../src/test/game-fixtures";
+import type { GameAssignment, GameClue } from "@/api/game.contracts";
+import type { Letter } from "@/domain/letter/types";
+import { makeAssignment } from "@/test/game-fixtures";
 
 export const desktopVideoClue: GameClue = {
   id: "preview-scene",

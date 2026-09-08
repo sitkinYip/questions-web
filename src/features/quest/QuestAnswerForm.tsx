@@ -1,7 +1,8 @@
-import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/FormControls";
-import { ChoiceOptions } from "../media/ChoiceOptions";
-import type { QuestCardProps } from "./quest-card.types";
+import { uiCopy } from "@/config/ui-copy";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { ChoiceOptions } from "@/features/media/ChoiceOptions";
+import type { QuestCardProps } from "@/features/quest/quest-card.types";
 
 function formatRemaining(milliseconds: number): string {
   const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
@@ -71,12 +72,15 @@ export function QuestAnswerForm({
         />
       ) : (
         <label className="text-answer">
-          <span className="sr-only">答案</span>
+          <span className="sr-only">{uiCopy.questAnswerForm.answer}</span>
           <Input
             variant="line"
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
-            placeholder={activeQuest.answerPlaceholder || "输入你的答案"}
+            placeholder={
+              activeQuest.answerPlaceholder ||
+              uiCopy.questAnswerForm.placeholder
+            }
             autoComplete="off"
             disabled={pending || activeAttempt.status === "completed"}
           />
@@ -86,8 +90,10 @@ export function QuestAnswerForm({
       {(isPermanentlyLocked || isTemporarilyLocked) && (
         <p className="penalty-state" role="timer">
           {isPermanentlyLocked
-            ? "此题已永久锁定"
-            : `距离再次尝试还有 ${formatRemaining((activeAttempt.penaltyEndsAt ?? now) - now)}`}
+            ? uiCopy.questAnswerForm.locked
+            : uiCopy.questAnswerForm.penaltyRemaining(
+                formatRemaining((activeAttempt.penaltyEndsAt ?? now) - now),
+              )}
         </p>
       )}
 
@@ -103,12 +109,12 @@ export function QuestAnswerForm({
               availability.status !== "available"
             }
           >
-            提交答案
+            {uiCopy.questAnswerForm.submit}
           </Button>
         )}
         {canMoveNext && (
           <Button variant="secondary" onClick={() => moveTo(nextIndex)}>
-            前往下一题
+            {uiCopy.questAnswerForm.next}
           </Button>
         )}
       </div>

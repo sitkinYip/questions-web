@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createRankRepository, rankUpKey } from "./rank.repository";
+import {
+  createRankRepository,
+  rankUpKey,
+} from "@/infrastructure/storage/rank.repository";
 
 describe("rank repository", () => {
   it("uses the legacy-compatible key and marks each user/rank once", () => {

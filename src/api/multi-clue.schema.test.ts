@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { multiQuestCluesResponseSchema } from "./multi-clue.schema";
+import { multiQuestCluesResponseSchema } from "@/api/multi-clue.schema";
 
 describe("PocketBase multi quest clue contract", () => {
   it("accepts the nullable optional fields used by live records", () => {

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { resolveAppBasename, withAppBasename } from "./app-base";
+import {
+  resolveAppBasename,
+  withAppBasename,
+} from "@/shared/navigation/app-base";
 
 describe("application basename", () => {
   it("uses the configured deployment base when it matches the URL", () => {

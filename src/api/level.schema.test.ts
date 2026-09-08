@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { adaptLevelRecord } from "./level.adapter";
-import { levelRecordSchema } from "./level.schema";
+import { adaptLevelRecord } from "@/api/level.adapter";
+import { levelRecordSchema } from "@/api/level.schema";
 
 describe("PocketBase level contract", () => {
   it("accepts null JSON fields returned by unconfigured PocketBase records", () => {

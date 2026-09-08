@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { Letter, LetterVariant } from "../../domain/letter/types";
-import { LetterExperience } from "./LetterExperience";
+import type { Letter, LetterVariant } from "@/domain/letter/types";
+import { LetterExperience } from "@/features/letter/LetterExperience";
 
 function makeLetter(variant: LetterVariant): Letter {
   return {

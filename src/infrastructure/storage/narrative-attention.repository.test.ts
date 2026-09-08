@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createNarrativeAttentionRepository,
   narrativeAttentionKey,
-} from "./narrative-attention.repository";
+} from "@/infrastructure/storage/narrative-attention.repository";
 
 describe("narrative attention repository", () => {
   it("stores opened narrative clues per player and assignment", () => {

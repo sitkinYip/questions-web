@@ -1,8 +1,9 @@
-import type { Quest } from "../domain/quest/types.ts";
-import { parseQuestRank } from "../domain/quest/rank.ts";
-import { sanitizeMediaUrl, withSafeQuery } from "../domain/content/parser.ts";
-import type { LevelRecord } from "./level.schema.ts";
-import { adaptThread } from "./clue.adapter.ts";
+import { uiCopy } from "@/config/ui-copy";
+import type { Quest } from "@/domain/quest/types.ts";
+import { parseQuestRank } from "@/domain/quest/rank.ts";
+import { sanitizeMediaUrl, withSafeQuery } from "@/domain/content/parser.ts";
+import type { LevelRecord } from "@/api/level.schema.ts";
+import { adaptThread } from "@/api/clue.adapter.ts";
 
 function parseTimestamp(value?: string): number | undefined {
   if (!value) return undefined;
@@ -17,7 +18,7 @@ function buildPrompt(record: LevelRecord): string {
       .filter((value): value is string => Boolean(value))
       .join("\n") ||
     record.title ||
-    `第 ${record.step} 题`
+    uiCopy.levelAdapter.questionNumber(record.step)
   );
 }
 

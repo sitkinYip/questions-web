@@ -1,4 +1,5 @@
-import { GameSyncMessage } from "./components/GameRequestFeedback";
+import { uiCopy } from "@/config/ui-copy";
+import { GameSyncMessage } from "@/features/game/components/GameRequestFeedback";
 import { useEffect, useSyncExternalStore } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
@@ -9,15 +10,15 @@ import {
   gameApi,
   gameRequest,
   pocketBaseUrl,
-} from "../../api/game.client";
-import { GameSidebar } from "./GameSidebar";
-import { Button } from "../../components/ui/Button";
-import { PasswordPage } from "./pages/PasswordPage";
-import { GameFailure } from "./components/GameState";
-import { GameLoadingScreen } from "./components/GameLoadingScreen";
+} from "@/api/game.client";
+import { GameSidebar } from "@/features/game/GameSidebar";
+import { Button } from "@/components/ui/Button";
+import { PasswordPage } from "@/features/game/pages/PasswordPage";
+import { GameFailure } from "@/features/game/components/GameState";
+import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 
-import { GameContext, useGame } from "./useGame";
-export { GameFailure } from "./components/GameState";
+import { GameContext, useGame } from "@/features/game/useGame";
+export { GameFailure } from "@/features/game/components/GameState";
 export function GameGate() {
   const auth = useSyncExternalStore(authState.subscribe, authState.get);
   const queryClient = useQueryClient();
@@ -73,7 +74,9 @@ export function GameGate() {
     return (
       <main className="game-shell">
         <GameFailure error={query.error} retry={() => void query.refetch()} />
-        <Button onClick={() => authState.set(null)}>重新登录</Button>
+        <Button onClick={() => authState.set(null)}>
+          {uiCopy.gameContext.loginAgain}
+        </Button>
       </main>
     );
   const player = query.data!;
@@ -109,19 +112,22 @@ export function GameHeader({
       <div className="traveler-identity">
         <GameSidebar />
         <div>
-          <p className="eyebrow">Quest session</p>
+          <p className="eyebrow">{uiCopy.gameContext.eyebrow}</p>
           <p className="traveler-name">{player.displayName}</p>
           <p className="traveler-rank">
-            RANK {player.level.order} · {player.level.name}
+            {uiCopy.gameContext.rank(player.level.order, player.level.name)}
           </p>
         </div>
       </div>
       {progress && (
-        <div className="session-progress" aria-label="答题进度">
+        <div
+          className="session-progress"
+          aria-label={uiCopy.gameContext.progressLabel}
+        >
           <strong key={progress.completed}>
             {progress.completed}/{progress.total}
           </strong>
-          <span>已完成</span>
+          <span>{uiCopy.gameContext.completed}</span>
         </div>
       )}
     </header>

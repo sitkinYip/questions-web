@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createBuildInfo } from "../../scripts/build-info";
+import { createBuildInfo } from "@scripts/build-info";
 
 describe("release identity", () => {
   it("increments releases and retry attempts and retains the checked-out commit", () => {

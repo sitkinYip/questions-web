@@ -1,9 +1,10 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useCallback, useMemo, useState } from "react";
-import type { Notification } from "../../domain/notification/types";
-import { createNotificationLauncherPositionRepository } from "../../infrastructure/storage/notification.repository";
-import { useDraggableFloatingControl } from "../../shared/gestures/useDraggableFloatingControl";
-import { NotificationDialog } from "./NotificationDialog";
-import { useNotifications } from "./useNotifications";
+import type { Notification } from "@/domain/notification/types";
+import { createNotificationLauncherPositionRepository } from "@/infrastructure/storage/notification.repository";
+import { useDraggableFloatingControl } from "@/shared/gestures/useDraggableFloatingControl";
+import { NotificationDialog } from "@/features/notification/NotificationDialog";
+import { useNotifications } from "@/features/notification/useNotifications";
 
 export interface NotificationCenterProps {
   userId: string;
@@ -23,7 +24,7 @@ const notificationDateFormatter = new Intl.DateTimeFormat("zh-CN", {
 function formatNotificationTime(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
-    ? "未知时序"
+    ? uiCopy.notificationCenter.unknownTime
     : notificationDateFormatter.format(date);
 }
 
@@ -116,7 +117,7 @@ export function NotificationCenterView({
             <div
               className="notification-list"
               id="notification-archive"
-              aria-label="通知列表"
+              aria-label={uiCopy.notificationCenter.listLabel}
             >
               <div className="notification-list-signal" aria-hidden="true">
                 <i />
@@ -125,10 +126,14 @@ export function NotificationCenterView({
               </div>
               <header>
                 <div>
-                  <p className="eyebrow">Signal archive</p>
-                  <h2>远方来的讯息</h2>
+                  <p className="eyebrow">{uiCopy.notificationCenter.eyebrow}</p>
+                  <h2>{uiCopy.notificationCenter.title}</h2>
                 </div>
-                <span aria-label={`${notifications.length} 条通知`}>
+                <span
+                  aria-label={uiCopy.notificationCenter.count(
+                    notifications.length,
+                  )}
+                >
                   {String(notifications.length).padStart(2, "0")}
                 </span>
               </header>
@@ -151,7 +156,9 @@ export function NotificationCenterView({
                     </span>
                     <span className="notification-list-copy">
                       <strong>
-                        {item.title || item.popupTitle || "未命名通知"}
+                        {item.title ||
+                          item.popupTitle ||
+                          uiCopy.notificationCenter.untitled}
                       </strong>
                       <span>{formatNotificationTime(item.createdAt)}</span>
                     </span>
@@ -172,7 +179,11 @@ export function NotificationCenterView({
             type="button"
             className="notification-bell"
             {...launcherDragHandlers}
-            aria-label={isListOpen ? "关闭通知列表" : "打开通知列表"}
+            aria-label={
+              isListOpen
+                ? uiCopy.notificationCenter.close
+                : uiCopy.notificationCenter.open
+            }
             aria-expanded={isListOpen}
             aria-controls="notification-archive"
             aria-describedby="notification-drag-instructions"
@@ -194,7 +205,7 @@ export function NotificationCenterView({
             )}
           </button>
           <span id="notification-drag-instructions" className="sr-only">
-            可拖拽移动；键盘用户可按 Alt 加方向键调整位置。
+            {uiCopy.notificationCenter.dragInstructions}
           </span>
         </aside>
       )}

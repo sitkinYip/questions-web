@@ -1,9 +1,10 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
-import { fetchLetters } from "../../api/client";
-import { LetterExperience } from "./LetterExperience";
-import { resolveLetterReturnTo } from "./navigation";
-import { ApiErrorState } from "../errors/ApiErrorState";
+import { fetchLetters } from "@/api/client";
+import { LetterExperience } from "@/features/letter/LetterExperience";
+import { resolveLetterReturnTo } from "@/features/letter/navigation";
+import { ApiErrorState } from "@/features/errors/ApiErrorState";
 
 export function LetterPage() {
   const location = useLocation();
@@ -19,14 +20,14 @@ export function LetterPage() {
   );
 
   if (!from) {
-    return <LetterLostState detail="缺少来信凭证 from 参数。" />;
+    return <LetterLostState detail={uiCopy.letterPage.missingToken} />;
   }
   if (lettersQuery.isPending) {
     return (
       <main className="letter-state" aria-busy="true">
-        <p className="eyebrow">Letter archive</p>
-        <h1>正在准备信件</h1>
-        <p>信纸、图像与声音正在抵达……</p>
+        <p className="eyebrow">{uiCopy.letterPage.eyebrow}</p>
+        <h1>{uiCopy.letterPage.loadingTitle}</h1>
+        <p>{uiCopy.letterPage.loadingDescription}</p>
       </main>
     );
   }
@@ -41,8 +42,7 @@ export function LetterPage() {
   }
 
   const letter = lettersQuery.data.find((item) => item.from === from);
-  if (!letter)
-    return <LetterLostState detail="请检查来信凭证 from 是否正确。" />;
+  if (!letter) return <LetterLostState detail={uiCopy.letterPage.notFound} />;
   return <LetterExperience letter={letter} returnTo={returnTo} />;
 }
 
@@ -52,8 +52,8 @@ function LetterLostState({ detail }: { detail: string }) {
       <div className="letter-lost-mark" aria-hidden="true">
         ⌁
       </div>
-      <p className="eyebrow">Letter not found</p>
-      <h1>信件已遗失</h1>
+      <p className="eyebrow">{uiCopy.letterPage.notFoundEyebrow}</p>
+      <h1>{uiCopy.letterPage.notFoundTitle}</h1>
       <p>{detail}</p>
     </main>
   );

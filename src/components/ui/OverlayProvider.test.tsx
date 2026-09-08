@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
-import { AppDialog } from "./Dialog";
-import { overlayPriority } from "./overlay-context";
-import { OverlayProvider } from "./OverlayProvider";
+import { AppDialog } from "@/components/ui/Dialog";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import { OverlayProvider } from "@/components/ui/OverlayProvider";
 
 function OverlayHarness() {
   const [notificationOpen, setNotificationOpen] = useState(true);

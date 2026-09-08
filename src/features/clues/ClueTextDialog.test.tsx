@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { OverlayProvider } from "../../components/ui/OverlayProvider";
-import { ClueTextDialog } from "./ClueTextDialog";
+import { OverlayProvider } from "@/components/ui/OverlayProvider";
+import { ClueTextDialog } from "@/features/clues/ClueTextDialog";
 
 describe("ClueTextDialog", () => {
   it("keeps the close control outside the scrollable clue content", async () => {

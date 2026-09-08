@@ -1,5 +1,5 @@
-import type { GameClue } from "../../api/game.contracts";
-import type { MultiQuestClue, QuestClue } from "../../domain/quest/types";
+import type { GameClue } from "@/api/game.contracts";
+import type { MultiQuestClue, QuestClue } from "@/domain/quest/types";
 
 interface ClueSelection {
   assignmentId: string;

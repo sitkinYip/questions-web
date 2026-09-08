@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ChoiceOptions } from "./ChoiceOptions";
+import { ChoiceOptions } from "@/features/media/ChoiceOptions";
 
 describe("ChoiceOptions", () => {
   it("opens option media without selecting the answer", () => {

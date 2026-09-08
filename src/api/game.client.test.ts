@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { authState, gameApi, gameRequest } from "./game.client";
+import { authState, gameApi, gameRequest } from "@/api/game.client";
 
 const player = {
   id: "alice",
@@ -158,7 +158,7 @@ describe("authenticated game transport", () => {
 });
 
 it("creates cryptographic request IDs on the original HTTP development domain", async () => {
-  const { createRequestId } = await import("../shared/request-id");
+  const { createRequestId } = await import("@/shared/request-id");
   const original = Object.getOwnPropertyDescriptor(crypto, "randomUUID");
   Object.defineProperty(crypto, "randomUUID", {
     configurable: true,

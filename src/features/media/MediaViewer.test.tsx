@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { MediaViewer } from "./MediaViewer";
+import { MediaViewer } from "@/features/media/MediaViewer";
 
 afterEach(() => vi.restoreAllMocks());
 

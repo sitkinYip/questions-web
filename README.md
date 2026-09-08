@@ -77,6 +77,8 @@ Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next
 
 答题页 UI 保留规则、逐状态基准与真实旧题验收入口见 [UI 保留审查](docs/question-ui-preservation.md)。
 
+前端界面文案统一维护在 [ui-copy.ts](src/config/ui-copy.ts)，包含答题、配套页面、默认提示及浏览器标题。文案范围、数量和修改说明见 [前端文案管理](docs/ui-copy.md)。
+
 ### 发布版本暗门
 
 在登录页或主页左上角连续点指南针图标 5 次（每次间隔不超过 1.5 秒），打开「星图档案」。品牌文字仍然返回首页。档案显示当前已载入页面的版本、环境、实际 Git 提交号和本地时区的构建时间；查看旧页面时会如实显示旧版本。

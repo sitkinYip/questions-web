@@ -5,9 +5,9 @@ import {
   mockLegacyAudioPlayback,
   mockQuestionsApi,
   questions,
-} from "./fixtures";
-import { desktopAssignment, desktopLetter } from "./desktop-preview-data";
-import { makeNotifications } from "../src/test/game-fixtures";
+} from "@e2e/fixtures";
+import { desktopAssignment, desktopLetter } from "@e2e/desktop-preview-data";
+import { makeNotifications } from "@/test/game-fixtures";
 
 async function expectPageFits(page: Page) {
   await expect

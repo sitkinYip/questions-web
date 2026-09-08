@@ -1,11 +1,12 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { gameApi } from "../../api/game.client";
+import { gameApi } from "@/api/game.client";
 import {
   NotificationCenterView,
   type NotificationCenterProps,
-} from "../notification/NotificationCenter";
-import { useGame } from "./useGame";
+} from "@/features/notification/NotificationCenter";
+import { useGame } from "@/features/game/useGame";
 
 export function GameNotificationCenter(
   props: Omit<NotificationCenterProps, "userId">,
@@ -59,7 +60,7 @@ export function GameNotificationCenter(
       />
       {read.isError && (
         <p className="feedback" data-tone="danger" role="status">
-          通知已读状态保存失败，请重试。
+          {uiCopy.gameNotificationCenter.saveFailed}
         </p>
       )}
     </>

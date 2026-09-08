@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { adaptPhraseRecord } from "./phrase.adapter";
-import { phraseRecordSchema, phrasesResponseSchema } from "./phrase.schema";
+import { adaptPhraseRecord } from "@/api/phrase.adapter";
+import { phraseRecordSchema, phrasesResponseSchema } from "@/api/phrase.schema";
 
 describe("PocketBase phrase contract", () => {
   it("normalizes nullable lists and optional media", () => {

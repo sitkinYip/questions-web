@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { trackAnalytics, trackAnalyticsOnce } from "./index";
+import {
+  trackAnalytics,
+  trackAnalyticsOnce,
+} from "@/infrastructure/analytics/index";
 import {
   analyticsUserFromSearch,
   createAnalyticsClient,
   isAnalyticsAllowed,
   summarizeAnalyticsEvent,
-} from "./client";
+} from "@/infrastructure/analytics/client";
 
 const answerEvent = {
   name: "answer_submitted" as const,

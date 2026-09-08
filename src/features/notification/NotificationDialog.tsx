@@ -1,11 +1,12 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AppDialog } from "../../components/ui/Dialog";
-import { Button } from "../../components/ui/Button";
-import { overlayPriority } from "../../components/ui/overlay-context";
-import { parseLegacyContent } from "../../domain/content/parser";
-import type { Notification } from "../../domain/notification/types";
-import { trackAnalytics } from "../../infrastructure/analytics";
+import { AppDialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import { parseLegacyContent } from "@/domain/content/parser";
+import type { Notification } from "@/domain/notification/types";
+import { trackAnalytics } from "@/infrastructure/analytics";
 
 interface NotificationDialogProps {
   notification: Notification | null;
@@ -63,7 +64,9 @@ export function NotificationDialog({
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      accessibleTitle={notification.popupTitle || "魔法通知"}
+      accessibleTitle={
+        notification.popupTitle || uiCopy.notificationDialog.title
+      }
       overlayClassName="notification-backdrop"
       contentClassName="notification-dialog"
     >
@@ -74,9 +77,9 @@ export function NotificationDialog({
       </div>
       <div className="notification-dialog-scroll">
         <header>
-          <p className="eyebrow">Incoming transmission</p>
+          <p className="eyebrow">{uiCopy.notificationDialog.eyebrow}</p>
           <h2 id="notification-dialog-title">
-            {notification.popupTitle || "✨ 魔法通知 ✨"}
+            {notification.popupTitle || uiCopy.notificationDialog.heading}
           </h2>
           {notification.title && <p>{notification.title}</p>}
         </header>
@@ -123,11 +126,11 @@ export function NotificationDialog({
                   type="button"
                   className="notification-media notification-segment"
                   onClick={() => onOpenImages([segment.url])}
-                  aria-label="查看通知图片"
+                  aria-label={uiCopy.notificationDialog.viewImage}
                 >
                   <img
                     src={segment.url}
-                    alt="通知内容"
+                    alt={uiCopy.notificationDialog.contentLabel}
                     loading="lazy"
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
@@ -139,17 +142,19 @@ export function NotificationDialog({
                 type="button"
                 className="notification-media notification-video notification-segment"
                 onClick={() => onOpenVideo(segment.url, segment.poster)}
-                aria-label="播放通知视频"
+                aria-label={uiCopy.notificationDialog.playVideo}
               >
                 {segment.poster ? (
                   <img
                     src={segment.poster}
-                    alt="通知视频封面"
+                    alt={uiCopy.notificationDialog.videoPoster}
                     loading="lazy"
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
                 ) : (
-                  <span className="video-placeholder">点击播放视频</span>
+                  <span className="video-placeholder">
+                    {uiCopy.notificationDialog.play}
+                  </span>
                 )}
                 <span className="play-badge" aria-hidden="true">
                   ▶
@@ -160,9 +165,13 @@ export function NotificationDialog({
         </div>
       </div>
       <footer>
-        <span>{queuedCount > 1 ? `还有 ${queuedCount - 1} 条讯息` : ""}</span>
+        <span>
+          {queuedCount > 1
+            ? uiCopy.notificationDialog.pendingCount(queuedCount - 1)
+            : ""}
+        </span>
         <Button variant="primary" onClick={onClose} data-modal-initial-focus>
-          {notification.buttonText || "✨ 知晓了"}
+          {notification.buttonText || uiCopy.notificationDialog.acknowledge}
         </Button>
       </footer>
     </AppDialog>

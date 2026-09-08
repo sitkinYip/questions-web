@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi, enterGame } from "./fixtures";
+import { mockQuestionsApi, enterGame } from "@e2e/fixtures";
 
 test("next question scrolls into view after an autoplay clue closes", async ({
   page,

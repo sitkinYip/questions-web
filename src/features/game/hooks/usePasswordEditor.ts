@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { gameApi } from "../../../api/game.client";
-import { useGame } from "../useGame";
+import { gameApi } from "@/api/game.client";
+import { useGame } from "@/features/game/useGame";
 
 export function usePasswordEditor() {
   const { setPlayer, logout } = useGame();

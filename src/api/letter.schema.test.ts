@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { adaptLetterRecord } from "./letter.adapter";
-import { letterRecordSchema, lettersResponseSchema } from "./letter.schema";
+import { adaptLetterRecord } from "@/api/letter.adapter";
+import { letterRecordSchema, lettersResponseSchema } from "@/api/letter.schema";
 
 describe("PocketBase letter contract", () => {
   it("accepts all live variants and normalizes nullable fields", () => {

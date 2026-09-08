@@ -1,9 +1,10 @@
+import { uiCopy } from "@/config/ui-copy";
 import { Link } from "react-router-dom";
 import { ArrowUpRightIcon, StarFourIcon } from "@phosphor-icons/react";
-import type { GamePlayer } from "../../../api/game.contracts";
-import { CelestialAtlas } from "../../../components/effects/CelestialAtlas";
-import { experienceProgress } from "../game-presentation";
-import { useGame } from "../useGame";
+import type { GamePlayer } from "@/api/game.contracts";
+import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
+import { experienceProgress } from "@/features/game/game-presentation";
+import { useGame } from "@/features/game/useGame";
 
 export function PlayerAvatar({
   name,
@@ -19,11 +20,13 @@ export function PlayerAvatar({
       {url ? (
         <img
           src={url}
-          alt={`${name}的头像`}
+          alt={uiCopy.playerPassport.avatarAlt(name)}
           referrerPolicy="strict-origin-when-cross-origin"
         />
       ) : (
-        <span aria-hidden="true">{Array.from(name.trim() || "旅")[0]}</span>
+        <span aria-hidden="true">
+          {Array.from(name.trim() || uiCopy.playerPassport.avatarFallback)[0]}
+        </span>
       )}
     </span>
   );
@@ -40,20 +43,24 @@ export function ExperienceMeter({
   return (
     <div className={`game-xp${compact ? " game-xp--compact" : ""}`}>
       <div className="game-xp__label">
-        <span>{player.totalXp} EXP</span>
+        <span>{uiCopy.playerPassport.experience(player.totalXp)}</span>
         <span>
           {compact
             ? player.nextLevel
-              ? `距下一级 ${remaining} EXP`
-              : "已满级"
-            : `RANK ${String(player.level.order).padStart(2, "0")}`}
+              ? uiCopy.playerPassport.remainingExperience(remaining)
+              : uiCopy.playerPassport.maxLevel
+            : uiCopy.playerPassport.rankCode(player.level.order)}
         </span>
       </div>
-      <progress value={percent} max={100} aria-label="等级经验进度" />
+      <progress
+        value={percent}
+        max={100}
+        aria-label={uiCopy.playerPassport.progressLabel}
+      />
       <p className={compact ? "sr-only" : undefined}>
         {player.nextLevel
-          ? `再收集 ${remaining} 经验，成为「${player.nextLevel.name}」`
-          : "已抵达当前最高等级，故事仍在继续。"}
+          ? uiCopy.playerPassport.nextLevel(remaining, player.nextLevel.name)
+          : uiCopy.playerPassport.maxLevelDescription}
       </p>
     </div>
   );
@@ -70,10 +77,10 @@ export function PlayerPassport({
   return (
     <section
       className={`player-passport${compact ? " player-passport--compact" : ""}`}
-      aria-label="冒险者名片"
+      aria-label={uiCopy.playerPassport.label}
     >
       <div className="player-passport__heading">
-        <span>冒险者护照</span>
+        <span>{uiCopy.playerPassport.title}</span>
         <StarFourIcon aria-hidden="true" />
       </div>
       {!compact && <CelestialAtlas compact />}
@@ -83,14 +90,15 @@ export function PlayerPassport({
           <h2>{player.displayName}</h2>
           <p>
             {player.level.name}
-            <span> · Lv.{player.level.order}</span>
+            <span>{uiCopy.playerPassport.rank(player.level.order)}</span>
           </p>
         </div>
       </div>
       <ExperienceMeter player={player} />
       {editable && (
         <Link className="game-text-link" to="/profile">
-          装扮我的名片 <ArrowUpRightIcon aria-hidden="true" />
+          {uiCopy.playerPassport.edit}
+          <ArrowUpRightIcon aria-hidden="true" />
         </Link>
       )}
     </section>

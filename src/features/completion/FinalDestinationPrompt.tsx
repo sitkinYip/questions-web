@@ -1,11 +1,12 @@
-import { withSafeQuery } from "../../domain/content/parser";
-import { Button } from "../../components/ui/Button";
-import type { QuestFinalDestination } from "../../domain/quest/types";
-import { trackAnalytics } from "../../infrastructure/analytics";
+import { uiCopy } from "@/config/ui-copy";
+import { withSafeQuery } from "@/domain/content/parser";
+import { Button } from "@/components/ui/Button";
+import type { QuestFinalDestination } from "@/domain/quest/types";
+import { trackAnalytics } from "@/infrastructure/analytics";
 import {
   resolveAppBasename,
   withAppBasename,
-} from "../../shared/navigation/app-base";
+} from "@/shared/navigation/app-base";
 
 interface FinalDestinationPromptProps {
   destination: QuestFinalDestination | null;
@@ -28,14 +29,17 @@ export function FinalDestinationPrompt({
   );
 
   return (
-    <aside className="final-destination" aria-label="最终旅程出口">
+    <aside
+      className="final-destination"
+      aria-label={uiCopy.finalDestinationPrompt.label}
+    >
       <div>
-        <p className="eyebrow">Passage unlocked</p>
-        <strong>最终旅程入口已经开启</strong>
+        <p className="eyebrow">{uiCopy.finalDestinationPrompt.eyebrow}</p>
+        <strong>{uiCopy.finalDestinationPrompt.title}</strong>
       </div>
       <div className="final-destination-actions">
         <Button variant="ghost" onClick={onDismiss}>
-          稍后前往
+          {uiCopy.finalDestinationPrompt.later}
         </Button>
         {resolved.target === "internal" ? (
           <a
@@ -52,7 +56,7 @@ export function FinalDestinationPrompt({
               )
             }
           >
-            继续旅程
+            {uiCopy.finalDestinationPrompt.continueJourney}
           </a>
         ) : (
           <a
@@ -71,7 +75,7 @@ export function FinalDestinationPrompt({
               )
             }
           >
-            继续旅程
+            {uiCopy.finalDestinationPrompt.continueJourney}
           </a>
         )}
       </div>

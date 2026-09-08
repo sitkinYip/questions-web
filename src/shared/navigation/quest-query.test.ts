@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseQuestRoute } from "./quest-query";
+import { parseQuestRoute } from "@/shared/navigation/quest-query";
 
 describe("quest URL contract", () => {
   it("parses a single quest and user", () => {

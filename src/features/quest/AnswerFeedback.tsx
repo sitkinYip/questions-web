@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   CheckCircleIcon,
   InfoIcon,
@@ -11,9 +12,9 @@ interface AnswerFeedbackProps {
 }
 
 const feedbackLabels = {
-  neutral: "尚未提交",
-  success: "验证通过",
-  danger: "验证未通过",
+  neutral: uiCopy.answerFeedback.neutral,
+  success: uiCopy.answerFeedback.success,
+  danger: uiCopy.answerFeedback.danger,
 } as const;
 
 export function AnswerFeedback({

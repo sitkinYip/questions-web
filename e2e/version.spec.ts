@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi } from "./fixtures";
+import { mockQuestionsApi } from "@e2e/fixtures";
 
 test.describe("hidden version archive", () => {
   test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });

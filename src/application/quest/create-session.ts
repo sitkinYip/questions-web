@@ -1,9 +1,5 @@
-import { createQuestSession } from "../../domain/quest/session";
-import type {
-  Quest,
-  QuestAttempt,
-  QuestSession,
-} from "../../domain/quest/types";
+import { createQuestSession } from "@/domain/quest/session";
+import type { Quest, QuestAttempt, QuestSession } from "@/domain/quest/types";
 
 export interface SessionCreationResult {
   session: QuestSession | null;

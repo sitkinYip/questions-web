@@ -1,7 +1,8 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useCallback, useMemo } from "react";
 import { ArchiveBoxIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
-import { createMultiClueLauncherPositionRepository } from "../../infrastructure/storage/multi-clue-launcher.repository";
-import { useDraggableFloatingControl } from "../../shared/gestures/useDraggableFloatingControl";
+import { createMultiClueLauncherPositionRepository } from "@/infrastructure/storage/multi-clue-launcher.repository";
+import { useDraggableFloatingControl } from "@/shared/gestures/useDraggableFloatingControl";
 
 interface MultiClueLauncherProps {
   onOpen: () => void;
@@ -51,7 +52,7 @@ export function MultiClueLauncher({ onOpen }: MultiClueLauncherProps) {
         style={style}
         {...handlers}
         data-horizontal={position.x < 0.5 ? "left" : "right"}
-        aria-label="查看本场线索"
+        aria-label={uiCopy.multiClueLauncher.title}
         aria-describedby="multi-clue-launcher-drag-instructions"
         onClick={() => {
           if (!consumeSuppressedClick()) onOpen();
@@ -62,8 +63,8 @@ export function MultiClueLauncher({ onOpen }: MultiClueLauncherProps) {
           <ArchiveBoxIcon weight="duotone" />
         </span>
         <span className="multi-clue-launcher__copy">
-          <small>UNLOCKED ARCHIVE</small>
-          <strong>查看本场线索</strong>
+          <small>{uiCopy.multiClueLauncher.eyebrow}</small>
+          <strong>{uiCopy.multiClueLauncher.title}</strong>
         </span>
         <ArrowUpRightIcon
           className="multi-clue-launcher__arrow"
@@ -72,8 +73,7 @@ export function MultiClueLauncher({ onOpen }: MultiClueLauncherProps) {
         />
       </button>
       <span id="multi-clue-launcher-drag-instructions" className="sr-only">
-        已解锁组合线索。可拖拽移动并自动贴边；键盘用户可按 Alt
-        加方向键调整位置。
+        {uiCopy.multiClueLauncher.dragInstructions}
       </span>
     </>
   );

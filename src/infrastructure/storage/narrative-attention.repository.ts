@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { KeyValueStorage } from "./progress.repository";
+import type { KeyValueStorage } from "@/infrastructure/storage/progress.repository";
 
 const openedNarrativeIdsSchema = z.array(z.string().min(1));
 const maxRememberedNarratives = 128;

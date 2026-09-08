@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -6,10 +7,10 @@ import {
   EnvelopeSimpleOpenIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";
-import type { QuestClue } from "../../../domain/quest/types";
-import { Button } from "../../../components/ui/Button";
-import { RichContent } from "../../content/RichContent";
-import { DesktopClueVideoTrigger } from "./DesktopClueVideoTrigger";
+import type { QuestClue } from "@/domain/quest/types";
+import { Button } from "@/components/ui/Button";
+import { RichContent } from "@/features/content/RichContent";
+import { DesktopClueVideoTrigger } from "@/features/game/desktop/DesktopClueVideoTrigger";
 
 interface DesktopClueShelfProps {
   clues: readonly QuestClue[];
@@ -108,20 +109,21 @@ export function DesktopClueShelf({
     (selected.kind === "letter" || selected.kind === "bless"),
   );
   return (
-    <aside className="desktop-clues" aria-label="线索手记">
+    <aside className="desktop-clues" aria-label={uiCopy.desktopClueShelf.title}>
       <header className="desktop-clues__heading">
         <ScrollIcon weight="duotone" aria-hidden="true" />
         <div>
-          <p className="eyebrow">沿着线索，继续探索</p>
+          <p className="eyebrow">{uiCopy.desktopClueShelf.eyebrow}</p>
           <h2>
-            线索手记 <small>{clues.length}</small>
+            {uiCopy.desktopClueShelf.heading}
+            <small>{clues.length}</small>
           </h2>
         </div>
       </header>
       <nav
         ref={indexRef}
         className="desktop-clues__index"
-        aria-label="已解锁线索"
+        aria-label={uiCopy.desktopClueShelf.unlockedLabel}
       >
         {clues.map((clue, index) => (
           <button
@@ -136,7 +138,7 @@ export function DesktopClueShelf({
             onClick={() => setSelectedId(clue.id)}
           >
             <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-            {clue.title || "未署名的线索"}
+            {clue.title || uiCopy.desktopClueShelf.untitled}
           </button>
         ))}
       </nav>
@@ -146,7 +148,7 @@ export function DesktopClueShelf({
         data-kind={selected.kind}
         data-attention={attentionClueIds?.has(selected.id) || undefined}
         tabIndex={0}
-        aria-label={selected.title || "线索正文"}
+        aria-label={selected.title || uiCopy.desktopClueShelf.contentLabel}
       >
         {selectedNeedsAttention && (
           <p className="desktop-clues__signal">
@@ -156,14 +158,14 @@ export function DesktopClueShelf({
               <SparkleIcon weight="duotone" aria-hidden="true" />
             )}
             <span>
-              <small>IMPORTANT SIGNAL</small>
+              <small>{uiCopy.desktopClueShelf.importantEyebrow}</small>
               {selected.kind === "letter"
-                ? "一封来信等待开启"
-                : "一份祝福正在回响"}
+                ? uiCopy.desktopClueShelf.letterWaiting
+                : uiCopy.desktopClueShelf.blessingWaiting}
             </span>
           </p>
         )}
-        <h3>{selected.title || "未署名的线索"}</h3>
+        <h3>{selected.title || uiCopy.desktopClueShelf.untitled}</h3>
         {selected.content && (
           <RichContent
             source={selected.content}
@@ -177,9 +179,13 @@ export function DesktopClueShelf({
                 type="button"
                 key={url}
                 onClick={() => openImages(selected.imageUrls, index)}
-                aria-label={`放大线索图片 ${index + 1}`}
+                aria-label={uiCopy.desktopClueShelf.zoomImage(index + 1)}
               >
-                <img src={url} alt={`线索图片 ${index + 1}`} loading="lazy" />
+                <img
+                  src={url}
+                  alt={uiCopy.desktopClueShelf.imageAlt(index + 1)}
+                  loading="lazy"
+                />
               </button>
             ))}
           </div>
@@ -200,7 +206,8 @@ export function DesktopClueShelf({
               data-attention={attentionClueIds?.has(selected.id) || undefined}
               onClick={() => onClueOpen?.(selected)}
             >
-              打开这份线索 <ArrowUpRightIcon aria-hidden="true" />
+              {uiCopy.desktopClueShelf.open}
+              <ArrowUpRightIcon aria-hidden="true" />
             </Link>
           ) : (
             <a
@@ -210,19 +217,20 @@ export function DesktopClueShelf({
               rel="noopener noreferrer"
               onClick={() => onClueOpen?.(selected)}
             >
-              打开这份线索 <ArrowUpRightIcon aria-hidden="true" />
+              {uiCopy.desktopClueShelf.open}
+              <ArrowUpRightIcon aria-hidden="true" />
             </a>
           ))}
       </section>
       <footer className="desktop-clues__footer">
-        <span>仅展示已解锁的内容</span>
+        <span>{uiCopy.desktopClueShelf.description}</span>
         {selected.kind === "text" && (
           <Button
             variant="ghost"
             size="small"
             onClick={() => openText(selected)}
           >
-            放大阅读
+            {uiCopy.desktopClueShelf.zoomText}
           </Button>
         )}
       </footer>

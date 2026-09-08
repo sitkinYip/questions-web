@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-import { QuestContent } from "./QuestContent";
+import { QuestContent } from "@/features/media/QuestContent";
 
 describe("QuestContent", () => {
   it("keeps content order and opens image galleries at the selected image", () => {

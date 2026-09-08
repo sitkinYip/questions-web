@@ -1,6 +1,7 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useRef, type PointerEvent } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { gameNavigation } from "../game-navigation";
+import { gameNavigation } from "@/features/game/game-navigation";
 
 export function GameNavigation({ returnTo }: { returnTo?: string }) {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
   return (
     <nav
       className="game-navigation"
-      aria-label="冒险导航"
+      aria-label={uiCopy.gameNavigationControl.label}
       onDragStart={(event) => event.preventDefault()}
       onPointerDown={(event) => {
         if (!gesture.current) suppressClick.current = false;

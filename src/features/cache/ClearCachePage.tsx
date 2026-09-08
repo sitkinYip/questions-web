@@ -1,11 +1,12 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchQuests } from "../../api/client";
-import { AppDialog } from "../../components/ui/Dialog";
-import { Button } from "../../components/ui/Button";
-import { Field, Input, Select } from "../../components/ui/FormControls";
-import { overlayPriority } from "../../components/ui/overlay-context";
+import { fetchQuests } from "@/api/client";
+import { AppDialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { Field, Input, Select } from "@/components/ui/FormControls";
+import { overlayPriority } from "@/components/ui/overlay-context";
 import {
   clearRecordPenalty,
   deleteLocalRecords,
@@ -13,16 +14,16 @@ import {
   scanLocalQuestionRecords,
   type LocalQuestionRecord,
   type LocalRecordFilterKind,
-} from "../../infrastructure/storage/record-manager";
+} from "@/infrastructure/storage/record-manager";
 
 const kindLabels: Record<LocalQuestionRecord["kind"], string> = {
-  attempt: "新版答题记录",
-  "legacy-completion": "旧版通关记录",
-  "legacy-penalty": "旧版惩罚记录",
-  rank: "等级动画记录",
-  notification: "通知已读记录",
-  "letter-cache": "Letter 数据缓存",
-  "audio-preference": "背景音乐偏好",
+  attempt: uiCopy.clearCachePage.progressRecords,
+  "legacy-completion": uiCopy.clearCachePage.legacyCompletedRecords,
+  "legacy-penalty": uiCopy.clearCachePage.legacyPenaltyRecords,
+  rank: uiCopy.clearCachePage.rankRecords,
+  notification: uiCopy.clearCachePage.notificationRecords,
+  "letter-cache": uiCopy.clearCachePage.letterCache,
+  "audio-preference": uiCopy.clearCachePage.audioPreference,
 };
 
 type PendingAction =
@@ -54,18 +55,26 @@ function hasPenalty(record: LocalQuestionRecord) {
 }
 
 function recordDetail(record: LocalQuestionRecord) {
-  if (record.isCorrupt) return "记录内容损坏，可安全删除";
+  if (record.isCorrupt) return uiCopy.clearCachePage.damagedRecord;
   if (record.kind === "attempt" && record.attempt) {
     const labels = {
-      unanswered: "未作答",
-      incorrect: "回答错误",
-      penalized: "惩罚中",
-      completed: "已完成",
+      unanswered: uiCopy.clearCachePage.unanswered,
+      incorrect: uiCopy.clearCachePage.incorrect,
+      penalized: uiCopy.clearCachePage.penalized,
+      completed: uiCopy.clearCachePage.completed,
     };
-    return `${labels[record.attempt.status]} · 错误 ${record.attempt.wrongCount} 次`;
+    return uiCopy.clearCachePage.attemptSummary(
+      labels[record.attempt.status],
+      record.attempt.wrongCount,
+    );
   }
-  if (record.kind === "rank") return `等级 ${record.rank || "未知"}`;
-  return record.format === "current" ? "当前格式" : "兼容旧格式";
+  if (record.kind === "rank")
+    return uiCopy.clearCachePage.rank(
+      record.rank || uiCopy.clearCachePage.unknownRank,
+    );
+  return record.format === "current"
+    ? uiCopy.clearCachePage.currentFormat
+    : uiCopy.clearCachePage.legacyFormat;
 }
 
 export function ClearCachePage() {
@@ -130,15 +139,15 @@ export function ClearCachePage() {
           window.localStorage,
           pendingAction.records.map((record) => record.key),
         );
-        refresh(`已删除 ${pendingAction.records.length} 条本地记录。`);
+        refresh(uiCopy.clearCachePage.deleted(pendingAction.records.length));
       } else {
         const cleared = pendingAction.records.filter((record) =>
           clearRecordPenalty(window.localStorage, record),
         ).length;
-        refresh(`已解除 ${cleared} 条惩罚记录。`);
+        refresh(uiCopy.clearCachePage.released(cleared));
       }
     } catch {
-      refresh("浏览器拒绝了本次本地记录操作，请检查存储权限后重试。");
+      refresh(uiCopy.clearCachePage.operationFailed);
     }
     setPendingAction(null);
   };
@@ -147,82 +156,86 @@ export function ClearCachePage() {
     <main className="records-page">
       <header className="records-header">
         <div>
-          <p className="eyebrow">Local memory ledger</p>
-          <h1>本地记录管理</h1>
-          <p>
-            仅管理 Questions
-            已知命名空间；同域名下其他应用的数据不会出现在这里。
-          </p>
+          <p className="eyebrow">{uiCopy.clearCachePage.eyebrow}</p>
+          <h1>{uiCopy.clearCachePage.title}</h1>
+          <p>{uiCopy.clearCachePage.description}</p>
         </div>
         <Button variant="secondary" onClick={() => navigate(-1)}>
-          返回
+          {uiCopy.clearCachePage.back}
         </Button>
       </header>
 
       {questsQuery.isError && (
         <aside className="inline-warning" role="status">
-          无法读取最新题目元数据；新版记录仍可管理，部分旧记录可能无法识别
-          step。
+          {uiCopy.clearCachePage.metadataFailed}
         </aside>
       )}
 
-      <section className="record-summary" aria-label="记录概览">
+      <section
+        className="record-summary"
+        aria-label={uiCopy.clearCachePage.overview}
+      >
         <div>
           <strong>{records.length}</strong>
-          <span>全部记录</span>
+          <span>{uiCopy.clearCachePage.allRecords}</span>
         </div>
         <div>
           <strong>
             {records.filter((item) => item.format === "current").length}
           </strong>
-          <span>新版格式</span>
+          <span>{uiCopy.clearCachePage.currentRecords}</span>
         </div>
         <div>
           <strong>
             {records.filter((item) => item.format === "legacy").length}
           </strong>
-          <span>旧版兼容</span>
+          <span>{uiCopy.clearCachePage.legacyRecords}</span>
         </div>
         <div>
           <strong>{records.filter((item) => item.isCorrupt).length}</strong>
-          <span>损坏记录</span>
+          <span>{uiCopy.clearCachePage.damagedRecords}</span>
         </div>
       </section>
 
-      <section className="record-filters" aria-label="筛选本地记录">
-        <Field label="记录类型">
+      <section
+        className="record-filters"
+        aria-label={uiCopy.clearCachePage.filterLabel}
+      >
+        <Field label={uiCopy.clearCachePage.recordType}>
           <Select
             value={kind}
             onChange={(event) =>
               setKind(event.target.value as LocalRecordFilterKind)
             }
           >
-            <option value="all">全部 Questions 记录</option>
-            <option value="progress">答题进度</option>
-            <option value="penalty">惩罚记录</option>
-            <option value="rank">等级动画</option>
-            <option value="system">通知、音频与 Letter 缓存</option>
+            <option value="all">
+              {uiCopy.clearCachePage.allQuestionsRecords}
+            </option>
+            <option value="progress">{uiCopy.clearCachePage.progress}</option>
+            <option value="penalty">{uiCopy.clearCachePage.penalty}</option>
+            <option value="rank">{uiCopy.clearCachePage.rankAnimation}</option>
+            <option value="system">{uiCopy.clearCachePage.otherRecords}</option>
           </Select>
         </Field>
-        <Field label="题目 step">
+        <Field label={uiCopy.clearCachePage.step}>
           <Input
             value={step}
             inputMode="numeric"
-            placeholder="全部"
+            placeholder={uiCopy.clearCachePage.allSteps}
             onChange={(event) => setStep(event.target.value.replace(/\D/g, ""))}
           />
         </Field>
-        <Field label="用户 ID">
+        <Field label={uiCopy.clearCachePage.userId}>
           <Input
             value={userId}
-            placeholder="全部用户"
+            placeholder={uiCopy.clearCachePage.allUsers}
             onChange={(event) => setUserId(event.target.value)}
           />
         </Field>
-        <Field label="等级">
+        <Field label={uiCopy.clearCachePage.level}>
           <Input
             value={rank}
-            placeholder="全部等级"
+            placeholder={uiCopy.clearCachePage.allLevels}
             onChange={(event) => setRank(event.target.value)}
           />
         </Field>
@@ -230,8 +243,8 @@ export function ClearCachePage() {
 
       <div className="record-list-heading">
         <div>
-          <p className="eyebrow">Matched records</p>
-          <h2>{filteredRecords.length} 条匹配记录</h2>
+          <p className="eyebrow">{uiCopy.clearCachePage.resultsEyebrow}</p>
+          <h2>{uiCopy.clearCachePage.matchCount(filteredRecords.length)}</h2>
         </div>
         <div className="record-bulk-actions">
           {penaltyRecords.length > 0 && (
@@ -245,7 +258,7 @@ export function ClearCachePage() {
                 })
               }
             >
-              解除全部惩罚
+              {uiCopy.clearCachePage.releaseAll}
             </Button>
           )}
           {filteredRecords.length > 0 && (
@@ -256,7 +269,7 @@ export function ClearCachePage() {
                 setPendingAction({ type: "delete", records: filteredRecords })
               }
             >
-              删除筛选记录
+              {uiCopy.clearCachePage.deleteFiltered}
             </Button>
           )}
         </div>
@@ -269,27 +282,34 @@ export function ClearCachePage() {
       )}
 
       {filteredRecords.length > 0 ? (
-        <section className="record-list" aria-label="本地记录列表">
+        <section
+          className="record-list"
+          aria-label={uiCopy.clearCachePage.listLabel}
+        >
           {filteredRecords.map((record) => (
             <article className="record-item" key={record.key}>
               <div className="record-item-main">
                 <div className="record-badges">
                   <span>{kindLabels[record.kind]}</span>
                   <span>{record.format === "current" ? "v1" : "legacy"}</span>
-                  {record.isCorrupt && <span className="is-corrupt">损坏</span>}
+                  {record.isCorrupt && (
+                    <span className="is-corrupt">
+                      {uiCopy.clearCachePage.damaged}
+                    </span>
+                  )}
                 </div>
                 <h3>{recordDetail(record)}</h3>
                 <dl>
                   {record.step !== undefined && (
                     <>
-                      <dt>Step</dt>
+                      <dt>{uiCopy.clearCachePage.stepLabel}</dt>
                       <dd>{record.step}</dd>
                     </>
                   )}
                   {record.userId !== undefined && (
                     <>
-                      <dt>用户</dt>
-                      <dd>{record.userId || "旅行者"}</dd>
+                      <dt>{uiCopy.clearCachePage.user}</dt>
+                      <dd>{record.userId || uiCopy.clearCachePage.traveler}</dd>
                     </>
                   )}
                 </dl>
@@ -307,7 +327,7 @@ export function ClearCachePage() {
                       })
                     }
                   >
-                    解除惩罚
+                    {uiCopy.clearCachePage.release}
                   </Button>
                 )}
                 <Button
@@ -317,7 +337,7 @@ export function ClearCachePage() {
                     setPendingAction({ type: "delete", records: [record] })
                   }
                 >
-                  删除记录
+                  {uiCopy.clearCachePage.delete}
                 </Button>
               </div>
             </article>
@@ -326,8 +346,8 @@ export function ClearCachePage() {
       ) : (
         <section className="records-empty">
           <span aria-hidden="true">✓</span>
-          <h2>当前范围没有记录</h2>
-          <p>调整筛选条件，或返回答题页面继续冒险。</p>
+          <h2>{uiCopy.clearCachePage.emptyTitle}</h2>
+          <p>{uiCopy.clearCachePage.emptyDescription}</p>
         </section>
       )}
 
@@ -339,7 +359,9 @@ export function ClearCachePage() {
           if (!open) setPendingAction(null);
         }}
         accessibleTitle={
-          pendingAction?.type === "delete" ? "确认删除本地记录" : "确认解除惩罚"
+          pendingAction?.type === "delete"
+            ? uiCopy.clearCachePage.deleteDialogTitle
+            : uiCopy.clearCachePage.releaseDialogTitle
         }
         overlayClassName="record-confirm-backdrop"
         contentClassName="record-confirm"
@@ -347,16 +369,18 @@ export function ClearCachePage() {
       >
         {pendingAction && (
           <>
-            <p className="eyebrow">Confirm local change</p>
+            <p className="eyebrow">{uiCopy.clearCachePage.confirmEyebrow}</p>
             <h2 id="record-confirm-title">
               {pendingAction.type === "delete"
-                ? "确认删除本地记录？"
-                : "确认解除惩罚？"}
+                ? uiCopy.clearCachePage.deleteHeading
+                : uiCopy.clearCachePage.releaseHeading}
             </h2>
             <p>
-              将影响 {pendingAction.records.length} 条明确列出的 Questions
-              记录。
-              {pendingAction.type === "delete" && "删除后无法从浏览器恢复。"}
+              {uiCopy.clearCachePage.affectedCount(
+                pendingAction.records.length,
+              )}
+              {pendingAction.type === "delete" &&
+                uiCopy.clearCachePage.irreversible}
             </p>
             <div>
               <Button
@@ -364,14 +388,16 @@ export function ClearCachePage() {
                 variant="secondary"
                 onClick={() => setPendingAction(null)}
               >
-                取消
+                {uiCopy.clearCachePage.cancel}
               </Button>
               <Button
                 size="small"
                 variant={pendingAction.type === "delete" ? "danger" : "primary"}
                 onClick={confirmAction}
               >
-                {pendingAction.type === "delete" ? "确认删除" : "确认解除"}
+                {pendingAction.type === "delete"
+                  ? uiCopy.clearCachePage.confirmDelete
+                  : uiCopy.clearCachePage.confirmRelease}
               </Button>
             </div>
           </>

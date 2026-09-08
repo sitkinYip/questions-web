@@ -1,4 +1,7 @@
-import type { AnalyticsEnvelope, AnalyticsEvent } from "./events";
+import type {
+  AnalyticsEnvelope,
+  AnalyticsEvent,
+} from "@/infrastructure/analytics/events";
 
 interface AnalyticsTransport {
   sendBeacon?: (url: string, body: string) => boolean;

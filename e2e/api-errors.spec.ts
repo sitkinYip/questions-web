@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "./fixtures";
+import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
 
 test("reports a mismatched server contract without rendering private content", async ({
   page,

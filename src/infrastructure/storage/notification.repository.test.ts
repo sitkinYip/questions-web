@@ -4,7 +4,7 @@ import {
   createNotificationSeenRepository,
   NOTIFICATION_LAUNCHER_POSITION_KEY,
   NOTIFICATION_SEEN_IDS_KEY,
-} from "./notification.repository";
+} from "@/infrastructure/storage/notification.repository";
 
 describe("notification seen repository", () => {
   it("uses the legacy key and preserves existing seen ids", () => {

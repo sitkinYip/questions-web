@@ -4,8 +4,8 @@ import type {
   QuestAttempt,
   QuestAvailability,
   QuestClue,
-} from "../../domain/quest/types";
-import type { useHorizontalSwipe } from "../../shared/gestures/useHorizontalSwipe";
+} from "@/domain/quest/types";
+import type { useHorizontalSwipe } from "@/shared/gestures/useHorizontalSwipe";
 
 export interface QuestCardProps {
   activeQuest: Pick<

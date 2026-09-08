@@ -1,9 +1,10 @@
+import { uiCopy } from "@/config/ui-copy";
 import { IdentificationCardIcon } from "@phosphor-icons/react";
-import { PlayerPassport } from "../components/PlayerPassport";
-import { ProfileEditor } from "../components/ProfileEditor";
-import { PasswordEditor } from "../components/PasswordEditor";
-import type { useProfileEditor } from "../hooks/useProfileEditor";
-import type { usePasswordEditor } from "../hooks/usePasswordEditor";
+import { PlayerPassport } from "@/features/game/components/PlayerPassport";
+import { ProfileEditor } from "@/features/game/components/ProfileEditor";
+import { PasswordEditor } from "@/features/game/components/PasswordEditor";
+import type { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
+import type { usePasswordEditor } from "@/features/game/hooks/usePasswordEditor";
 
 export function DesktopProfile({
   profile,
@@ -15,12 +16,15 @@ export function DesktopProfile({
   return (
     <div className="desktop-profile">
       <PlayerPassport />
-      <section className="desktop-profile__identity" aria-label="我的名片">
+      <section
+        className="desktop-profile__identity"
+        aria-label={uiCopy.desktopProfile.label}
+      >
         <div className="game-section-title">
           <IdentificationCardIcon aria-hidden="true" />
-          <h2>让旅途记住你。</h2>
+          <h2>{uiCopy.desktopProfile.title}</h2>
         </div>
-        <p className="game-muted">更新名片，带着新的模样出发。</p>
+        <p className="game-muted">{uiCopy.desktopProfile.description}</p>
         <ProfileEditor editor={profile} />
       </section>
       <PasswordEditor editor={security} />

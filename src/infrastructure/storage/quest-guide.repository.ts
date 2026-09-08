@@ -1,4 +1,4 @@
-import type { KeyValueStorage } from "./progress.repository";
+import type { KeyValueStorage } from "@/infrastructure/storage/progress.repository";
 
 export const questAnswerGuideKey = (userId: string) =>
   `questions:v1:quest-answer-guide:${encodeURIComponent(userId || "anonymous")}`;

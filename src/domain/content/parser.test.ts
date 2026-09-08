@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { classifySafeUrl, parseLegacyContent, withSafeQuery } from "./parser";
+import {
+  classifySafeUrl,
+  parseLegacyContent,
+  withSafeQuery,
+} from "@/domain/content/parser";
 
 describe("legacy content parser", () => {
   it("parses every supported legacy marker into structured segments", () => {

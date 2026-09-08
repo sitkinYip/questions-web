@@ -1,8 +1,5 @@
-import type {
-  GameAssignment,
-  GameContentBlock,
-} from "../src/api/game.contracts";
-import { desktopAssignment } from "./desktop-preview-data";
+import type { GameAssignment, GameContentBlock } from "@/api/game.contracts";
+import { desktopAssignment } from "@e2e/desktop-preview-data";
 
 export const questionImages = ["landscape", "portrait", "square"].map(
   (shape) => `/e2e/assets/question-${shape}.svg`,

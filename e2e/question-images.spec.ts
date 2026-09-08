@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { login, mockQuestionsApi } from "./fixtures";
+import { login, mockQuestionsApi } from "@e2e/fixtures";
 import {
   imageAssignment,
   imageContent,
   questionImages,
-} from "./question-image-fixtures";
+} from "@e2e/question-image-fixtures";
 
 for (const theme of ["light", "dark"] as const) {
   test(`question images keep a tight transparent frame and full proportions in ${theme} mode`, async ({

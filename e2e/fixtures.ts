@@ -4,7 +4,7 @@ import type {
   GamePlayer,
   GameQuestion,
   GameClue,
-} from "../src/api/game.contracts";
+} from "@/api/game.contracts";
 
 const block = {
   text: "请输入星辰大海",

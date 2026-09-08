@@ -1,10 +1,11 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   ArrowUpRightIcon,
   EnvelopeSimpleOpenIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import type { QuestClue } from "../../domain/quest/types";
+import type { QuestClue } from "@/domain/quest/types";
 
 interface NarrativeAttentionBeaconProps {
   clue: QuestClue;
@@ -31,7 +32,7 @@ export function NarrativeAttentionBeacon({
       data-kind={clue.kind}
       data-attention="true"
       onClick={() => onOpen(clue)}
-      aria-label={`${isLetter ? "一封来信等待开启" : "一份祝福正在回响"}：${clue.title || "重要内容"}`}
+      aria-label={`${isLetter ? uiCopy.narrativeAttentionBeacon.letterWaiting : uiCopy.narrativeAttentionBeacon.blessingWaiting}：${clue.title || uiCopy.narrativeAttentionBeacon.importantContent}`}
     >
       <span className="narrative-attention-beacon__emblem" aria-hidden="true">
         {isLetter ? (
@@ -42,9 +43,13 @@ export function NarrativeAttentionBeacon({
         <i />
       </span>
       <span className="narrative-attention-beacon__copy">
-        <small>IMPORTANT SIGNAL</small>
-        <strong>{isLetter ? "一封来信等待开启" : "一份祝福正在回响"}</strong>
-        <span>{clue.title || "重要内容已解锁"}</span>
+        <small>{uiCopy.narrativeAttentionBeacon.eyebrow}</small>
+        <strong>
+          {isLetter
+            ? uiCopy.narrativeAttentionBeacon.letterWaiting
+            : uiCopy.narrativeAttentionBeacon.blessingWaiting}
+        </strong>
+        <span>{clue.title || uiCopy.narrativeAttentionBeacon.unlocked}</span>
       </span>
       <ArrowUpRightIcon
         className="narrative-attention-beacon__arrow"

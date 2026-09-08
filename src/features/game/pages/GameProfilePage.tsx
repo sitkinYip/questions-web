@@ -1,12 +1,13 @@
+import { uiCopy } from "@/config/ui-copy";
 import { Tabs } from "radix-ui";
-import { GamePageHeading } from "../components/GameLayout";
-import { PlayerPassport } from "../components/PlayerPassport";
-import { ProfileEditor } from "../components/ProfileEditor";
-import { PasswordEditor } from "../components/PasswordEditor";
-import { useProfileEditor } from "../hooks/useProfileEditor";
-import { usePasswordEditor } from "../hooks/usePasswordEditor";
-import { useDesktopLayout } from "../../../shared/layout/useDesktopLayout";
-import { DesktopProfile } from "../desktop/DesktopProfile";
+import { GamePageHeading } from "@/features/game/components/GameLayout";
+import { PlayerPassport } from "@/features/game/components/PlayerPassport";
+import { ProfileEditor } from "@/features/game/components/ProfileEditor";
+import { PasswordEditor } from "@/features/game/components/PasswordEditor";
+import { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
+import { usePasswordEditor } from "@/features/game/hooks/usePasswordEditor";
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
+import { DesktopProfile } from "@/features/game/desktop/DesktopProfile";
 
 export function GameProfilePage() {
   const isDesktop = useDesktopLayout();
@@ -14,8 +15,11 @@ export function GameProfilePage() {
   const security = usePasswordEditor();
   return (
     <>
-      <GamePageHeading eyebrow="每一个名字，都有自己的故事" title="冒险者护照">
-        让旅途记住你的模样。
+      <GamePageHeading
+        eyebrow={uiCopy.gameProfilePage.eyebrow}
+        title={uiCopy.gameProfilePage.title}
+      >
+        {uiCopy.gameProfilePage.description}
       </GamePageHeading>
       {isDesktop ? (
         <DesktopProfile profile={profile} security={security} />
@@ -26,9 +30,16 @@ export function GameProfilePage() {
             defaultValue="identity"
             className="game-tabs game-profile-tabs"
           >
-            <Tabs.List className="game-tabs__list" aria-label="护照设置">
-              <Tabs.Trigger value="identity">我的名片</Tabs.Trigger>
-              <Tabs.Trigger value="security">账号安全</Tabs.Trigger>
+            <Tabs.List
+              className="game-tabs__list"
+              aria-label={uiCopy.gameProfilePage.settingsLabel}
+            >
+              <Tabs.Trigger value="identity">
+                {uiCopy.gameProfilePage.identity}
+              </Tabs.Trigger>
+              <Tabs.Trigger value="security">
+                {uiCopy.gameProfilePage.security}
+              </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content
               value="identity"

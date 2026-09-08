@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveLetterReturnTo } from "./navigation";
+import { resolveLetterReturnTo } from "@/features/letter/navigation";
 
 describe("Letter return navigation", () => {
   it("prefers a safe returnTo query and accepts the history fallback", () => {

@@ -1,4 +1,4 @@
-import type { LetterParagraph } from "../../domain/letter/types";
+import type { LetterParagraph } from "@/domain/letter/types";
 
 export interface LetterPageSegment {
   paragraphIndex: number;

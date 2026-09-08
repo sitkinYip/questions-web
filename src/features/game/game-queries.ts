@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { gameApi } from "../../api/game.client";
-import { useGame } from "./useGame";
+import { gameApi } from "@/api/game.client";
+import { useGame } from "@/features/game/useGame";
 
 export const gameKeys = {
   assignments: (playerId: string) => ["game", playerId, "assignments"] as const,

@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { useGamePresentation } from "./useGamePresentation";
-import type { QuestClue } from "../../domain/quest/types";
+import { useGamePresentation } from "@/features/game/useGamePresentation";
+import type { QuestClue } from "@/domain/quest/types";
 
 const video: QuestClue = {
   id: "video",

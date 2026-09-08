@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   ArrowRightIcon,
   ClockIcon,
@@ -5,12 +6,12 @@ import {
   LockKeyIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import type { GameAssignmentSummary } from "../../../api/game.contracts";
+import type { GameAssignmentSummary } from "@/api/game.contracts";
 import {
   assignmentState,
   formatGameDate,
   rankRequirement,
-} from "../game-presentation";
+} from "@/features/game/game-presentation";
 
 export function AssignmentCard({
   item,
@@ -29,7 +30,7 @@ export function AssignmentCard({
     <article className="chapter-card" data-state={state.kind}>
       <div className="chapter-card__number" aria-hidden="true">
         <span>{String(index + 1).padStart(2, "0")}</span>
-        <small>CHAPTER</small>
+        <small>{uiCopy.assignmentCard.eyebrow}</small>
         <i />
       </div>
       <div className="chapter-card__body">
@@ -46,10 +47,10 @@ export function AssignmentCard({
         <h2>{item.title}</h2>
         <p className="chapter-card__description">
           {item.description ||
-            `${item.totalLevels} 道谜题，藏着尚未揭开的故事。`}
+            uiCopy.assignmentCard.description(item.totalLevels)}
         </p>
         <div className="chapter-card__meta">
-          <span>{item.totalLevels} 道谜题</span>
+          <span>{uiCopy.assignmentCard.puzzleCount(item.totalLevels)}</span>
           <span>{rankRequirement(item)}</span>
         </div>
         {(item.startsAt || item.endsAt) && (
@@ -58,7 +59,7 @@ export function AssignmentCard({
             <span>
               {item.startsAt && (
                 <>
-                  开放{" "}
+                  {uiCopy.assignmentCard.startsAt}{" "}
                   <time dateTime={item.startsAt}>
                     {formatGameDate(item.startsAt)}
                   </time>
@@ -67,7 +68,7 @@ export function AssignmentCard({
               {item.startsAt && item.endsAt && <br />}
               {item.endsAt && (
                 <>
-                  截止{" "}
+                  {uiCopy.assignmentCard.endsAt}{" "}
                   <time dateTime={item.endsAt}>
                     {formatGameDate(item.endsAt)}
                   </time>
@@ -79,12 +80,15 @@ export function AssignmentCard({
         <div className="chapter-card__footer">
           <div className="chapter-card__progress">
             <span>
-              已解开 {item.completedLevels} / {item.totalLevels}
+              {uiCopy.assignmentCard.completedCount(
+                item.completedLevels,
+                item.totalLevels,
+              )}
             </span>
             <progress
               value={item.completedLevels}
               max={Math.max(1, item.totalLevels)}
-              aria-label={`${item.title}探索进度`}
+              aria-label={uiCopy.assignmentCard.progressLabel(item.title)}
             />
           </div>
           <Link

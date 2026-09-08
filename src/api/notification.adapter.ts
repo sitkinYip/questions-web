@@ -1,5 +1,5 @@
-import type { Notification } from "../domain/notification/types";
-import type { NotificationRecord } from "./notification.schema";
+import type { Notification } from "@/domain/notification/types";
+import type { NotificationRecord } from "@/api/notification.schema";
 
 export function adaptNotificationRecord(
   record: NotificationRecord,

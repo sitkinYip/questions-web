@@ -1,19 +1,20 @@
-import { env } from "../config/env";
-import type { MultiQuestClue, Quest } from "../domain/quest/types";
-import type { Letter } from "../domain/letter/types";
-import type { Notification } from "../domain/notification/types";
-import { adaptLetterRecord } from "./letter.adapter";
-import { lettersResponseSchema } from "./letter.schema";
-import { adaptLevelRecord } from "./level.adapter";
-import { levelsResponseSchema } from "./level.schema";
-import { multiQuestCluesResponseSchema } from "./multi-clue.schema";
-import { adaptNotificationRecord } from "./notification.adapter";
-import { notificationsResponseSchema } from "./notification.schema";
-import type { Blessing } from "../domain/bless/types";
-import { adaptPhraseRecord } from "./phrase.adapter";
-import { phrasesResponseSchema } from "./phrase.schema";
-import { contractError, requestJson } from "./request";
-export { ApiError } from "./errors";
+import { uiCopy } from "@/config/ui-copy";
+import { env } from "@/config/env";
+import type { MultiQuestClue, Quest } from "@/domain/quest/types";
+import type { Letter } from "@/domain/letter/types";
+import type { Notification } from "@/domain/notification/types";
+import { adaptLetterRecord } from "@/api/letter.adapter";
+import { lettersResponseSchema } from "@/api/letter.schema";
+import { adaptLevelRecord } from "@/api/level.adapter";
+import { levelsResponseSchema } from "@/api/level.schema";
+import { multiQuestCluesResponseSchema } from "@/api/multi-clue.schema";
+import { adaptNotificationRecord } from "@/api/notification.adapter";
+import { notificationsResponseSchema } from "@/api/notification.schema";
+import type { Blessing } from "@/domain/bless/types";
+import { adaptPhraseRecord } from "@/api/phrase.adapter";
+import { phrasesResponseSchema } from "@/api/phrase.schema";
+import { contractError, requestJson } from "@/api/request";
+export { ApiError } from "@/api/errors";
 
 export function escapePocketBaseFilterValue(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll("'", "\\'");
@@ -34,11 +35,15 @@ export async function fetchNotifications(
   });
   const response = await requestJson(
     `${env.VITE_API_BASE_URL}/notifications/records?${query}`,
-    { signal, resource: "实时通知" },
+    { signal, resource: uiCopy.client.notifications },
   );
   const parsed = notificationsResponseSchema.safeParse(response.data);
   if (!parsed.success)
-    throw contractError("通知接口", response.status, parsed.error);
+    throw contractError(
+      uiCopy.client.notificationApi,
+      response.status,
+      parsed.error,
+    );
   return parsed.data.items
     .filter((item) => item.enabled && (!userId || item.user?.trim() === userId))
     .map(adaptNotificationRecord);
@@ -55,11 +60,11 @@ export async function fetchMultiQuestClue(
   });
   const response = await requestJson(
     `${env.VITE_API_BASE_URL}/multi_quest_clues/records?${query}`,
-    { signal, resource: "多题本场线索" },
+    { signal, resource: uiCopy.client.multiClue },
   );
   const parsed = multiQuestCluesResponseSchema.safeParse(response.data);
   if (!parsed.success)
-    throw contractError("多题本场线索", response.status, parsed.error);
+    throw contractError(uiCopy.client.multiClue, response.status, parsed.error);
   const item = parsed.data.items[0];
   return item
     ? {
@@ -78,11 +83,11 @@ export async function fetchQuests(signal?: AbortSignal): Promise<Quest[]> {
   const query = new URLSearchParams({ perPage: "500", sort: "step" });
   const response = await requestJson(
     `${env.VITE_API_BASE_URL}/levels/records?${query}`,
-    { signal, resource: "关卡数据" },
+    { signal, resource: uiCopy.client.levels },
   );
   const parsed = levelsResponseSchema.safeParse(response.data);
   if (!parsed.success)
-    throw contractError("关卡接口", response.status, parsed.error);
+    throw contractError(uiCopy.client.levelApi, response.status, parsed.error);
   return parsed.data.items.map(adaptLevelRecord);
 }
 
@@ -90,11 +95,11 @@ export async function fetchLetters(signal?: AbortSignal): Promise<Letter[]> {
   const query = new URLSearchParams({ perPage: "500", sort: "created" });
   const response = await requestJson(
     `${env.VITE_API_BASE_URL}/letter/records?${query}`,
-    { signal, resource: "信件数据" },
+    { signal, resource: uiCopy.client.letters },
   );
   const parsed = lettersResponseSchema.safeParse(response.data);
   if (!parsed.success)
-    throw contractError("信件接口", response.status, parsed.error);
+    throw contractError(uiCopy.client.letterApi, response.status, parsed.error);
   return parsed.data.items.map(adaptLetterRecord);
 }
 
@@ -104,10 +109,14 @@ export async function fetchBlessings(
   const query = new URLSearchParams({ perPage: "500", sort: "created" });
   const response = await requestJson(
     `${env.VITE_API_BASE_URL}/phrase/records?${query}`,
-    { signal, resource: "专属星空" },
+    { signal, resource: uiCopy.client.blessing },
   );
   const parsed = phrasesResponseSchema.safeParse(response.data);
   if (!parsed.success)
-    throw contractError("专属星空接口", response.status, parsed.error);
+    throw contractError(
+      uiCopy.client.blessingApi,
+      response.status,
+      parsed.error,
+    );
   return parsed.data.items.map(adaptPhraseRecord);
 }

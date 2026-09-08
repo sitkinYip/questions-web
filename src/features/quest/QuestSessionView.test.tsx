@@ -1,10 +1,10 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Quest } from "../../domain/quest/types";
-import { progressKey } from "../../infrastructure/storage/progress.repository";
-import { questAnswerGuideKey } from "../../infrastructure/storage/quest-guide.repository";
-import { rankUpKey } from "../../infrastructure/storage/rank.repository";
-import { QuestSessionView } from "./QuestSessionView";
+import type { Quest } from "@/domain/quest/types";
+import { progressKey } from "@/infrastructure/storage/progress.repository";
+import { questAnswerGuideKey } from "@/infrastructure/storage/quest-guide.repository";
+import { rankUpKey } from "@/infrastructure/storage/rank.repository";
+import { QuestSessionView } from "@/features/quest/QuestSessionView";
 
 const textQuest: Quest = {
   id: "quest-11",

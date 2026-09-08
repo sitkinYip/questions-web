@@ -1,4 +1,5 @@
-import { withSilentRetry, isTransientStatus } from "./retry";
+import { uiCopy } from "@/config/ui-copy";
+import { withSilentRetry, isTransientStatus } from "@/api/retry";
 import { z } from "zod";
 import {
   gameAnswerSchema,
@@ -8,7 +9,7 @@ import {
   gamePlayerSchema,
   gameRewardSchema,
   listOf,
-} from "./game.schema";
+} from "@/api/game.schema";
 
 export const pocketBaseUrl = (
   import.meta.env.VITE_POCKETBASE_URL || "https://api.sitkin.top"
@@ -104,13 +105,14 @@ export function gameRequest<T>(
   return withSilentRetry(
     () => {
       if (!options.token && token !== auth?.token)
-        throw new GameApiError("CANCELLED", "账号已切换");
+        throw new GameApiError("CANCELLED", uiCopy.gameClient.accountChanged);
       return gameRequestAttempt(path, options, token, body);
     },
     {
       signal: options.signal,
       retries: options.retry === false ? 0 : 3,
-      cancelled: () => new GameApiError("CANCELLED", "请求已取消"),
+      cancelled: () =>
+        new GameApiError("CANCELLED", uiCopy.gameClient.cancelled),
       shouldRetry: isRetryableGameError,
     },
   );
@@ -153,7 +155,7 @@ async function gameRequestAttempt<T>(
       if (response.ok)
         throw new GameApiError(
           "CONTRACT_ERROR",
-          "服务端数据版本不匹配，请联系管理员",
+          uiCopy.gameClient.incompatibleVersion,
         );
       data = {};
     }
@@ -168,19 +170,19 @@ async function gameRequestAttempt<T>(
         data?.error?.code || "REQUEST_FAILED",
         data?.error?.message ||
           (response.status === 401
-            ? "账号或密码不正确"
-            : "请求失败，请检查输入或联系工作人员"),
+            ? uiCopy.gameClient.invalidCredentials
+            : uiCopy.gameClient.requestFailed),
         response.status,
       );
     }
     if (!options.publicPath && !options.token && token !== auth?.token)
-      throw new GameApiError("CANCELLED", "账号已切换");
+      throw new GameApiError("CANCELLED", uiCopy.gameClient.accountChanged);
     if (options.schema) {
       const parsed = options.schema.safeParse(data);
       if (!parsed.success)
         throw new GameApiError(
           "CONTRACT_ERROR",
-          "服务端数据版本不匹配，请联系管理员",
+          uiCopy.gameClient.incompatibleVersion,
         );
       return parsed.data;
     }
@@ -188,13 +190,10 @@ async function gameRequestAttempt<T>(
   } catch (error) {
     if (error instanceof GameApiError) throw error;
     if (options.signal?.aborted)
-      throw new GameApiError("CANCELLED", "请求已取消");
+      throw new GameApiError("CANCELLED", uiCopy.gameClient.cancelled);
     if (controller.signal.aborted)
-      throw new GameApiError("TIMEOUT", "连接等待超时，请稍后重试");
-    throw new GameApiError(
-      "NETWORK_ERROR",
-      "连接中断，提交可能已生效；请重试原操作确认结果",
-    );
+      throw new GameApiError("TIMEOUT", uiCopy.gameClient.timeout);
+    throw new GameApiError("NETWORK_ERROR", uiCopy.gameClient.connectionLost);
   } finally {
     window.clearTimeout(timeout);
     options.signal?.removeEventListener("abort", abort);

@@ -1,4 +1,4 @@
-import type { KeyValueStorage } from "./progress.repository";
+import type { KeyValueStorage } from "@/infrastructure/storage/progress.repository";
 
 export const rankUpKey = (userId: string, rank: string) =>
   `rankUpShown_${userId}_${rank}`;

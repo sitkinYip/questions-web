@@ -1,6 +1,6 @@
-import { sanitizeMediaUrl } from "../domain/content/parser";
-import type { Blessing, BlessLine } from "../domain/bless/types";
-import type { PhraseRecord } from "./phrase.schema";
+import { sanitizeMediaUrl } from "@/domain/content/parser";
+import type { Blessing, BlessLine } from "@/domain/bless/types";
+import type { PhraseRecord } from "@/api/phrase.schema";
 
 function adaptLine(
   line: PhraseRecord["phraseList"][number],

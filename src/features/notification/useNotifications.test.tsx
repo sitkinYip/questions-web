@@ -1,10 +1,10 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchNotifications } from "../../api/client";
-import { NOTIFICATION_SEEN_IDS_KEY } from "../../infrastructure/storage/notification.repository";
-import { useNotifications } from "./useNotifications";
+import { fetchNotifications } from "@/api/client";
+import { NOTIFICATION_SEEN_IDS_KEY } from "@/infrastructure/storage/notification.repository";
+import { useNotifications } from "@/features/notification/useNotifications";
 
-vi.mock("../../api/client", () => ({
+vi.mock("@/api/client", () => ({
   fetchNotifications: vi.fn(),
 }));
 

@@ -10,36 +10,34 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { gameApi, GameApiError } from "../../api/game.client";
-import {
-  makeAssignment,
-  makePlayer,
-  makeRewards,
-} from "../../test/game-fixtures";
-import { GameContext } from "./useGame";
-import { GameDashboard } from "./pages/GameDashboard";
-import { GameRewardsPage } from "./pages/GameRewardsPage";
-import { GamePlayPage } from "./GamePlayPage";
-import { GameNarrativePage } from "./GameNarrativePage";
-import { gameKeys } from "./game-queries";
+import { gameApi, GameApiError } from "@/api/game.client";
+import { makeAssignment, makePlayer, makeRewards } from "@/test/game-fixtures";
+import { GameContext } from "@/features/game/useGame";
+import { GameDashboard } from "@/features/game/pages/GameDashboard";
+import { GameRewardsPage } from "@/features/game/pages/GameRewardsPage";
+import { GamePlayPage } from "@/features/game/GamePlayPage";
+import { GameNarrativePage } from "@/features/game/GameNarrativePage";
+import { gameKeys } from "@/features/game/game-queries";
 
 // Keep the real query hooks, state split and page error branches. Decorative
 // shells are irrelevant to API compatibility and are verified in the browser.
-vi.mock("./components/GameLayout", () => ({
+vi.mock("@/features/game/components/GameLayout", () => ({
   GameLayout: ({ children }: { children: ReactNode }) => (
     <main>{children}</main>
   ),
   GamePageHeading: ({ title }: { title: string }) => <h1>{title}</h1>,
 }));
-vi.mock("./components/PlayerPassport", () => ({ PlayerPassport: () => null }));
-vi.mock("../../components/effects/CelestialAtlas", () => ({
+vi.mock("@/features/game/components/PlayerPassport", () => ({
+  PlayerPassport: () => null,
+}));
+vi.mock("@/components/effects/CelestialAtlas", () => ({
   CelestialAtlas: () => null,
 }));
-vi.mock("../bless/canvas-engine", () => ({
+vi.mock("@/features/bless/canvas-engine", () => ({
   useBlessCanvas: () => ({ formText: vi.fn(), releaseText: vi.fn() }),
 }));
-vi.mock("./GameContext", async () => {
-  const { GameFailure } = await import("./components/GameState");
+vi.mock("@/features/game/GameContext", async () => {
+  const { GameFailure } = await import("@/features/game/components/GameState");
   return { GameHeader: () => null, GameFailure };
 });
 

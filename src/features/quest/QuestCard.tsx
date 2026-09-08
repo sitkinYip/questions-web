@@ -1,12 +1,13 @@
+import { uiCopy } from "@/config/ui-copy";
 import { Fragment } from "react";
-import { EnergyBurst } from "../../components/effects/QuestAtmosphere";
-import { Button } from "../../components/ui/Button";
-import { CluePanel } from "../clues/CluePanel";
-import { QuestContent } from "../media/QuestContent";
-import { QuestAnswerForm } from "./QuestAnswerForm";
-import { AnswerFeedback } from "./AnswerFeedback";
-import type { QuestCardProps } from "./quest-card.types";
-export type { QuestCardProps } from "./quest-card.types";
+import { EnergyBurst } from "@/components/effects/QuestAtmosphere";
+import { Button } from "@/components/ui/Button";
+import { CluePanel } from "@/features/clues/CluePanel";
+import { QuestContent } from "@/features/media/QuestContent";
+import { QuestAnswerForm } from "@/features/quest/QuestAnswerForm";
+import { AnswerFeedback } from "@/features/quest/AnswerFeedback";
+import type { QuestCardProps } from "@/features/quest/quest-card.types";
+export type { QuestCardProps } from "@/features/quest/quest-card.types";
 
 // Mobile/legacy markup stays unchanged; desktop owns a separate composition.
 export function QuestCard(props: QuestCardProps) {
@@ -36,14 +37,18 @@ export function QuestCard(props: QuestCardProps) {
       className="quest-card"
       data-answer-state={activeAttempt.status}
       tabIndex={-1}
-      aria-label={`第 ${activeQuestionNumber} 题`}
+      aria-label={uiCopy.questCard.questionNumber(activeQuestionNumber)}
       onPointerMove={updateQuestSpotlight}
       onPointerLeave={hideQuestSpotlight}
       {...swipeHandlers}
     >
       <div className="quest-meta">
-        <span>第 {activeQuestionNumber} 题</span>
-        <span>{activeQuest.kind === "choice" ? "选择题" : "填空题"}</span>
+        <span>{uiCopy.questCard.questionNumber(activeQuestionNumber)}</span>
+        <span>
+          {activeQuest.kind === "choice"
+            ? uiCopy.questCard.choice
+            : uiCopy.questCard.text}
+        </span>
       </div>
       {activeQuest.title && <h1>{activeQuest.title}</h1>}
       <QuestContent
@@ -56,8 +61,12 @@ export function QuestCard(props: QuestCardProps) {
       {availability.status !== "available" && (
         <div className="availability-notice" role="status">
           {availability.status === "not-started"
-            ? `开放时间：${new Date(availability.startsAt).toLocaleString()}`
-            : `已于 ${new Date(availability.endedAt).toLocaleString()} 结束`}
+            ? uiCopy.questCard.startsAt(
+                new Date(availability.startsAt).toLocaleString(),
+              )
+            : uiCopy.questCard.endedAt(
+                new Date(availability.endedAt).toLocaleString(),
+              )}
         </div>
       )}
 
@@ -99,13 +108,13 @@ export function QuestAnswerGuide({
   dismissAnswerGuide: (locate: boolean) => void;
 }) {
   return (
-    <aside className="answer-guide" aria-label="答题引导">
+    <aside className="answer-guide" aria-label={uiCopy.questCard.guideLabel}>
       <div className="answer-guide__marker" aria-hidden="true">
         01
       </div>
       <div className="answer-guide__copy">
-        <strong>答案在题目下方</strong>
-        <p>向下阅读题目，在卡片底部填写或选择答案；完成后解锁下一题。</p>
+        <strong>{uiCopy.questCard.guideTitle}</strong>
+        <p>{uiCopy.questCard.guideDescription}</p>
       </div>
       <div className="answer-guide__actions">
         <Button
@@ -113,14 +122,14 @@ export function QuestAnswerGuide({
           size="small"
           onClick={() => dismissAnswerGuide(false)}
         >
-          知道了
+          {uiCopy.questCard.dismissGuide}
         </Button>
         <Button
           variant="primary"
           size="small"
           onClick={() => dismissAnswerGuide(true)}
         >
-          定位答题区
+          {uiCopy.questCard.locateAnswer}
         </Button>
       </div>
     </aside>

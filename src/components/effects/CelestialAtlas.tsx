@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import { memo } from "react";
 import { StarFourIcon } from "@phosphor-icons/react";
 
@@ -28,8 +29,12 @@ export const CelestialAtlas = memo(function CelestialAtlas({
       <div className="celestial-atlas__star">
         <StarFourIcon weight="thin" />
       </div>
-      <span className="celestial-atlas__north">N</span>
-      <span className="celestial-atlas__south">S</span>
+      <span className="celestial-atlas__north">
+        {uiCopy.celestialAtlas.north}
+      </span>
+      <span className="celestial-atlas__south">
+        {uiCopy.celestialAtlas.south}
+      </span>
     </div>
   );
 });

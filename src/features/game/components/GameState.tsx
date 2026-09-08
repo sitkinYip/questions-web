@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import type { ReactNode } from "react";
 import {
   CompassIcon,
@@ -5,7 +6,7 @@ import {
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "@/components/ui/Button";
 
 export function GameFailure({
   error,
@@ -18,18 +19,16 @@ export function GameFailure({
     <section className="game-notice" role="alert">
       <WarningCircleIcon aria-hidden="true" />
       <div className="game-notice__body">
-        <p>
-          {error instanceof Error ? error.message : "暂时无法加载，请稍后重试"}
-        </p>
+        <p>{error instanceof Error ? error.message : uiCopy.gameState.error}</p>
         <div className="game-notice__actions">
           {retry && (
             <Button size="small" onClick={retry}>
-              重新尝试
+              {uiCopy.gameState.retry}
             </Button>
           )}
           <Link className="game-action-link game-action-link--primary" to="/">
             <HouseLineIcon aria-hidden="true" />
-            回到首页
+            {uiCopy.gameState.home}
           </Link>
         </div>
       </div>
@@ -55,7 +54,7 @@ export function GameEmptyState({
   );
 }
 export function GameLoading({
-  label = "正在展开你的旅程…",
+  label = uiCopy.gameState.loading,
 }: {
   label?: string;
 }) {

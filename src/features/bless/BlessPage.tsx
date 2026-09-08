@@ -1,9 +1,10 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
-import { fetchBlessings } from "../../api/client";
-import { getApiErrorPresentation } from "../../api/errors";
-import { BlessExperience } from "./BlessExperience";
-import { resolveBlessReturnTo } from "./navigation";
+import { fetchBlessings } from "@/api/client";
+import { getApiErrorPresentation } from "@/api/errors";
+import { BlessExperience } from "@/features/bless/BlessExperience";
+import { resolveBlessReturnTo } from "@/features/bless/navigation";
 
 export function BlessPage() {
   const location = useLocation();
@@ -19,9 +20,14 @@ export function BlessPage() {
   );
 
   if (!from)
-    return <BlessState title="星空沉寂" detail="缺少星空凭证 from 参数。" />;
+    return (
+      <BlessState
+        title={uiCopy.blessPage.emptyTitle}
+        detail={uiCopy.blessPage.missingToken}
+      />
+    );
   if (blessingsQuery.isPending)
-    return <BlessState loading title="正在汇聚星光…" detail="" />;
+    return <BlessState loading title={uiCopy.blessPage.loading} detail="" />;
   if (blessingsQuery.isError) {
     const presentation = getApiErrorPresentation(blessingsQuery.error);
     return (
@@ -40,8 +46,8 @@ export function BlessPage() {
   if (!blessing)
     return (
       <BlessState
-        title="星空沉寂"
-        detail="这片星域尚未被点亮，请检查星空凭证 from 是否正确。"
+        title={uiCopy.blessPage.emptyTitle}
+        detail={uiCopy.blessPage.notFound}
       />
     );
   return <BlessExperience blessing={blessing} returnTo={returnTo} />;
@@ -70,7 +76,7 @@ function BlessState({
       {detail && <p>{detail}</p>}
       {onRetry && (
         <button type="button" onClick={onRetry}>
-          重新尝试
+          {uiCopy.blessPage.retry}
         </button>
       )}
     </main>

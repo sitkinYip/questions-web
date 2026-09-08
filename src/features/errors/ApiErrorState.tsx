@@ -1,5 +1,6 @@
-import { getApiErrorPresentation } from "../../api/errors";
-import { Button } from "../../components/ui/Button";
+import { uiCopy } from "@/config/ui-copy";
+import { getApiErrorPresentation } from "@/api/errors";
+import { Button } from "@/components/ui/Button";
 
 interface ApiErrorStateProps {
   error: unknown;
@@ -29,7 +30,7 @@ export function ApiErrorState({
       <p>{presentation.detail}</p>
       {presentation.retryable && (
         <Button variant="primary" onClick={onRetry}>
-          重新尝试
+          {uiCopy.apiErrorState.retry}
         </Button>
       )}
     </main>

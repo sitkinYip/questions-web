@@ -1,4 +1,5 @@
-import type { LetterSwipeAxis } from "./letterPagination";
+import { uiCopy } from "@/config/ui-copy";
+import type { LetterSwipeAxis } from "@/features/letter/letterPagination";
 import { BookOpenTextIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 
 interface LetterControlsProps {
@@ -33,15 +34,15 @@ export function LetterControls({
       {desktop && (
         <div className="letter-desktop-guide">
           <BookOpenTextIcon weight="thin" aria-hidden="true" />
-          <p className="eyebrow">故事仍在继续</p>
-          <h2>阅读手记</h2>
+          <p className="eyebrow">{uiCopy.letterControls.continuing}</p>
+          <h2>{uiCopy.letterControls.title}</h2>
           <p>
             {isFinished
-              ? "慢慢读，有些答案藏在字里行间。"
-              : "字句正在浮现，也可以直接展开全文。"}
+              ? uiCopy.letterControls.readingHint
+              : uiCopy.letterControls.typingHint}
           </p>
           <span>
-            第 {pageIndex + 1} 页 · 共 {pageCount} 页
+            {uiCopy.letterControls.pageSummary(pageIndex + 1, pageCount)}
           </span>
         </div>
       )}
@@ -54,24 +55,37 @@ export function LetterControls({
             type="button"
             disabled={!canTurnPages || pageIndex === 0}
             title={
-              !isFinished ? "全文显示后可翻页" : turning ? "翻页中" : undefined
+              !isFinished
+                ? uiCopy.letterControls.disabled
+                : turning
+                  ? uiCopy.letterControls.turning
+                  : undefined
             }
             onClick={() => turnPage("previous")}
           >
-            上一页
+            {uiCopy.letterControls.previous}
           </button>
-          <span aria-label={`第 ${pageIndex + 1} 页，共 ${pageCount} 页`}>
+          <span
+            aria-label={uiCopy.letterControls.pageLabel(
+              pageIndex + 1,
+              pageCount,
+            )}
+          >
             {pageIndex + 1} / {pageCount}
           </span>
           <button
             type="button"
             disabled={!canTurnPages || pageIndex === pageCount - 1}
             title={
-              !isFinished ? "全文显示后可翻页" : turning ? "翻页中" : undefined
+              !isFinished
+                ? uiCopy.letterControls.disabled
+                : turning
+                  ? uiCopy.letterControls.turning
+                  : undefined
             }
             onClick={() => turnPage("next")}
           >
-            下一页
+            {uiCopy.letterControls.next}
           </button>
         </div>
       )}
@@ -79,29 +93,31 @@ export function LetterControls({
         <span id="letter-page-gesture-instructions" className="sr-only">
           {isFinished
             ? swipeAxis === "horizontal"
-              ? "可左右滑动翻页。"
-              : "可上下滑动翻页。"
-            : "打字完成或显示全文后可以翻页。"}
+              ? uiCopy.letterControls.horizontalHint
+              : uiCopy.letterControls.verticalHint
+            : uiCopy.letterControls.paginationHint}
         </span>
       )}
       <div className="letter-actions">
         {!isFinished && (
           <button type="button" onClick={skipTyping}>
-            显示全文
+            {uiCopy.letterControls.showAll}
           </button>
         )}
         <button type="button" onClick={closeLetter}>
-          收起信件
+          {uiCopy.letterControls.close}
         </button>
       </div>
       {desktop && returnTo && (
         <a className="letter-desktop-return" href={returnTo}>
           <ArrowLeftIcon aria-hidden="true" />
-          返回冒险
+          {uiCopy.letterControls.back}
         </a>
       )}
       {desktop && pageCount > 1 && (
-        <p className="letter-desktop-keyboard">全文显示后，可用 ← → 翻页</p>
+        <p className="letter-desktop-keyboard">
+          {uiCopy.letterControls.keyboardHint}
+        </p>
       )}
     </footer>
   );

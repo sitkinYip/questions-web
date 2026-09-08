@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { OverlayProvider } from "../../components/ui/OverlayProvider";
-import { MultiQuestClueDialog } from "./MultiQuestClueDialog";
+import { OverlayProvider } from "@/components/ui/OverlayProvider";
+import { MultiQuestClueDialog } from "@/features/clues/MultiQuestClueDialog";
 
 describe("MultiQuestClueDialog", () => {
   it("keeps its long-label action in a fixed footer", async () => {

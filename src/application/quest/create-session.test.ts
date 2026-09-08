@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { createEmptyAttempt } from "../../domain/quest/session";
-import type { Quest } from "../../domain/quest/types";
+import { createEmptyAttempt } from "@/domain/quest/session";
+import type { Quest } from "@/domain/quest/types";
 import {
   createSessionFromSelection,
   selectQuestsByStep,
-} from "./create-session";
+} from "@/application/quest/create-session";
 
 const quest = (step: number): Quest => ({
   id: `quest-${step}`,

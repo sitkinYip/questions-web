@@ -5,7 +5,7 @@ import {
   matchesLocalRecordFilter,
   scanLocalQuestionRecords,
   type EnumerableStorage,
-} from "./record-manager";
+} from "@/infrastructure/storage/record-manager";
 
 class MemoryStorage implements EnumerableStorage {
   readonly values = new Map<string, string>();

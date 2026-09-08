@@ -1,15 +1,16 @@
+import { uiCopy } from "@/config/ui-copy";
 import { SparkleIcon } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import type { GameReward } from "../../../api/game.contracts";
-import { RichContent } from "../../content/RichContent";
-import { GamePageHeading } from "../components/GameLayout";
+import type { GameReward } from "@/api/game.contracts";
+import { RichContent } from "@/features/content/RichContent";
+import { GamePageHeading } from "@/features/game/components/GameLayout";
 import {
   GameEmptyState,
   GameFailure,
   GameLoading,
-} from "../components/GameState";
-import { formatGameDate } from "../game-presentation";
-import { useRewards } from "../game-queries";
+} from "@/features/game/components/GameState";
+import { formatGameDate } from "@/features/game/game-presentation";
+import { useRewards } from "@/features/game/game-queries";
 
 function RewardCard({ item }: { item: GameReward }) {
   return (
@@ -33,9 +34,9 @@ function RewardCard({ item }: { item: GameReward }) {
         >
           {
             {
-              available: "礼物待领取",
-              redeemed: "已领取 · 已核销",
-              voided: "已失效",
+              available: uiCopy.gameRewardsPage.available,
+              redeemed: uiCopy.gameRewardsPage.redeemed,
+              voided: uiCopy.gameRewardsPage.voided,
             }[item.status]
           }
         </p>
@@ -43,19 +44,19 @@ function RewardCard({ item }: { item: GameReward }) {
         <p className="game-muted">{item.snapshot.description}</p>
         {item.snapshot.publicInstructions && (
           <div className="reward-card__instructions">
-            <h3>领取指引</h3>
+            <h3>{uiCopy.gameRewardsPage.instructions}</h3>
             <RichContent source={item.snapshot.publicInstructions} />
           </div>
         )}
         {item.status === "available" && item.claimDetails && (
           <div className="game-claim-details">
-            <h3>你的领取线索</h3>
+            <h3>{uiCopy.gameRewardsPage.claimDetails}</h3>
             <RichContent source={item.claimDetails} />
           </div>
         )}
         {item.redeemedAt && (
           <p className="game-muted">
-            领取于{" "}
+            {uiCopy.gameRewardsPage.claimedAt}{" "}
             <time dateTime={item.redeemedAt}>
               {formatGameDate(item.redeemedAt)}
             </time>
@@ -69,10 +70,15 @@ export function GameRewardsPage() {
   const query = useRewards();
   return (
     <>
-      <GamePageHeading eyebrow="冒险的收获" title="把奇遇，收入囊中。">
-        那些解开的谜，留下了这些礼物。领取后记得请现场工作人员核销。
+      <GamePageHeading
+        eyebrow={uiCopy.gameRewardsPage.eyebrow}
+        title={uiCopy.gameRewardsPage.title}
+      >
+        {uiCopy.gameRewardsPage.description}
       </GamePageHeading>
-      {query.isPending && <GameLoading label="正在打开你的收藏…" />}
+      {query.isPending && (
+        <GameLoading label={uiCopy.gameRewardsPage.loading} />
+      )}
       {query.isError && (
         <GameFailure error={query.error} retry={() => void query.refetch()} />
       )}
@@ -83,14 +89,14 @@ export function GameRewardsPage() {
       </div>
       {query.isSuccess && query.data.items.length === 0 && (
         <GameEmptyState
-          title="留个位置，给下一份惊喜。"
+          title={uiCopy.gameRewardsPage.emptyTitle}
           action={
             <Link className="game-action-link" to="/">
-              去探索新的故事
+              {uiCopy.gameRewardsPage.explore}
             </Link>
           }
         >
-          还没有获得奖品。完成场次后，再来看看你的收获。
+          {uiCopy.gameRewardsPage.emptyDescription}
         </GameEmptyState>
       )}
     </>

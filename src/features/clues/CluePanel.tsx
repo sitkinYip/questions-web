@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
@@ -5,8 +6,8 @@ import {
   SparkleIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import type { QuestClue } from "../../domain/quest/types";
-import { RichContent } from "../content/RichContent";
+import type { QuestClue } from "@/domain/quest/types";
+import { RichContent } from "@/features/content/RichContent";
 
 interface CluePanelProps {
   clues: readonly QuestClue[];
@@ -18,12 +19,12 @@ interface CluePanelProps {
 }
 
 const clueLabels = {
-  text: "古老密卷",
-  image: "神谕影像",
-  video: "时空回溯",
-  link: "位面传送",
-  letter: "星海情笺",
-  bless: "星辉祝福",
+  text: uiCopy.cluePanel.text,
+  image: uiCopy.cluePanel.image,
+  video: uiCopy.cluePanel.video,
+  link: uiCopy.cluePanel.link,
+  letter: uiCopy.cluePanel.letter,
+  bless: uiCopy.cluePanel.bless,
 } as const;
 
 function withReturnTo(href: string, returnTo: string) {
@@ -50,15 +51,15 @@ export function CluePanel({
       </div>
       <div className="clue-panel-heading">
         <div>
-          <p className="eyebrow">Unlocked archive</p>
-          <h2 id="clue-panel-title">通关线索</h2>
+          <p className="eyebrow">{uiCopy.cluePanel.eyebrow}</p>
+          <h2 id="clue-panel-title">{uiCopy.cluePanel.title}</h2>
         </div>
         <div
           className="clue-panel-count"
-          aria-label={`已解锁 ${clues.length} 件线索`}
+          aria-label={uiCopy.cluePanel.unlockedCount(clues.length)}
         >
           <strong>{String(clues.length).padStart(2, "0")}</strong>
-          <span>件已解锁</span>
+          <span>{uiCopy.cluePanel.unlockedSuffix}</span>
         </div>
       </div>
       <div className="clue-list">
@@ -72,7 +73,7 @@ export function CluePanel({
           const preview = clue.content ? (
             <RichContent source={clue.content} className="clue-preview" />
           ) : (
-            <p className="clue-preview">点击查看已解锁内容</p>
+            <p className="clue-preview">{uiCopy.cluePanel.preview}</p>
           );
           const lead = (
             <span className="clue-index" aria-hidden="true">
@@ -85,11 +86,11 @@ export function CluePanel({
               <span className="clue-card-status">
                 {needsAttention
                   ? clue.kind === "letter"
-                    ? "一封来信等待开启"
-                    : "一份祝福正在回响"
+                    ? uiCopy.cluePanel.letterWaiting
+                    : uiCopy.cluePanel.blessingWaiting
                   : isNarrative
-                    ? "叙事内容已解锁"
-                    : "Archive verified"}
+                    ? uiCopy.cluePanel.narrativeUnlocked
+                    : uiCopy.cluePanel.verified}
               </span>
               <strong>{label}</strong>
               {preview}

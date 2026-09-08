@@ -14,18 +14,19 @@ import {
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import { gameApi } from "../../api/game.client";
+import { gameApi } from "@/api/game.client";
+import { uiCopy } from "@/config/ui-copy";
 import type {
   GameAssignment,
   GameClue,
   GamePlayer,
-} from "../../api/game.contracts";
-import type { Quest } from "../../domain/quest/types";
-import { QuestSessionView } from "../quest/QuestSessionView";
-import { GamePlayView } from "./GamePlayPage";
-import { GameContext } from "./useGame";
-import { ThemeProvider } from "../../components/ui/ThemeProvider";
-import { progressKey } from "../../infrastructure/storage/progress.repository";
+} from "@/api/game.contracts";
+import type { Quest } from "@/domain/quest/types";
+import { QuestSessionView } from "@/features/quest/QuestSessionView";
+import { GamePlayView } from "@/features/game/GamePlayPage";
+import { GameContext } from "@/features/game/useGame";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { progressKey } from "@/infrastructure/storage/progress.repository";
 
 const quest: Quest = {
   id: "step1",
@@ -456,7 +457,9 @@ it("offers a home route when an assigned session has expired", () => {
 
   renderGame(value);
 
-  expect(screen.getByText(/请联系现场工作人员/)).toBeInTheDocument();
+  expect(screen.getByRole("status")).toHaveTextContent(
+    uiCopy.assignmentBrief.revokedHint,
+  );
   expect(screen.getByRole("link", { name: "回到首页" })).toHaveAttribute(
     "href",
     "/",

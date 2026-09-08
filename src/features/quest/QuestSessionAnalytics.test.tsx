@@ -1,18 +1,18 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Quest } from "../../domain/quest/types";
+import type { Quest } from "@/domain/quest/types";
 
 const analyticsMocks = vi.hoisted(() => ({
   track: vi.fn(),
   trackOnce: vi.fn(),
 }));
 
-vi.mock("../../infrastructure/analytics", () => ({
+vi.mock("@/infrastructure/analytics", () => ({
   trackAnalytics: analyticsMocks.track,
   trackAnalyticsOnce: analyticsMocks.trackOnce,
 }));
 
-import { QuestSessionView } from "./QuestSessionView";
+import { QuestSessionView } from "@/features/quest/QuestSessionView";
 
 const choiceQuest: Quest = {
   id: "quest-21",

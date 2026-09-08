@@ -3,7 +3,7 @@ import {
   mockLegacyAudioPlayback,
   mockQuestionsApi,
   enterGame,
-} from "./fixtures";
+} from "@e2e/fixtures";
 
 test.beforeEach(async ({ page }) => {
   await mockQuestionsApi(page, { bgm: true });

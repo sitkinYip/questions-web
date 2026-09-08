@@ -1,11 +1,12 @@
+import { uiCopy } from "@/config/ui-copy";
 import { DesktopIcon, MoonStarsIcon, SunIcon } from "@phosphor-icons/react";
 import { useId } from "react";
-import { useTheme } from "../../../components/ui/theme-context";
+import { useTheme } from "@/components/ui/theme-context";
 
 const choices = [
-  { value: "system", label: "跟随系统", Icon: DesktopIcon },
-  { value: "light", label: "浅色", Icon: SunIcon },
-  { value: "dark", label: "深色", Icon: MoonStarsIcon },
+  { value: "system", label: uiCopy.gameThemePicker.system, Icon: DesktopIcon },
+  { value: "light", label: uiCopy.gameThemePicker.light, Icon: SunIcon },
+  { value: "dark", label: uiCopy.gameThemePicker.dark, Icon: MoonStarsIcon },
 ] as const;
 
 export function GameThemePicker() {
@@ -13,7 +14,7 @@ export function GameThemePicker() {
   const name = useId();
   return (
     <fieldset className="game-theme-picker">
-      <legend className="sr-only">界面主题</legend>
+      <legend className="sr-only">{uiCopy.gameThemePicker.title}</legend>
       {choices.map(({ value, label, Icon }) => (
         <label key={value} title={label}>
           <input

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { GameClue } from "../../api/game.contracts";
+import type { GameClue } from "@/api/game.contracts";
 import {
   isCombinationClue,
   selectClueViews,
   selectCombinationClues,
   selectExplicitEffectClues,
   selectGameClues,
-} from "./clue-presentation";
+} from "@/features/game/clue-presentation";
 
 function clue(overrides: Partial<GameClue> = {}): GameClue {
   const id = overrides.id || "session-clue";

@@ -3,23 +3,23 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { GameApiError, gameApi } from "../src/api/game.client";
-import { ThemeProvider } from "../src/components/ui/ThemeProvider";
-import { ToastProvider } from "../src/components/ui/ToastProvider";
-import { OverlayProvider } from "../src/components/ui/OverlayProvider";
-import { AppToast } from "../src/components/ui/Toast";
-import { GameContext } from "../src/features/game/useGame";
-import { GamePlayView } from "../src/features/game/GamePlayPage";
-import { GameHeader } from "../src/features/game/GameContext";
-import { GameFailure } from "../src/features/game/components/GameState";
+import { GameApiError, gameApi } from "@/api/game.client";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import { OverlayProvider } from "@/components/ui/OverlayProvider";
+import { AppToast } from "@/components/ui/Toast";
+import { GameContext } from "@/features/game/useGame";
+import { GamePlayView } from "@/features/game/GamePlayPage";
+import { GameHeader } from "@/features/game/GameContext";
+import { GameFailure } from "@/features/game/components/GameState";
 import {
   GameRetryDialog,
   GameSyncMessage,
-} from "../src/features/game/components/GameRequestFeedback";
-import { desktopAssignment } from "./desktop-preview-data";
-import { makePlayer } from "../src/test/game-fixtures";
-import "../src/index.css";
-import "./network-preview.css";
+} from "@/features/game/components/GameRequestFeedback";
+import { desktopAssignment } from "@e2e/desktop-preview-data";
+import { makePlayer } from "@/test/game-fixtures";
+import "@/index.css";
+import "@e2e/network-preview.css";
 
 if (!import.meta.env.DEV) throw new Error("Development preview only");
 const params = new URLSearchParams(location.search);

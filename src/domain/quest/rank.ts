@@ -1,4 +1,4 @@
-import type { Quest, QuestRank } from "./types.ts";
+import type { Quest, QuestRank } from "@/domain/quest/types.ts";
 
 export function parseQuestRank(
   rawRank?: string | null,

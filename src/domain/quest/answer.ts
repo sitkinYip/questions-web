@@ -1,4 +1,4 @@
-import type { Quest } from "./types";
+import type { Quest } from "@/domain/quest/types";
 
 const ignoredCharacters = /[\s\p{P}]/gmu;
 

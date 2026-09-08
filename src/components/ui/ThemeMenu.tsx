@@ -1,18 +1,34 @@
+import { uiCopy } from "@/config/ui-copy";
 import { DropdownMenu } from "radix-ui";
-import type { ThemePreference } from "../../shared/theme/theme";
-import { useOptionalTheme } from "./theme-context";
+import type { ThemePreference } from "@/shared/theme/theme";
+import { useOptionalTheme } from "@/components/ui/theme-context";
 
 const options: Array<{
   value: ThemePreference;
   label: string;
   description: string;
 }> = [
-  { value: "system", label: "跟随系统", description: "随设备外观自动切换" },
-  { value: "light", label: "浅色", description: "暖象牙纸与古金" },
-  { value: "dark", label: "深色", description: "暗夜与香槟金" },
+  {
+    value: "system",
+    label: uiCopy.themeMenu.system,
+    description: uiCopy.themeMenu.systemDescription,
+  },
+  {
+    value: "light",
+    label: uiCopy.themeMenu.light,
+    description: uiCopy.themeMenu.lightDescription,
+  },
+  {
+    value: "dark",
+    label: uiCopy.themeMenu.dark,
+    description: uiCopy.themeMenu.darkDescription,
+  },
 ];
 
-const resolvedLabels = { light: "浅色", dark: "深色" } as const;
+const resolvedLabels = {
+  light: uiCopy.themeMenu.light,
+  dark: uiCopy.themeMenu.dark,
+} as const;
 
 export interface ThemeMenuProps {
   avatarUrl?: string;
@@ -24,7 +40,9 @@ export function ThemeMenu({ avatarUrl, displayName }: ThemeMenuProps) {
   const preference = theme?.preference ?? "system";
   const resolvedTheme = theme?.resolvedTheme ?? "dark";
   const setPreference = theme?.setPreference ?? (() => undefined);
-  const fallback = Array.from(displayName.trim() || "旅")[0];
+  const fallback = Array.from(
+    displayName.trim() || uiCopy.themeMenu.avatarFallback,
+  )[0];
 
   return (
     <DropdownMenu.Root>
@@ -32,14 +50,16 @@ export function ThemeMenu({ avatarUrl, displayName }: ThemeMenuProps) {
         <button
           className="theme-avatar-trigger"
           type="button"
-          aria-label={`切换主题，当前为${resolvedLabels[resolvedTheme]}`}
-          title="切换主题"
+          aria-label={uiCopy.themeMenu.switchLabel(
+            resolvedLabels[resolvedTheme],
+          )}
+          title={uiCopy.themeMenu.switchTitle}
         >
           {avatarUrl ? (
             <img
               className="traveler-avatar"
               src={avatarUrl}
-              alt={`${displayName}的头像`}
+              alt={uiCopy.themeMenu.avatarAlt(displayName)}
               referrerPolicy="strict-origin-when-cross-origin"
             />
           ) : (
@@ -58,8 +78,10 @@ export function ThemeMenu({ avatarUrl, displayName }: ThemeMenuProps) {
           collisionPadding={16}
         >
           <DropdownMenu.Label className="theme-menu__heading">
-            <span>界面主题</span>
-            <small>当前显示为{resolvedLabels[resolvedTheme]}</small>
+            <span>{uiCopy.themeMenu.title}</span>
+            <small>
+              {uiCopy.themeMenu.currentTheme(resolvedLabels[resolvedTheme])}
+            </small>
           </DropdownMenu.Label>
           <DropdownMenu.Separator className="theme-menu__separator" />
           <DropdownMenu.RadioGroup

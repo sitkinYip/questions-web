@@ -1,11 +1,12 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { fetchMultiQuestClue, fetchQuests } from "../../api/client";
-import { selectQuestsByStep } from "../../application/quest/create-session";
-import { parseQuestRoute } from "../../shared/navigation/quest-query";
-import { ApiErrorState } from "../errors/ApiErrorState";
-import { QuestSessionView } from "./QuestSessionView";
+import { fetchMultiQuestClue, fetchQuests } from "@/api/client";
+import { selectQuestsByStep } from "@/application/quest/create-session";
+import { parseQuestRoute } from "@/shared/navigation/quest-query";
+import { ApiErrorState } from "@/features/errors/ApiErrorState";
+import { QuestSessionView } from "@/features/quest/QuestSessionView";
 
 export function QuestEntryPage() {
   const location = useLocation();
@@ -26,9 +27,9 @@ export function QuestEntryPage() {
   if (questsQuery.isPending) {
     return (
       <main className="centered-state" aria-busy="true">
-        <p className="eyebrow">Questions</p>
-        <h1>正在读取冒险记录</h1>
-        <p>通过 local.sitkin.top 连接 PocketBase…</p>
+        <p className="eyebrow">{uiCopy.questEntryPage.eyebrow}</p>
+        <h1>{uiCopy.questEntryPage.loadingTitle}</h1>
+        <p>{uiCopy.questEntryPage.loadingDescription}</p>
       </main>
     );
   }
@@ -46,9 +47,11 @@ export function QuestEntryPage() {
   if (selected.quests.length === 0) {
     return (
       <main className="centered-state error-state">
-        <p className="eyebrow">Quest not found</p>
-        <h1>没有找到对应题目</h1>
-        <p>请检查 qa 或 qas 参数：{selection.steps.join(", ")}</p>
+        <p className="eyebrow">{uiCopy.questEntryPage.notFoundEyebrow}</p>
+        <h1>{uiCopy.questEntryPage.notFoundTitle}</h1>
+        <p>
+          {uiCopy.questEntryPage.invalidSelection(selection.steps.join(", "))}
+        </p>
       </main>
     );
   }

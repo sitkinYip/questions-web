@@ -1,8 +1,9 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Blessing } from "../../domain/bless/types";
-import { playAudio } from "../../shared/media/play-audio";
-import { BlessClosingCredits } from "./BlessClosingCredits";
-import { useBlessCanvas } from "./canvas-engine";
+import type { Blessing } from "@/domain/bless/types";
+import { playAudio } from "@/shared/media/play-audio";
+import { BlessClosingCredits } from "@/features/bless/BlessClosingCredits";
+import { useBlessCanvas } from "@/features/bless/canvas-engine";
 
 interface BlessExperienceProps {
   blessing: Blessing;
@@ -119,7 +120,7 @@ export function BlessExperience({ blessing, returnTo }: BlessExperienceProps) {
             onClick={startNarrative}
           >
             <span aria-hidden="true">✦</span>
-            <strong>{blessing.title || "点此 进入属于你的璀璨星空"}</strong>
+            <strong>{blessing.title || uiCopy.blessExperience.enter}</strong>
             <span aria-hidden="true">✦</span>
           </button>
         </div>
@@ -131,8 +132,8 @@ export function BlessExperience({ blessing, returnTo }: BlessExperienceProps) {
         <a
           className="bless-return"
           href={returnTo}
-          title="返回"
-          aria-label="返回冒险"
+          title={uiCopy.blessExperience.back}
+          aria-label={uiCopy.blessExperience.backToQuest}
           onClick={stopAudio}
         >
           ‹
@@ -143,7 +144,11 @@ export function BlessExperience({ blessing, returnTo }: BlessExperienceProps) {
         <button
           className={`bless-audio ${bgmPlaying ? "is-playing" : ""}`}
           type="button"
-          aria-label={bgmPlaying ? "暂停背景音乐" : "播放背景音乐"}
+          aria-label={
+            bgmPlaying
+              ? uiCopy.blessExperience.pause
+              : uiCopy.blessExperience.play
+          }
           onClick={toggleBgm}
         >
           {bgmPlaying ? "Ⅱ" : "♪"}

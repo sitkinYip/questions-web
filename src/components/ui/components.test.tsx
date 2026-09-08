@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { Button } from "./Button";
-import { Field, Input, Select } from "./FormControls";
-import { Sheet } from "./Sheet";
-import { AppToast } from "./Toast";
-import { ToastProvider } from "./ToastProvider";
+import { Button } from "@/components/ui/Button";
+import { Field, Input, Select } from "@/components/ui/FormControls";
+import { Sheet } from "@/components/ui/Sheet";
+import { AppToast } from "@/components/ui/Toast";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 describe("UI primitives", () => {
   it("provides safe button defaults and explicit variants", () => {

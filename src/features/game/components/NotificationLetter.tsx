@@ -1,17 +1,18 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   EnvelopeSimpleIcon,
   EnvelopeOpenIcon,
   CheckIcon,
 } from "@phosphor-icons/react";
-import { gameApi } from "../../../api/game.client";
-import type { GameNotification } from "../../../api/game.contracts";
-import { Button } from "../../../components/ui/Button";
-import { RichContent } from "../../content/RichContent";
-import { GameFailure } from "./GameState";
-import { gameKeys } from "../game-queries";
-import { formatGameDate } from "../game-presentation";
-import { useGame } from "../useGame";
+import { gameApi } from "@/api/game.client";
+import type { GameNotification } from "@/api/game.contracts";
+import { Button } from "@/components/ui/Button";
+import { RichContent } from "@/features/content/RichContent";
+import { GameFailure } from "@/features/game/components/GameState";
+import { gameKeys } from "@/features/game/game-queries";
+import { formatGameDate } from "@/features/game/game-presentation";
+import { useGame } from "@/features/game/useGame";
 
 export function NotificationLetter({
   note,
@@ -38,7 +39,9 @@ export function NotificationLetter({
       </div>
       <div className="notification-letter__body">
         <p className="game-status" data-tone={note.readAt ? "muted" : "accent"}>
-          {note.readAt ? "已收下" : "一封新来信"}
+          {note.readAt
+            ? uiCopy.notificationLetter.read
+            : uiCopy.notificationLetter.newLetter}
           <time dateTime={note.sentAt}>{formatGameDate(note.sentAt)}</time>
         </p>
         <h2>{note.title}</h2>
@@ -57,13 +60,13 @@ export function NotificationLetter({
               disabled={mutation.isPending}
             >
               {mutation.isPending
-                ? "正在收下…"
-                : note.buttonText || "收下这封信"}
+                ? uiCopy.notificationLetter.pending
+                : note.buttonText || uiCopy.notificationLetter.accept}
             </Button>
           ) : (
             <span className="game-muted" role="status">
               <CheckIcon aria-hidden="true" />
-              来信已收好
+              {uiCopy.notificationLetter.saved}
             </span>
           )}
         </div>

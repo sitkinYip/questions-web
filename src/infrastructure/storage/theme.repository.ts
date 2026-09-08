@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ThemePreference } from "../../shared/theme/theme";
+import type { ThemePreference } from "@/shared/theme/theme";
 
 export const THEME_PREFERENCES_KEY = "questions:v1:theme";
 

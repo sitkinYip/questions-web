@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useHorizontalSwipe } from "./useHorizontalSwipe";
+import { useHorizontalSwipe } from "@/shared/gestures/useHorizontalSwipe";
 
 function SwipeSurface({ left = vi.fn(), right = vi.fn() }) {
   const handlers = useHorizontalSwipe({

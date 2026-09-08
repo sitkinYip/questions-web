@@ -1,7 +1,8 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { gameApi } from "../../../api/game.client";
-import { useGame } from "../useGame";
+import { gameApi } from "@/api/game.client";
+import { useGame } from "@/features/game/useGame";
 
 export function useProfileEditor() {
   const { player, avatarUrl, setPlayer } = useGame();
@@ -28,7 +29,7 @@ export function useProfileEditor() {
   function submit(event: FormEvent) {
     event.preventDefault();
     if (!name.trim()) {
-      setValidation("给自己起个名字，再出发吧。");
+      setValidation(uiCopy.useProfileEditor.emptyName);
       return;
     }
     if (mutation.isPending) return;

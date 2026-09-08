@@ -3,8 +3,8 @@ import {
   createQuestSession,
   getCompletionTransition,
   submitAnswer,
-} from "./session";
-import type { Quest } from "./types";
+} from "@/domain/quest/session";
+import type { Quest } from "@/domain/quest/types";
 
 const makeQuest = (overrides: Partial<Quest> = {}): Quest => ({
   id: "quest-1",

@@ -1,5 +1,5 @@
-import { levelsResponseSchema } from "../src/api/level.schema.ts";
-import { adaptLevelRecord } from "../src/api/level.adapter.ts";
+import { levelsResponseSchema } from "@/api/level.schema.ts";
+import { adaptLevelRecord } from "@/api/level.adapter.ts";
 
 const origin =
   process.env.QUESTIONS_LOCAL_ORIGIN ?? "http://local.sitkin.top:5173";

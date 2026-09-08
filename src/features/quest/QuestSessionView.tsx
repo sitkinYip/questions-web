@@ -1,4 +1,5 @@
-import { QuestCard, QuestAnswerGuide } from "./QuestCard";
+import { uiCopy } from "@/config/ui-copy";
+import { QuestCard, QuestAnswerGuide } from "@/features/quest/QuestCard";
 import {
   useCallback,
   useEffect,
@@ -8,17 +9,17 @@ import {
   type FormEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { createSessionFromSelection } from "../../application/quest/create-session";
-import { QuestAtmosphere } from "../../components/effects/QuestAtmosphere";
-import { normalizeAnswer } from "../../domain/quest/answer";
+import { createSessionFromSelection } from "@/application/quest/create-session";
+import { QuestAtmosphere } from "@/components/effects/QuestAtmosphere";
+import { normalizeAnswer } from "@/domain/quest/answer";
 import {
   activateQuest,
   canActivateQuest,
   getCompletionTransition,
   getQuestAvailability,
   submitAnswer,
-} from "../../domain/quest/session";
-import { extractHighestRank } from "../../domain/quest/rank";
+} from "@/domain/quest/session";
+import { extractHighestRank } from "@/domain/quest/rank";
 import type {
   MultiQuestClue,
   Quest,
@@ -26,27 +27,27 @@ import type {
   QuestFinalDestination,
   QuestRank,
   QuestSession,
-} from "../../domain/quest/types";
+} from "@/domain/quest/types";
+import { trackAnalytics, trackAnalyticsOnce } from "@/infrastructure/analytics";
+import { createProgressRepository } from "@/infrastructure/storage/progress.repository";
+import { createQuestAnswerGuideRepository } from "@/infrastructure/storage/quest-guide.repository";
+import { createRankRepository } from "@/infrastructure/storage/rank.repository";
+import { ClueTextDialog } from "@/features/clues/ClueTextDialog";
+import { MultiQuestClueDialog } from "@/features/clues/MultiQuestClueDialog";
+import { MultiClueLauncher } from "@/features/clues/MultiClueLauncher";
+import { CompletionFeedbackDialog } from "@/features/completion/CompletionFeedbackDialog";
+import { FinalDestinationPrompt } from "@/features/completion/FinalDestinationPrompt";
 import {
-  trackAnalytics,
-  trackAnalyticsOnce,
-} from "../../infrastructure/analytics";
-import { createProgressRepository } from "../../infrastructure/storage/progress.repository";
-import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/quest-guide.repository";
-import { createRankRepository } from "../../infrastructure/storage/rank.repository";
-import { ClueTextDialog } from "../clues/ClueTextDialog";
-import { MultiQuestClueDialog } from "../clues/MultiQuestClueDialog";
-import { MultiClueLauncher } from "../clues/MultiClueLauncher";
-import { CompletionFeedbackDialog } from "../completion/CompletionFeedbackDialog";
-import { FinalDestinationPrompt } from "../completion/FinalDestinationPrompt";
-import { MediaViewer, type MediaViewerState } from "../media/MediaViewer";
-import { NotificationCenter } from "../notification/NotificationCenter";
-import { RankUpDialog } from "../rank/RankUpDialog";
-import { BgmControls } from "../audio/BgmControls";
-import { ThemeMenu } from "../../components/ui/ThemeMenu";
-import { useQuestBgm } from "../audio/useQuestBgm";
-import { useHorizontalSwipe } from "../../shared/gestures/useHorizontalSwipe";
-import { useQuestNavigationPosition } from "./useQuestNavigationPosition";
+  MediaViewer,
+  type MediaViewerState,
+} from "@/features/media/MediaViewer";
+import { NotificationCenter } from "@/features/notification/NotificationCenter";
+import { RankUpDialog } from "@/features/rank/RankUpDialog";
+import { BgmControls } from "@/features/audio/BgmControls";
+import { ThemeMenu } from "@/components/ui/ThemeMenu";
+import { useQuestBgm } from "@/features/audio/useQuestBgm";
+import { useHorizontalSwipe } from "@/shared/gestures/useHorizontalSwipe";
+import { useQuestNavigationPosition } from "@/features/quest/useQuestNavigationPosition";
 
 interface QuestSessionViewProps {
   allQuests: readonly Quest[];
@@ -76,9 +77,9 @@ type FinalSequence = {
 };
 
 function feedbackForBlocked(reason: "not-started" | "ended" | "penalized") {
-  if (reason === "not-started") return "冒险尚未开始，请耐心等待。";
-  if (reason === "ended") return "本次冒险已经结束。";
-  return "当前仍在惩罚时间内，暂时无法再次作答。";
+  if (reason === "not-started") return uiCopy.questSessionView.notStarted;
+  if (reason === "ended") return uiCopy.questSessionView.ended;
+  return uiCopy.questSessionView.blocked;
 }
 
 function analyticsProgress(session: QuestSession) {
@@ -518,7 +519,7 @@ export function QuestSessionView({
         },
         userId,
       );
-      setFeedback("请先输入或选择答案。");
+      setFeedback(uiCopy.questSessionView.emptyAnswer);
       setFeedbackTone("danger");
       return;
     }
@@ -582,8 +583,8 @@ export function QuestSessionView({
     if (result.type === "correct") {
       setFeedback(
         result.session.status === "completed"
-          ? "全部题目已经完成。"
-          : "回答正确，当前题目已完成。",
+          ? uiCopy.questSessionView.allCompleted
+          : uiCopy.questSessionView.correct,
       );
       setFeedbackTone("success");
       const transition = getCompletionTransition(
@@ -629,13 +630,13 @@ export function QuestSessionView({
         runFlowAction(flowAction);
       }
     } else if (result.attempt.penaltyEndsAt === -1) {
-      setFeedback("回答错误，当前题目已永久锁定。请使用记录管理页面处理。");
+      setFeedback(uiCopy.questSessionView.locked);
       setFeedbackTone("danger");
     } else if (result.attempt.penaltyEndsAt) {
-      setFeedback("回答错误，已进入惩罚时间。");
+      setFeedback(uiCopy.questSessionView.penalty);
       setFeedbackTone("danger");
     } else {
-      setFeedback("答案不正确，可以继续尝试。");
+      setFeedback(uiCopy.questSessionView.incorrect);
       setFeedbackTone("danger");
     }
   };
@@ -701,35 +702,49 @@ export function QuestSessionView({
         <div className="traveler-identity">
           <ThemeMenu
             avatarUrl={activeQuest.avatarUrl}
-            displayName={activeQuest.displayName || userId || "旅行者"}
+            displayName={
+              activeQuest.displayName ||
+              userId ||
+              uiCopy.questSessionView.traveler
+            }
           />
           <div>
-            <p className="eyebrow">Quest session</p>
+            <p className="eyebrow">{uiCopy.questSessionView.eyebrow}</p>
             <p className="traveler-name">
-              {activeQuest.displayName || userId || "旅行者"}
+              {activeQuest.displayName ||
+                userId ||
+                uiCopy.questSessionView.traveler}
             </p>
             <p className="traveler-rank">
-              RANK {displayedRank?.code || "?"} ·{" "}
-              {displayedRank?.name || "探索者"}
+              {uiCopy.questSessionView.rank}
+              {displayedRank?.code || "?"} ·{" "}
+              {displayedRank?.name || uiCopy.questSessionView.explorer}
             </p>
           </div>
         </div>
-        <div className="session-progress" aria-label="答题进度">
+        <div
+          className="session-progress"
+          aria-label={uiCopy.questSessionView.progressLabel}
+        >
           <strong key={completedCount}>
             {completedCount}/{session.quests.length}
           </strong>
-          <span>已完成</span>
+          <span>{uiCopy.questSessionView.completed}</span>
         </div>
       </header>
 
       {missingSteps.length > 0 && (
         <aside className="inline-warning" role="status">
-          未找到第 {missingSteps.join("、")} 题，已继续加载其余题目。
+          {uiCopy.questSessionView.missingSteps(missingSteps.join("、"))}
         </aside>
       )}
 
       {session.quests.length > 1 && (
-        <nav ref={questNavRef} className="quest-nav" aria-label="题目导航">
+        <nav
+          ref={questNavRef}
+          className="quest-nav"
+          aria-label={uiCopy.questSessionView.questionNavigation}
+        >
           {session.quests.map((quest, index) => {
             const attempt = session.attempts[quest.id];
             return (
@@ -747,8 +762,8 @@ export function QuestSessionView({
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <small>
                   {attempt.status === "completed"
-                    ? "已完成"
-                    : `第 ${index + 1} 题`}
+                    ? uiCopy.questSessionView.completed
+                    : uiCopy.questSessionView.questionNumber(index + 1)}
                 </small>
               </button>
             );
@@ -806,7 +821,9 @@ export function QuestSessionView({
         <QuestAnswerGuide dismissAnswerGuide={dismissAnswerGuide} />
       )}
       <span className="sr-only" aria-live="polite">
-        {isVideoPlaying ? "视频正在播放" : "视频未播放"}
+        {isVideoPlaying
+          ? uiCopy.questSessionView.videoPlaying
+          : uiCopy.questSessionView.videoStopped}
       </span>
       <MediaViewer
         state={mediaViewer}

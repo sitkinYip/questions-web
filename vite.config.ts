@@ -1,5 +1,8 @@
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+// Bootstrap imports run before Vite initializes its aliases.
 import { createBuildInfo } from "./scripts/build-info.ts";
+import { uiCopy } from "./src/config/ui-copy.ts";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
@@ -13,10 +16,35 @@ export default defineConfig(({ mode }) => {
   );
 
   return {
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@scripts": fileURLToPath(new URL("./scripts", import.meta.url)),
+        "@e2e": fileURLToPath(new URL("./e2e", import.meta.url)),
+      },
+    },
     define: { __APP_BUILD__: JSON.stringify(buildInfo) },
     base: env.VITE_PUBLIC_BASE || "/",
     plugins: [
       react(),
+      {
+        name: "ui-copy-metadata",
+        transformIndexHtml(html) {
+          const escapeHtml = (value: string) =>
+            value
+              .replaceAll("&", "&amp;")
+              .replaceAll('"', "&quot;")
+              .replaceAll("<", "&lt;")
+              .replaceAll(">", "&gt;");
+          return html
+            .replace("__UI_COPY_TITLE__", () =>
+              escapeHtml(uiCopy.document.title),
+            )
+            .replace("__UI_COPY_DESCRIPTION__", () =>
+              escapeHtml(uiCopy.document.description),
+            );
+        },
+      },
       {
         name: "build-manifest",
         generateBundle() {

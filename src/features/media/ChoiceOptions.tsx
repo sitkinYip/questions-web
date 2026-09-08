@@ -1,4 +1,5 @@
-import type { QuestOption } from "../../domain/quest/types";
+import { uiCopy } from "@/config/ui-copy";
+import type { QuestOption } from "@/domain/quest/types";
 
 interface ChoiceOptionsProps {
   questId: string;
@@ -21,7 +22,7 @@ export function ChoiceOptions({
 }: ChoiceOptionsProps) {
   return (
     <fieldset disabled={disabled}>
-      <legend className="sr-only">请选择答案</legend>
+      <legend className="sr-only">{uiCopy.choiceOptions.legend}</legend>
       <div className="choice-list">
         {options.map((option) => (
           <div
@@ -37,7 +38,9 @@ export function ChoiceOptions({
                 onChange={(event) => onChange(event.target.value)}
               />
               <strong>{option.key}</strong>
-              <span>{option.text || `选项 ${option.key}`}</span>
+              <span>
+                {option.text || uiCopy.choiceOptions.option(option.key)}
+              </span>
             </label>
             {(option.imageUrl || option.videoUrl) && (
               <button
@@ -52,14 +55,14 @@ export function ChoiceOptions({
                 }}
                 aria-label={
                   option.videoUrl
-                    ? `播放选项 ${option.key} 视频`
-                    : `查看选项 ${option.key} 图片`
+                    ? uiCopy.choiceOptions.playVideo(option.key)
+                    : uiCopy.choiceOptions.viewImage(option.key)
                 }
               >
                 {option.imageUrl ? (
                   <img src={option.imageUrl} alt="" loading="lazy" />
                 ) : (
-                  <span>播放影像</span>
+                  <span>{uiCopy.choiceOptions.play}</span>
                 )}
                 {option.videoUrl && <span aria-hidden="true">▶</span>}
               </button>

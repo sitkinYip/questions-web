@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchNotifications } from "./client";
-import { adaptNotificationRecord } from "./notification.adapter";
-import { notificationRecordSchema } from "./notification.schema";
+import { fetchNotifications } from "@/api/client";
+import { adaptNotificationRecord } from "@/api/notification.adapter";
+import { notificationRecordSchema } from "@/api/notification.schema";
 
 describe("PocketBase notification contract", () => {
   afterEach(() => vi.unstubAllGlobals());

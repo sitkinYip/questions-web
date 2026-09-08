@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sanitizeMediaUrl } from "../domain/content/parser";
+import { sanitizeMediaUrl } from "@/domain/content/parser";
 import type {
   GameAssignment,
   GamePlayer,
@@ -8,7 +8,7 @@ import type {
   GameNotification,
   GameAssignmentSummary,
   GameClue,
-} from "./game.contracts";
+} from "@/api/game.contracts";
 
 const media = z
   .string()

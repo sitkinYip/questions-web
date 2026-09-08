@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { NativeVideo } from "./NativeVideo";
+import { NativeVideo } from "@/features/media/NativeVideo";
 
 afterEach(() => vi.restoreAllMocks());
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { authState, gameRequest } from "./game.client";
-import { requestJson } from "./request";
+import { authState, gameRequest } from "@/api/game.client";
+import { requestJson } from "@/api/request";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => {

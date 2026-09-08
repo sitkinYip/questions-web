@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 interface BgmControlsProps {
   visible: boolean;
   isPlaying: boolean;
@@ -49,10 +50,10 @@ export function BgmControls({
           onOpenChange={(open) => {
             if (!open) onDismissAuthHint();
           }}
-          title="背景音乐提示"
-          description="浏览器需要一次手动确认，之后会记住你的选择。"
-          actionLabel="开启背景音乐"
-          actionAltText="开启背景音乐，也可以稍后使用悬浮音乐按钮"
+          title={uiCopy.bgmControls.title}
+          description={uiCopy.bgmControls.description}
+          actionLabel={uiCopy.bgmControls.enable}
+          actionAltText={uiCopy.bgmControls.enableDescription}
           onAction={onAuthorize}
           duration={15_000}
         />
@@ -66,7 +67,9 @@ export function BgmControls({
         onClick={() => {
           if (!consumeSuppressedClick()) onToggle();
         }}
-        aria-label={isPlaying ? "暂停背景音乐" : "播放背景音乐"}
+        aria-label={
+          isPlaying ? uiCopy.bgmControls.pause : uiCopy.bgmControls.play
+        }
         aria-pressed={isPlaying}
         aria-describedby="bgm-drag-instructions"
         data-playback-state={isPlaying ? "playing" : "paused"}
@@ -92,16 +95,16 @@ export function BgmControls({
           </span>
         )}
         <span className="sr-only">
-          {isPlaying ? "当前正在播放" : "当前已暂停"}
+          {isPlaying ? uiCopy.bgmControls.playing : uiCopy.bgmControls.paused}
         </span>
       </button>
       <span id="bgm-drag-instructions" className="sr-only">
-        可拖拽移动；键盘用户可按 Alt 加方向键调整位置。
+        {uiCopy.bgmControls.dragInstructions}
       </span>
     </>
   );
 }
 import { useCallback, useMemo } from "react";
-import { AppToast } from "../../components/ui/Toast";
-import { createBgmPreferencesRepository } from "../../infrastructure/storage/audio.repository";
-import { useDraggableFloatingControl } from "../../shared/gestures/useDraggableFloatingControl";
+import { AppToast } from "@/components/ui/Toast";
+import { createBgmPreferencesRepository } from "@/infrastructure/storage/audio.repository";
+import { useDraggableFloatingControl } from "@/shared/gestures/useDraggableFloatingControl";

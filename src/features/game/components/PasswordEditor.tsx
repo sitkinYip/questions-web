@@ -1,10 +1,11 @@
+import { uiCopy } from "@/config/ui-copy";
 import { KeyIcon } from "@phosphor-icons/react";
-import { Button } from "../../../components/ui/Button";
-import { Field } from "../../../components/ui/FormControls";
-import { PasswordInput } from "../../../components/ui/PasswordInput";
-import { GameFailure } from "./GameState";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/FormControls";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { GameFailure } from "@/features/game/components/GameState";
 
-import type { usePasswordEditor } from "../hooks/usePasswordEditor";
+import type { usePasswordEditor } from "@/features/game/hooks/usePasswordEditor";
 
 export function PasswordEditor({
   editor,
@@ -29,25 +30,27 @@ export function PasswordEditor({
     <section className="game-password-section">
       <div className="game-section-title">
         <KeyIcon aria-hidden="true" />
-        <h2>{forced ? "首次登录，请先修改密码" : "给你的故事，上把锁。"}</h2>
+        <h2>
+          {forced
+            ? uiCopy.passwordEditor.forcedTitle
+            : uiCopy.passwordEditor.title}
+        </h2>
       </div>
-      <p className="game-muted">
-        设置只有你知道的通行密语。使用 10—71 个字符。
-      </p>
+      <p className="game-muted">{uiCopy.passwordEditor.description}</p>
       <form
         className="game-form"
         aria-busy={mutation.isPending}
         onSubmit={(event) => {
           event.preventDefault();
           if (password !== confirmation) {
-            setValidation("两次新密码不一致，请再核对一下。");
+            setValidation(uiCopy.passwordEditor.mismatch);
             return;
           }
           setValidation("");
           if (!mutation.isPending) mutation.mutate();
         }}
       >
-        <Field label="当前密码">
+        <Field label={uiCopy.passwordEditor.currentPassword}>
           <PasswordInput
             autoComplete="current-password"
             required
@@ -59,7 +62,7 @@ export function PasswordEditor({
             }}
           />
         </Field>
-        <Field label="新密码">
+        <Field label={uiCopy.passwordEditor.newPassword}>
           <PasswordInput
             autoComplete="new-password"
             minLength={10}
@@ -74,7 +77,7 @@ export function PasswordEditor({
             }}
           />
         </Field>
-        <Field label="确认新密码">
+        <Field label={uiCopy.passwordEditor.confirmPassword}>
           <PasswordInput
             autoComplete="new-password"
             minLength={10}
@@ -99,7 +102,7 @@ export function PasswordEditor({
         {mutation.isError && <GameFailure error={mutation.error} />}
         {mutation.isSuccess && !forced && (
           <p className="game-form-success" role="status">
-            密码已更新。你的冒险记录，安心留在这里。
+            {uiCopy.passwordEditor.saved}
           </p>
         )}
         <Button
@@ -108,11 +111,13 @@ export function PasswordEditor({
           className="game-cta"
           disabled={mutation.isPending}
         >
-          {mutation.isPending ? "正在保存…" : "保存新密码"}
+          {mutation.isPending
+            ? uiCopy.passwordEditor.saving
+            : uiCopy.passwordEditor.save}
         </Button>
         {forced && (
           <Button variant="ghost" onClick={logout}>
-            退出登录
+            {uiCopy.passwordEditor.logout}
           </Button>
         )}
       </form>

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MULTI_CLUE_LAUNCHER_POSITION_KEY } from "../../infrastructure/storage/multi-clue-launcher.repository";
-import { MultiClueLauncher } from "./MultiClueLauncher";
+import { MULTI_CLUE_LAUNCHER_POSITION_KEY } from "@/infrastructure/storage/multi-clue-launcher.repository";
+import { MultiClueLauncher } from "@/features/clues/MultiClueLauncher";
 
 describe("MultiClueLauncher", () => {
   beforeEach(() => window.localStorage.clear());

@@ -1,8 +1,9 @@
-import { EnergyBurst } from "../../../components/effects/QuestAtmosphere";
-import { QuestContent } from "../../media/QuestContent";
-import { QuestAnswerForm } from "../../quest/QuestAnswerForm";
-import { AnswerFeedback } from "../../quest/AnswerFeedback";
-import type { QuestCardProps } from "../../quest/quest-card.types";
+import { uiCopy } from "@/config/ui-copy";
+import { EnergyBurst } from "@/components/effects/QuestAtmosphere";
+import { QuestContent } from "@/features/media/QuestContent";
+import { QuestAnswerForm } from "@/features/quest/QuestAnswerForm";
+import { AnswerFeedback } from "@/features/quest/AnswerFeedback";
+import type { QuestCardProps } from "@/features/quest/quest-card.types";
 
 /** Desktop reading pane and persistent answer area, with no judgement/persistence logic. */
 export function DesktopQuestCard(props: QuestCardProps) {
@@ -24,17 +25,23 @@ export function DesktopQuestCard(props: QuestCardProps) {
       className="quest-card desktop-question"
       data-answer-state={activeAttempt.status}
       tabIndex={-1}
-      aria-label={`第 ${activeQuestionNumber} 题`}
+      aria-label={uiCopy.desktopQuestCard.questionNumber(activeQuestionNumber)}
       {...swipeHandlers}
     >
       <div
         className="desktop-question__reading"
         tabIndex={0}
-        aria-label="题目内容"
+        aria-label={uiCopy.desktopQuestCard.contentLabel}
       >
         <div className="quest-meta">
-          <span>第 {activeQuestionNumber} 题</span>
-          <span>{activeQuest.kind === "choice" ? "选择题" : "填空题"}</span>
+          <span>
+            {uiCopy.desktopQuestCard.questionNumber(activeQuestionNumber)}
+          </span>
+          <span>
+            {activeQuest.kind === "choice"
+              ? uiCopy.desktopQuestCard.choice
+              : uiCopy.desktopQuestCard.text}
+          </span>
         </div>
         {activeQuest.title && <h1>{activeQuest.title}</h1>}
         <QuestContent
@@ -46,8 +53,12 @@ export function DesktopQuestCard(props: QuestCardProps) {
         {availability.status !== "available" && (
           <div className="availability-notice" role="status">
             {availability.status === "not-started"
-              ? `开放时间：${new Date(availability.startsAt).toLocaleString()}`
-              : `已于 ${new Date(availability.endedAt).toLocaleString()} 结束`}
+              ? uiCopy.desktopQuestCard.startsAt(
+                  new Date(availability.startsAt).toLocaleString(),
+                )
+              : uiCopy.desktopQuestCard.endedAt(
+                  new Date(availability.endedAt).toLocaleString(),
+                )}
           </div>
         )}
       </div>

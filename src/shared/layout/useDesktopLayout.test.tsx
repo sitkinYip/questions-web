@@ -1,6 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { DESKTOP_LAYOUT_QUERY, useDesktopLayout } from "./useDesktopLayout";
+import {
+  DESKTOP_LAYOUT_QUERY,
+  useDesktopLayout,
+} from "@/shared/layout/useDesktopLayout";
 
 afterEach(() => vi.unstubAllGlobals());
 

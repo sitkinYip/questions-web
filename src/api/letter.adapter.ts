@@ -1,6 +1,7 @@
-import { sanitizeMediaUrl } from "../domain/content/parser.ts";
-import type { Letter } from "../domain/letter/types.ts";
-import type { LetterRecord } from "./letter.schema.ts";
+import { uiCopy } from "@/config/ui-copy";
+import { sanitizeMediaUrl } from "@/domain/content/parser.ts";
+import type { Letter } from "@/domain/letter/types.ts";
+import type { LetterRecord } from "@/api/letter.schema.ts";
 
 export function adaptLetterRecord(record: LetterRecord): Letter {
   return {
@@ -11,7 +12,9 @@ export function adaptLetterRecord(record: LetterRecord): Letter {
     description: record.desc ?? undefined,
     hintText:
       record.hintText ??
-      (record.type === "classical" ? "亲启" : "点击开启信件"),
+      (record.type === "classical"
+        ? uiCopy.letterAdapter.classicalHint
+        : uiCopy.letterAdapter.openHint),
     paragraphs: record.paragraphConfigList.map((paragraph) => ({
       content: paragraph.content,
       align: paragraph.align,

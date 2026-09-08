@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
-import { OverlayContext } from "./overlay-context";
+import { OverlayContext } from "@/components/ui/overlay-context";
 
 interface OverlayEntry {
   id: string;

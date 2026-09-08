@@ -1,34 +1,34 @@
-import { GameLayout } from "../src/features/game/components/GameLayout";
+import { GameLayout } from "@/features/game/components/GameLayout";
 /** Dev-only visual fixture. Not referenced by the production entry or build. */
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { gameApi } from "../src/api/game.client";
-import { ThemeProvider } from "../src/components/ui/ThemeProvider";
-import { OverlayProvider } from "../src/components/ui/OverlayProvider";
-import { GameContext } from "../src/features/game/useGame";
-import { GameDashboard } from "../src/features/game/pages/GameDashboard";
-import { GameProfilePage } from "../src/features/game/pages/GameProfilePage";
-import { GameRewardsPage } from "../src/features/game/pages/GameRewardsPage";
-import { GameNotificationsPage } from "../src/features/game/pages/GameNotificationsPage";
-import { GamePlayView } from "../src/features/game/GamePlayPage";
-import { LetterExperience } from "../src/features/letter/LetterExperience";
-import { RankUpDialog } from "../src/features/rank/RankUpDialog";
+import { gameApi } from "@/api/game.client";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { OverlayProvider } from "@/components/ui/OverlayProvider";
+import { GameContext } from "@/features/game/useGame";
+import { GameDashboard } from "@/features/game/pages/GameDashboard";
+import { GameProfilePage } from "@/features/game/pages/GameProfilePage";
+import { GameRewardsPage } from "@/features/game/pages/GameRewardsPage";
+import { GameNotificationsPage } from "@/features/game/pages/GameNotificationsPage";
+import { GamePlayView } from "@/features/game/GamePlayPage";
+import { LetterExperience } from "@/features/letter/LetterExperience";
+import { RankUpDialog } from "@/features/rank/RankUpDialog";
 import {
   desktopAssignment,
   desktopLetter,
   desktopNarrativeAssignment,
-} from "./desktop-preview-data";
-import { imageAssignment } from "./question-image-fixtures";
-import { GameLoadingScreen } from "../src/features/game/components/GameLoadingScreen";
+} from "@e2e/desktop-preview-data";
+import { imageAssignment } from "@e2e/question-image-fixtures";
+import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 import {
   makeAssignment,
   makeNotifications,
   makePlayer,
   makeRewards,
-} from "../src/test/game-fixtures";
-import "../src/index.css";
+} from "@/test/game-fixtures";
+import "@/index.css";
 
 if (!import.meta.env.DEV)
   throw new Error("Visual fixtures are development-only.");

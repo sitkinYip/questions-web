@@ -1,4 +1,4 @@
-import type { ContentSegment } from "./types.ts";
+import type { ContentSegment } from "@/domain/content/types.ts";
 
 const tokenPattern =
   /\[\[.*?\]\]|\(\(.*?\|\|.*?\)\)(?!\))|\{\{.*?\}\}|<<.*?>>|\r?\n/gs;

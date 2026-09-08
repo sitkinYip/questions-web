@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NOTIFICATION_LAUNCHER_POSITION_KEY } from "../../infrastructure/storage/notification.repository";
-import { NotificationCenter } from "./NotificationCenter";
+import { NOTIFICATION_LAUNCHER_POSITION_KEY } from "@/infrastructure/storage/notification.repository";
+import { NotificationCenter } from "@/features/notification/NotificationCenter";
 
 const notificationHookMock = vi.hoisted(() => ({
   unreadCount: 1,
@@ -9,7 +9,7 @@ const notificationHookMock = vi.hoisted(() => ({
   dismissCurrent: vi.fn(),
 }));
 
-vi.mock("./useNotifications", () => ({
+vi.mock("@/features/notification/useNotifications", () => ({
   useNotifications: () => ({
     notifications: [
       {

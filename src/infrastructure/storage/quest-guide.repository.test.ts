@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createQuestAnswerGuideRepository,
   questAnswerGuideKey,
-} from "./quest-guide.repository";
+} from "@/infrastructure/storage/quest-guide.repository";
 
 describe("quest answer guide repository", () => {
   it("marks the guide as seen per user", () => {

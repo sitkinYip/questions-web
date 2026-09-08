@@ -1,22 +1,23 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useId, type ReactNode } from "react";
 import { CompassIcon, StarFourIcon } from "@phosphor-icons/react";
-import { CelestialAtlas } from "../../../components/effects/CelestialAtlas";
+import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
 
 const loadingScenes = {
   player: {
-    title: "拾起你的冒险足迹",
-    label: "正在读取冒险者资料…",
-    hint: "每一段走过的路，都有星光记得。",
+    title: uiCopy.gameLoadingScreen.playerTitle,
+    label: uiCopy.gameLoadingScreen.playerLabel,
+    hint: uiCopy.gameLoadingScreen.playerHint,
   },
   journey: {
-    title: "下一段冒险，正在苏醒",
-    label: "正在准备本场冒险…",
-    hint: "循着微光，走进故事的另一面。",
+    title: uiCopy.gameLoadingScreen.assignmentTitle,
+    label: uiCopy.gameLoadingScreen.assignmentLabel,
+    hint: uiCopy.gameLoadingScreen.assignmentHint,
   },
   narrative: {
-    title: "故事，正为你展开",
-    label: "正在准备这份专属内容…",
-    hint: "有些话，正等着被你读到。",
+    title: uiCopy.gameLoadingScreen.narrativeTitle,
+    label: uiCopy.gameLoadingScreen.narrativeLabel,
+    hint: uiCopy.gameLoadingScreen.narrativeHint,
   },
 } as const;
 
@@ -46,7 +47,7 @@ export function GameLoadingScreen({
         {header ?? (
           <span className="game-loading-screen__brand">
             <CompassIcon weight="thin" aria-hidden="true" />
-            QUESTIONS
+            {uiCopy.gameLoadingScreen.brand}
           </span>
         )}
       </div>
@@ -57,7 +58,9 @@ export function GameLoadingScreen({
           <CelestialAtlas />
         </div>
         <div className="game-loading-screen__copy">
-          <p className="game-loading-screen__eyebrow">星图正在显现</p>
+          <p className="game-loading-screen__eyebrow">
+            {uiCopy.gameLoadingScreen.eyebrow}
+          </p>
           <h1 id={titleId}>{copy.title}</h1>
           <p
             className="game-loading-screen__status"
@@ -78,7 +81,7 @@ export function GameLoadingScreen({
       </section>
       <footer className="game-loading-screen__footer">
         <span />
-        答案之外 · 另有天地
+        {uiCopy.gameLoadingScreen.tagline}
         <span />
       </footer>
     </main>

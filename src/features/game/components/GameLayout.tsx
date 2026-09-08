@@ -1,13 +1,14 @@
-import { VersionSecret } from "../../version/VersionSecret";
-import { GameNavigation } from "./GameNavigation";
+import { uiCopy } from "@/config/ui-copy";
+import { VersionSecret } from "@/features/version/VersionSecret";
+import { GameNavigation } from "@/features/game/components/GameNavigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { ArrowLeftIcon, StarFourIcon } from "@phosphor-icons/react";
-import { GameSidebar } from "../GameSidebar";
-import { useGame } from "../useGame";
+import { GameSidebar } from "@/features/game/GameSidebar";
+import { useGame } from "@/features/game/useGame";
 
-import { gameReturnPath } from "../game-navigation";
-import { useDesktopLayout } from "../../../shared/layout/useDesktopLayout";
+import { gameReturnPath } from "@/features/game/game-navigation";
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 
 export function GameBrand() {
   return (
@@ -16,9 +17,10 @@ export function GameBrand() {
       <Link
         className="game-brand__wordmark"
         to="/"
-        aria-label="Questions · 回到启程"
+        aria-label={uiCopy.gameLayout.homeLabel}
       >
-        QUESTIONS<small>答案之外 · 另有天地</small>
+        {uiCopy.gameLayout.brand}
+        <small>{uiCopy.gameLayout.tagline}</small>
       </Link>
     </div>
   );
@@ -46,7 +48,7 @@ export function GameLayout() {
       data-desktop={isDesktop ? desktopMode : undefined}
     >
       <a href="#game-content" className="game-skip-link">
-        跳到主要内容
+        {uiCopy.gameLayout.skipContent}
       </a>
       <header className="game-topbar">
         <GameBrand />
@@ -68,7 +70,7 @@ export function GameLayout() {
         {returnTo && (
           <Link className="game-return-link" to={returnTo}>
             <ArrowLeftIcon aria-hidden="true" />
-            返回正在探索的场次
+            {uiCopy.gameLayout.backToAssignment}
           </Link>
         )}
         <div key={location.pathname} className="game-page-enter">
@@ -78,7 +80,7 @@ export function GameLayout() {
       <footer className="game-footer">
         <span />
         <StarFourIcon aria-hidden="true" />
-        <p>不必急着找到答案，奇遇就在路上。</p>
+        <p>{uiCopy.gameLayout.footer}</p>
         <span />
       </footer>
     </div>

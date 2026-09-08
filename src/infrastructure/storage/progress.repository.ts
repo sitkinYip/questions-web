@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { createEmptyAttempt } from "../../domain/quest/session";
-import type { Quest, QuestAttempt } from "../../domain/quest/types";
+import { createEmptyAttempt } from "@/domain/quest/session";
+import type { Quest, QuestAttempt } from "@/domain/quest/types";
 
 export interface KeyValueStorage {
   getItem(key: string): string | null;

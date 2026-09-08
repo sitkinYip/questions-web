@@ -9,4 +9,4 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-declare const __APP_BUILD__: import("../scripts/build-info").BuildInfo;
+declare const __APP_BUILD__: import("@scripts/build-info").BuildInfo;

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchNotifications } from "../../api/client";
-import { ApiError } from "../../api/errors";
-import type { Notification } from "../../domain/notification/types";
-import { createNotificationSeenRepository } from "../../infrastructure/storage/notification.repository";
+import { fetchNotifications } from "@/api/client";
+import { ApiError } from "@/api/errors";
+import type { Notification } from "@/domain/notification/types";
+import { createNotificationSeenRepository } from "@/infrastructure/storage/notification.repository";
 
 const POLL_INTERVAL_MS = 5_000;
 

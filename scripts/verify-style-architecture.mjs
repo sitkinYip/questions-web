@@ -70,7 +70,7 @@ async function collectCssFiles(directory) {
 
 const failures = [];
 const entry = await readFile(entryPath, "utf8");
-const imports = [...entry.matchAll(/@import "\.\/styles\/(.+?)";/g)].map(
+const imports = [...entry.matchAll(/@import "@\/styles\/(.+?)";/g)].map(
   ([, path]) => path,
 );
 

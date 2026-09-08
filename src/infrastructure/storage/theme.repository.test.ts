@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createThemePreferencesRepository,
   THEME_PREFERENCES_KEY,
-} from "./theme.repository";
+} from "@/infrastructure/storage/theme.repository";
 
 function memoryStorage(initial?: string) {
   let value = initial ?? null;

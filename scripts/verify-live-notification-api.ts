@@ -1,6 +1,6 @@
-import { adaptNotificationRecord } from "../src/api/notification.adapter.ts";
-import { notificationsResponseSchema } from "../src/api/notification.schema.ts";
-import { parseLegacyContent } from "../src/domain/content/parser.ts";
+import { adaptNotificationRecord } from "@/api/notification.adapter.ts";
+import { notificationsResponseSchema } from "@/api/notification.schema.ts";
+import { parseLegacyContent } from "@/domain/content/parser.ts";
 
 let input = "";
 process.stdin.setEncoding("utf8");

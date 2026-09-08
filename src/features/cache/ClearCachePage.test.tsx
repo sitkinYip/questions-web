@@ -2,9 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ClearCachePage } from "./ClearCachePage";
+import { ClearCachePage } from "@/features/cache/ClearCachePage";
 
-vi.mock("../../api/client", () => ({
+vi.mock("@/api/client", () => ({
   fetchQuests: vi.fn().mockResolvedValue([]),
 }));
 

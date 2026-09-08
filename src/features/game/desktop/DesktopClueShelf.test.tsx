@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { QuestClue } from "../../../domain/quest/types";
-import { DesktopClueShelf } from "./DesktopClueShelf";
+import type { QuestClue } from "@/domain/quest/types";
+import { DesktopClueShelf } from "@/features/game/desktop/DesktopClueShelf";
 
 const mediaUrl = "https://protected.example/scene.mp4";
 const clue: QuestClue = {

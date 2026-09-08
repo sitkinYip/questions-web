@@ -1,16 +1,17 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useEffect, useState } from "react";
 import { Tabs } from "radix-ui";
-import { CelestialAtlas } from "../../../components/effects/CelestialAtlas";
-import { GamePageHeading } from "../components/GameLayout";
-import { PlayerPassport } from "../components/PlayerPassport";
-import { AssignmentCard } from "../components/AssignmentCard";
+import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
+import { GamePageHeading } from "@/features/game/components/GameLayout";
+import { PlayerPassport } from "@/features/game/components/PlayerPassport";
+import { AssignmentCard } from "@/features/game/components/AssignmentCard";
 import {
   GameEmptyState,
   GameFailure,
   GameLoading,
-} from "../components/GameState";
-import { useAssignments } from "../game-queries";
-import { useGame } from "../useGame";
+} from "@/features/game/components/GameState";
+import { useAssignments } from "@/features/game/game-queries";
+import { useGame } from "@/features/game/useGame";
 
 export function GameDashboard() {
   const { player } = useGame();
@@ -35,19 +36,24 @@ export function GameDashboard() {
           <div className="game-lobby__intro">
             <CelestialAtlas compact />
             <GamePageHeading
-              eyebrow="你的冒险，从这里续写"
-              title="下一段故事，等你落笔。"
+              eyebrow={uiCopy.gameDashboard.eyebrow}
+              title={uiCopy.gameDashboard.title}
             >
-              有些答案，要亲自出发才能找到。
+              {uiCopy.gameDashboard.description}
             </GamePageHeading>
           </div>
           <Tabs.Root defaultValue="current" className="game-tabs">
-            <Tabs.List className="game-tabs__list" aria-label="场次分类">
+            <Tabs.List
+              className="game-tabs__list"
+              aria-label={uiCopy.gameDashboard.tabsLabel}
+            >
               <Tabs.Trigger value="current">
-                待赴之约 <span>{current.length}</span>
+                {uiCopy.gameDashboard.upcoming}
+                <span>{current.length}</span>
               </Tabs.Trigger>
               <Tabs.Trigger value="history">
-                旅途回响 <span>{history.length}</span>
+                {uiCopy.gameDashboard.history}
+                <span>{history.length}</span>
               </Tabs.Trigger>
             </Tabs.List>
             {(
@@ -72,13 +78,13 @@ export function GameDashboard() {
                   <GameEmptyState
                     title={
                       value === "current"
-                        ? "下一场奇遇，正在酝酿。"
-                        : "故事的第一页，还空着。"
+                        ? uiCopy.gameDashboard.upcomingEmptyTitle
+                        : uiCopy.gameDashboard.historyEmptyTitle
                     }
                   >
                     {value === "current"
-                      ? "还没有待玩场次。找现场工作人员领取你的旅程，新的邀请会自动出现在这里。"
-                      : "完成一场冒险，就会在这里留下你的足迹。"}
+                      ? uiCopy.gameDashboard.upcomingEmptyDescription
+                      : uiCopy.gameDashboard.historyEmptyDescription}
                   </GameEmptyState>
                 )}
                 <div className="chapter-list">
@@ -95,7 +101,7 @@ export function GameDashboard() {
               </Tabs.Content>
             ))}
           </Tabs.Root>
-          <p className="game-sync-note">场次与进度会自动同步，放心去探索。</p>
+          <p className="game-sync-note">{uiCopy.gameDashboard.syncHint}</p>
         </div>
         <aside className="game-lobby__passport">
           <PlayerPassport editable />

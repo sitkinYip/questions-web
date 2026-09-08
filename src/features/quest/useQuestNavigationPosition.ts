@@ -1,5 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
-import { useOverlayStatus } from "../../components/ui/overlay-context";
+import { useOverlayStatus } from "@/components/ui/overlay-context";
 
 const POSITION_AFTER_OVERLAY_MS = 80;
 

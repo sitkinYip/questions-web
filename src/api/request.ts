@@ -1,5 +1,6 @@
-import { ApiError } from "./errors";
-import { withSilentRetry, isTransientStatus } from "./retry";
+import { uiCopy } from "@/config/ui-copy";
+import { ApiError } from "@/api/errors";
+import { withSilentRetry, isTransientStatus } from "@/api/retry";
 
 interface RequestJsonOptions {
   signal?: AbortSignal;
@@ -10,7 +11,8 @@ interface RequestJsonOptions {
 export function requestJson(url: string, options: RequestJsonOptions) {
   return withSilentRetry(() => requestJsonAttempt(url, options), {
     signal: options.signal,
-    cancelled: () => new ApiError("cancelled", `已取消加载${options.resource}`),
+    cancelled: () =>
+      new ApiError("cancelled", uiCopy.request.cancelled(options.resource)),
     shouldRetry: (error) =>
       error instanceof ApiError &&
       (error.kind === "network" ||
@@ -39,14 +41,14 @@ async function requestJsonAttempt(
       headers: { Accept: "application/json" },
     });
     if (!response.ok)
-      throw new ApiError("http", `无法加载${resource}`, {
+      throw new ApiError("http", uiCopy.request.loadFailed(resource), {
         status: response.status,
       });
     try {
       return { data: await response.json(), status: response.status };
     } catch (error) {
       if (controller.signal.aborted || error instanceof TypeError) throw error;
-      throw new ApiError("contract", `${resource}返回了无效 JSON`, {
+      throw new ApiError("contract", uiCopy.request.invalidJson(resource), {
         status: response.status,
         cause: error,
       });
@@ -54,14 +56,20 @@ async function requestJsonAttempt(
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (timedOut)
-      throw new ApiError("timeout", `加载${resource}超时`, { cause: error });
+      throw new ApiError("timeout", uiCopy.request.timeout(resource), {
+        cause: error,
+      });
     if (signal?.aborted)
-      throw new ApiError("cancelled", `已取消加载${resource}`, {
+      throw new ApiError("cancelled", uiCopy.request.cancelled(resource), {
         cause: error,
       });
     if (error instanceof TypeError)
-      throw new ApiError("network", `无法连接${resource}`, { cause: error });
-    throw new ApiError("unknown", `加载${resource}失败`, { cause: error });
+      throw new ApiError("network", uiCopy.request.connectionFailed(resource), {
+        cause: error,
+      });
+    throw new ApiError("unknown", uiCopy.request.failed(resource), {
+      cause: error,
+    });
   } finally {
     window.clearTimeout(timeout);
     signal?.removeEventListener("abort", handleExternalAbort);
@@ -73,7 +81,7 @@ export function contractError(
   status: number,
   cause: unknown,
 ) {
-  return new ApiError("contract", `${resource}返回了不兼容的数据`, {
+  return new ApiError("contract", uiCopy.request.incompatibleData(resource), {
     status,
     cause,
   });

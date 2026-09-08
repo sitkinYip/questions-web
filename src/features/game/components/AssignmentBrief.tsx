@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   MapTrifoldIcon,
   PuzzlePieceIcon,
@@ -6,15 +7,15 @@ import {
   HouseLineIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import type { GameAssignment } from "../../../api/game.contracts";
-import { Button } from "../../../components/ui/Button";
-import { CelestialAtlas } from "../../../components/effects/CelestialAtlas";
+import type { GameAssignment } from "@/api/game.contracts";
+import { Button } from "@/components/ui/Button";
+import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
 import {
   assignmentState,
   formatGameDate,
   rankRequirement,
-} from "../game-presentation";
-import { GameFailure } from "./GameState";
+} from "@/features/game/game-presentation";
+import { GameFailure } from "@/features/game/components/GameState";
 
 export function AssignmentBrief({
   assignment,
@@ -38,30 +39,32 @@ export function AssignmentBrief({
         <CelestialAtlas compact />
       </div>
       <div className="assignment-brief__body">
-        <p className="eyebrow">一段新的旅程</p>
+        <p className="eyebrow">{uiCopy.assignmentBrief.eyebrow}</p>
         <h1>{assignment.title}</h1>
         <p className="assignment-brief__description">
-          {assignment.description || "循着线索，去发现故事另一面的答案。"}
+          {assignment.description || uiCopy.assignmentBrief.description}
         </p>
         <dl className="assignment-brief__facts">
           <div>
             <dt>
               <PuzzlePieceIcon aria-hidden="true" />
-              谜题
+              {uiCopy.assignmentBrief.puzzles}
             </dt>
-            <dd>{assignment.totalLevels} 道等待解开</dd>
+            <dd>
+              {uiCopy.assignmentBrief.puzzleCount(assignment.totalLevels)}
+            </dd>
           </div>
           <div>
             <dt>
               <MapTrifoldIcon aria-hidden="true" />
-              参与等级
+              {uiCopy.assignmentBrief.level}
             </dt>
             <dd>{rankRequirement(assignment)}</dd>
           </div>
           <div>
             <dt>
               <ClockIcon aria-hidden="true" />
-              开放时间
+              {uiCopy.assignmentBrief.startsAt}
             </dt>
             <dd>
               {assignment.startsAt ? (
@@ -69,13 +72,13 @@ export function AssignmentBrief({
                   {formatGameDate(assignment.startsAt)}
                 </time>
               ) : (
-                "现在就能出发"
+                uiCopy.assignmentBrief.availableNow
               )}
             </dd>
           </div>
           {assignment.endsAt && (
             <div>
-              <dt>旅程截止</dt>
+              <dt>{uiCopy.assignmentBrief.endsAt}</dt>
               <dd>
                 <time dateTime={assignment.endsAt}>
                   {formatGameDate(assignment.endsAt)}
@@ -88,10 +91,10 @@ export function AssignmentBrief({
           <p className="game-muted" role="status">
             {state.label}
             {state.kind === "expired"
-              ? "，请联系现场工作人员。"
+              ? uiCopy.assignmentBrief.revokedHint
               : state.kind === "locked"
-                ? "，请确认场次的参与等级。"
-                : "，旅程开放后就能出发。"}
+                ? uiCopy.assignmentBrief.levelHint
+                : uiCopy.assignmentBrief.waitingHint}
           </p>
         )}
         {!!error && <GameFailure error={error} />}
@@ -102,17 +105,19 @@ export function AssignmentBrief({
             onClick={onStart}
             disabled={pending || !state.canStart}
           >
-            {pending ? "正在进入…" : "开始本场冒险"}
+            {pending
+              ? uiCopy.assignmentBrief.entering
+              : uiCopy.assignmentBrief.start}
             <ArrowRightIcon aria-hidden="true" />
           </Button>
           {state.kind === "expired" && (
             <Link className="game-action-link game-action-link--primary" to="/">
               <HouseLineIcon aria-hidden="true" />
-              回到首页
+              {uiCopy.assignmentBrief.home}
             </Link>
           )}
         </div>
-        <p className="game-muted">解谜进度会自动保存，随时可以回来继续。</p>
+        <p className="game-muted">{uiCopy.assignmentBrief.saveHint}</p>
       </div>
     </section>
   );

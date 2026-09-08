@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { GamePlayer } from "../../api/game.contracts";
+import type { GamePlayer } from "@/api/game.contracts";
 
 export const GameContext = createContext<{
   player: GamePlayer;

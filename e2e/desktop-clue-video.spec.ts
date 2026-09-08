@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { login, mockQuestionsApi } from "./fixtures";
-import { desktopAssignment, desktopVideoClue } from "./desktop-preview-data";
+import { login, mockQuestionsApi } from "@e2e/fixtures";
+import { desktopAssignment, desktopVideoClue } from "@e2e/desktop-preview-data";
 
 for (const theme of ["light", "dark"] as const) {
   test(`desktop video clue is one aligned in-page action in ${theme} mode`, async ({

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "./fixtures";
-import { desktopAssignment } from "./desktop-preview-data";
+import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { desktopAssignment } from "@e2e/desktop-preview-data";
 
 function deferred() {
   let resolve!: () => void;

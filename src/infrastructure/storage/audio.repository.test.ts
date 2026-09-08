@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   BGM_PREFERENCES_KEY,
   createBgmPreferencesRepository,
-} from "./audio.repository";
+} from "@/infrastructure/storage/audio.repository";
 
 describe("BGM preferences repository", () => {
   it("defaults to enabled and persists an explicit pause", () => {

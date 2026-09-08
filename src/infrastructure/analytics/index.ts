@@ -1,4 +1,4 @@
-import type { AnalyticsEvent } from "./events";
+import type { AnalyticsEvent } from "@/infrastructure/analytics/events";
 // The authenticated game records operations on its own backend. Reused visual
 // components must never send answers, private clues or names to legacy telemetry,
 // even when an old ?user= link or analytics environment setting is still present.

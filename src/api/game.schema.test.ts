@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { makeAssignment, makePlayer } from "../test/game-fixtures";
+import { makeAssignment, makePlayer } from "@/test/game-fixtures";
 import {
   gameAnswerSchema,
   gameAssignmentSchema,
   gameClueSchema,
-} from "./game.schema";
+} from "@/api/game.schema";
 
 const content = {
   title: "线索",

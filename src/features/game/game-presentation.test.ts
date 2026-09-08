@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { makeAssignment, makePlayer } from "../../test/game-fixtures";
+import { makeAssignment, makePlayer } from "@/test/game-fixtures";
 import {
   assignmentState,
   experienceProgress,
   formatGameDate,
   rankRequirement,
-} from "./game-presentation";
-import { validateAvatar } from "./game-profile-validation";
-import { gameReturnPath } from "./game-navigation";
+} from "@/features/game/game-presentation";
+import { validateAvatar } from "@/features/game/game-profile-validation";
+import { gameReturnPath } from "@/features/game/game-navigation";
 
 describe("game presentation", () => {
   const now = Date.parse("2026-08-28T08:00:00Z");

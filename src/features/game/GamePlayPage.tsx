@@ -1,5 +1,6 @@
-import { GameRetryDialog } from "./components/GameRequestFeedback";
-import { createRequestId } from "../../shared/request-id";
+import { uiCopy } from "@/config/ui-copy";
+import { GameRetryDialog } from "@/features/game/components/GameRequestFeedback";
+import { createRequestId } from "@/shared/request-id";
 import {
   useEffect,
   useMemo,
@@ -14,41 +15,41 @@ import {
   gameApi,
   isFatalGameError,
   isRetryableGameError,
-} from "../../api/game.client";
-import type { GameAssignment, GameClue } from "../../api/game.contracts";
+} from "@/api/game.client";
+import type { GameAssignment, GameClue } from "@/api/game.contracts";
 import type {
   QuestAvailability,
   QuestClue,
   QuestFinalDestination,
-} from "../../domain/quest/types";
-import { QuestAtmosphere } from "../../components/effects/QuestAtmosphere";
-import { MediaViewer } from "../media/MediaViewer";
-import { ClueTextDialog } from "../clues/ClueTextDialog";
-import { MultiQuestClueDialog } from "../clues/MultiQuestClueDialog";
-import { MultiClueLauncher } from "../clues/MultiClueLauncher";
-import { NarrativeAttentionBeacon } from "../clues/NarrativeAttentionBeacon";
-import { FinalDestinationPrompt } from "../completion/FinalDestinationPrompt";
-import { createQuestAnswerGuideRepository } from "../../infrastructure/storage/quest-guide.repository";
-import { createNarrativeAttentionRepository } from "../../infrastructure/storage/narrative-attention.repository";
-import { CompletionFeedbackDialog } from "../completion/CompletionFeedbackDialog";
-import { RankUpDialog } from "../rank/RankUpDialog";
-import { BgmControls } from "../audio/BgmControls";
-import { useQuestBgm } from "../audio/useQuestBgm";
-import { GameFailure, GameHeader } from "./GameContext";
-import { GameNotificationCenter } from "./GameNotificationCenter";
-import { useGame } from "./useGame";
+} from "@/domain/quest/types";
+import { QuestAtmosphere } from "@/components/effects/QuestAtmosphere";
+import { MediaViewer } from "@/features/media/MediaViewer";
+import { ClueTextDialog } from "@/features/clues/ClueTextDialog";
+import { MultiQuestClueDialog } from "@/features/clues/MultiQuestClueDialog";
+import { MultiClueLauncher } from "@/features/clues/MultiClueLauncher";
+import { NarrativeAttentionBeacon } from "@/features/clues/NarrativeAttentionBeacon";
+import { FinalDestinationPrompt } from "@/features/completion/FinalDestinationPrompt";
+import { createQuestAnswerGuideRepository } from "@/infrastructure/storage/quest-guide.repository";
+import { createNarrativeAttentionRepository } from "@/infrastructure/storage/narrative-attention.repository";
+import { CompletionFeedbackDialog } from "@/features/completion/CompletionFeedbackDialog";
+import { RankUpDialog } from "@/features/rank/RankUpDialog";
+import { BgmControls } from "@/features/audio/BgmControls";
+import { useQuestBgm } from "@/features/audio/useQuestBgm";
+import { GameFailure, GameHeader } from "@/features/game/GameContext";
+import { GameNotificationCenter } from "@/features/game/GameNotificationCenter";
+import { useGame } from "@/features/game/useGame";
 import {
   useGamePresentation,
   type PresentationStep,
-} from "./useGamePresentation";
-import { useHorizontalSwipe } from "../../shared/gestures/useHorizontalSwipe";
-import { useQuestNavigationPosition } from "../quest/useQuestNavigationPosition";
-import { QuestCard, QuestAnswerGuide } from "../quest/QuestCard";
-import { AssignmentBrief } from "./components/AssignmentBrief";
-import { useDesktopLayout } from "../../shared/layout/useDesktopLayout";
-import { DesktopQuestCard } from "./desktop/DesktopQuestCard";
-import { QuestWorkspace } from "./desktop/QuestWorkspace";
-import { GameLoadingScreen } from "./components/GameLoadingScreen";
+} from "@/features/game/useGamePresentation";
+import { useHorizontalSwipe } from "@/shared/gestures/useHorizontalSwipe";
+import { useQuestNavigationPosition } from "@/features/quest/useQuestNavigationPosition";
+import { QuestCard, QuestAnswerGuide } from "@/features/quest/QuestCard";
+import { AssignmentBrief } from "@/features/game/components/AssignmentBrief";
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
+import { DesktopQuestCard } from "@/features/game/desktop/DesktopQuestCard";
+import { QuestWorkspace } from "@/features/game/desktop/QuestWorkspace";
+import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 import {
   clueBelongsToLevel,
   clueView,
@@ -58,7 +59,7 @@ import {
   selectClueViews,
   selectCombinationClues,
   selectExplicitEffectClues,
-} from "./clue-presentation";
+} from "@/features/game/clue-presentation";
 
 function fallbackAnswerClues(
   previous: readonly GameClue[],
@@ -356,10 +357,10 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         );
         showFeedback(
           attempt?.locked
-            ? "回答错误，当前题目已永久锁定。请联系工作人员处理。"
+            ? uiCopy.gamePlayPage.locked
             : attempt?.cooldownUntil
-              ? "回答错误，已进入惩罚时间。"
-              : "答案不正确，可以继续尝试。",
+              ? uiCopy.gamePlayPage.penalty
+              : uiCopy.gamePlayPage.incorrect,
           "danger",
           3000,
         );
@@ -370,7 +371,9 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       const settledStep = settled.levels.find((level) => level.id === step.id);
       const completed = settled.status === "completed";
       showFeedback(
-        completed ? "全部题目已经完成。" : "回答正确，当前题目已完成。",
+        completed
+          ? uiCopy.gamePlayPage.allCompleted
+          : uiCopy.gamePlayPage.correct,
         "success",
       );
       const explicit = selectExplicitEffectClues(
@@ -484,7 +487,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (!(answers[step.id] ?? step.lastAnswer).trim()) {
-      showFeedback("请先输入或选择答案。", "danger", 3000);
+      showFeedback(uiCopy.gamePlayPage.emptyAnswer, "danger", 3000);
       return;
     }
     if (
@@ -553,17 +556,21 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       )}
       {assignment.status === "cancelled" && (
         <section className="game-empty">
-          <h2>本次场次已撤回</h2>
-          <p>如需继续，请联系工作人员重新安排。</p>
+          <h2>{uiCopy.gamePlayPage.revokedTitle}</h2>
+          <p>{uiCopy.gamePlayPage.revokedDescription}</p>
           <Link className="game-action-link game-action-link--primary" to="/">
-            回到首页
+            {uiCopy.gamePlayPage.home}
           </Link>
         </section>
       )}
       {assignment.startedAt && assignment.status !== "cancelled" && (
         <>
           {assignment.totalLevels > 1 && (
-            <nav ref={navRef} className="quest-nav" aria-label="题目导航">
+            <nav
+              ref={navRef}
+              className="quest-nav"
+              aria-label={uiCopy.gamePlayPage.questionNavigation}
+            >
               {assignment.levels.map((level, index) => (
                 <button
                   type="button"
@@ -575,7 +582,9 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
                 >
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <small>
-                    {level.completedAt ? "已完成" : `第 ${index + 1} 题`}
+                    {level.completedAt
+                      ? uiCopy.gamePlayPage.completed
+                      : uiCopy.gamePlayPage.questionNumber(index + 1)}
                   </small>
                 </button>
               ))}
@@ -677,7 +686,9 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         </>
       )}
       <span className="sr-only" aria-live="polite">
-        {flow.videoPlaying ? "视频正在播放" : "视频未播放"}
+        {flow.videoPlaying
+          ? uiCopy.gamePlayPage.videoPlaying
+          : uiCopy.gamePlayPage.videoStopped}
       </span>
       <GameRetryDialog
         open={retryAction !== null}

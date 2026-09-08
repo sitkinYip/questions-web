@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { QuestAttempt } from "../../domain/quest/types";
-import { parseStoredAttempt } from "./progress.repository";
+import type { QuestAttempt } from "@/domain/quest/types";
+import { parseStoredAttempt } from "@/infrastructure/storage/progress.repository";
 
 export interface EnumerableStorage {
   readonly length: number;

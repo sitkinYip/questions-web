@@ -1,12 +1,13 @@
+import { uiCopy } from "@/config/ui-copy";
 import { UploadSimpleIcon, CheckIcon } from "@phosphor-icons/react";
-import { Button } from "../../../components/ui/Button";
-import { Field, Input } from "../../../components/ui/FormControls";
-import { PlayerAvatar } from "./PlayerPassport";
-import { GameFailure } from "./GameState";
+import { Button } from "@/components/ui/Button";
+import { Field, Input } from "@/components/ui/FormControls";
+import { PlayerAvatar } from "@/features/game/components/PlayerPassport";
+import { GameFailure } from "@/features/game/components/GameState";
 
-import { validateAvatar } from "../game-profile-validation";
+import { validateAvatar } from "@/features/game/game-profile-validation";
 
-import type { useProfileEditor } from "../hooks/useProfileEditor";
+import type { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
 
 export function ProfileEditor({
   editor,
@@ -41,11 +42,11 @@ export function ProfileEditor({
         <div>
           <label className="profile-editor__upload">
             <UploadSimpleIcon aria-hidden="true" />
-            <span>更换头像</span>
+            <span>{uiCopy.profileEditor.changeAvatar}</span>
             <input
               ref={fileInput}
               type="file"
-              aria-label="上传头像"
+              aria-label={uiCopy.profileEditor.uploadAvatar}
               accept="image/jpeg,image/png,image/webp"
               disabled={mutation.isPending}
               onChange={(event) => {
@@ -67,15 +68,18 @@ export function ProfileEditor({
               }}
             />
           </label>
-          <p className="game-muted">JPG / PNG / WebP · 最大 2 MB</p>
+          <p className="game-muted">{uiCopy.profileEditor.avatarHint}</p>
           {upload && (
             <span className="profile-editor__filename">
-              已选择：{upload.file.name}
+              {uiCopy.profileEditor.selectedFile(upload.file.name)}
             </span>
           )}
         </div>
       </div>
-      <Field label="显示昵称" hint="你的名字，会和解开的谜题一起被记住。">
+      <Field
+        label={uiCopy.profileEditor.displayName}
+        hint={uiCopy.profileEditor.displayNameHint}
+      >
         <Input
           value={name}
           maxLength={40}
@@ -89,9 +93,9 @@ export function ProfileEditor({
         />
       </Field>
       <div className="profile-editor__account">
-        <span>登录账号</span>
+        <span>{uiCopy.profileEditor.username}</span>
         <strong>{player.account}</strong>
-        <small>账号由工作人员创建，不可修改</small>
+        <small>{uiCopy.profileEditor.usernameHint}</small>
       </div>
       {validation && (
         <p className="game-field-error" role="alert">
@@ -102,7 +106,7 @@ export function ProfileEditor({
       {mutation.isSuccess && (
         <p className="game-form-success" role="status">
           <CheckIcon aria-hidden="true" />
-          资料已保存。新的名片，新的出发。
+          {uiCopy.profileEditor.saved}
         </p>
       )}
       <Button
@@ -111,7 +115,9 @@ export function ProfileEditor({
         className="game-cta"
         disabled={mutation.isPending}
       >
-        {mutation.isPending ? "正在保存…" : "保存资料"}
+        {mutation.isPending
+          ? uiCopy.profileEditor.saving
+          : uiCopy.profileEditor.save}
       </Button>
     </form>
   );

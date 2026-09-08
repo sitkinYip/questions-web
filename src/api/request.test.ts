@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError, getApiErrorPresentation } from "./errors";
-import { requestJson } from "./request";
+import { ApiError, getApiErrorPresentation } from "@/api/errors";
+import { requestJson } from "@/api/request";
 
 describe("API request error classification", () => {
   afterEach(() => {

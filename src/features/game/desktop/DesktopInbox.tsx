@@ -1,8 +1,9 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useState } from "react";
 import { EnvelopeSimpleIcon, EnvelopeOpenIcon } from "@phosphor-icons/react";
-import type { GameNotification } from "../../../api/game.contracts";
-import { NotificationLetter } from "../components/NotificationLetter";
-import { formatGameDate } from "../game-presentation";
+import type { GameNotification } from "@/api/game.contracts";
+import { NotificationLetter } from "@/features/game/components/NotificationLetter";
+import { formatGameDate } from "@/features/game/game-presentation";
 
 export function DesktopInbox({ notes }: { notes: GameNotification[] }) {
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -12,10 +13,13 @@ export function DesktopInbox({ notes }: { notes: GameNotification[] }) {
   if (!selected) return null;
   return (
     <div className="desktop-inbox">
-      <nav className="desktop-inbox__list" aria-label="来信列表">
+      <nav
+        className="desktop-inbox__list"
+        aria-label={uiCopy.desktopInbox.label}
+      >
         <div className="desktop-inbox__heading">
-          <span>沿途的消息</span>
-          <small>{notes.length} 封来信</small>
+          <span>{uiCopy.desktopInbox.title}</span>
+          <small>{uiCopy.desktopInbox.letterCount(notes.length)}</small>
         </div>
         {notes.map((note) => (
           <button
@@ -33,7 +37,11 @@ export function DesktopInbox({ notes }: { notes: GameNotification[] }) {
               <strong>{note.title}</strong>
               <time dateTime={note.sentAt}>{formatGameDate(note.sentAt)}</time>
             </span>
-            <small>{note.readAt ? "已收下" : "未读"}</small>
+            <small>
+              {note.readAt
+                ? uiCopy.desktopInbox.read
+                : uiCopy.desktopInbox.unread}
+            </small>
           </button>
         ))}
       </nav>

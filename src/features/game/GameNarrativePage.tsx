@@ -1,17 +1,18 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { z } from "zod";
-import { gameRequest, isFatalGameError } from "../../api/game.client";
-import { sanitizeMediaUrl } from "../../domain/content/parser";
+import { gameRequest, isFatalGameError } from "@/api/game.client";
+import { sanitizeMediaUrl } from "@/domain/content/parser";
 import {
   resolveAppBasename,
   withAppBasename,
-} from "../../shared/navigation/app-base";
-import { LetterExperience } from "../letter/LetterExperience";
-import { BlessExperience } from "../bless/BlessExperience";
-import { GameFailure, GameHeader } from "./GameContext";
-import { useGame } from "./useGame";
-import { GameLoadingScreen } from "./components/GameLoadingScreen";
+} from "@/shared/navigation/app-base";
+import { LetterExperience } from "@/features/letter/LetterExperience";
+import { BlessExperience } from "@/features/bless/BlessExperience";
+import { GameFailure, GameHeader } from "@/features/game/GameContext";
+import { useGame } from "@/features/game/useGame";
+import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 
 const media = z
   .string()
@@ -33,7 +34,7 @@ const schema = z.discriminatedUnion("kind", [
       from: z.string().default(""),
       variant: z.enum(["modern", "classical", "magic"]),
       description: z.string().optional(),
-      hintText: z.string().default("点击开启信件"),
+      hintText: z.string().default(uiCopy.gameNarrativePage.openHint),
       paragraphs: z.array(
         z.object({
           content: z.string(),

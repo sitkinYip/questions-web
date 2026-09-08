@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { Quest } from "../../domain/quest/types";
+import type { Quest } from "@/domain/quest/types";
 import {
   createProgressRepository,
   legacyCompletionKey,
   legacyPenaltyKey,
   progressKey,
   type KeyValueStorage,
-} from "./progress.repository";
+} from "@/infrastructure/storage/progress.repository";
 
 class MemoryStorage implements KeyValueStorage {
   readonly values = new Map<string, string>();

@@ -1,3 +1,4 @@
+import { uiCopy } from "@/config/ui-copy";
 import {
   CompassIcon,
   EnvelopeSimpleIcon,
@@ -8,30 +9,30 @@ import {
 export const gameNavigation = [
   {
     to: "/",
-    label: "启程",
-    description: "我的场次",
-    hint: "继续未完的冒险",
+    label: uiCopy.gameNavigation.dashboard,
+    description: uiCopy.gameNavigation.dashboardDescription,
+    hint: uiCopy.gameNavigation.dashboardHint,
     Icon: CompassIcon,
   },
   {
     to: "/rewards",
-    label: "收藏",
-    description: "奇遇收藏",
-    hint: "收好线索与战利品",
+    label: uiCopy.gameNavigation.rewards,
+    description: uiCopy.gameNavigation.rewardsDescription,
+    hint: uiCopy.gameNavigation.rewardsHint,
     Icon: SparkleIcon,
   },
   {
     to: "/notifications",
-    label: "来信",
-    description: "旅途来信",
-    hint: "查收远方的消息",
+    label: uiCopy.gameNavigation.notifications,
+    description: uiCopy.gameNavigation.notificationsDescription,
+    hint: uiCopy.gameNavigation.notificationsHint,
     Icon: EnvelopeSimpleIcon,
   },
   {
     to: "/profile",
-    label: "护照",
-    description: "冒险者护照",
-    hint: "装扮你的冒险名片",
+    label: uiCopy.gameNavigation.profile,
+    description: uiCopy.gameNavigation.profileDescription,
+    hint: uiCopy.gameNavigation.profileHint,
     Icon: IdentificationCardIcon,
   },
 ] as const;

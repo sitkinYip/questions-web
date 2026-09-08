@@ -1,8 +1,9 @@
-import { AppDialog } from "../../components/ui/Dialog";
-import { Button } from "../../components/ui/Button";
-import { overlayPriority } from "../../components/ui/overlay-context";
-import type { MultiQuestClue } from "../../domain/quest/types";
-import { RichContent } from "../content/RichContent";
+import { uiCopy } from "@/config/ui-copy";
+import { AppDialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import type { MultiQuestClue } from "@/domain/quest/types";
+import { RichContent } from "@/features/content/RichContent";
 
 interface MultiQuestClueDialogProps {
   clue: MultiQuestClue | null;
@@ -24,7 +25,7 @@ export function MultiQuestClueDialog({
       onOpenChange={(nextOpen) => {
         if (!nextOpen) onClose();
       }}
-      accessibleTitle={clue.title || "隐藏的本场线索"}
+      accessibleTitle={clue.title || uiCopy.multiQuestClueDialog.title}
       overlayClassName="multi-clue-backdrop"
       contentClassName="multi-clue-dialog"
       closeOnOutside={false}
@@ -35,14 +36,16 @@ export function MultiQuestClueDialog({
         <i />
       </div>
       <div className="multi-clue-dialog-scroll">
-        <p className="eyebrow">Combined revelation</p>
-        <h2 id="multi-clue-title">{clue.title || "隐藏的本场线索"}</h2>
+        <p className="eyebrow">{uiCopy.multiQuestClueDialog.eyebrow}</p>
+        <h2 id="multi-clue-title">
+          {clue.title || uiCopy.multiQuestClueDialog.title}
+        </h2>
         <RichContent source={clue.content} className="multi-clue-content" />
       </div>
       <footer>
-        <p>{clue.description || "该本场线索会保留在当前会话中。"}</p>
+        <p>{clue.description || uiCopy.multiQuestClueDialog.description}</p>
         <Button variant="primary" onClick={onClose}>
-          {clue.buttonText || "我知道了"}
+          {clue.buttonText || uiCopy.multiQuestClueDialog.acknowledge}
         </Button>
       </footer>
     </AppDialog>

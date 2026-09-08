@@ -1,8 +1,9 @@
+import { uiCopy } from "@/config/ui-copy";
 import type { ReactNode } from "react";
 import { XIcon } from "@phosphor-icons/react";
-import { AppDialog } from "./Dialog";
-import { Button } from "./Button";
-import { overlayPriority } from "./overlay-context";
+import { AppDialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { overlayPriority } from "@/components/ui/overlay-context";
 
 interface SheetProps {
   overlayId: string;
@@ -45,7 +46,9 @@ export function Sheet({
       <header className="ui-sheet__header">
         {headerContent ?? (
           <div>
-            {density === "comfortable" && <p className="eyebrow">旅途随行</p>}
+            {density === "comfortable" && (
+              <p className="eyebrow">{uiCopy.sheet.eyebrow}</p>
+            )}
             <h2>{title}</h2>
             {description && <p>{description}</p>}
           </div>
@@ -53,7 +56,7 @@ export function Sheet({
         <Button
           variant="icon"
           className="ui-sheet__close"
-          aria-label={`关闭${title}`}
+          aria-label={uiCopy.sheet.closeTitle(title)}
           onClick={() => onOpenChange(false)}
         >
           <XIcon aria-hidden="true" weight="bold" />

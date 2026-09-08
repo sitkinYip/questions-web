@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { gameApi } from "../../../api/game.client";
-import { makePlayer } from "../../../test/game-fixtures";
-import { GameContext } from "../useGame";
-import { ProfileEditor } from "./ProfileEditor";
-import { useProfileEditor } from "../hooks/useProfileEditor";
+import { gameApi } from "@/api/game.client";
+import { makePlayer } from "@/test/game-fixtures";
+import { GameContext } from "@/features/game/useGame";
+import { ProfileEditor } from "@/features/game/components/ProfileEditor";
+import { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
 
 const revoke = vi.fn();
 beforeEach(() => {

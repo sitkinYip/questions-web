@@ -1,8 +1,9 @@
-import { AppDialog } from "../../components/ui/Dialog";
-import { Button } from "../../components/ui/Button";
-import { overlayPriority } from "../../components/ui/overlay-context";
-import type { QuestClue } from "../../domain/quest/types";
-import { RichContent } from "../content/RichContent";
+import { uiCopy } from "@/config/ui-copy";
+import { AppDialog } from "@/components/ui/Dialog";
+import { Button } from "@/components/ui/Button";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import type { QuestClue } from "@/domain/quest/types";
+import { RichContent } from "@/features/content/RichContent";
 
 interface ClueTextDialogProps {
   clue: QuestClue | null;
@@ -19,7 +20,7 @@ export function ClueTextDialog({ clue, onClose }: ClueTextDialogProps) {
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      accessibleTitle={clue.title || "古老密卷"}
+      accessibleTitle={clue.title || uiCopy.clueTextDialog.text}
       overlayClassName="clue-dialog-backdrop"
       contentClassName="clue-dialog"
     >
@@ -32,13 +33,15 @@ export function ClueTextDialog({ clue, onClose }: ClueTextDialogProps) {
         variant="icon"
         className="clue-dialog-close"
         onClick={onClose}
-        aria-label="关闭线索"
+        aria-label={uiCopy.clueTextDialog.close}
       >
         ×
       </Button>
       <div className="clue-dialog-scroll">
-        <p className="eyebrow">Decoded fragment</p>
-        <h2 id="clue-dialog-title">{clue.title || "古老密卷"}</h2>
+        <p className="eyebrow">{uiCopy.clueTextDialog.eyebrow}</p>
+        <h2 id="clue-dialog-title">
+          {clue.title || uiCopy.clueTextDialog.text}
+        </h2>
         <span className="clue-dialog-rule" aria-hidden="true" />
         <RichContent source={clue.content} className="clue-dialog-content" />
       </div>

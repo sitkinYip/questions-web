@@ -6,8 +6,8 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { BGM_PREFERENCES_KEY } from "../../infrastructure/storage/audio.repository";
-import { useQuestBgm } from "./useQuestBgm";
+import { BGM_PREFERENCES_KEY } from "@/infrastructure/storage/audio.repository";
+import { useQuestBgm } from "@/features/audio/useQuestBgm";
 
 class MockAudio extends EventTarget {
   static instances: MockAudio[] = [];

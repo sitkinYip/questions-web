@@ -1,6 +1,7 @@
+import { uiCopy } from "@/config/ui-copy";
 import { useEffect, useRef, useState } from "react";
-import type { BlessLine } from "../../domain/bless/types";
-import { playAudio } from "../../shared/media/play-audio";
+import type { BlessLine } from "@/domain/bless/types";
+import { playAudio } from "@/shared/media/play-audio";
 
 interface BlessClosingCreditsProps {
   lines: readonly BlessLine[];
@@ -40,7 +41,10 @@ export function BlessClosingCredits({ lines }: BlessClosingCreditsProps) {
 
   if (lines.length === 0) return null;
   return (
-    <section className="bless-credits" aria-label="星空谢幕">
+    <section
+      className="bless-credits"
+      aria-label={uiCopy.blessClosingCredits.label}
+    >
       {!started && (
         <button
           className="bless-credits-start"
@@ -51,7 +55,7 @@ export function BlessClosingCredits({ lines }: BlessClosingCreditsProps) {
           }}
         >
           <span aria-hidden="true">▶</span>
-          开始播放
+          {uiCopy.blessClosingCredits.play}
         </button>
       )}
       <div

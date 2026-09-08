@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { Quest } from "./types";
+import type { Quest } from "@/domain/quest/types";
 import {
   extractHighestRank,
   isRankUpgradeEligible,
   parseQuestRank,
-} from "./rank";
+} from "@/domain/quest/rank";
 
 function questWithRank(code: string, name: string): Quest {
   return {

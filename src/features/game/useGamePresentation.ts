@@ -4,8 +4,8 @@ import type {
   QuestClue,
   QuestFinalDestination,
   QuestRank,
-} from "../../domain/quest/types";
-import type { MediaViewerState } from "../media/MediaViewer";
+} from "@/domain/quest/types";
+import type { MediaViewerState } from "@/features/media/MediaViewer";
 
 export type PresentationStep =
   | { type: "clue"; clue: QuestClue }

@@ -1,6 +1,6 @@
 import { Dialog } from "radix-ui";
 import { useRef, type ReactNode } from "react";
-import { useOverlayGate } from "./overlay-context";
+import { useOverlayGate } from "@/components/ui/overlay-context";
 
 interface AppDialogProps {
   overlayId: string;

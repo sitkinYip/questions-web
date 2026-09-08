@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveBlessReturnTo } from "./navigation";
+import { resolveBlessReturnTo } from "@/features/bless/navigation";
 
 describe("Bless return navigation", () => {
   it("prefers a safe returnTo and accepts the history fallback", () => {

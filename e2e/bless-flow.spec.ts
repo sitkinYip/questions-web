@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { login, mockLegacyAudioPlayback, mockQuestionsApi } from "./fixtures";
+import {
+  login,
+  mockLegacyAudioPlayback,
+  mockQuestionsApi,
+} from "@e2e/fixtures";
 
 test("authorized Bless content plays and returns to its assignment", async ({
   page,

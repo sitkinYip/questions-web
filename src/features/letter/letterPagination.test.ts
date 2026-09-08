@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { LetterParagraph } from "../../domain/letter/types";
+import type { LetterParagraph } from "@/domain/letter/types";
 import {
   paginateLetterParagraphs,
   resolveLetterPageSwipe,
-} from "./letterPagination";
+} from "@/features/letter/letterPagination";
 
 const paragraphs: LetterParagraph[] = [
   { content: "ABCDEFGHI", align: "left", delayMs: 0 },

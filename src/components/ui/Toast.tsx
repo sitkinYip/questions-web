@@ -1,5 +1,6 @@
+import { uiCopy } from "@/config/ui-copy";
 import { Toast } from "radix-ui";
-import { Button } from "./Button";
+import { Button } from "@/components/ui/Button";
 
 interface AppToastProps {
   open: boolean;
@@ -56,7 +57,7 @@ export function AppToast({
           className="ui-toast__close"
           variant="icon"
           size="small"
-          aria-label={`关闭${title}`}
+          aria-label={uiCopy.toast.closeTitle(title)}
         >
           ×
         </Button>

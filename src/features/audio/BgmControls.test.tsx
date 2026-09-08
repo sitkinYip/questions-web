@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
-import { ToastProvider } from "../../components/ui/ToastProvider";
-import { BGM_PREFERENCES_KEY } from "../../infrastructure/storage/audio.repository";
-import { BgmControls } from "./BgmControls";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import { BGM_PREFERENCES_KEY } from "@/infrastructure/storage/audio.repository";
+import { BgmControls } from "@/features/audio/BgmControls";
 
 function renderControls(element: ReactNode) {
   return render(<ToastProvider>{element}</ToastProvider>);

@@ -24,9 +24,9 @@
     "test:e2e": "playwright test --project=chromium",
     "test:e2e:all": "playwright test",
     "check:all": "pnpm check && pnpm test:e2e:all && pnpm format:check",
-    "verify:api": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/levels/records?perPage=500&sort=step' | node --experimental-strip-types scripts/verify-live-api.ts",
-    "verify:letter": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/letter/records?perPage=500&sort=created' | node --experimental-strip-types scripts/verify-live-letter-api.ts",
-    "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --experimental-strip-types scripts/verify-live-notification-api.ts"
+    "verify:api": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/levels/records?perPage=500&sort=step' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-api.ts",
+    "verify:letter": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/letter/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-letter-api.ts",
+    "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-notification-api.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

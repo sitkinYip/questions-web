@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { trackAnalytics } from "../../infrastructure/analytics";
-import { createBgmPreferencesRepository } from "../../infrastructure/storage/audio.repository";
-import { playAudio } from "../../shared/media/play-audio";
+import { trackAnalytics } from "@/infrastructure/analytics";
+import { createBgmPreferencesRepository } from "@/infrastructure/storage/audio.repository";
+import { playAudio } from "@/shared/media/play-audio";
 
 const AUTH_HINT_DURATION_MS = 5_000;
 const DEFAULT_VOLUME = 0.3;

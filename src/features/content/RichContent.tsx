@@ -1,6 +1,7 @@
+import { uiCopy } from "@/config/ui-copy";
 import { Link } from "react-router-dom";
-import { parseLegacyContent } from "../../domain/content/parser";
-import { NativeVideo } from "../media/NativeVideo";
+import { parseLegacyContent } from "@/domain/content/parser";
+import { NativeVideo } from "@/features/media/NativeVideo";
 
 interface RichContentProps {
   source: string;
@@ -42,7 +43,7 @@ export function RichContent({ source, className, tabIndex }: RichContentProps) {
               <img
                 key={key}
                 src={segment.url}
-                alt="题目内容"
+                alt={uiCopy.richContent.label}
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"
               />

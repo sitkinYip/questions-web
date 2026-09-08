@@ -1,4 +1,4 @@
-import { classifySafeUrl } from "../../domain/content/parser";
+import { classifySafeUrl } from "@/domain/content/parser";
 
 export function resolveLetterReturnTo(
   search: string,

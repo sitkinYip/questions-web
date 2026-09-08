@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "./fixtures";
-import { makeNotifications, makeRewards } from "../src/test/game-fixtures";
+import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { makeNotifications, makeRewards } from "@/test/game-fixtures";
 
 test("mobile login keeps the primary action visible and theme controls named", async ({
   page,

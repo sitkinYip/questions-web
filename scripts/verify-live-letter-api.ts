@@ -1,5 +1,5 @@
-import { adaptLetterRecord } from "../src/api/letter.adapter.ts";
-import { lettersResponseSchema } from "../src/api/letter.schema.ts";
+import { adaptLetterRecord } from "@/api/letter.adapter.ts";
+import { lettersResponseSchema } from "@/api/letter.schema.ts";
 
 let input = "";
 process.stdin.setEncoding("utf8");

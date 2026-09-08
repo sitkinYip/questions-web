@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { THEME_PREFERENCES_KEY } from "../../infrastructure/storage/theme.repository";
-import { ThemeProvider } from "./ThemeProvider";
-import { useTheme } from "./theme-context";
+import { THEME_PREFERENCES_KEY } from "@/infrastructure/storage/theme.repository";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { useTheme } from "@/components/ui/theme-context";
 
 function createMediaQueryList(initialMatches: boolean) {
   let matches = initialMatches;
