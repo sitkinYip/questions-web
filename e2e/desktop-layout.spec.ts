@@ -120,14 +120,29 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
   }
   await page.getByLabel("显示昵称", { exact: true }).fill("未保存的旅人");
   await page.getByLabel("新密码", { exact: true }).fill("private-local-draft");
+  const photo = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 640;
+    canvas.height = 480;
+    const context = canvas.getContext("2d")!;
+    context.fillStyle = "#367c91";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
   await page.getByLabel("上传头像").setInputFiles({
     name: "avatar.png",
     mimeType: "image/png",
-    buffer: Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
-      "base64",
-    ),
+    buffer: Buffer.from(photo, "base64"),
   });
+  const cropDialog = page.getByRole("dialog", { name: "裁剪头像" });
+  await expect(cropDialog).toBeVisible();
+  await expect(page.getByRole("button", { name: "保存资料" })).toBeDisabled();
+  await cropDialog.getByRole("button", { name: "使用此头像" }).click();
+  await expect(cropDialog).toBeHidden();
+  await expect(page.locator(".profile-editor__avatar img")).toHaveAttribute(
+    "src",
+    /^blob:/,
+  );
   const preview = await page
     .locator(".profile-editor__avatar img")
     .getAttribute("src");
