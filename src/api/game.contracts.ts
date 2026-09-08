@@ -406,3 +406,19 @@ export interface ExtraPreview {
   normalizedExtra: Record<string, ExtraJson>;
   items: { playerId: string; before: ExtraConfig | null; action: string }[];
 }
+
+/** Ephemeral editor previews. No persistence, answer keys or recipient data. */
+export const EDITOR_PREVIEW_VERSION = 1;
+export type EditorPreviewDraft =
+  | { kind: "question"; value: GameQuestion }
+  | { kind: "notification"; value: Pick<GameNotification, "title" | "content" | "popupTitle" | "buttonText"> };
+export interface EditorPreviewMessage {
+  type: "sitkin:preview:update";
+  version: typeof EDITOR_PREVIEW_VERSION;
+  channel: string;
+  revision: number;
+  reset: number;
+  theme: "light" | "dark";
+  state: "unanswered" | "incorrect" | "completed" | "unread" | "read" | "popup";
+  draft: EditorPreviewDraft;
+}

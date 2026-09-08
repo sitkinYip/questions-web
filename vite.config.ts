@@ -58,6 +58,17 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       rolldownOptions: {
+        // Only the /questions-next/ build ships the editor's separate HTML entry.
+        // Production retains its single-entry module graph and startup path.
+        input:
+          mode === "preview"
+            ? {
+                app: fileURLToPath(new URL("./index.html", import.meta.url)),
+                editorPreview: fileURLToPath(
+                  new URL("./preview/index.html", import.meta.url),
+                ),
+              }
+            : fileURLToPath(new URL("./index.html", import.meta.url)),
         output: {
           codeSplitting: {
             groups: [

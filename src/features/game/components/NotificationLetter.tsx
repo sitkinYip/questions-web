@@ -29,6 +29,30 @@ export function NotificationLetter({
       client.invalidateQueries({ queryKey: gameKeys.notifications(player.id) }),
   });
   return (
+    <NotificationLetterView
+      note={note}
+      desktop={desktop}
+      pending={mutation.isPending}
+      error={mutation.isError ? mutation.error : undefined}
+      onRead={() => mutation.mutate()}
+    />
+  );
+}
+
+export function NotificationLetterView({
+  note,
+  desktop = false,
+  pending = false,
+  error,
+  onRead,
+}: {
+  note: GameNotification;
+  desktop?: boolean;
+  pending?: boolean;
+  error?: unknown;
+  onRead: () => void;
+}) {
+  return (
     <article className="notification-letter" data-read={!!note.readAt}>
       <div className="notification-letter__seal" aria-hidden="true">
         {note.readAt ? (
@@ -50,16 +74,11 @@ export function NotificationLetter({
           className="notification-letter__message"
           tabIndex={desktop ? 0 : undefined}
         />
-        {mutation.isError && (
-          <GameFailure error={mutation.error} retry={() => mutation.mutate()} />
-        )}
+        {!!error && <GameFailure error={error} retry={onRead} />}
         <div className="notification-letter__action">
           {!note.readAt ? (
-            <Button
-              onClick={() => mutation.mutate()}
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending
+            <Button onClick={onRead} disabled={pending}>
+              {pending
                 ? uiCopy.notificationLetter.pending
                 : note.buttonText || uiCopy.notificationLetter.accept}
             </Button>

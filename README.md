@@ -89,3 +89,13 @@ Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next
 预览与正式发布工作流分别使用 GitHub Actions 的 `run_number` 和 `run_attempt` 生成 `1.<发布序号>.<重跑次数>`。新运行递增发布序号，同一运行重试递增末位；两条航线独立编号，以环境加版本号区分。失败发布可能留下编号空档，不会为自增版本而提交代码或触发循环构建。
 
 发布产物根目录的 `version.json` 与页面使用相同元数据，Actions 的部署摘要也会列出这些信息。未经过发布工作流的本地构建明确显示 `0.0.0-local`，不会冒充已发布版本。
+
+### 运营实时预览
+
+`/questions-next/preview/` 是后台嵌入的独立 HTML 入口（`preview/index.html` → `src/features/preview/main.tsx`）。正式 `src/main.tsx` 仍直接启动 `App`，不做路径判断或等待动态导入。只有 `pnpm build:preview` 的多页面构建包含预览入口；`pnpm build:production` 保持单入口，不打包预览专用代码。
+
+预览复用题目、通知和媒体组件，不启动正式登录、业务查询或进度持久化。生产构建默认只允许 `https://vae.sitkin.top` 作为父页面；其他来源用 `VITE_PREVIEW_ADMIN_ORIGINS` 配置，逗号分隔。开发环境可直接访问 `/preview/`。
+
+将 `pnpm build:preview` 生成的完整 `dist/` 发布到 `/questions-next/` 后再发布管理端。服务器必须将 `/questions-next/preview/` 解析为其中的 `preview/index.html`，不能改写到玩家首页 `index.html`；无尾斜杠的 `/questions-next/preview` 应保留查询参数并重定向到带斜杠路径。该预览路径需要允许后台嵌入（CSP `frame-ancestors https://vae.sitkin.top`，避免冲突的 X-Frame-Options）。
+
+草稿只存在内存，不执行判题或标记已读请求。完整联调与兼容说明位于相邻后台仓库 `docs/live-editor-preview.md`。源码已完成，尚未发布。

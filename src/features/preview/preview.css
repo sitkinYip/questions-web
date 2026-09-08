@@ -1,0 +1,25 @@
+.editor-preview {
+  min-height: 100dvh;
+  overflow-wrap: anywhere;
+}
+.editor-preview-status {
+  padding: 20px;
+}
+.editor-preview-letter {
+  padding: 24px 16px;
+  max-width: 1000px;
+  margin: auto;
+}
+.editor-preview .quest-layout:not(.quest-desktop) {
+  width: auto;
+  margin: 0;
+  padding: 24px 16px;
+}
+.editor-preview .quest-layout.quest-desktop {
+  margin-inline: auto;
+}
+@media (max-width: 575px) {
+  .editor-preview-letter {
+    padding: 16px 12px;
+  }
+}
