@@ -14,6 +14,7 @@
     "build:production": "tsc -b && vite build --mode production",
     "check": "pnpm check:styles && pnpm lint && pnpm test:run && pnpm build",
     "check:styles": "node scripts/verify-style-architecture.mjs",
+    "typecheck": "tsc -b",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "oxlint",

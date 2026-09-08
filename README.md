@@ -36,11 +36,14 @@ pnpm dev
 以下单元测试和浏览器测试使用测试夹具，不依赖 Docker 或本地数据库；浏览器测试需先安装 Playwright 浏览器。
 
 ```bash
+pnpm typecheck
 pnpm check
 pnpm test:e2e
 pnpm test:e2e:all
 pnpm check:all
 ```
+
+`pnpm typecheck` 检查应用、Vite 配置及 E2E 测试（含预览 TSX 和 Playwright 配置）。E2E 使用 `e2e/tsconfig.json`，继承项目的路径别名；这些文件也会随 `pnpm build` 和 `pnpm check` 一起检查。
 
 只有修改后端判题/结算/迁移逻辑时才需要另做隔离后端验收，见后台仓库 `backend/README.md`。这不是前端开发的前置步骤。
 

@@ -168,7 +168,8 @@ test("avatar crops before uploading compressed multipart data", async ({
   expect(request.method()).toBe("PATCH");
   const contentType = request.headers()["content-type"];
   expect(contentType).toMatch(/^multipart\/form-data;\s*boundary=.+/);
-  const form = await new Response(request.postDataBuffer(), {
+  const body = request.postDataBuffer();
+  const form = await new Response(body ? new Uint8Array(body) : null, {
     headers: { "Content-Type": contentType },
   }).formData();
   expect(Array.from(form.keys()).sort()).toEqual(["avatar", "displayName"]);

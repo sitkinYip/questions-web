@@ -65,6 +65,6 @@ import { uiCopy } from "@/config/ui-copy";
 
 组件、类型、动态导入、测试 mock 和样式 `@import` 同样使用别名。同级模块也使用完整的 `@/` 路径。
 
-`@scripts/` 指向 `scripts/`，`@e2e/` 指向 `e2e/`。TypeScript 映射在根 `tsconfig.json`，Vite/Vitest 运行时映射在 `vite.config.ts`；Playwright 读取根 TypeScript 配置。独立 Node 校验脚本通过 `--import ./scripts/register-aliases.mjs` 加载相同映射，现有 `pnpm verify:*` 命令已配置好。
+`@scripts/` 指向 `scripts/`，`@e2e/` 指向 `e2e/`。TypeScript 映射在根 `tsconfig.json`，Vite/Vitest 运行时映射在 `vite.config.ts`；E2E 文件由 `e2e/tsconfig.json` 管理并继承这些别名，编辑器、Playwright 和 `pnpm typecheck` 使用同一套映射。独立 Node 校验脚本通过 `--import ./scripts/register-aliases.mjs` 加载相同映射，现有 `pnpm verify:*` 命令已配置好。
 
 Vite 配置文件自身的两条启动导入保留相对路径，因为此时别名尚未初始化。配置里的文件系统路径、HTML 资源地址、路由和文档链接不属于模块导入。
