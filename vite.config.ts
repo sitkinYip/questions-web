@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
               },
               {
                 name: "vendor",
-                test: "node_modules/",
+                test: /node_modules\/(?!.*(?:react-easy-crop|normalize-wheel))/,
                 priority: 10,
               },
             ],

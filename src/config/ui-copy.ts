@@ -595,7 +595,7 @@ export const uiCopy = {
   profileEditor: {
     changeAvatar: "更换头像",
     uploadAvatar: "上传头像",
-    avatarHint: "JPG / PNG / WebP · 最大 2 MB",
+    avatarHint: "JPG / PNG / WebP · 原图最大 50 MB，裁剪后自动压缩",
     selectedFile: (name: string | number | null | undefined) =>
       `已选择：${name}`,
     displayName: "显示昵称",
@@ -605,6 +605,17 @@ export const uiCopy = {
     saved: "资料已保存。新的名片，新的出发。",
     saving: common.saving,
     save: "保存资料",
+  },
+  avatarCrop: {
+    title: "裁剪头像",
+    hint: "拖动照片或双指缩放，选择正方形范围。确认后保存资料即可上传。",
+    zoom: "缩放",
+    cancel: "取消",
+    confirm: "使用此头像",
+    loading: "正在准备照片…",
+    processing: "正在压缩…",
+    failed: "图片处理失败，请重新选择 JPG、PNG 或 WebP 图片。",
+    loadFailed: "裁剪工具加载失败，请重新选择图片重试。",
   },
   // src/features/game/desktop/DesktopClueShelf.tsx
   desktopClueShelf: {
@@ -694,7 +705,7 @@ export const uiCopy = {
   // src/features/game/game-profile-validation.ts
   gameProfileValidation: {
     invalidImageType: "请选择 JPG、PNG 或 WebP 图片。",
-    imageTooLarge: "图片超过 2 MB，换一张小一点的吧。",
+    imageTooLarge: "原图超过 50 MB，请选择小一点的图片。",
   },
   // src/features/game/hooks/useProfileEditor.ts
   useProfileEditor: {

@@ -67,13 +67,13 @@ describe("game presentation", () => {
   });
   it("validates avatar MIME and size before upload", () => {
     expect(
-      validateAvatar({ type: "image/png", size: 2 * 1024 * 1024 }),
+      validateAvatar({ type: "image/png", size: 50 * 1024 * 1024 }),
     ).toBeUndefined();
     expect(validateAvatar({ type: "image/svg+xml", size: 10 })).toContain(
       "JPG",
     );
     expect(
-      validateAvatar({ type: "image/jpeg", size: 2 * 1024 * 1024 + 1 }),
-    ).toContain("2 MB");
+      validateAvatar({ type: "image/jpeg", size: 50 * 1024 * 1024 + 1 }),
+    ).toContain("50 MB");
   });
 });

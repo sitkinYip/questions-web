@@ -87,7 +87,7 @@ test("nickname-only profile saves use JSON and preserve a tabbed draft", async (
   await expect(page.locator(".player-passport h2")).toHaveText("追星旅人");
 });
 
-test("avatar uploads keep multipart fields, file bytes and the browser boundary", async ({
+test("avatar crops before uploading compressed multipart data", async ({
   page,
   browserName,
 }) => {
@@ -109,12 +109,35 @@ test("avatar uploads keep multipart fields, file bytes and the browser boundary"
   );
   await login(page, "/profile");
   await page.getByLabel("显示昵称", { exact: true }).fill("追星旅人");
+  const photo = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 2400;
+    canvas.height = 1200;
+    const context = canvas.getContext("2d")!;
+    const pixels = context.createImageData(canvas.width, canvas.height);
+    let seed = 42;
+    for (let i = 0; i < pixels.data.length; i += 4) {
+      for (let channel = 0; channel < 3; channel++) {
+        seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
+        pixels.data[i + channel] = seed >>> 24;
+      }
+      pixels.data[i + 3] = 255;
+    }
+    context.putImageData(pixels, 0, 0);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
+  const original = Buffer.from(photo, "base64");
+  expect(original.length).toBeGreaterThan(2 * 1024 * 1024);
   const upload = page.getByLabel("上传头像");
   await upload.setInputFiles({
     name: "avatar.png",
     mimeType: "image/png",
-    buffer: avatar,
+    buffer: original,
   });
+  await expect(page.getByRole("dialog", { name: "裁剪头像" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "使用此头像" })).toBeEnabled();
+  await page.getByLabel("缩放", { exact: true }).fill("1.5");
+  await page.getByRole("button", { name: "使用此头像" }).click();
   const preview = page.locator(".profile-editor__avatar img");
   await expect(preview).toHaveAttribute("src", /^blob:/);
   if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
@@ -122,10 +145,22 @@ test("avatar uploads keep multipart fields, file bytes and the browser boundary"
     await page.getByRole("tab", { name: "我的名片" }).click();
     await expect(preview).toHaveAttribute("src", /^blob:/);
   }
-  const selectedBytes = await upload.evaluate(async (input: HTMLInputElement) =>
-    Array.from(new Uint8Array(await input.files![0].arrayBuffer())),
-  );
-  expect(Buffer.from(selectedBytes)).toEqual(avatar);
+  const cropped = await preview.evaluate(async (img: HTMLImageElement) => {
+    const blob = await (await fetch(img.src)).blob();
+    const bitmap = await createImageBitmap(blob);
+    const result = {
+      size: blob.size,
+      width: bitmap.width,
+      height: bitmap.height,
+      type: blob.type,
+    };
+    bitmap.close();
+    return result;
+  });
+  expect(cropped.type).toBe("image/jpeg");
+  expect(cropped.width).toBe(cropped.height);
+  expect(cropped.width).toBeLessThanOrEqual(512);
+  expect(cropped.size).toBeLessThanOrEqual(200 * 1024);
 
   const requestPending = page.waitForRequest("**/api/questions/v1/me/profile");
   await page.getByRole("button", { name: "保存资料" }).click();
@@ -139,12 +174,13 @@ test("avatar uploads keep multipart fields, file bytes and the browser boundary"
   expect(Array.from(form.keys()).sort()).toEqual(["avatar", "displayName"]);
   expect(form.get("displayName")).toBe("追星旅人");
   const file = form.get("avatar") as File;
-  expect(file.name).toBe("avatar.png");
-  expect(file.type).toBe("image/png");
+  expect(file.name).toBe("avatar.jpg");
+  expect(file.type).toBe("image/jpeg");
   // WebKit's intercepted body exposes multipart metadata but omits file bytes.
-  // Check the selected file above on every engine, and wire bytes in Chromium.
+  // Check the cropped preview above on every engine, and wire bytes in Chromium.
   if (browserName !== "webkit") {
-    expect(Buffer.from(await file.arrayBuffer())).toEqual(avatar);
+    expect(file.size).toBe(cropped.size);
+    expect(Buffer.from(await file.arrayBuffer())).not.toEqual(avatar);
   }
   await expect(page.getByRole("status")).toContainText("资料已保存");
   await expect(page.locator(".player-passport h2")).toHaveText("追星旅人");
@@ -162,12 +198,17 @@ test("invalid avatar and mismatched passwords never call write endpoints", async
     if (/\/me\/(profile|change-password)$/.test(request.url())) writes++;
   });
   await login(page, "/profile");
-  await page.getByLabel("上传头像").setInputFiles({
-    name: "large.png",
-    mimeType: "image/png",
-    buffer: Buffer.alloc(2 * 1024 * 1024 + 1),
+  await page.getByLabel("上传头像").evaluate((input: HTMLInputElement) => {
+    const transfer = new DataTransfer();
+    transfer.items.add(
+      new File([new Uint8Array(50 * 1024 * 1024 + 1)], "large.png", {
+        type: "image/png",
+      }),
+    );
+    input.files = transfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
   });
-  await expect(page.getByRole("alert")).toContainText("2 MB");
+  await expect(page.getByRole("alert")).toContainText("50 MB");
   if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
     await page.getByRole("tab", { name: "账号安全" }).click();
   }
