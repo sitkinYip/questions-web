@@ -1,12 +1,20 @@
 // Generated from sitkin-pb-backend-management/backend/contracts/game.ts.
+export type ExtraJson =
+  string | number | boolean | ExtraJson[] | { [key: string]: ExtraJson };
+export interface GameExtra {
+  extra?: Record<string, ExtraJson>;
+  extraDisplay?: { key: string; label: string; text: string }[];
+}
 export interface GameRank {
   id: string;
   order: number;
   name: string;
+  defaultName?: string;
+  customTitle?: string | null;
   minTotalXp: number;
   visualConfig: unknown;
 }
-export interface GamePlayer {
+export interface GamePlayer extends GameExtra {
   id: string;
   account: string;
   displayName: string;
@@ -70,7 +78,7 @@ export interface GameAssignmentSummary {
   completedLevels: number;
   totalLevels: number;
 }
-export interface GameLevel {
+export interface GameLevel extends GameExtra {
   id: string;
   position: number;
   xp: number;
@@ -118,7 +126,7 @@ export interface GameClueEffect {
 }
 export type GameCompletionTarget =
   { kind: "narrative"; id: string } | { kind: "link"; url: string };
-export interface GameAssignment extends GameAssignmentSummary {
+export interface GameAssignment extends GameAssignmentSummary, GameExtra {
   presentation: GamePresentation;
   completionTarget: GameCompletionTarget | null;
   currentIndex: number;
@@ -312,6 +320,7 @@ export interface AdminNarrative {
   payload: Record<string, unknown>;
 }
 export interface AdminCatalog {
+  capabilities?: { playerTitles: boolean; extraConfig: boolean };
   players: (GamePlayer & { status: "active" | "disabled" })[];
   ranks: GameRank[];
   questions: AdminQuestion[];
@@ -328,4 +337,72 @@ export interface AssignmentBatchResult {
       "assigned" | "skipped_active" | "skipped_completed" | "skipped_disabled";
     assignmentId?: string;
   }[];
+}
+export interface PlayerLevelTitle {
+  id: string;
+  player: string;
+  level: string;
+  name: string;
+  status: "active" | "revoked";
+  revision: number;
+  updated: string;
+}
+export type ExtraScope =
+  | "global"
+  | "rank"
+  | "question"
+  | "session"
+  | "assignment"
+  | "session_level"
+  | "assignment_level";
+export type ExtraContext = "profile" | "assignment" | "level";
+export interface ExtraField {
+  type: "object" | "array" | "string" | "url" | "number" | "boolean";
+  label?: string;
+  required?: boolean;
+  default?: ExtraJson;
+  properties?: Record<string, ExtraField>;
+  items?: ExtraField;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  enum?: string[];
+}
+export interface ExtraDefinition {
+  id: string;
+  key: string;
+  label: string;
+  status: "active" | "disabled";
+  revision: number;
+  updated: string;
+  schema: {
+    scopes: ExtraScope[];
+    contexts: ExtraContext[];
+    visibility: "player" | "admin";
+    renderer: "none" | "text";
+    fields: ExtraField;
+  };
+}
+export interface ExtraConfig {
+  id: string;
+  definition: string;
+  scopeType: ExtraScope;
+  scopeId: string;
+  assignment: string;
+  player: string;
+  targetKey: string;
+  recipientKey: string;
+  mode: "value" | "suppress";
+  status: "active" | "revoked";
+  extra: Record<string, ExtraJson>;
+  revision: number;
+  lastRequestId: string;
+  updated: string;
+}
+export interface ExtraPreview {
+  version: string;
+  recipientIds: string[];
+  skippedIds: string[];
+  normalizedExtra: Record<string, ExtraJson>;
+  items: { playerId: string; before: ExtraConfig | null; action: string }[];
 }

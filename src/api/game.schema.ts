@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { sanitizeMediaUrl } from "@/domain/content/parser";
+import { extraSchema, extraDisplaySchema } from "./extra.schema";
+
+const extraFields = {
+  extra: extraSchema.optional(),
+  extraDisplay: extraDisplaySchema.optional(),
+};
 import type {
   GameAssignment,
   GamePlayer,
@@ -17,10 +23,13 @@ export const gameRankSchema = z.object({
   id: z.string(),
   order: z.number().int(),
   name: z.string(),
+  defaultName: z.string().optional(),
+  customTitle: z.string().nullable().optional(),
   minTotalXp: z.number().int(),
   visualConfig: z.unknown(),
 });
 export const gamePlayerSchema: z.ZodType<GamePlayer> = z.object({
+  ...extraFields,
   id: z.string(),
   account: z.string(),
   displayName: z.string(),
@@ -153,6 +162,7 @@ export const gameClueSchema: z.ZodType<GameClue> = gameClue.superRefine(
   },
 );
 export const gameAssignmentSchema: z.ZodType<GameAssignment> = summary.extend({
+  ...extraFields,
   presentation,
   completionTarget: z
     .discriminatedUnion("kind", [
@@ -164,6 +174,7 @@ export const gameAssignmentSchema: z.ZodType<GameAssignment> = summary.extend({
   serverTime: z.string(),
   levels: z.array(
     z.object({
+      ...extraFields,
       id: z.string(),
       position: z.number(),
       xp: z.number(),

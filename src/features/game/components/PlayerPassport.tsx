@@ -5,6 +5,7 @@ import type { GamePlayer } from "@/api/game.contracts";
 import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
 import { experienceProgress } from "@/features/game/game-presentation";
 import { useGame } from "@/features/game/useGame";
+import { ExtraMessages } from "./ExtraMessages";
 
 export function PlayerAvatar({
   name,
@@ -95,6 +96,7 @@ export function PlayerPassport({
         </div>
       </div>
       <ExperienceMeter player={player} />
+      <ExtraMessages value={player} />
       {editable && (
         <Link className="game-text-link" to="/profile">
           {uiCopy.playerPassport.edit}

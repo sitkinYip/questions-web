@@ -1,4 +1,5 @@
 import { uiCopy } from "@/config/ui-copy";
+import { ExtraMessages } from "./components/ExtraMessages";
 import { GameRetryDialog } from "@/features/game/components/GameRequestFeedback";
 import { createRequestId } from "@/shared/request-id";
 import {
@@ -544,6 +545,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
           total: assignment.totalLevels,
         }}
       />
+      <ExtraMessages value={assignment} />
       {assignment.status === "assigned" && (
         <AssignmentBrief
           assignment={assignment}
@@ -590,6 +592,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
               ))}
             </nav>
           )}
+          {step?.question && <ExtraMessages value={step} />}
           <QuestWorkspace
             desktop={isDesktop}
             clues={workspaceClues}

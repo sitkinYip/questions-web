@@ -309,3 +309,26 @@
     padding: var(--space-5);
   }
 }
+.game-extra-messages {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin-block: var(--space-3);
+}
+.game-extra-message {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 2px solid var(--color-accent-border);
+  color: var(--color-text);
+  background: var(--color-surface);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.game-extra-message > span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.8em;
+  margin-bottom: var(--space-1);
+}
