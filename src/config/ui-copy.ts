@@ -742,6 +742,20 @@ export const uiCopy = {
       "账号由游戏管理员提供，暂不开放注册。忘记密码时，请联系游戏管理员重置。",
   },
   // src/features/game/pages/GameNotificationsPage.tsx
+  mailbox: {
+    journey: "旅途来信",
+    stars: "星海信笺",
+    accept: "收下",
+    markRead: "标为已读",
+    unread: "未读",
+    actions: "来信操作",
+    close: "关闭信件",
+    media: "打开查看来信内容",
+    starsLoading: "正在收集旅途中的信笺…",
+    starsEmpty: "还没有抵达的星海信笺",
+    starsDescription: "在场次中获得的信件与祝福，会珍藏在这里。",
+    finale: "旅途终章",
+  },
   gameNotificationsPage: {
     eyebrow: common.notificationsDescription,
     title: "旅途中，有人来信。",

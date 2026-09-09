@@ -1,5 +1,5 @@
 import { uiCopy } from "@/config/ui-copy";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { AppDialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +13,9 @@ interface NotificationDialogProps {
   userId: string;
   queuedCount: number;
   onClose: () => void;
+  onAcknowledge?: () => void;
+  pending?: boolean;
+  feedback?: ReactNode;
   onOpenImages: (urls: readonly string[]) => void;
   onOpenVideo: (url: string, poster?: string) => void;
 }
@@ -22,6 +25,9 @@ export function NotificationDialog({
   userId,
   queuedCount,
   onClose,
+  onAcknowledge,
+  pending = false,
+  feedback,
   onOpenImages,
   onOpenVideo,
 }: NotificationDialogProps) {
@@ -165,13 +171,23 @@ export function NotificationDialog({
         </div>
       </div>
       <footer>
+        {feedback && (
+          <div className="notification-dialog-feedback">{feedback}</div>
+        )}
         <span>
           {queuedCount > 1
             ? uiCopy.notificationDialog.pendingCount(queuedCount - 1)
             : ""}
         </span>
-        <Button variant="primary" onClick={onClose} data-modal-initial-focus>
-          {notification.buttonText || uiCopy.notificationDialog.acknowledge}
+        <Button
+          variant="primary"
+          onClick={onAcknowledge ?? onClose}
+          disabled={pending}
+          data-modal-initial-focus
+        >
+          {pending
+            ? uiCopy.notificationLetter.pending
+            : notification.buttonText || uiCopy.notificationDialog.acknowledge}
         </Button>
       </footer>
     </AppDialog>

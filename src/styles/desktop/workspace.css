@@ -67,8 +67,7 @@
   .desktop-question__answer,
   .desktop-clues__reading,
   .desktop-clues__index,
-  .desktop-inbox__list,
-  .desktop-inbox .notification-letter__message,
+  .mailbox-panel [role="tabpanel"],
   .desktop-profile
 ) {
   scrollbar-width: thin;

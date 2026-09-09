@@ -106,6 +106,7 @@
 }
 
 .notification-dialog footer {
+  flex-wrap: wrap;
   z-index: 2;
   width: 100%;
   align-self: end;
@@ -523,4 +524,9 @@
 
 :root[data-theme="light"] .notification-list-items button:hover {
   color: #2f2731;
+}
+
+.notification-dialog-feedback {
+  flex-basis: 100%;
+  min-width: 0;
 }

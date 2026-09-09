@@ -1,3 +1,5 @@
+import { StarLettersView } from "@/features/mailbox/StarLettersView";
+import { selectStarLetters } from "@/features/mailbox/star-letters";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { GameClue } from "@/api/game.contracts";
 import { GamePlayScene } from "@/features/game/GamePlayScene";
@@ -52,6 +54,7 @@ export function SessionPreviewPlayer({
     SessionPreviewValue["narratives"][number] | null
   >(null);
   const [link, setLink] = useState("");
+  const [mailbox, setMailbox] = useState(false);
   const assignment = sessionSnapshot(
     definition,
     stage,
@@ -276,6 +279,16 @@ export function SessionPreviewPlayer({
   return (
     <section onClickCapture={openLink}>
       <div className="session-preview-toolbar" aria-label="场次预览操作">
+        <button
+          type="button"
+          aria-pressed={mailbox}
+          onClick={() => {
+            setNarrative(null);
+            setMailbox((current) => !current);
+          }}
+        >
+          {mailbox ? "返回场次" : "预览星海信笺"}
+        </button>
         {narrative ? (
           <button type="button" onClick={() => setNarrative(null)}>
             返回场次预览
@@ -351,6 +364,24 @@ export function SessionPreviewPlayer({
       )}
       {narrative ? (
         <NarrativePreview narrative={narrative} />
+      ) : mailbox ? (
+        <div className="editor-preview-letter">
+          <h2>星海信笺</h2>
+          <StarLettersView
+            letters={selectStarLetters([assignment])}
+            onOpen={(letter) => {
+              const id = decodeURIComponent(letter.href.split("/").at(-1)!);
+              const entry = value.narratives.find((item) => item.id === id);
+              if (entry) {
+                flow.reset();
+                setNarrative(entry);
+              } else setLink("剧情引用不存在，请返回后台补全配置。");
+            }}
+          />
+          {!selectStarLetters([assignment]).length && (
+            <p>在场次中获得的信件与祝福，会珍藏在这里。</p>
+          )}
+        </div>
       ) : (
         <GamePlayScene
           assignment={assignment}

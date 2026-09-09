@@ -70,7 +70,7 @@ it("rejects other origins, windows, channels and stale revisions", () => {
   send({ ...message, channel: "other" });
   expect(screen.queryByRole("heading", { name: "安全预览" })).toBeNull();
   send(message);
-  expect(screen.getByRole("heading", { name: "安全预览" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /安全预览/ })).toBeInTheDocument();
   send({
     ...message,
     revision: 0,
@@ -81,14 +81,15 @@ it("rejects other origins, windows, channels and stale revisions", () => {
   });
   expect(screen.queryByRole("heading", { name: "过期消息" })).toBeNull();
 });
-it("recovers from malformed drafts and keeps notification reads in memory", () => {
+it("recovers from malformed drafts and keeps notification reads in memory", async () => {
   const storage = vi.spyOn(Storage.prototype, "setItem");
   const fetch = vi.spyOn(window, "fetch");
   setup();
   send({ ...message, draft: null });
   expect(screen.getByRole("alert")).toHaveTextContent("配置暂时无法预览");
   send(message);
-  act(() => screen.getByRole("button", { name: "确认" }).click());
+  act(() => screen.getByRole("button", { name: /安全预览/ }).click());
+  await act(async () => screen.getByRole("button", { name: "确认" }).click());
   expect(document.querySelector(".notification-letter")).toHaveAttribute(
     "data-read",
     "true",
@@ -101,7 +102,7 @@ it("recovers from malformed drafts and keeps notification reads in memory", () =
       value: { ...message.draft.value, title: "更新通知" },
     },
   });
-  expect(screen.getByRole("heading", { name: "更新通知" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /更新通知/ })).toBeInTheDocument();
   expect(document.querySelector(".notification-letter")).toHaveAttribute(
     "data-read",
     "true",
@@ -257,4 +258,24 @@ it("session edits stop audio and pending presentations while retaining the selec
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(storage).not.toHaveBeenCalled();
   expect(fetch).not.toHaveBeenCalled();
+});
+
+it("previews earned star letters using local session state without API writes", () => {
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  const fetch = vi.spyOn(window, "fetch");
+  const storage = vi.spyOn(Storage.prototype, "setItem");
+  setup();
+  const value = sessionFixture();
+  send({ ...message, draft: { kind: "session", value } });
+  fireEvent.change(screen.getByRole("combobox", { name: "预览阶段" }), {
+    target: { value: "completed" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "预览星海信笺" }));
+  expect(screen.getByRole("heading", { name: "星海信笺" })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: /剧情线索/ }));
+  expect(document.querySelector(".letter-page")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "返回场次预览" }));
+  expect(screen.getByRole("heading", { name: "星海信笺" })).toBeInTheDocument();
+  expect(fetch).not.toHaveBeenCalled();
+  expect(storage).not.toHaveBeenCalled();
 });

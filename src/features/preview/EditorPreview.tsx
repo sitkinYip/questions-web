@@ -9,7 +9,6 @@ import { QuestCard, type QuestCardProps } from "@/features/quest/QuestCard";
 import { DesktopQuestCard } from "@/features/game/desktop/DesktopQuestCard";
 import { QuestWorkspace } from "@/features/game/desktop/QuestWorkspace";
 import { NotificationLetterView } from "@/features/game/components/NotificationLetter";
-import { NotificationDialog } from "@/features/notification/NotificationDialog";
 import {
   MediaViewer,
   type MediaViewerState,
@@ -161,7 +160,6 @@ function PreviewContent({ message }: { message: ValidatedPreviewMessage }) {
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [read, setRead] = useState(message.state === "read");
-  const [popup, setPopup] = useState(message.state === "popup");
   const [media, setMedia] = useState<MediaViewerState>(null);
   const openImages = (urls: readonly string[], index = 0) => {
     if (urls.length) setMedia({ type: "images", urls, index });
@@ -268,23 +266,8 @@ function PreviewContent({ message }: { message: ValidatedPreviewMessage }) {
       <main className="editor-preview-letter">
         <NotificationLetterView
           note={note}
-          desktop={desktop}
+          defaultOpen={message.state === "popup"}
           onRead={() => setRead(true)}
-        />
-        <NotificationDialog
-          notification={
-            popup && !media
-              ? { ...value, id: note.id, createdAt: sentAt, revision: sentAt }
-              : null
-          }
-          userId=""
-          queuedCount={1}
-          onClose={() => {
-            setPopup(false);
-            setRead(true);
-          }}
-          onOpenImages={openImages}
-          onOpenVideo={openVideo}
         />
       </main>
     );

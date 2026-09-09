@@ -280,9 +280,17 @@ test("a letter can be acknowledged without losing its contents", async ({
   const letter = page
     .locator(".notification-letter")
     .filter({ hasText: "新的线索已送达" });
-  await letter.getByRole("button", { name: "收到消息" }).click();
-  await expect(letter.getByRole("status")).toHaveText("来信已收好");
-  await expect(letter.getByText(/请到入口领取下一份线索/)).toBeVisible();
+  await letter.locator(".mailbox-row__open").click();
+  await page.getByRole("button", { name: "收到消息", exact: true }).click();
+  await expect(letter).toHaveAttribute("data-read", "true");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await letter.locator(".mailbox-row__open").click();
+  await expect(page.locator(".notification-content")).toContainText(
+    "请到入口领取下一份线索",
+  );
+  await expect(
+    page.getByRole("button", { name: "关闭信件", exact: true }),
+  ).toBeVisible();
 });
 
 test("narrow layouts and long content never overflow; bottom navigation stays reachable", async ({

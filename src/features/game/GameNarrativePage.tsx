@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { gameRequest, isFatalGameError } from "@/api/game.client";
 import { gameNarrativeSchema } from "@/api/narrative.schema";
 import {
@@ -13,6 +13,7 @@ import { useGame } from "@/features/game/useGame";
 import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 
 export function GameNarrativePage() {
+  const location = useLocation();
   const { id = "", contentId = "" } = useParams(),
     { player } = useGame();
   const query = useQuery({
@@ -38,7 +39,10 @@ export function GameNarrativePage() {
     import.meta.env.BASE_URL,
     window.location.pathname,
   );
-  const returnTo = withAppBasename(`/play/${id}`, appBasename);
+  const returnTo = withAppBasename(
+    location.state?.fromMailbox ? "/notifications?tab=stars" : `/play/${id}`,
+    appBasename,
+  );
   return data.kind === "letter" ? (
     <LetterExperience
       letter={{

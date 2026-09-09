@@ -556,7 +556,7 @@ test("many choices scroll inside the answer area without hiding submit", async (
   await expectPageFits(page);
 });
 
-test("desktop inbox keeps long lists and bodies local, and acknowledging does not jump selection", async ({
+test("desktop inbox keeps compact rows and offers read acknowledgement from its hover menu", async ({
   page,
 }) => {
   await mockQuestionsApi(page);
@@ -574,30 +574,21 @@ test("desktop inbox keeps long lists and bodies local, and acknowledging does no
     return fulfillJson(route, {});
   });
   await login(page, "/notifications");
-  const message = page.locator(".notification-letter__message");
-  await expect(page.getByRole("button", { name: "收到消息" })).toBeInViewport({
-    ratio: 1,
-  });
+  const letters = page.locator(".mailbox-row");
+  await expect(letters).toHaveCount(25);
   expect(
-    await message.evaluate((el) => el.scrollHeight > el.clientHeight),
-  ).toBe(true);
-  expect(
-    await page
-      .locator(".desktop-inbox__list")
-      .evaluate((el) => el.scrollHeight > el.clientHeight),
-  ).toBe(true);
-  await message.focus();
-  await page.keyboard.press("End");
-  await expect
-    .poll(() => message.evaluate((el) => el.scrollTop))
-    .toBeGreaterThan(0);
-  await page.getByRole("button", { name: /^第 2 封来信 / }).click();
-  await page.getByRole("button", { name: "收到消息" }).click();
-  await expect(
-    page.getByRole("heading", { name: "第 2 封来信" }),
-  ).toBeVisible();
-  await expect(page.getByRole("status")).toHaveText("来信已收好");
-  await expect(message).toHaveText("第二封信的正文");
+    await letters.first().evaluate((el) => el.getBoundingClientRect().height),
+  ).toBeLessThan(150);
+  await letters.nth(1).hover();
+  await letters.nth(1).getByRole("button", { name: "来信操作" }).click();
+  await page.getByRole("menuitem", { name: "标为已读" }).click();
+  await expect(letters.nth(1)).toHaveAttribute("data-read", "true");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await letters.nth(1).locator(".mailbox-row__open").click();
+  await expect(page.locator(".notification-content")).toHaveText(
+    "第二封信的正文",
+  );
+  await page.getByRole("button", { name: "关闭信件", exact: true }).click();
   await expectPageFits(page);
 });
 
