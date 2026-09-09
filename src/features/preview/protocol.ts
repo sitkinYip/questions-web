@@ -1,3 +1,4 @@
+import { gameNarrativeSchema } from "@/api/narrative.schema";
 import { z } from "zod";
 import { EDITOR_PREVIEW_VERSION } from "@/api/game.contracts";
 const text = z.string().max(200_000);
@@ -38,6 +39,7 @@ export const previewMessageSchema = z.object({
     "popup",
   ]),
   draft: z.discriminatedUnion("kind", [
+    z.object({ kind: z.literal("narrative"), value: gameNarrativeSchema }),
     z.object({
       kind: z.literal("question"),
       value: z.object({
@@ -60,6 +62,8 @@ export const previewMessageSchema = z.object({
     }),
   ]),
 });
+export type ValidatedPreviewMessage = z.infer<typeof previewMessageSchema>;
+
 export function allowedPreviewOrigin(
   origin: string,
   development: boolean,

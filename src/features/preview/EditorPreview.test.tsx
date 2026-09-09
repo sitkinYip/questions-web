@@ -30,6 +30,8 @@ afterEach(() => {
   });
   history.replaceState(null, "", "/");
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 function setup() {
   Object.defineProperty(window, "parent", {
@@ -99,4 +101,117 @@ it("recovers from malformed drafts and keeps notification reads in memory", () =
   );
   expect(fetch).not.toHaveBeenCalled();
   expect(storage).not.toHaveBeenCalled();
+});
+
+const canvas = vi.hoisted(() => ({ formText: vi.fn(), releaseText: vi.fn() }));
+vi.mock("@/features/bless/canvas-engine", () => ({
+  useBlessCanvas: () => canvas,
+}));
+function narrativeMessage(kind: "letter" | "bless", variant = "modern") {
+  return {
+    ...message,
+    draft: {
+      kind: "narrative",
+      value: {
+        id: "editor-narrative",
+        kind,
+        title: "剧情标题",
+        payload:
+          kind === "letter"
+            ? {
+                variant,
+                hintText: "开启剧情",
+                typingSpeedMs: 20,
+                mainAudioUrl: "https://assets.example/music.mp3",
+                paragraphs: [
+                  {
+                    content: "旧文字正在逐字显示，需要在编辑后停止。",
+                    delayMs: 0,
+                    align: "left",
+                  },
+                ],
+              }
+            : {
+                phrases: [{ text: "旧祝福", durationMs: 3000 }],
+                closingLines: [{ text: "旧谢幕", durationMs: 1000 }],
+                mainAudioUrl: "https://assets.example/music.mp3",
+              },
+      },
+    },
+  };
+}
+function mockNarrativeRuntime() {
+  vi.useFakeTimers();
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  const pause = vi.fn();
+  vi.stubGlobal(
+    "Audio",
+    class {
+      paused = false;
+      play = vi.fn(() => Promise.resolve());
+      pause = pause;
+    },
+  );
+  return pause;
+}
+it.each(["modern", "classical", "magic"])(
+  "resets the %s letter and stops audio/typing on every new revision",
+  async (variant) => {
+    const pause = mockNarrativeRuntime();
+    setup();
+    const first = narrativeMessage("letter", variant);
+    send(first);
+    expect(document.querySelector(".letter-page")).toHaveClass("is-sealed");
+    await act(async () =>
+      screen.getByRole("button", { name: /开启剧情/ }).click(),
+    );
+    act(() => vi.advanceTimersByTime(100));
+    expect(document.querySelector(".letter-page")).toHaveClass("is-open");
+    const next = {
+      ...first,
+      revision: 2,
+      draft: {
+        ...first.draft,
+        value: {
+          ...first.draft.value,
+          title: "更新剧情",
+          payload: {
+            ...first.draft.value.payload,
+            paragraphs: [{ content: "新文字", delayMs: 0, align: "center" }],
+          },
+        },
+      },
+    };
+    send(next);
+    expect(document.querySelector(".letter-page")).toHaveClass("is-sealed");
+    expect(pause).toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(5000));
+    expect(document.querySelector(".letter-page")).toHaveClass("is-sealed");
+    await act(async () =>
+      screen.getByRole("button", { name: /开启剧情/ }).click(),
+    );
+    act(() => screen.getByRole("button", { name: "显示全文" }).click());
+    expect(screen.getByText("新文字")).toBeInTheDocument();
+    expect(screen.queryByText(/旧文字/)).toBeNull();
+  },
+);
+it("returns blessings to the start and cancels the previous audio and sequence", async () => {
+  const pause = mockNarrativeRuntime();
+  setup();
+  const first = narrativeMessage("bless");
+  send(first);
+  await act(async () =>
+    screen.getByRole("button", { name: "剧情标题" }).click(),
+  );
+  expect(document.querySelector(".bless-start")).toBeNull();
+  send({
+    ...first,
+    revision: 2,
+    draft: { ...first.draft, value: { ...first.draft.value, title: "新祝福" } },
+  });
+  expect(pause).toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "新祝福" })).toBeInTheDocument();
+  await act(async () => vi.advanceTimersByTime(10000));
+  expect(screen.getByRole("button", { name: "新祝福" })).toBeInTheDocument();
+  expect(screen.queryByText("旧谢幕")).toBeNull();
 });

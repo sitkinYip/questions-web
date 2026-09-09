@@ -23,3 +23,11 @@
     padding: 16px 12px;
   }
 }
+
+.editor-preview-empty {
+  position: relative;
+  z-index: 1;
+  margin: 16px;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+}

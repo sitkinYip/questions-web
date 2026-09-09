@@ -412,6 +412,10 @@ export const EDITOR_PREVIEW_VERSION = 1;
 export type EditorPreviewDraft =
   | { kind: "question"; value: GameQuestion }
   | {
+      kind: "narrative";
+      value: Pick<AdminNarrative, "id" | "kind" | "title" | "payload">;
+    }
+  | {
       kind: "notification";
       value: Pick<
         GameNotification,

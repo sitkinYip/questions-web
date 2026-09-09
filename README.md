@@ -101,3 +101,5 @@ Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next
 将 `pnpm build:preview` 生成的完整 `dist/` 发布到 `/questions-next/` 后再发布管理端。服务器必须将 `/questions-next/preview/` 解析为其中的 `preview/index.html`，不能改写到玩家首页 `index.html`；无尾斜杠的 `/questions-next/preview` 应保留查询参数并重定向到带斜杠路径。该预览路径需要允许后台嵌入（CSP `frame-ancestors https://vae.sitkin.top`，避免冲突的 X-Frame-Options）。
 
 草稿只存在内存，不执行判题或标记已读请求。完整联调与兼容说明位于相邻后台仓库 `docs/live-editor-preview.md`。源码已完成，尚未发布。
+
+剧情预览复用正式 `LetterExperience` 和 `BlessExperience`：每次编辑、切换主题/设备或手动重置，都回到未展开/未开始状态并清理旧音频和动画。题目和通知的状态保留行为不变。新增的 `narrative` 能力通过握手声明，旧后台仍可使用题目/通知预览，新后台在预览端尚未升级时会提示剧情预览不可用。后端接口与数据库无需变更。

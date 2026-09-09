@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { OverlayProvider } from "@/components/ui/OverlayProvider";
 import { ThemeContext } from "@/components/ui/theme-context";
-import {
-  EDITOR_PREVIEW_VERSION,
-  type EditorPreviewMessage,
-} from "@/api/game.contracts";
+import { EDITOR_PREVIEW_VERSION } from "@/api/game.contracts";
 import { QuestCard, type QuestCardProps } from "@/features/quest/QuestCard";
 import { DesktopQuestCard } from "@/features/game/desktop/DesktopQuestCard";
 import { QuestWorkspace } from "@/features/game/desktop/QuestWorkspace";
@@ -16,11 +13,16 @@ import {
   type MediaViewerState,
 } from "@/features/media/MediaViewer";
 import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
-import { previewMessageSchema, allowedPreviewOrigin } from "./protocol";
+import {
+  previewMessageSchema,
+  allowedPreviewOrigin,
+  type ValidatedPreviewMessage,
+} from "./protocol";
+import { NarrativePreview } from "./NarrativePreview";
 import "./preview.css";
 
 export function EditorPreview() {
-  const [message, setMessage] = useState<EditorPreviewMessage | null>(null);
+  const [message, setMessage] = useState<ValidatedPreviewMessage | null>(null);
   const [connection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const origin = params.get("parentOrigin") || "";
@@ -51,6 +53,7 @@ export function EditorPreview() {
           type: "sitkin:preview:ready",
           version: EDITOR_PREVIEW_VERSION,
           channel,
+          kinds: ["question", "notification", "narrative"],
         },
         origin,
       );
@@ -122,7 +125,7 @@ export function EditorPreview() {
             )}
             {message && !error && (
               <PreviewContent
-                key={`${message.draft.kind}:${message.reset}:${message.state}`}
+                key={`${message.draft.kind}:${message.reset}:${message.state}:${message.draft.kind === "narrative" ? message.revision : ""}`}
                 message={message}
               />
             )}
@@ -133,7 +136,7 @@ export function EditorPreview() {
   );
 }
 
-function PreviewContent({ message }: { message: EditorPreviewMessage }) {
+function PreviewContent({ message }: { message: ValidatedPreviewMessage }) {
   const desktop = useDesktopLayout();
   const cardRef = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -223,6 +226,8 @@ function PreviewContent({ message }: { message: EditorPreviewMessage }) {
         </QuestWorkspace>
       </main>
     );
+  } else if (message.draft.kind === "narrative") {
+    content = <NarrativePreview narrative={message.draft.value} />;
   } else {
     const value = message.draft.value;
     const note = {
