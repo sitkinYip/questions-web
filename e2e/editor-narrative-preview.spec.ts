@@ -34,11 +34,11 @@ async function host(page: Page, width: number) {
       draft,
     };
     await page.evaluate(
-      (message) =>
+      (payload: string) =>
         document
           .querySelector("iframe")!
-          .contentWindow!.postMessage(message, location.origin),
-      message,
+          .contentWindow!.postMessage(JSON.parse(payload), location.origin),
+      JSON.stringify(message),
     );
   };
   return { frame: page.frameLocator("iframe"), send, apiRequests };

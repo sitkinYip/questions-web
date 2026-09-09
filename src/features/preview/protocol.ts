@@ -1,3 +1,4 @@
+import { gameAssignmentSchema } from "@/api/game.schema";
 import { gameNarrativeSchema } from "@/api/narrative.schema";
 import { z } from "zod";
 import { EDITOR_PREVIEW_VERSION } from "@/api/game.contracts";
@@ -39,6 +40,14 @@ export const previewMessageSchema = z.object({
     "popup",
   ]),
   draft: z.discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("session"),
+      value: z.object({
+        assignment: gameAssignmentSchema,
+        narratives: z.array(gameNarrativeSchema),
+        issues: z.array(text),
+      }),
+    }),
     z.object({ kind: z.literal("narrative"), value: gameNarrativeSchema }),
     z.object({
       kind: z.literal("question"),

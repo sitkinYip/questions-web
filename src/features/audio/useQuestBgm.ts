@@ -1,5 +1,5 @@
+import { useExperienceEnvironment } from "@/features/game/ExperienceEnvironment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { trackAnalytics } from "@/infrastructure/analytics";
 import { createBgmPreferencesRepository } from "@/infrastructure/storage/audio.repository";
 import { playAudio } from "@/shared/media/play-audio";
 
@@ -11,9 +11,10 @@ export function useQuestBgm(
   suspended: boolean,
   userId = "",
 ) {
+  const { storage, track: trackAnalytics } = useExperienceEnvironment();
   const repository = useMemo(
-    () => createBgmPreferencesRepository(window.localStorage),
-    [],
+    () => createBgmPreferencesRepository(storage),
+    [storage],
   );
   const initialEnabled = useMemo(() => repository.load().enabled, [repository]);
   const desiredPlayingRef = useRef(initialEnabled);
@@ -65,7 +66,7 @@ export function useQuestBgm(
         }, AUTH_HINT_DURATION_MS);
       });
     },
-    [audioUrl, clearHintTimer, userId],
+    [audioUrl, clearHintTimer, userId, trackAnalytics],
   );
 
   useEffect(() => {
@@ -105,7 +106,14 @@ export function useQuestBgm(
       if (audioRef.current === audio) audioRef.current = null;
       clearHintTimer();
     };
-  }, [audioUrl, clearHintTimer, hideAuthHint, requestPlay, userId]);
+  }, [
+    audioUrl,
+    clearHintTimer,
+    hideAuthHint,
+    requestPlay,
+    userId,
+    trackAnalytics,
+  ]);
 
   useEffect(() => {
     if (previousSuspendedRef.current === suspended) return;
@@ -124,7 +132,7 @@ export function useQuestBgm(
       }
       audioRef.current?.pause();
     } else if (desiredPlayingRef.current) requestPlay("media");
-  }, [audioUrl, requestPlay, suspended, userId]);
+  }, [audioUrl, requestPlay, suspended, userId, trackAnalytics]);
 
   const toggle = useCallback(() => {
     if (isPlaying) {
@@ -154,7 +162,15 @@ export function useQuestBgm(
       // Playback control still works if persistence is unavailable.
     }
     requestPlay("user");
-  }, [audioUrl, hideAuthHint, isPlaying, repository, requestPlay, userId]);
+  }, [
+    audioUrl,
+    hideAuthHint,
+    isPlaying,
+    repository,
+    requestPlay,
+    userId,
+    trackAnalytics,
+  ]);
 
   return {
     hasBgm: Boolean(audioUrl),

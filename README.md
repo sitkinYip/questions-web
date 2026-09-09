@@ -103,3 +103,5 @@ Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next
 草稿只存在内存，不执行判题或标记已读请求。完整联调与兼容说明位于相邻后台仓库 `docs/live-editor-preview.md`。源码已完成，尚未发布。
 
 剧情预览复用正式 `LetterExperience` 和 `BlessExperience`：每次编辑、切换主题/设备或手动重置，都回到未展开/未开始状态并清理旧音频和动画。题目和通知的状态保留行为不变。新增的 `narrative` 能力通过握手声明，旧后台仍可使用题目/通知预览，新后台在预览端尚未升级时会提示剧情预览不可用。后端接口与数据库无需变更。
+
+场次预览支持入场、选关、答对/答错模拟、线索解锁、通关演出与剧情返回。正式页面和预览共用 `GamePlayScene` 及 `session-presentation`，预览使用独立的 `session-simulation` 内存状态；`ExperienceEnvironment` 隔离音频偏好和埋点。配置更新保留阶段/关卡 ID 并重置播放，不执行实际判题、奖励、权限或惩罚结算。新增 `session` 握手能力，部署顺序仍为玩家端预览环境后管理端，无需后端迁移。

@@ -1,4 +1,11 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { sessionFixture } from "../../../e2e/session-preview-fixture";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { EditorPreview } from "./EditorPreview";
 
@@ -214,4 +221,40 @@ it("returns blessings to the start and cancels the previous audio and sequence",
   await act(async () => vi.advanceTimersByTime(10000));
   expect(screen.getByRole("button", { name: "新祝福" })).toBeInTheDocument();
   expect(screen.queryByText("旧谢幕")).toBeNull();
+});
+
+it("session edits stop audio and pending presentations while retaining the selected level", async () => {
+  vi.useFakeTimers();
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  const pause = vi.fn();
+  vi.stubGlobal(
+    "Audio",
+    class extends EventTarget {
+      paused = false;
+      play = vi.fn(() => Promise.resolve());
+      pause = pause;
+    },
+  );
+  const storage = vi.spyOn(Storage.prototype, "setItem");
+  const fetch = vi.spyOn(window, "fetch");
+  setup();
+  const value = sessionFixture();
+  value.assignment.presentation.bgmUrl = "https://assets.example/music.mp3";
+  send({ ...message, draft: { kind: "session", value } });
+  fireEvent.change(screen.getByRole("combobox", { name: "当前关卡" }), {
+    target: { value: "l1" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "模拟答对" }));
+  expect(screen.getByRole("dialog")).toHaveTextContent("过关线索");
+  const previousPauses = pause.mock.calls.length;
+  send({ ...message, revision: 2, draft: { kind: "session", value } });
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(pause.mock.calls.length).toBeGreaterThan(previousPauses);
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(5000);
+  });
+  expect(screen.getByRole("combobox", { name: "当前关卡" })).toHaveValue("l1");
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(storage).not.toHaveBeenCalled();
+  expect(fetch).not.toHaveBeenCalled();
 });

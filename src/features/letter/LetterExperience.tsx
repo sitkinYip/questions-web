@@ -12,7 +12,7 @@ import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 import { LetterControls } from "@/features/letter/LetterControls";
 import type { Letter } from "@/domain/letter/types";
 import { playAudio } from "@/shared/media/play-audio";
-import { trackAnalytics, trackAnalyticsOnce } from "@/infrastructure/analytics";
+import { useExperienceEnvironment } from "@/features/game/ExperienceEnvironment";
 import {
   paginateLetterParagraphs,
   resolveLetterPageSwipe,
@@ -29,6 +29,8 @@ interface LetterExperienceProps {
 const PAGE_TURN_DURATION_MS = 920;
 
 export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
+  const { track: trackAnalytics, trackOnce: trackAnalyticsOnce } =
+    useExperienceEnvironment();
   const isDesktop = useDesktopLayout();
   const [isOpen, setIsOpen] = useState(false);
   const [paragraphIndex, setParagraphIndex] = useState(-1);
@@ -262,7 +264,14 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
       state: "completed",
       variant: letter.variant,
     });
-  }, [isFinished, letter.from, letter.id, letter.title, letter.variant]);
+  }, [
+    isFinished,
+    letter.from,
+    letter.id,
+    letter.title,
+    letter.variant,
+    trackAnalyticsOnce,
+  ]);
 
   const openLetter = () => {
     trackAnalytics({

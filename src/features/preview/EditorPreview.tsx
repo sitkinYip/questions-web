@@ -1,3 +1,5 @@
+import { ExperienceEnvironmentContext } from "@/features/game/ExperienceEnvironment";
+import { SessionPreview } from "./SessionPreview";
 import { useEffect, useRef, useState } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { OverlayProvider } from "@/components/ui/OverlayProvider";
@@ -22,6 +24,19 @@ import { NarrativePreview } from "./NarrativePreview";
 import "./preview.css";
 
 export function EditorPreview() {
+  const [environment] = useState(() => {
+    const data = new Map<string, string>();
+    return {
+      storage: {
+        getItem: (key: string) => data.get(key) ?? null,
+        setItem: (key: string, value: string) => {
+          data.set(key, value);
+        },
+      },
+      track: () => false,
+      trackOnce: () => false,
+    };
+  });
   const [message, setMessage] = useState<ValidatedPreviewMessage | null>(null);
   const [connection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -53,7 +68,7 @@ export function EditorPreview() {
           type: "sitkin:preview:ready",
           version: EDITOR_PREVIEW_VERSION,
           channel,
-          kinds: ["question", "notification", "narrative"],
+          kinds: ["question", "notification", "narrative", "session"],
         },
         origin,
       );
@@ -92,47 +107,50 @@ export function EditorPreview() {
   }, [theme]);
   // Capture also covers portalled dialogs. Draft links must not navigate to live pages.
   return (
-    <MemoryRouter>
-      <ThemeContext.Provider
-        value={{
-          preference: theme,
-          resolvedTheme: theme,
-          setPreference: () => {},
-        }}
-      >
-        <OverlayProvider>
-          <div
-            className="editor-preview"
-            onClickCapture={(event) => {
-              if (
-                event.target instanceof Element &&
-                event.target.closest("a")
-              ) {
-                event.preventDefault();
-                event.stopPropagation();
-              }
-            }}
-          >
-            {error && (
-              <p className="editor-preview-status" role="alert">
-                {error}
-              </p>
-            )}
-            {!message && !error && (
-              <p className="editor-preview-status" role="status">
-                等待编辑内容…
-              </p>
-            )}
-            {message && !error && (
-              <PreviewContent
-                key={`${message.draft.kind}:${message.reset}:${message.state}:${message.draft.kind === "narrative" ? message.revision : ""}`}
-                message={message}
-              />
-            )}
-          </div>
-        </OverlayProvider>
-      </ThemeContext.Provider>
-    </MemoryRouter>
+    <ExperienceEnvironmentContext.Provider value={environment}>
+      <MemoryRouter>
+        <ThemeContext.Provider
+          value={{
+            preference: theme,
+            resolvedTheme: theme,
+            setPreference: () => {},
+          }}
+        >
+          <OverlayProvider>
+            <div
+              className="editor-preview"
+              onClickCapture={(event) => {
+                if (message?.draft.kind === "session") return;
+                if (
+                  event.target instanceof Element &&
+                  event.target.closest("a")
+                ) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                }
+              }}
+            >
+              {error && (
+                <p className="editor-preview-status" role="alert">
+                  {error}
+                </p>
+              )}
+              {!message && !error && (
+                <p className="editor-preview-status" role="status">
+                  等待编辑内容…
+                </p>
+              )}
+              {message && !error && (
+                <PreviewContent
+                  key={`${message.draft.kind}:${message.draft.kind === "session" ? "" : message.reset}:${message.state}:${message.draft.kind === "narrative" ? message.revision : ""}`}
+                  message={message}
+                />
+              )}
+            </div>
+          </OverlayProvider>
+        </ThemeContext.Provider>
+      </MemoryRouter>
+    </ExperienceEnvironmentContext.Provider>
   );
 }
 
@@ -225,6 +243,15 @@ function PreviewContent({ message }: { message: ValidatedPreviewMessage }) {
           <Card {...props} />
         </QuestWorkspace>
       </main>
+    );
+  } else if (message.draft.kind === "session") {
+    content = (
+      <SessionPreview
+        value={message.draft.value}
+        revision={message.revision}
+        reset={message.reset}
+        theme={message.theme}
+      />
     );
   } else if (message.draft.kind === "narrative") {
     content = <NarrativePreview narrative={message.draft.value} />;

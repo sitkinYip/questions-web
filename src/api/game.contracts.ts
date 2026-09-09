@@ -409,7 +409,13 @@ export interface ExtraPreview {
 
 /** Ephemeral editor previews. No persistence, answer keys or recipient data. */
 export const EDITOR_PREVIEW_VERSION = 1;
+export interface EditorSessionPreview {
+  assignment: GameAssignment;
+  narratives: Pick<AdminNarrative, "id" | "kind" | "title" | "payload">[];
+  issues: string[];
+}
 export type EditorPreviewDraft =
+  | { kind: "session"; value: EditorSessionPreview }
   | { kind: "question"; value: GameQuestion }
   | {
       kind: "narrative";

@@ -90,6 +90,10 @@ export function useGamePresentation(onAdvance: (index: number) => void) {
     setMedia(null);
     setVideoPlaying(false);
     setTextClue(null);
+    setCompletion(null);
+    setCombination(null);
+    setDestination(null);
+    setRank(null);
   }
   function start(steps: PresentationStep[]) {
     reset();

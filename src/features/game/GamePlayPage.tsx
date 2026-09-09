@@ -1,5 +1,10 @@
+import {
+  answerPresentationSteps,
+  startPresentationSteps,
+  resolveLevelPresentation,
+} from "./session-presentation";
+import { GamePlayScene } from "./GamePlayScene";
 import { uiCopy } from "@/config/ui-copy";
-import { ExtraMessages } from "./components/ExtraMessages";
 import { GameRetryDialog } from "@/features/game/components/GameRequestFeedback";
 import { createRequestId } from "@/shared/request-id";
 import {
@@ -11,82 +16,31 @@ import {
   type PointerEvent,
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   gameApi,
   isFatalGameError,
   isRetryableGameError,
 } from "@/api/game.client";
-import type { GameAssignment, GameClue } from "@/api/game.contracts";
-import type {
-  QuestAvailability,
-  QuestClue,
-  QuestFinalDestination,
-} from "@/domain/quest/types";
-import { QuestAtmosphere } from "@/components/effects/QuestAtmosphere";
-import { MediaViewer } from "@/features/media/MediaViewer";
-import { ClueTextDialog } from "@/features/clues/ClueTextDialog";
-import { MultiQuestClueDialog } from "@/features/clues/MultiQuestClueDialog";
-import { MultiClueLauncher } from "@/features/clues/MultiClueLauncher";
-import { NarrativeAttentionBeacon } from "@/features/clues/NarrativeAttentionBeacon";
-import { FinalDestinationPrompt } from "@/features/completion/FinalDestinationPrompt";
+import type { GameAssignment } from "@/api/game.contracts";
+import type { QuestAvailability, QuestClue } from "@/domain/quest/types";
 import { createQuestAnswerGuideRepository } from "@/infrastructure/storage/quest-guide.repository";
 import { createNarrativeAttentionRepository } from "@/infrastructure/storage/narrative-attention.repository";
-import { CompletionFeedbackDialog } from "@/features/completion/CompletionFeedbackDialog";
-import { RankUpDialog } from "@/features/rank/RankUpDialog";
-import { BgmControls } from "@/features/audio/BgmControls";
 import { useQuestBgm } from "@/features/audio/useQuestBgm";
 import { GameFailure, GameHeader } from "@/features/game/GameContext";
 import { GameNotificationCenter } from "@/features/game/GameNotificationCenter";
 import { useGame } from "@/features/game/useGame";
-import {
-  useGamePresentation,
-  type PresentationStep,
-} from "@/features/game/useGamePresentation";
+import { useGamePresentation } from "@/features/game/useGamePresentation";
 import { useHorizontalSwipe } from "@/shared/gestures/useHorizontalSwipe";
 import { useQuestNavigationPosition } from "@/features/quest/useQuestNavigationPosition";
-import { QuestCard, QuestAnswerGuide } from "@/features/quest/QuestCard";
-import { AssignmentBrief } from "@/features/game/components/AssignmentBrief";
 import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
-import { DesktopQuestCard } from "@/features/game/desktop/DesktopQuestCard";
-import { QuestWorkspace } from "@/features/game/desktop/QuestWorkspace";
 import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 import {
-  clueBelongsToLevel,
-  clueView,
   combinationView,
-  compareClues,
-  isCombinationClue,
   selectClueViews,
   selectCombinationClues,
-  selectExplicitEffectClues,
 } from "@/features/game/clue-presentation";
 
-function fallbackAnswerClues(
-  previous: readonly GameClue[],
-  current: readonly GameClue[],
-  sessionLevel: string,
-) {
-  const known = new Set(previous.map((clue) => clue.id));
-  return current
-    .filter(
-      (clue) => !known.has(clue.id) && clueBelongsToLevel(clue, sessionLevel),
-    )
-    .toSorted(compareClues);
-}
-function destinationView(
-  assignment: GameAssignment,
-): QuestFinalDestination | null {
-  const target = assignment.completionTarget;
-  return target?.kind === "narrative"
-    ? {
-        href: `/play/${assignment.id}/content/${target.id}`,
-        target: "internal",
-      }
-    : target?.kind === "link"
-      ? { href: target.url, target: "external" }
-      : null;
-}
 export function GamePlayPage() {
   const { id = "" } = useParams(),
     { player } = useGame();
@@ -108,7 +62,6 @@ export function GamePlayPage() {
 
 export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   const isDesktop = useDesktopLayout();
-  const QuestionCard = isDesktop ? DesktopQuestCard : QuestCard;
   const { player, setPlayer } = useGame(),
     client = useQueryClient();
   const [activeIndex, setActiveIndex] = useState(assignment.currentIndex);
@@ -251,29 +204,12 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
   }, [activeIndex]);
   const content = step?.question,
     override = step?.presentationOverride;
-  const bgmUrl =
-    override?.bgmMode === "silent"
-      ? undefined
-      : override?.bgmMode === "custom"
-        ? override.bgmUrl
-        : assignment.presentation.bgmMode === "silent"
-          ? undefined
-          : assignment.presentation.bgmUrl;
-  // The original player pauses BGM as soon as a video viewer opens.
+  const { bgmUrl, background } = resolveLevelPresentation(assignment, override);
   const bgm = useQuestBgm(
     bgmUrl || undefined,
     flow.media?.type === "video",
     player.id,
   );
-  const background =
-    override?.backgroundMode === "none"
-      ? undefined
-      : override?.backgroundMode === "custom"
-        ? override.backgroundUrl
-        : override?.backgroundUrl ||
-          (assignment.presentation.backgroundMode === "none"
-            ? undefined
-            : assignment.presentation.backgroundUrl);
   const combinations = selectCombinationClues(
     assignment.clues,
     assignment.totalLevels,
@@ -290,35 +226,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         ["game", player.id, "assignment", assignment.id],
         value,
       );
-      const explicit = selectExplicitEffectClues(
-        value.clues,
-        value.transitionEffects,
-        value.levels.map((level) => level.id),
-      );
-      const known = new Set(assignment.clues.map((clue) => clue.id));
-      const unlocked =
-        explicit ??
-        value.clues
-          .filter((clue) => !known.has(clue.id))
-          .toSorted(compareClues);
-      const effectAutoPlay =
-        value.transitionEffects === undefined
-          ? null
-          : new Map(
-              value.transitionEffects.map((effect) => [
-                effect.clueId,
-                effect.autoPlay,
-              ]),
-            );
-      flow.start(
-        unlocked
-          .filter(
-            (clue) =>
-              (effectAutoPlay?.get(clue.id) ?? clue.autoPlay) &&
-              !isCombinationClue(clue, value.totalLevels),
-          )
-          .map((clue) => ({ type: "clue", clue: clueView(clue, value.id) })),
-      );
+      flow.start(startPresentationSteps(assignment, value));
     },
   });
   const submit = useMutation({
@@ -369,7 +277,6 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       }
       if (result.result === "already_completed") return;
       const settled = result.assignment;
-      const settledStep = settled.levels.find((level) => level.id === step.id);
       const completed = settled.status === "completed";
       showFeedback(
         completed
@@ -377,48 +284,12 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
           : uiCopy.gamePlayPage.correct,
         "success",
       );
-      const explicit = selectExplicitEffectClues(
-        settled.clues,
+      const sequence = answerPresentationSteps(
+        assignment,
+        settled,
+        step.id,
         result.effects,
-        settled.levels.map((level) => level.id),
       );
-      const unlocked =
-        explicit ??
-        fallbackAnswerClues(assignment.clues, settled.clues, step.id);
-      const effectAutoPlay =
-        result.effects === undefined
-          ? null
-          : new Map(
-              result.effects.map((effect) => [effect.clueId, effect.autoPlay]),
-            );
-      const automatic = unlocked.filter(
-        (clue) =>
-          (effectAutoPlay?.get(clue.id) ?? clue.autoPlay) &&
-          !isCombinationClue(clue, settled.totalLevels),
-      );
-      const sequence: PresentationStep[] = automatic.map((clue) => ({
-        type: "clue",
-        clue: clueView(clue, settled.id),
-      }));
-      const finale =
-        completed && settled.presentation.completionStyle === "finale";
-      if (finale) sequence.unshift({ type: "completion", variant: "final" });
-      else if (completed && settled.totalLevels > 1)
-        sequence.push({ type: "completion", variant: "multi" });
-      if (completed) {
-        for (const clue of unlocked.filter((clue) =>
-          isCombinationClue(clue, settled.totalLevels),
-        ))
-          sequence.push({ type: "combination", clue: combinationView(clue) });
-        const destination = destinationView(settled);
-        if (finale && destination)
-          sequence.push({ type: "destination", destination });
-      } else if (settledStep?.autoNext)
-        sequence.push({
-          type: "advance",
-          index: settled.currentIndex,
-          delay: automatic.length ? 0 : 1500,
-        });
       if (result.player.level.order > player.level.order)
         sequence.push({
           type: "rank",
@@ -530,224 +401,127 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
     (clue) => attentionClueIds.has(clue.id) && !activeClueIds.has(clue.id),
   );
   return (
-    <main className={`quest-layout${isDesktop ? " quest-desktop" : ""}`}>
-      {background && (
-        <div
-          className="quest-background"
-          aria-hidden="true"
-          style={{ backgroundImage: `url("${background}")` }}
+    <GamePlayScene
+      assignment={assignment}
+      activeIndex={activeIndex}
+      isDesktop={isDesktop}
+      background={background}
+      card={
+        content
+          ? {
+              activeQuest: {
+                id: step.id,
+                kind: content.kind,
+                title:
+                  (override?.hideTitle ?? assignment.presentation.hideTitle)
+                    ? undefined
+                    : content.title,
+                prompt: content.content[0]?.text || "",
+                content: content.content,
+                options: content.options,
+                answerPlaceholder: content.placeholder,
+                clues: activeClues,
+              },
+              activeAttempt: {
+                status: step.completedAt
+                  ? "completed"
+                  : step.locked || step.cooldownUntil
+                    ? "penalized"
+                    : step.wrongCount
+                      ? "incorrect"
+                      : "unanswered",
+                penaltyEndsAt: step.locked
+                  ? -1
+                  : step.cooldownUntil
+                    ? Date.parse(step.cooldownUntil)
+                    : null,
+              },
+              activeQuestionNumber: activeIndex + 1,
+              questCardRef: cardRef,
+              answerFormRef: answerFormRef,
+              swipeHandlers: swipe,
+              updateQuestSpotlight: updateQuestSpotlight,
+              hideQuestSpotlight: (event) =>
+                event.currentTarget.style.setProperty(
+                  "--spotlight-opacity",
+                  "0",
+                ),
+              availability: availability,
+              highlightAnswerForm: highlightAnswerForm,
+              handleSubmit: onSubmit,
+              answer: answers[step.id] ?? step.lastAnswer,
+              setAnswer: (value) => {
+                closeAnswerGuide();
+                if (feedback && feedbackTone !== "success") clearFeedback();
+                setAnswers((previous) => ({ ...previous, [step.id]: value }));
+              },
+              isPermanentlyLocked: step.locked,
+              isTemporarilyLocked: cooling,
+              now: serverNow,
+              pending: submit.isPending,
+              canMoveNext:
+                !!step.completedAt &&
+                !!assignment.levels[activeIndex + 1]?.question,
+              nextIndex: activeIndex + 1,
+              moveTo: moveTo,
+              feedback: feedback,
+              feedbackTone: feedbackTone,
+              feedbackKey: feedbackKey,
+              feedbackAutoDismiss: feedbackAutoDismiss,
+              attentionClueIds: attentionClueIds,
+              openImages: flow.openImages,
+              openVideo: flow.openVideo,
+              setTextClue: flow.openText,
+              onClueOpen: markNarrativeOpened,
+            }
+          : null
+      }
+      flow={flow}
+      bgm={bgm}
+      navRef={navRef}
+      moveTo={moveTo}
+      pending={submit.isPending}
+      workspaceClues={workspaceClues}
+      attentionClueIds={attentionClueIds}
+      markNarrativeOpened={markNarrativeOpened}
+      nextNarrativeAttention={nextNarrativeAttention}
+      retainedCombination={retainedCombination}
+      guideSeen={guideSeen}
+      closeAnswerGuide={closeAnswerGuide}
+      header={
+        <GameHeader
+          progress={{
+            completed: assignment.completedLevels,
+            total: assignment.totalLevels,
+          }}
         />
-      )}
-      <QuestAtmosphere />
-      <GameHeader
-        progress={{
-          completed: assignment.completedLevels,
-          total: assignment.totalLevels,
-        }}
-      />
-      <ExtraMessages value={assignment} />
-      {assignment.status === "assigned" && (
-        <AssignmentBrief
-          assignment={assignment}
-          rank={player.level.order}
-          now={serverNow}
-          pending={start.isPending}
-          error={isRetryableGameError(start.error) ? null : start.error}
-          onStart={() => start.mutate()}
+      }
+      brief={{
+        rank: player.level.order,
+        now: serverNow,
+        pending: start.isPending,
+        error: isRetryableGameError(start.error) ? null : start.error,
+        onStart: () => start.mutate(),
+      }}
+      retry={
+        <GameRetryDialog
+          open={retryAction !== null}
+          action={retryAction ?? "answer"}
+          pending={submit.isPending || start.isPending}
+          onDismiss={() => setRetryAction(null)}
+          onRetry={() => {
+            if (retryAction === "start") start.mutate();
+            else submit.mutate(request.current ?? undefined);
+          }}
         />
-      )}
-      {assignment.status === "cancelled" && (
-        <section className="game-empty">
-          <h2>{uiCopy.gamePlayPage.revokedTitle}</h2>
-          <p>{uiCopy.gamePlayPage.revokedDescription}</p>
-          <Link className="game-action-link game-action-link--primary" to="/">
-            {uiCopy.gamePlayPage.home}
-          </Link>
-        </section>
-      )}
-      {assignment.startedAt && assignment.status !== "cancelled" && (
-        <>
-          {assignment.totalLevels > 1 && (
-            <nav
-              ref={navRef}
-              className="quest-nav"
-              aria-label={uiCopy.gamePlayPage.questionNavigation}
-            >
-              {assignment.levels.map((level, index) => (
-                <button
-                  type="button"
-                  key={level.id}
-                  className={index === activeIndex ? "is-active" : ""}
-                  aria-current={index === activeIndex ? "step" : undefined}
-                  disabled={!level.question || submit.isPending}
-                  onClick={() => moveTo(index)}
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <small>
-                    {level.completedAt
-                      ? uiCopy.gamePlayPage.completed
-                      : uiCopy.gamePlayPage.questionNumber(index + 1)}
-                  </small>
-                </button>
-              ))}
-            </nav>
-          )}
-          {step?.question && <ExtraMessages value={step} />}
-          <QuestWorkspace
-            desktop={isDesktop}
-            clues={workspaceClues}
-            openText={flow.openText}
-            openImages={flow.openImages}
-            openVideo={flow.openVideo}
-            attentionClueIds={attentionClueIds}
-            onClueOpen={markNarrativeOpened}
-          >
-            {content && (
-              <QuestionCard
-                key={step.id}
-                activeQuest={{
-                  id: step.id,
-                  kind: content.kind,
-                  title:
-                    (override?.hideTitle ?? assignment.presentation.hideTitle)
-                      ? undefined
-                      : content.title,
-                  prompt: content.content[0]?.text || "",
-                  content: content.content,
-                  options: content.options,
-                  answerPlaceholder: content.placeholder,
-                  clues: activeClues,
-                }}
-                activeAttempt={{
-                  status: step.completedAt
-                    ? "completed"
-                    : step.locked || step.cooldownUntil
-                      ? "penalized"
-                      : step.wrongCount
-                        ? "incorrect"
-                        : "unanswered",
-                  penaltyEndsAt: step.locked
-                    ? -1
-                    : step.cooldownUntil
-                      ? Date.parse(step.cooldownUntil)
-                      : null,
-                }}
-                activeQuestionNumber={activeIndex + 1}
-                questCardRef={cardRef}
-                answerFormRef={answerFormRef}
-                swipeHandlers={swipe}
-                updateQuestSpotlight={updateQuestSpotlight}
-                hideQuestSpotlight={(event) =>
-                  event.currentTarget.style.setProperty(
-                    "--spotlight-opacity",
-                    "0",
-                  )
-                }
-                availability={availability}
-                highlightAnswerForm={highlightAnswerForm}
-                handleSubmit={onSubmit}
-                answer={answers[step.id] ?? step.lastAnswer}
-                setAnswer={(value) => {
-                  closeAnswerGuide();
-                  if (feedback && feedbackTone !== "success") clearFeedback();
-                  setAnswers((previous) => ({ ...previous, [step.id]: value }));
-                }}
-                isPermanentlyLocked={step.locked}
-                isTemporarilyLocked={cooling}
-                now={serverNow}
-                pending={submit.isPending}
-                canMoveNext={
-                  !!step.completedAt &&
-                  !!assignment.levels[activeIndex + 1]?.question
-                }
-                nextIndex={activeIndex + 1}
-                moveTo={moveTo}
-                feedback={feedback}
-                feedbackTone={feedbackTone}
-                feedbackKey={feedbackKey}
-                feedbackAutoDismiss={feedbackAutoDismiss}
-                attentionClueIds={attentionClueIds}
-                openImages={flow.openImages}
-                openVideo={flow.openVideo}
-                setTextClue={flow.openText}
-                onClueOpen={markNarrativeOpened}
-              />
-            )}
-          </QuestWorkspace>
-          {!isDesktop &&
-            !guideSeen &&
-            assignment.totalLevels > 1 &&
-            assignment.status === "active" && (
-              <QuestAnswerGuide dismissAnswerGuide={closeAnswerGuide} />
-            )}
-          {!isDesktop && nextNarrativeAttention && (
-            <NarrativeAttentionBeacon
-              clue={nextNarrativeAttention}
-              onOpen={markNarrativeOpened}
-            />
-          )}
-        </>
-      )}
-      <span className="sr-only" aria-live="polite">
-        {flow.videoPlaying
-          ? uiCopy.gamePlayPage.videoPlaying
-          : uiCopy.gamePlayPage.videoStopped}
-      </span>
-      <GameRetryDialog
-        open={retryAction !== null}
-        action={retryAction ?? "answer"}
-        pending={submit.isPending || start.isPending}
-        onDismiss={() => setRetryAction(null)}
-        onRetry={() => {
-          if (retryAction === "start") start.mutate();
-          else submit.mutate(request.current ?? undefined);
-        }}
-      />
-      <MediaViewer
-        className={isDesktop ? "desktop-media-viewer" : undefined}
-        state={flow.media}
-        onClose={flow.closeMedia}
-        onImageIndexChange={flow.changeImageIndex}
-        onVideoPlayingChange={flow.setVideoPlaying}
-        onVideoEnded={flow.videoEnded}
-      />
-      <ClueTextDialog clue={flow.textClue} onClose={flow.closeText} />
-      <CompletionFeedbackDialog
-        variant={flow.completion}
-        completedCount={assignment.completedLevels}
-        onContinue={flow.continueCompletion}
-      />
-      {assignment.status === "completed" &&
-        !flow.completion &&
-        !flow.combination &&
-        retainedCombination && (
-          <MultiClueLauncher
-            onOpen={() => flow.openCombination(retainedCombination)}
-          />
-        )}
-      <MultiQuestClueDialog
-        clue={flow.combination}
-        open={!!flow.combination}
-        onClose={flow.closeCombination}
-      />
-      <FinalDestinationPrompt
-        destination={flow.destination}
-        onDismiss={flow.closeDestination}
-      />
-      <RankUpDialog rank={flow.rank} onClose={flow.closeRank} />
-      <GameNotificationCenter
-        blocked={flow.busy}
-        onOpenImages={flow.openImages}
-        onOpenVideo={flow.openVideo}
-      />
-      <BgmControls
-        visible={bgm.hasBgm}
-        isPlaying={bgm.isPlaying}
-        showAuthHint={bgm.showAuthHint}
-        onToggle={bgm.toggle}
-        onAuthorize={bgm.authorize}
-        onDismissAuthHint={bgm.dismissAuthHint}
-      />
-    </main>
+      }
+      notifications={
+        <GameNotificationCenter
+          blocked={flow.busy}
+          onOpenImages={flow.openImages}
+          onOpenVideo={flow.openVideo}
+        />
+      }
+    />
   );
 }

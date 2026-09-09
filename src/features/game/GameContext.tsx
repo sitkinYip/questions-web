@@ -1,3 +1,4 @@
+import { GameHeaderView } from "./components/GameHeaderView";
 import { uiCopy } from "@/config/ui-copy";
 import { GameSyncMessage } from "@/features/game/components/GameRequestFeedback";
 import { useEffect, useSyncExternalStore } from "react";
@@ -108,28 +109,10 @@ export function GameHeader({
 }) {
   const { player } = useGame();
   return (
-    <header className="session-header">
-      <div className="traveler-identity">
-        <GameSidebar />
-        <div>
-          <p className="eyebrow">{uiCopy.gameContext.eyebrow}</p>
-          <p className="traveler-name">{player.displayName}</p>
-          <p className="traveler-rank">
-            {uiCopy.gameContext.rank(player.level.order, player.level.name)}
-          </p>
-        </div>
-      </div>
-      {progress && (
-        <div
-          className="session-progress"
-          aria-label={uiCopy.gameContext.progressLabel}
-        >
-          <strong key={progress.completed}>
-            {progress.completed}/{progress.total}
-          </strong>
-          <span>{uiCopy.gameContext.completed}</span>
-        </div>
-      )}
-    </header>
+    <GameHeaderView
+      player={player}
+      progress={progress}
+      navigation={<GameSidebar />}
+    />
   );
 }

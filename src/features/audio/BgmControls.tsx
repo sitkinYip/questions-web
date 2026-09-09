@@ -1,3 +1,4 @@
+import { useExperienceEnvironment } from "@/features/game/ExperienceEnvironment";
 import { uiCopy } from "@/config/ui-copy";
 interface BgmControlsProps {
   visible: boolean;
@@ -16,9 +17,10 @@ export function BgmControls({
   onAuthorize,
   onDismissAuthHint,
 }: BgmControlsProps) {
+  const { storage } = useExperienceEnvironment();
   const repository = useMemo(
-    () => createBgmPreferencesRepository(window.localStorage),
-    [],
+    () => createBgmPreferencesRepository(storage),
+    [storage],
   );
   const initialPosition = useMemo(
     () => repository.load().position ?? { x: 1, y: 1 },
