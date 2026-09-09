@@ -1,3 +1,4 @@
+import { RewardCard } from "@/features/game/components/RewardCard";
 import { ExperienceEnvironmentContext } from "@/features/game/ExperienceEnvironment";
 import { SessionPreview } from "./SessionPreview";
 import { useEffect, useRef, useState } from "react";
@@ -67,7 +68,7 @@ export function EditorPreview() {
           type: "sitkin:preview:ready",
           version: EDITOR_PREVIEW_VERSION,
           channel,
-          kinds: ["question", "notification", "narrative", "session"],
+          kinds: ["question", "notification", "narrative", "session", "reward"],
         },
         origin,
       );
@@ -240,6 +241,29 @@ function PreviewContent({ message }: { message: ValidatedPreviewMessage }) {
         >
           <Card {...props} />
         </QuestWorkspace>
+      </main>
+    );
+  } else if (message.draft.kind === "reward") {
+    content = (
+      <main className="game-shell">
+        <div className="reward-grid">
+          <RewardCard
+            item={{
+              id: "editor-reward",
+              player: "",
+              assignment: "",
+              quantity: 1,
+              status:
+                message.state === "redeemed" || message.state === "voided"
+                  ? message.state
+                  : "available",
+              claimDetails: "",
+              redeemedAt: "",
+              created: "",
+              snapshot: { ...message.draft.value, id: "editor-reward" },
+            }}
+          />
+        </div>
       </main>
     );
   } else if (message.draft.kind === "session") {

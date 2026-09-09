@@ -38,8 +38,21 @@ export const previewMessageSchema = z.object({
     "unread",
     "read",
     "popup",
+    "available",
+    "redeemed",
+    "voided",
   ]),
   draft: z.discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("reward"),
+      value: z.object({
+        name: text,
+        image: media,
+        description: text,
+        publicInstructions: text,
+        claimMethod: z.enum(["staff", "location", "locker"]),
+      }),
+    }),
     z.object({
       kind: z.literal("session"),
       value: z.object({

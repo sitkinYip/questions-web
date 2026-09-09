@@ -415,6 +415,7 @@ export interface EditorSessionPreview {
   issues: string[];
 }
 export type EditorPreviewDraft =
+  | { kind: "reward"; value: Omit<GameReward["snapshot"], "id"> }
   | { kind: "session"; value: EditorSessionPreview }
   | { kind: "question"; value: GameQuestion }
   | {
@@ -435,6 +436,15 @@ export interface EditorPreviewMessage {
   revision: number;
   reset: number;
   theme: "light" | "dark";
-  state: "unanswered" | "incorrect" | "completed" | "unread" | "read" | "popup";
+  state:
+    | "unanswered"
+    | "incorrect"
+    | "completed"
+    | "unread"
+    | "read"
+    | "popup"
+    | "available"
+    | "redeemed"
+    | "voided";
   draft: EditorPreviewDraft;
 }

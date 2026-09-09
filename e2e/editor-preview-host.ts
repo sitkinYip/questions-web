@@ -38,6 +38,7 @@ export async function editorPreviewHost(
     draft: EditorPreviewDraft,
     reset = 0,
     theme = "light",
+    state = "unread",
   ) => {
     await page.evaluate(
       (payload: string) =>
@@ -51,7 +52,7 @@ export async function editorPreviewHost(
         revision: ++revision,
         reset,
         theme,
-        state: "unread",
+        state,
         draft,
       }),
     );

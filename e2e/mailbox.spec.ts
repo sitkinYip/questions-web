@@ -70,6 +70,7 @@ test("touch swipe reveals acceptance and long mail stays compact in both themes"
   );
   await login(page, "/notifications");
   const row = page.locator(".mailbox-row").first();
+  await expect(row).toBeVisible();
   for (const theme of ["light", "dark"]) {
     await page.goto(`/notifications?theme=${theme}`);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
