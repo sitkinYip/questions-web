@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { sampleExit } from "@e2e/motion-sampling";
 
 for (const width of [390, 1366]) {
   for (const label of [
@@ -42,49 +43,25 @@ for (const width of [390, 1366]) {
       if (label === "奖品详情")
         await page.screenshot({ path: `/tmp/motion-reward-${width}.png` });
       // Sample a real exit midway, before allowing DOM removal. No reduced-motion shortcut.
-      const sample = await surface.evaluate(async (el) => {
-        const button = el.querySelector<HTMLButtonElement>("button")!;
-        button.click();
-        await new Promise<void>((resolve) =>
-          requestAnimationFrame(() => resolve()),
-        );
-        const animation = el
-          .getAnimations()
-          .find(
-            (a) => (a as CSSAnimation).animationName === "motion-surface-exit",
-          );
-        if (!animation) return null;
-        animation.pause();
-        animation.currentTime =
-          Number(animation.effect!.getTiming().duration) / 2;
-        const style = getComputedStyle(el);
-        const matrix = new DOMMatrixReadOnly(style.transform);
-        return {
-          state: el.getAttribute("data-state"),
-          connected: el.isConnected,
-          opacity: Number(style.opacity),
-          x: matrix.m41,
-          y: matrix.m42,
-        };
-      });
+      const sample = await surface.evaluate(sampleExit, null);
       await test.info().attach("exit-frame.json", {
         body: JSON.stringify({ label, width, placement, sample }),
         contentType: "application/json",
       });
       expect(sample).not.toBeNull();
-      expect(sample!.state).toBe("closed");
-      expect(sample!.connected).toBe(true);
-      expect(sample!.opacity).toBeGreaterThan(0);
-      expect(sample!.opacity).toBeLessThan(1);
+      expect(sample.state).toBe("closed");
+      expect(sample.connected).toBe(true);
+      expect(sample.opacity).toBeGreaterThan(0);
+      expect(sample.opacity).toBeLessThan(1);
       if (placement === "bottom") {
-        expect(sample!.y).toBeGreaterThan(0);
-        expect(Math.abs(sample!.x)).toBeLessThan(1);
+        expect(sample.y).toBeGreaterThan(0);
+        expect(Math.abs(sample.x)).toBeLessThan(1);
       }
       if (placement === "right") {
-        expect(sample!.x).toBeGreaterThan(0);
-        expect(Math.abs(sample!.y)).toBeLessThan(1);
+        expect(sample.x).toBeGreaterThan(0);
+        expect(Math.abs(sample.y)).toBeLessThan(1);
       }
-      if (placement === "left") expect(sample!.x).toBeLessThan(0);
+      if (placement === "left") expect(sample.x).toBeLessThan(0);
       await page
         .locator('[data-motion-surface][data-state="closed"]')
         .evaluateAll((elements) =>
@@ -157,31 +134,9 @@ for (const width of [390, 1366]) {
     await page.goto("/e2e/preview.html?screen=/letter&theme=dark");
     await page.locator(".letter-envelope").click();
     await expect(page.locator(".letter-reader")).toBeVisible();
-    const text = await page.locator(".letter-reader").evaluate(async (el) => {
-      const close = [...el.querySelectorAll<HTMLButtonElement>("button")].find(
-        (button) => button.textContent?.includes("收起"),
-      )!;
-      const before = el.querySelector(".letter-paper")?.textContent;
-      close.click();
-      await new Promise<void>((resolve) =>
-        requestAnimationFrame(() => resolve()),
-      );
-      const animation = el
-        .getAnimations()
-        .find(
-          (a) => (a as CSSAnimation).animationName === "motion-surface-exit",
-        );
-      animation?.pause();
-      if (animation)
-        animation.currentTime =
-          Number(animation.effect!.getTiming().duration) / 2;
-      return {
-        before,
-        after: el.querySelector(".letter-paper")?.textContent,
-        connected: el.isConnected,
-        state: el.getAttribute("data-state"),
-      };
-    });
+    const text = await page
+      .locator(".letter-reader")
+      .evaluate(sampleExit, "收起");
     expect(text.state).toBe("closed");
     expect(text.connected).toBe(true);
     expect(text.after).toBe(text.before);

@@ -5,6 +5,17 @@ import {
   mockQuestionsApi,
 } from "@e2e/fixtures";
 
+test.beforeAll(
+  "initialize WebKit before timing narrative playback",
+  async ({ browser, browserName }) => {
+    if (browserName !== "webkit") return;
+    // Linux WebKit's first page initialization can take most of a test's budget.
+    // Keep engine startup in setup; playback still has its original 5s assertion.
+    const page = await browser.newPage();
+    await page.close();
+  },
+);
+
 test("authorized Bless content plays and returns to its assignment", async ({
   page,
 }) => {
