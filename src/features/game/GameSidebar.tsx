@@ -1,3 +1,4 @@
+import { useMotionPresence } from "@/shared/motion/useMotionPresence";
 import { uiCopy } from "@/config/ui-copy";
 import {
   useCallback,
@@ -29,7 +30,6 @@ import {
 import { useGame } from "@/features/game/useGame";
 
 const accountPopoverCloseDelay = 100;
-const accountPopoverExitDuration = 240;
 
 function GameMenuAvatar({
   expanded,
@@ -89,11 +89,10 @@ function DesktopGameMenu() {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | null>(null);
-  const exitTimer = useRef<number | null>(null);
-  const openFrame = useRef<number | null>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const suppressFocusOpen = useRef(false);
-  const [rendered, setRendered] = useState(false);
   const [open, setOpen] = useState(false);
+  const rendered = useMotionPresence(open, menuRef);
 
   const cancelClose = useCallback(() => {
     if (closeTimer.current === null) return;
@@ -101,46 +100,15 @@ function DesktopGameMenu() {
     closeTimer.current = null;
   }, []);
 
-  const cancelExit = useCallback(() => {
-    if (exitTimer.current !== null) {
-      window.clearTimeout(exitTimer.current);
-      exitTimer.current = null;
-    }
-    if (openFrame.current !== null) {
-      window.cancelAnimationFrame(openFrame.current);
-      openFrame.current = null;
-    }
-  }, []);
-
   const showMenu = useCallback(() => {
     cancelClose();
-    cancelExit();
-    if (rendered) {
-      setOpen(true);
-      return;
-    }
-    setRendered(true);
-    openFrame.current = window.requestAnimationFrame(() => {
-      openFrame.current = null;
-      setOpen(true);
-    });
-  }, [cancelClose, cancelExit, rendered]);
+    setOpen(true);
+  }, [cancelClose]);
 
   const hideMenu = useCallback(() => {
     cancelClose();
-    cancelExit();
     setOpen(false);
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    exitTimer.current = window.setTimeout(
-      () => {
-        exitTimer.current = null;
-        setRendered(false);
-      },
-      reduceMotion ? 0 : accountPopoverExitDuration,
-    );
-  }, [cancelClose, cancelExit]);
+  }, [cancelClose]);
 
   const scheduleClose = useCallback(() => {
     cancelClose();
@@ -176,9 +144,8 @@ function DesktopGameMenu() {
   useEffect(
     () => () => {
       cancelClose();
-      cancelExit();
     },
-    [cancelClose, cancelExit],
+    [cancelClose],
   );
 
   function handlePointerEnter(event: PointerEvent<HTMLDivElement>) {
@@ -216,6 +183,8 @@ function DesktopGameMenu() {
       </div>
       {rendered && (
         <section
+          ref={menuRef}
+          data-motion-menu
           id={popupId}
           className="game-account-popover"
           data-state={open ? "open" : "closed"}

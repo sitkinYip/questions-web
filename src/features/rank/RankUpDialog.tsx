@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { uiCopy } from "@/config/ui-copy";
 import { LightningIcon } from "@phosphor-icons/react";
 import { AppDialog } from "@/components/ui/Dialog";
@@ -11,13 +12,19 @@ interface RankUpDialogProps {
   onClose: () => void;
 }
 
-export function RankUpDialog({ rank, onClose }: RankUpDialogProps) {
+export function RankUpDialog({
+  rank: requestedValue,
+  onClose,
+}: RankUpDialogProps) {
+  const snapshot = useExitSnapshot(requestedValue);
+  const rank = snapshot.value;
   if (!rank) return null;
   return (
     <AppDialog
       overlayId="rank-up"
       priority={overlayPriority.rank}
-      open
+      open={snapshot.open}
+      onExitComplete={snapshot.release}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}

@@ -1,3 +1,4 @@
+import { WorkspaceTabs } from "@/components/ui/WorkspaceTabs";
 import { Tabs } from "radix-ui";
 import { useSearchParams } from "react-router-dom";
 import { StarLetters } from "@/features/mailbox/StarLetters";
@@ -25,7 +26,7 @@ export function GameNotificationsPage() {
         {uiCopy.gameNotificationsPage.description}
         {unread > 0 ? uiCopy.gameNotificationsPage.unreadCount(unread) : ""}
       </GamePageHeading>
-      <Tabs.Root
+      <WorkspaceTabs
         className="mailbox-panel"
         value={tab}
         onValueChange={(value) =>
@@ -68,7 +69,7 @@ export function GameNotificationsPage() {
         <Tabs.Content value="stars">
           <StarLetters />
         </Tabs.Content>
-      </Tabs.Root>
+      </WorkspaceTabs>
     </>
   );
 }

@@ -1,3 +1,5 @@
+import { MotionLab } from "@e2e/MotionLab";
+import { MediaPreviewProvider } from "@/features/media/MediaPreviewProvider";
 import { GameLayout } from "@/features/game/components/GameLayout";
 /** Dev-only visual fixture. Not referenced by the production entry or build. */
 import { useState } from "react";
@@ -73,90 +75,93 @@ export function Preview() {
     <ThemeProvider>
       <QueryClientProvider client={client}>
         <OverlayProvider>
-          <GameContext.Provider
-            value={{
-              player,
-              setPlayer,
-              logout: () => window.location.assign("/login"),
-            }}
-          >
-            <MemoryRouter
-              initialEntries={[
-                new URLSearchParams(window.location.search).get("screen") ||
-                  "/",
-              ]}
+          <MediaPreviewProvider>
+            <GameContext.Provider
+              value={{
+                player,
+                setPlayer,
+                logout: () => window.location.assign("/login"),
+              }}
             >
-              <Routes>
-                <Route path="/loading" element={<GameLoadingScreen />} />
-                <Route
-                  path="/loading/player"
-                  element={<GameLoadingScreen scene="player" />}
-                />
-                <Route
-                  path="/loading/narrative"
-                  element={<GameLoadingScreen scene="narrative" />}
-                />
-                <Route element={<GameLayout />}>
-                  <Route path="/" element={<GameDashboard />} />
-                  <Route path="/profile" element={<GameProfilePage />} />
-                  <Route path="/rewards" element={<GameRewardsPage />} />
+              <MemoryRouter
+                initialEntries={[
+                  new URLSearchParams(window.location.search).get("screen") ||
+                    "/",
+                ]}
+              >
+                <Routes>
+                  <Route path="/motion" element={<MotionLab />} />
+                  <Route path="/loading" element={<GameLoadingScreen />} />
                   <Route
-                    path="/notifications"
-                    element={<GameNotificationsPage />}
+                    path="/loading/player"
+                    element={<GameLoadingScreen scene="player" />}
                   />
-                </Route>
-                <Route
-                  path="/play/preview-images"
-                  element={<GamePlayView assignment={imageAssignment} />}
-                />
-                <Route
-                  path="/play/preview-narrative"
-                  element={
-                    <GamePlayView assignment={desktopNarrativeAssignment} />
-                  }
-                />
-                <Route
-                  path="/rank-preview"
-                  element={
-                    <>
-                      <GamePlayView assignment={desktopAssignment} />
-                      <RankUpDialog
-                        rank={{
-                          code: "07",
-                          name: "星穹领航者",
-                          isSpecial: false,
-                          numericValue: 7,
-                        }}
-                        onClose={() => undefined}
+                  <Route
+                    path="/loading/narrative"
+                    element={<GameLoadingScreen scene="narrative" />}
+                  />
+                  <Route element={<GameLayout />}>
+                    <Route path="/" element={<GameDashboard />} />
+                    <Route path="/profile" element={<GameProfilePage />} />
+                    <Route path="/rewards" element={<GameRewardsPage />} />
+                    <Route
+                      path="/notifications"
+                      element={<GameNotificationsPage />}
+                    />
+                  </Route>
+                  <Route
+                    path="/play/preview-images"
+                    element={<GamePlayView assignment={imageAssignment} />}
+                  />
+                  <Route
+                    path="/play/preview-narrative"
+                    element={
+                      <GamePlayView assignment={desktopNarrativeAssignment} />
+                    }
+                  />
+                  <Route
+                    path="/rank-preview"
+                    element={
+                      <>
+                        <GamePlayView assignment={desktopAssignment} />
+                        <RankUpDialog
+                          rank={{
+                            code: "07",
+                            name: "星穹领航者",
+                            isSpecial: false,
+                            numericValue: 7,
+                          }}
+                          onClose={() => undefined}
+                        />
+                      </>
+                    }
+                  />
+                  <Route
+                    path="/play/:id"
+                    element={<GamePlayView assignment={desktopAssignment} />}
+                  />
+                  <Route
+                    path="/play/:id/content/:contentId"
+                    element={
+                      <LetterExperience
+                        letter={desktopLetter}
+                        returnTo="/e2e/preview.html?screen=/play/preview-narrative"
                       />
-                    </>
-                  }
-                />
-                <Route
-                  path="/play/:id"
-                  element={<GamePlayView assignment={desktopAssignment} />}
-                />
-                <Route
-                  path="/play/:id/content/:contentId"
-                  element={
-                    <LetterExperience
-                      letter={desktopLetter}
-                      returnTo="/e2e/preview.html?screen=/play/preview-narrative"
-                    />
-                  }
-                />
-                <Route
-                  path="/letter"
-                  element={
-                    <LetterExperience
-                      letter={desktopLetter}
-                      returnTo="/e2e/preview.html?screen=/play/preview-journey"
-                    />
-                  }
-                />
-              </Routes>
-            </MemoryRouter>
-          </GameContext.Provider>
+                    }
+                  />
+                  <Route
+                    path="/letter"
+                    element={
+                      <LetterExperience
+                        letter={desktopLetter}
+                        returnTo="/e2e/preview.html?screen=/play/preview-journey"
+                      />
+                    }
+                  />
+                </Routes>
+              </MemoryRouter>
+            </GameContext.Provider>
+          </MediaPreviewProvider>
         </OverlayProvider>
       </QueryClientProvider>
     </ThemeProvider>

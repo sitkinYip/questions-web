@@ -1,3 +1,4 @@
+import { useMotionPresence } from "@/shared/motion/useMotionPresence";
 import { uiCopy } from "@/config/ui-copy";
 import {
   useCallback,
@@ -33,6 +34,8 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     useExperienceEnvironment();
   const isDesktop = useDesktopLayout();
   const [isOpen, setIsOpen] = useState(false);
+  const readerRef = useRef<HTMLElement>(null);
+  const readerPresent = useMotionPresence(isOpen, readerRef);
   const [paragraphIndex, setParagraphIndex] = useState(-1);
   const [characterIndex, setCharacterIndex] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
@@ -282,6 +285,13 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
       state: "opened",
       variant: letter.variant,
     });
+    setParagraphIndex(-1);
+    setCharacterIndex(0);
+    setIsFinished(false);
+    setBackgroundIndex(0);
+    setPageIndex(0);
+    setPageDirection("next");
+    setPreviousPageIndex(null);
     setIsOpen(true);
     if (!letter.mainAudioUrl || bgmRef.current) return;
     const bgm = new Audio(letter.mainAudioUrl);
@@ -304,13 +314,6 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
     });
     stopAudio();
     setIsOpen(false);
-    setParagraphIndex(-1);
-    setCharacterIndex(0);
-    setIsFinished(false);
-    setBackgroundIndex(0);
-    setPageIndex(0);
-    setPageDirection("next");
-    setPreviousPageIndex(null);
     if (pageTurnTimerRef.current !== null) {
       window.clearTimeout(pageTurnTimerRef.current);
       pageTurnTimerRef.current = null;
@@ -496,7 +499,7 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
   return (
     <main
       data-desktop={isDesktop || undefined}
-      className={`letter-page letter-${letter.variant} ${isOpen ? "is-open" : "is-sealed"}`}
+      className={`letter-page letter-${letter.variant} ${readerPresent ? "is-open" : "is-sealed"}`}
     >
       {letter.pageBackgroundUrl && (
         <img
@@ -507,13 +510,13 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
         />
       )}
       <div className="letter-atmosphere" aria-hidden="true" />
-      {!isOpen && returnTo && (
+      {!readerPresent && returnTo && (
         <a className="letter-return" href={returnTo}>
           {uiCopy.letterExperience.back}
         </a>
       )}
 
-      {!isOpen ? (
+      {!readerPresent ? (
         <button className="letter-envelope" type="button" onClick={openLetter}>
           <span className="letter-envelope-flap" aria-hidden="true" />
           <span className="letter-seal" aria-hidden="true">
@@ -529,6 +532,10 @@ export function LetterExperience({ letter, returnTo }: LetterExperienceProps) {
         </button>
       ) : (
         <section
+          ref={readerRef}
+          data-motion-reader
+          data-state={isOpen ? "open" : "closed"}
+          inert={!isOpen}
           className="letter-reader"
           aria-label={letter.title || uiCopy.letterExperience.contentLabel}
         >

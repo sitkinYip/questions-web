@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Cropper from "react-easy-crop";
 import { AppDialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -12,12 +12,16 @@ import "./avatar-crop.css";
 
 export interface AvatarCropDialogProps {
   file: File;
+  open: boolean;
+  onExitComplete: () => void;
   onCancel: () => void;
   onConfirm: (file: File) => void;
 }
 
 export default function AvatarCropDialog({
   file,
+  open,
+  onExitComplete,
   onCancel,
   onConfirm,
 }: AvatarCropDialogProps) {
@@ -29,6 +33,9 @@ export default function AvatarCropDialog({
   const [error, setError] = useState("");
   const alive = useRef(true);
   const processing = useRef(false);
+  useLayoutEffect(() => {
+    alive.current = open;
+  }, [open]);
   useEffect(() => {
     let active = true;
     let url = "";
@@ -72,7 +79,8 @@ export default function AvatarCropDialog({
     <AppDialog
       overlayId="avatar-crop"
       priority={80}
-      open
+      open={open}
+      onExitComplete={onExitComplete}
       onOpenChange={onCancel}
       accessibleTitle={uiCopy.avatarCrop.title}
       accessibleDescription={uiCopy.avatarCrop.hint}

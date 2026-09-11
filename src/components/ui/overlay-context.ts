@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect } from "react";
 
 export interface OverlayContextValue {
+  getFocusOrigin?: () => HTMLElement | null;
   activeId: string | null;
   openCount: number;
   request: (id: string, priority: number) => void;
@@ -13,6 +14,7 @@ export const overlayPriority = {
   notification: 20,
   rank: 40,
   content: 60,
+  media: 70,
   confirmation: 80,
   completion: 100,
 } as const;
@@ -40,4 +42,8 @@ export function useOverlayStatus() {
     openCount: context?.openCount ?? 0,
     hasOpenOverlay: Boolean(context?.openCount),
   };
+}
+
+export function useOverlayFocusOrigin() {
+  return useContext(OverlayContext)?.getFocusOrigin;
 }

@@ -1,0 +1,16 @@
+.motion-lab {
+  max-width: 1000px;
+  padding: 48px 24px;
+  margin: auto;
+  color: var(--color-text);
+}
+.motion-lab h1 {
+  font-family: var(--font-display);
+  color: var(--color-text-strong);
+}
+.motion-lab nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+}

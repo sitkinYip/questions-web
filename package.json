@@ -12,7 +12,7 @@
     "build": "tsc -b && vite build",
     "build:preview": "tsc -b && vite build --mode preview",
     "build:production": "tsc -b && vite build --mode production",
-    "check": "pnpm format:check && pnpm check:styles && pnpm lint && pnpm test:run && pnpm build",
+    "check": "pnpm format:check && pnpm check:styles && pnpm check:motion && pnpm lint && pnpm test:run && pnpm build",
     "check:styles": "node scripts/verify-style-architecture.mjs",
     "typecheck": "tsc -b",
     "format": "prettier --write .",
@@ -27,7 +27,8 @@
     "check:all": "pnpm check && pnpm test:e2e:all && pnpm format:check",
     "verify:api": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/levels/records?perPage=500&sort=step' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-api.ts",
     "verify:letter": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/letter/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-letter-api.ts",
-    "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-notification-api.ts"
+    "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-notification-api.ts",
+    "check:motion": "node scripts/verify-motion-architecture.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

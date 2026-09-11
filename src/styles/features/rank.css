@@ -72,7 +72,6 @@
     0 0 0 1px color-mix(in srgb, var(--color-accent) 12%, transparent),
     inset 0 1px color-mix(in srgb, var(--color-text-strong) 9%, transparent),
     inset 0 0 0 7px color-mix(in srgb, var(--color-text-strong) 2%, transparent);
-  animation: rank-dialog-awaken 760ms var(--motion-impact) both;
 }
 
 .rank-up-dialog::after {

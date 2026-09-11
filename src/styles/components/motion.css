@@ -1,0 +1,160 @@
+/* Motion owns outer surfaces. Features own decoration inside those surfaces. */
+
+[data-motion-overlay] {
+  --motion-x: 0px;
+  --motion-y: 14px;
+  --motion-scale: 0.96;
+  --motion-surface-enter: var(--motion-enter-time);
+}
+[data-motion-overlay][data-placement="right"] {
+  --motion-x: 100%;
+  --motion-y: 0px;
+  --motion-scale: 1;
+  --motion-surface-enter: var(--motion-sheet-time);
+}
+[data-motion-overlay][data-placement="left"] {
+  --motion-x: -100%;
+  --motion-y: 0px;
+  --motion-scale: 1;
+  --motion-surface-enter: var(--motion-sheet-time);
+}
+[data-motion-overlay][data-placement="bottom"] {
+  --motion-x: 0px;
+  --motion-y: 100%;
+  --motion-scale: 1;
+  --motion-surface-enter: var(--motion-sheet-time);
+}
+[data-motion-overlay][data-state="open"] {
+  animation: motion-backdrop-enter var(--motion-surface-enter) ease-out both;
+}
+[data-motion-overlay][data-state="closed"] {
+  animation: motion-backdrop-exit var(--motion-exit-time) ease-in both;
+}
+[data-motion-surface][data-state="open"] {
+  animation: motion-surface-enter var(--motion-surface-enter)
+    var(--motion-enter-ease) both;
+}
+[data-motion-surface][data-state="closed"] {
+  animation: motion-surface-exit var(--motion-exit-time) var(--motion-exit-ease)
+    both;
+}
+[data-motion-surface][data-exiting="true"] {
+  pointer-events: none;
+}
+[data-motion-overlay][data-suspended="true"] {
+  animation: none;
+}
+[data-motion-overlay][data-suspended="true"] [data-motion-surface] {
+  animation: none;
+}
+/* Suspended portals preserve scroll and form state without becoming focus targets. */
+[data-motion-overlay][data-suspended="true"] * {
+  animation-play-state: paused;
+}
+[data-motion-surface][data-state="closed"] [aria-hidden="true"] {
+  animation-play-state: paused;
+}
+.ui-sheet-overlay--bottom {
+  align-items: end;
+  justify-items: stretch;
+}
+.ui-sheet.ui-sheet--bottom {
+  width: 100%;
+  height: auto;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 24px;
+  padding-bottom: max(20px, var(--safe-area-bottom));
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  border-inline-start: 0;
+  border-top: 1px solid var(--color-accent-border);
+}
+.ui-sheet--bottom .ui-sheet__header {
+  flex-shrink: 0;
+}
+.ui-sheet--bottom .ui-sheet__body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+[data-motion-menu] {
+  --motion-x: 0px;
+  --motion-y: -7px;
+  --motion-scale: 0.96;
+  transform-origin: var(
+    --radix-dropdown-menu-content-transform-origin,
+    top left
+  );
+}
+[data-motion-menu][data-side="top"] {
+  --motion-y: 7px;
+}
+[data-motion-menu][data-state="open"] {
+  animation: motion-surface-enter var(--motion-menu-time)
+    var(--motion-enter-ease) both;
+}
+[data-motion-menu][data-state="closed"] {
+  pointer-events: none;
+  animation: motion-surface-exit var(--motion-menu-time) var(--motion-exit-ease)
+    both;
+}
+/* Shared workspace content has a short reveal; navigation never moves with it. */
+.workspace-tabs > [role="tabpanel"][data-state="active"] {
+  animation: motion-panel-enter var(--motion-panel-time)
+    var(--motion-enter-ease) both;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .workspace-tabs [role="tab"]:hover {
+    box-shadow: inset 0 0 24px var(--color-accent-faint);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-overlay][data-state],
+  [data-motion-surface][data-state],
+  [data-motion-menu][data-state],
+  .workspace-tabs > [role="tabpanel"][data-state="active"] {
+    animation: none;
+    transition: none;
+  }
+  [data-motion-surface] *,
+  [data-motion-surface] *::before,
+  [data-motion-surface] *::after {
+    animation-duration: 0.001ms;
+    animation-delay: 0ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.001ms;
+  }
+}
+[data-motion-overlay][data-resumed="true"],
+[data-motion-overlay][data-resumed="true"] [data-motion-surface] {
+  animation: none;
+}
+.ui-sheet--bottom::before {
+  content: "";
+  align-self: center;
+  flex: 0 0 3px;
+  width: 36px;
+  margin: -10px 0 14px;
+  border-radius: var(--radius-round);
+  background: var(--color-accent-border);
+}
+[data-motion-surface] :is(button, input, select, textarea) {
+  animation-delay: 0ms;
+}
+[data-motion-reader][data-state="closed"] {
+  --motion-y: 20px;
+  --motion-scale: 0.97;
+  pointer-events: none;
+  animation: motion-surface-exit var(--motion-exit-time) var(--motion-exit-ease)
+    both;
+}
+[data-motion-reader][data-state="closed"] * {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-reader][data-state="closed"] {
+    animation: none;
+  }
+}

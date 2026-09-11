@@ -98,7 +98,7 @@ export function NotificationLetterView({
       )}
       <NotificationDialog
         notification={
-          open && !media
+          open
             ? {
                 ...note,
                 buttonText: note.readAt

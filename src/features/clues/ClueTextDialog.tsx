@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { uiCopy } from "@/config/ui-copy";
 import { AppDialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -10,13 +11,19 @@ interface ClueTextDialogProps {
   onClose: () => void;
 }
 
-export function ClueTextDialog({ clue, onClose }: ClueTextDialogProps) {
+export function ClueTextDialog({
+  clue: requestedValue,
+  onClose,
+}: ClueTextDialogProps) {
+  const snapshot = useExitSnapshot(requestedValue);
+  const clue = snapshot.value;
   if (!clue) return null;
   return (
     <AppDialog
       overlayId="quest-clue"
       priority={overlayPriority.content}
-      open
+      open={snapshot.open}
+      onExitComplete={snapshot.release}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}

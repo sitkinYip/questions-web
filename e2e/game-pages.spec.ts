@@ -257,6 +257,8 @@ test("rewards show claim details only while available", async ({ page }) => {
   );
   await login(page, "/rewards");
   await expect(page.getByRole("heading", { name: "星辰纪念章" })).toBeVisible();
+  await expect(page.getByText("你的领取线索")).toHaveCount(0);
+  await page.getByRole("button", { name: "查看星辰纪念章详情" }).click();
   await expect(page.getByText("你的领取线索")).toBeVisible();
   await expect(page.getByText("PRIVATE-EXPIRED-CLAIM")).toHaveCount(0);
 });

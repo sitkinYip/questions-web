@@ -150,3 +150,13 @@
     --duration-reveal: 0.01ms;
   }
 }
+
+:root {
+  --motion-enter-time: 320ms;
+  --motion-exit-time: 240ms;
+  --motion-sheet-time: 380ms;
+  --motion-menu-time: 190ms;
+  --motion-panel-time: 210ms;
+  --motion-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-exit-ease: cubic-bezier(0.4, 0, 0.8, 0.4);
+}

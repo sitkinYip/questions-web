@@ -6,12 +6,19 @@ import { AppToast } from "@/components/ui/Toast";
 import { Button } from "@/components/ui/Button";
 
 /** Mounted only during an outage: dismiss once, re-arm after recovery. */
-export function GameSyncMessage() {
-  const [open, setOpen] = useState(true);
+export function GameSyncMessage({ active = true }: { active?: boolean }) {
+  const [dismissed, setDismissed] = useState(false);
+  const [previousActive, setPreviousActive] = useState(active);
+  if (previousActive !== active) {
+    setPreviousActive(active);
+    if (active) setDismissed(false);
+  }
   return (
     <AppToast
-      open={open}
-      onOpenChange={setOpen}
+      open={active && !dismissed}
+      onOpenChange={(open) => {
+        if (!open) setDismissed(true);
+      }}
       className="game-sync-message"
       title={uiCopy.gameRequestFeedback.syncTitle}
       description={uiCopy.gameRequestFeedback.syncDescription}

@@ -8,7 +8,6 @@
     max(20px, var(--safe-area-bottom));
   background: var(--color-overlay);
   backdrop-filter: blur(12px);
-  animation: game-signal-appear 280ms ease-out both;
 }
 .game-retry-dialog {
   position: relative;
@@ -31,7 +30,6 @@
     0 30px 100px var(--color-shadow-strong),
     0 0 65px var(--glow-accent-soft);
   text-align: center;
-  animation: game-signal-arrive 640ms var(--motion-impact) both;
 }
 .game-retry-dialog::before {
   content: "";

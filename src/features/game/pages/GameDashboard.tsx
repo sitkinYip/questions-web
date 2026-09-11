@@ -1,3 +1,4 @@
+import { WorkspaceTabs } from "@/components/ui/WorkspaceTabs";
 import { uiCopy } from "@/config/ui-copy";
 import { useEffect, useState } from "react";
 import { Tabs } from "radix-ui";
@@ -42,7 +43,7 @@ export function GameDashboard() {
               {uiCopy.gameDashboard.description}
             </GamePageHeading>
           </div>
-          <Tabs.Root defaultValue="current" className="game-tabs">
+          <WorkspaceTabs defaultValue="current" className="game-tabs">
             <Tabs.List
               className="game-tabs__list"
               aria-label={uiCopy.gameDashboard.tabsLabel}
@@ -100,7 +101,7 @@ export function GameDashboard() {
                 </div>
               </Tabs.Content>
             ))}
-          </Tabs.Root>
+          </WorkspaceTabs>
           <p className="game-sync-note">{uiCopy.gameDashboard.syncHint}</p>
         </div>
         <aside className="game-lobby__passport">

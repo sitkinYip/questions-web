@@ -92,7 +92,6 @@
 
 .notification-list {
   transform-origin: 27px calc(100% + 12px);
-  animation: signal-archive-enter 620ms var(--motion-impact) both;
 }
 
 .notification-list-signal {

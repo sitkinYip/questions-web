@@ -23,9 +23,17 @@ test("visual identity fields render and media dialog restores keyboard focus", a
   await mediaButton.press("Enter");
   const closeButton = page.getByRole("button", { name: "关闭媒体预览" });
   await expect(closeButton).toBeFocused();
-  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+  const tabKey = browserName === "webkit" ? "Alt+Tab" : "Tab";
+  const slider = page.getByRole("slider", { name: "图片缩放" });
+  if (await slider.isVisible()) {
+    await page.keyboard.press(tabKey);
+    await expect(slider).toBeFocused();
+  }
+  await page.keyboard.press(tabKey);
+  await expect(page.getByRole("button", { name: "复位" })).toBeFocused();
+  await page.keyboard.press(tabKey);
   await expect(page.getByRole("button", { name: "下一张" })).toBeFocused();
-  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
+  await page.keyboard.press(tabKey);
   await expect(closeButton).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(mediaButton).toBeFocused();

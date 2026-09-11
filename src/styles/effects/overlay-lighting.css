@@ -110,18 +110,6 @@
   animation: overlay-edge-charge 2.8s var(--motion-ios) infinite alternate;
 }
 
-.clue-dialog[data-state="open"] {
-  animation: clue-vault-enter 720ms var(--motion-impact) both;
-}
-
-.multi-clue-dialog[data-state="open"] {
-  animation: multi-clue-enter 760ms var(--motion-impact) both;
-}
-
-.notification-dialog[data-state="open"] {
-  animation: notification-enter 720ms var(--motion-impact) both;
-}
-
 .clue-dialog-sigil,
 .multi-clue-aura,
 .notification-signal {
@@ -374,10 +362,6 @@
   opacity: 0.18;
 }
 
-.media-viewer[data-state="open"] {
-  animation: media-viewer-enter 760ms var(--motion-impact) both;
-}
-
 .media-viewer-ambient {
   position: absolute;
   z-index: -1;
@@ -475,7 +459,6 @@
     border-color 360ms var(--motion-ios),
     box-shadow 480ms var(--motion-ios),
     transform 560ms var(--motion-spring);
-  animation: media-close-enter 620ms 260ms var(--motion-impact) both;
 }
 
 .media-viewer-close:hover {
@@ -495,7 +478,6 @@
   box-shadow:
     0 14px 44px rgba(0, 0, 0, 0.42),
     inset 0 1px rgba(255, 246, 218, 0.05);
-  animation: media-navigation-enter 680ms 190ms var(--motion-impact) both;
 }
 
 .media-viewer-navigation > span {
@@ -584,4 +566,9 @@
   box-shadow:
     0 26px 72px rgba(59, 41, 64, 0.16),
     0 0 42px rgba(117, 81, 128, 0.08);
+}
+
+/* Gesture transforms must never compete with entrance keyframes. */
+.media-viewer-stage--zoom > img {
+  animation: none;
 }

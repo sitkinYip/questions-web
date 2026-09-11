@@ -45,3 +45,5 @@
 @import "@/styles/desktop/inbox.css";
 @import "@/styles/desktop/letter.css";
 @import "@/styles/features/version.css";
+@import "@/styles/components/motion.css";
+@import "@/styles/effects/motion-keyframes.css";

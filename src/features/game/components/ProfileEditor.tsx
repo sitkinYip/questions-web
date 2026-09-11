@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import type { AvatarCropDialogProps } from "./AvatarCropDialog";
 import { uiCopy } from "@/config/ui-copy";
@@ -30,6 +31,7 @@ export function ProfileEditor({
     submit,
   } = editor;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const cropSnapshot = useExitSnapshot(selectedFile);
   const [CropDialog, setCropDialog] =
     useState<ComponentType<AvatarCropDialogProps> | null>(null);
   const [loadingCrop, setLoadingCrop] = useState(false);
@@ -151,9 +153,11 @@ export function ProfileEditor({
             : uiCopy.profileEditor.save}
         </Button>
       </form>
-      {selectedFile && CropDialog && (
+      {cropSnapshot.value && CropDialog && (
         <CropDialog
-          file={selectedFile}
+          file={cropSnapshot.value}
+          open={cropSnapshot.open}
+          onExitComplete={cropSnapshot.release}
           onCancel={() => setSelectedFile(null)}
           onConfirm={(file) => {
             setUpload({ file, url: URL.createObjectURL(file) });

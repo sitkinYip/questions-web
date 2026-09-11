@@ -112,6 +112,7 @@ export function MailboxRow({
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content
+                data-motion-menu
                 className="mailbox-menu"
                 sideOffset={4}
                 align="end"

@@ -72,6 +72,7 @@ export function ThemeMenu({ avatarUrl, displayName }: ThemeMenuProps) {
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
+          data-motion-menu
           className="theme-menu"
           sideOffset={10}
           align="start"

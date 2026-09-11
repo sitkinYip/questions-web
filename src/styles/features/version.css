@@ -219,9 +219,6 @@
   color: var(--color-accent-muted);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .version-dialog {
-    animation: version-reveal 700ms var(--motion-impact) both;
-  }
   .version-dialog::before {
     animation: version-sweep 1100ms ease-out both;
   }

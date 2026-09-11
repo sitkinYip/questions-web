@@ -1,3 +1,4 @@
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 import { uiCopy } from "@/config/ui-copy";
 import type { ReactNode } from "react";
 import { XIcon } from "@phosphor-icons/react";
@@ -13,7 +14,8 @@ interface SheetProps {
   description?: string;
   headerContent?: ReactNode;
   className?: string;
-  side?: "left" | "right";
+  side?: "left" | "right" | "bottom";
+  mobileSide?: "left" | "right" | "bottom";
   density?: "comfortable" | "compact";
   priority?: number;
   children: ReactNode;
@@ -28,20 +30,24 @@ export function Sheet({
   headerContent,
   className,
   side = "right",
+  mobileSide,
   density = "comfortable",
   priority = overlayPriority.content,
   children,
 }: SheetProps) {
+  const desktop = useDesktopLayout();
+  const placement = !desktop && mobileSide ? mobileSide : side;
   return (
     <AppDialog
+      placement={placement}
       overlayId={overlayId}
       priority={priority}
       open={open}
       onOpenChange={onOpenChange}
       accessibleTitle={title}
       accessibleDescription={description}
-      overlayClassName={`ui-sheet-overlay ui-sheet-overlay--${side}`}
-      contentClassName={`ui-sheet ui-sheet--${side} ui-sheet--${density}${className ? ` ${className}` : ""}`}
+      overlayClassName={`ui-sheet-overlay ui-sheet-overlay--${placement}`}
+      contentClassName={`ui-sheet ui-sheet--${placement} ui-sheet--${density}${className ? ` ${className}` : ""}`}
     >
       <header className="ui-sheet__header">
         {headerContent ?? (

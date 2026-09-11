@@ -1,12 +1,2 @@
-.game-world[data-desktop] .mailbox-panel {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.game-world[data-desktop] .mailbox-tabs {
-  flex-shrink: 0;
-}
-.game-world[data-desktop] .mailbox-panel [role="tabpanel"] {
-  min-height: 0;
-  overflow: auto;
-}
+/* WorkspaceTabs owns direction, sizing and scrolling for the inbox.
+   Keep inbox-specific desktop decoration here; do not override its flex axis. */

@@ -55,6 +55,8 @@ const expectedImports = [
   "desktop/inbox.css",
   "desktop/letter.css",
   "features/version.css",
+  "components/motion.css",
+  "effects/motion-keyframes.css",
 ];
 
 async function collectCssFiles(directory) {

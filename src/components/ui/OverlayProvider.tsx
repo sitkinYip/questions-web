@@ -1,4 +1,11 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { OverlayContext } from "@/components/ui/overlay-context";
 
 interface OverlayEntry {
@@ -10,6 +17,35 @@ interface OverlayEntry {
 export function OverlayProvider({ children }: { children: ReactNode }) {
   const [entries, setEntries] = useState<OverlayEntry[]>([]);
   const orderRef = useRef(0);
+  const interaction = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const pointer = (event: PointerEvent) => {
+      interaction.current =
+        event.target instanceof Element
+          ? event.target.closest<HTMLElement>(
+              "button, a[href], input, select, textarea, [tabindex]",
+            )
+          : null;
+    };
+    const keyboard = () => {
+      interaction.current = null;
+    };
+    document.addEventListener("pointerdown", pointer, true);
+    document.addEventListener("keydown", keyboard, true);
+    return () => {
+      document.removeEventListener("pointerdown", pointer, true);
+      document.removeEventListener("keydown", keyboard, true);
+    };
+  }, []);
+  const getFocusOrigin = useCallback(() => {
+    const target = interaction.current;
+    interaction.current = null;
+    return target?.isConnected
+      ? target
+      : document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+  }, []);
 
   const request = useCallback((id: string, priority: number) => {
     setEntries((current) => {
@@ -30,8 +66,14 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     [entries],
   );
   const value = useMemo(
-    () => ({ activeId, openCount: entries.length, request, release }),
-    [activeId, entries.length, release, request],
+    () => ({
+      activeId,
+      openCount: entries.length,
+      request,
+      release,
+      getFocusOrigin,
+    }),
+    [activeId, entries.length, release, request, getFocusOrigin],
   );
 
   return (

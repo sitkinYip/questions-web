@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { uiCopy } from "@/config/ui-copy";
 import { AppDialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -11,17 +12,20 @@ interface CompletionFeedbackDialogProps {
 }
 
 export function CompletionFeedbackDialog({
-  variant,
+  variant: requestedValue,
   completedCount,
   onContinue,
 }: CompletionFeedbackDialogProps) {
+  const snapshot = useExitSnapshot(requestedValue);
+  const variant = snapshot.value;
   if (!variant) return null;
   const isFinal = variant === "final";
   return (
     <AppDialog
       overlayId="quest-completion"
       priority={overlayPriority.completion}
-      open
+      open={snapshot.open}
+      onExitComplete={snapshot.release}
       onOpenChange={() => undefined}
       accessibleTitle={
         isFinal

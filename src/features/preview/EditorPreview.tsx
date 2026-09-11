@@ -1,3 +1,4 @@
+import { MediaPreviewProvider } from "@/features/media/MediaPreviewProvider";
 import { RewardCard } from "@/features/game/components/RewardCard";
 import { ExperienceEnvironmentContext } from "@/features/game/ExperienceEnvironment";
 import { SessionPreview } from "./SessionPreview";
@@ -117,36 +118,38 @@ export function EditorPreview() {
           }}
         >
           <OverlayProvider>
-            <div
-              className="editor-preview"
-              onClickCapture={(event) => {
-                if (message?.draft.kind === "session") return;
-                if (
-                  event.target instanceof Element &&
-                  event.target.closest("a")
-                ) {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }
-              }}
-            >
-              {error && (
-                <p className="editor-preview-status" role="alert">
-                  {error}
-                </p>
-              )}
-              {!message && !error && (
-                <p className="editor-preview-status" role="status">
-                  等待编辑内容…
-                </p>
-              )}
-              {message && !error && (
-                <PreviewContent
-                  key={`${message.draft.kind}:${message.draft.kind === "session" ? "" : message.reset}:${message.state}:${message.draft.kind === "narrative" ? message.revision : ""}`}
-                  message={message}
-                />
-              )}
-            </div>
+            <MediaPreviewProvider>
+              <div
+                className="editor-preview"
+                onClickCapture={(event) => {
+                  if (message?.draft.kind === "session") return;
+                  if (
+                    event.target instanceof Element &&
+                    event.target.closest("a")
+                  ) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                }}
+              >
+                {error && (
+                  <p className="editor-preview-status" role="alert">
+                    {error}
+                  </p>
+                )}
+                {!message && !error && (
+                  <p className="editor-preview-status" role="status">
+                    等待编辑内容…
+                  </p>
+                )}
+                {message && !error && (
+                  <PreviewContent
+                    key={`${message.draft.kind}:${message.draft.kind === "session" ? "" : message.reset}:${message.state}:${message.draft.kind === "narrative" ? message.revision : ""}`}
+                    message={message}
+                  />
+                )}
+              </div>
+            </MediaPreviewProvider>
           </OverlayProvider>
         </ThemeContext.Provider>
       </MemoryRouter>

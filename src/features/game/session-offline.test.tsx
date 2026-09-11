@@ -112,6 +112,11 @@ describe("existing player pages support server-side session closure", () => {
     vi.spyOn(gameApi, "rewards").mockResolvedValue({ items: rewards });
     mount(<GameRewardsPage />, "/rewards", "/rewards");
     await screen.findByText(rewards[0].snapshot.name);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `查看${rewards[0].snapshot.name}详情`,
+      }),
+    );
     expect(screen.getByText(rewards[0].claimDetails)).toBeInTheDocument();
     expect(screen.getByText("已领取 · 已核销")).toBeInTheDocument();
     expect(assignments).not.toHaveBeenCalled();

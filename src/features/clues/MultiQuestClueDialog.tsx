@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { uiCopy } from "@/config/ui-copy";
 import { AppDialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -12,16 +13,19 @@ interface MultiQuestClueDialogProps {
 }
 
 export function MultiQuestClueDialog({
-  clue,
+  clue: requestedValue,
   open,
   onClose,
 }: MultiQuestClueDialogProps) {
-  if (!open || !clue) return null;
+  const snapshot = useExitSnapshot(open ? requestedValue : null);
+  const clue = snapshot.value;
+  if (!clue) return null;
   return (
     <AppDialog
       overlayId="multi-quest-clue"
       priority={overlayPriority.content}
-      open
+      open={snapshot.open}
+      onExitComplete={snapshot.release}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) onClose();
       }}

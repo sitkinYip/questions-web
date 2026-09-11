@@ -1,3 +1,6 @@
+import { OverlayProvider } from "@/components/ui/OverlayProvider";
+import { MediaPreviewProvider } from "@/features/media/MediaPreviewProvider";
+import { Sheet } from "@/components/ui/Sheet";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -56,4 +59,29 @@ describe("RichContent", () => {
       "strict-origin-when-cross-origin",
     );
   });
+});
+
+it("opens images in the shared viewer and returns to reward details", async () => {
+  render(
+    <OverlayProvider>
+      <MediaPreviewProvider>
+        <Sheet
+          overlayId="test-reward"
+          open
+          onOpenChange={() => {}}
+          title="奖品详情"
+        >
+          <RichContent source="{{https://img.example/reward.jpg}}" />
+        </Sheet>
+      </MediaPreviewProvider>
+    </OverlayProvider>,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "放大查看图片" }));
+  expect(
+    await screen.findByRole("slider", { name: "图片缩放" }),
+  ).toBeInTheDocument();
+  fireEvent.keyDown(document, { key: "Escape" });
+  expect(
+    await screen.findByRole("button", { name: "放大查看图片" }),
+  ).toBeInTheDocument();
 });

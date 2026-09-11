@@ -96,7 +96,7 @@ export function GameGate() {
       }}
     >
       <div key={player.id}>
-        {hasSyncError && <GameSyncMessage />}
+        <GameSyncMessage active={hasSyncError} />
         {player.mustChangePassword ? <PasswordPage forced /> : <Outlet />}
       </div>
     </GameContext.Provider>

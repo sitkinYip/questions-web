@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { uiCopy } from "@/config/ui-copy";
 import { useEffect, type ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -21,7 +22,7 @@ interface NotificationDialogProps {
 }
 
 export function NotificationDialog({
-  notification,
+  notification: requestedValue,
   userId,
   queuedCount,
   onClose,
@@ -31,15 +32,17 @@ export function NotificationDialog({
   onOpenImages,
   onOpenVideo,
 }: NotificationDialogProps) {
+  const snapshot = useExitSnapshot(requestedValue);
+  const notification = snapshot.value;
   useEffect(() => {
-    if (!notification) return;
+    if (!requestedValue) return;
     trackAnalytics(
       {
         name: "notification_state",
-        notificationId: notification.id,
-        title: notification.title,
-        popupTitle: notification.popupTitle,
-        content: notification.content,
+        notificationId: requestedValue.id,
+        title: requestedValue.title,
+        popupTitle: requestedValue.popupTitle,
+        content: requestedValue.content,
         state: "opened",
       },
       userId,
@@ -48,16 +51,16 @@ export function NotificationDialog({
       trackAnalytics(
         {
           name: "notification_state",
-          notificationId: notification.id,
-          title: notification.title,
-          popupTitle: notification.popupTitle,
-          content: notification.content,
+          notificationId: requestedValue.id,
+          title: requestedValue.title,
+          popupTitle: requestedValue.popupTitle,
+          content: requestedValue.content,
           state: "closed",
         },
         userId,
       );
     };
-  }, [notification, userId]);
+  }, [requestedValue, userId]);
 
   if (!notification) return null;
   const segments = parseLegacyContent(notification.content);
@@ -66,7 +69,8 @@ export function NotificationDialog({
     <AppDialog
       overlayId="notification"
       priority={overlayPriority.notification}
-      open
+      open={snapshot.open}
+      onExitComplete={snapshot.release}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}

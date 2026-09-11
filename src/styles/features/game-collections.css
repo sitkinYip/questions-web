@@ -45,6 +45,7 @@
   min-width: 0;
 }
 .reward-card h2 {
+  color: var(--color-text-strong);
   font: 500 26px/1.5 var(--font-display);
   margin: var(--space-3) 0;
   overflow-wrap: anywhere;
@@ -258,4 +259,82 @@
   .mailbox-row[data-revealed="true"] .mailbox-row__menu {
     visibility: hidden;
   }
+}
+
+.reward-grid {
+  gap: var(--space-4);
+  align-items: start;
+}
+.reward-card {
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background:
+    radial-gradient(
+      ellipse at top left,
+      var(--color-accent-faint),
+      transparent 65%
+    ),
+    var(--color-surface);
+  transition:
+    transform var(--duration-medium) var(--motion-spring),
+    border-color var(--duration-medium),
+    box-shadow var(--duration-medium);
+}
+.reward-card__art > svg {
+  width: 64px;
+  height: 64px;
+  padding: 12px;
+}
+.reward-card h2 {
+  font-size: 21px;
+  margin-block: 8px;
+}
+.reward-card__body > .game-muted {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.reward-card__body > .ui-button {
+  margin-top: 12px;
+  gap: 24px;
+}
+.reward-card:focus-within {
+  border-color: var(--color-accent);
+}
+.reward-details {
+  width: min(560px, 100%);
+}
+.reward-details .ui-sheet__body {
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.reward-details h3 {
+  font: 500 15px var(--font-ui);
+  color: var(--color-accent-text);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .reward-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-accent);
+    box-shadow:
+      0 12px 36px var(--color-shadow),
+      inset 0 1px var(--color-accent-border),
+      0 0 28px var(--color-accent-faint);
+  }
+}
+
+.reward-details.ui-sheet {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.reward-details .ui-sheet__header {
+  flex-shrink: 0;
+}
+.reward-details .ui-sheet__body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }

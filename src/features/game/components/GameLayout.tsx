@@ -35,16 +35,24 @@ export function GameLayout() {
       ? "profile"
       : location.pathname === "/notifications"
         ? "inbox"
-        : undefined;
+        : "standard";
   const contentRef = useRef<HTMLElement>(null);
   const returnTo = gameReturnPath(location.pathname, location.state);
   useEffect(() => {
     contentRef.current?.focus({ preventScroll: true });
+    contentRef.current?.scrollTo({ top: 0, behavior: "instant" });
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
   return (
     <div
       className="game-world"
+      data-page={
+        location.pathname === "/"
+          ? "lobby"
+          : location.pathname === "/notifications"
+            ? "inbox"
+            : "scroll"
+      }
       data-desktop={isDesktop ? desktopMode : undefined}
     >
       <a href="#game-content" className="game-skip-link">

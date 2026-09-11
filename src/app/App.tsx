@@ -1,3 +1,4 @@
+import { MediaPreviewProvider } from "@/features/media/MediaPreviewProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Navigate,
@@ -63,7 +64,9 @@ export function App() {
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <OverlayProvider>
-            <RouterProvider router={router} />
+            <MediaPreviewProvider>
+              <RouterProvider router={router} />
+            </MediaPreviewProvider>
           </OverlayProvider>
         </ToastProvider>
       </QueryClientProvider>

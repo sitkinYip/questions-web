@@ -30,7 +30,9 @@ for (const width of [320, 390, 1200])
     await expect(
       frame.getByRole("heading", { name: "修改后的奖品", exact: true }),
     ).toBeVisible();
-    await expect(frame.locator(".reward-card")).toContainText("请到服务台领取");
+    await frame.getByRole("button", { name: "查看修改后的奖品详情" }).click();
+    await expect(frame.getByText("请到服务台领取")).toBeVisible();
+    await frame.getByRole("button", { name: "关闭修改后的奖品" }).click();
     await expect(frame.locator(".reward-card")).toHaveAttribute(
       "data-state",
       "redeemed",

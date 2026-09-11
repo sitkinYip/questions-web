@@ -1,3 +1,4 @@
+import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
 import { uiCopy } from "@/config/ui-copy";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -98,6 +99,7 @@ export function ClearCachePage() {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(
     null,
   );
+  const pendingSnapshot = useExitSnapshot(pendingAction);
   const [feedback, setFeedback] = useState("");
 
   const references = useMemo(
@@ -354,12 +356,13 @@ export function ClearCachePage() {
       <AppDialog
         overlayId="record-confirmation"
         priority={overlayPriority.confirmation}
-        open={Boolean(pendingAction)}
+        open={pendingSnapshot.open}
+        onExitComplete={pendingSnapshot.release}
         onOpenChange={(open) => {
           if (!open) setPendingAction(null);
         }}
         accessibleTitle={
-          pendingAction?.type === "delete"
+          pendingSnapshot.value?.type === "delete"
             ? uiCopy.clearCachePage.deleteDialogTitle
             : uiCopy.clearCachePage.releaseDialogTitle
         }
@@ -367,19 +370,19 @@ export function ClearCachePage() {
         contentClassName="record-confirm"
         closeOnOutside={false}
       >
-        {pendingAction && (
+        {pendingSnapshot.value && (
           <>
             <p className="eyebrow">{uiCopy.clearCachePage.confirmEyebrow}</p>
             <h2 id="record-confirm-title">
-              {pendingAction.type === "delete"
+              {pendingSnapshot.value.type === "delete"
                 ? uiCopy.clearCachePage.deleteHeading
                 : uiCopy.clearCachePage.releaseHeading}
             </h2>
             <p>
               {uiCopy.clearCachePage.affectedCount(
-                pendingAction.records.length,
+                pendingSnapshot.value.records.length,
               )}
-              {pendingAction.type === "delete" &&
+              {pendingSnapshot.value.type === "delete" &&
                 uiCopy.clearCachePage.irreversible}
             </p>
             <div>
@@ -392,10 +395,12 @@ export function ClearCachePage() {
               </Button>
               <Button
                 size="small"
-                variant={pendingAction.type === "delete" ? "danger" : "primary"}
+                variant={
+                  pendingSnapshot.value.type === "delete" ? "danger" : "primary"
+                }
                 onClick={confirmAction}
               >
-                {pendingAction.type === "delete"
+                {pendingSnapshot.value.type === "delete"
                   ? uiCopy.clearCachePage.confirmDelete
                   : uiCopy.clearCachePage.confirmRelease}
               </Button>

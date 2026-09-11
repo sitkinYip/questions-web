@@ -1,5 +1,6 @@
+import { useMotionPresence } from "@/shared/motion/useMotionPresence";
 import { uiCopy } from "@/config/ui-copy";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { Notification } from "@/domain/notification/types";
 import { createNotificationLauncherPositionRepository } from "@/infrastructure/storage/notification.repository";
 import { useDraggableFloatingControl } from "@/shared/gestures/useDraggableFloatingControl";
@@ -66,6 +67,11 @@ export function NotificationCenterView({
   const [manualNotification, setManualNotification] =
     useState<Notification | null>(null);
   const [isListOpen, setIsListOpen] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const listPresent = useMotionPresence(
+    isListOpen && !blocked && !manualNotification && !current,
+    listRef,
+  );
   const launcherPositionRepository = useMemo(
     () => createNotificationLauncherPositionRepository(window.localStorage),
     [],
@@ -105,7 +111,7 @@ export function NotificationCenterView({
 
   return (
     <>
-      {notifications.length > 0 && !blocked && !active && (
+      {notifications.length > 0 && !blocked && (!active || listPresent) && (
         <aside
           className={`notification-launcher ${isDragging ? "is-dragging" : ""}`}
           style={launcherStyle}
@@ -113,8 +119,12 @@ export function NotificationCenterView({
           data-horizontal={launcherPosition.x < 0.5 ? "left" : "right"}
           data-vertical={launcherPosition.y < 0.5 ? "below" : "above"}
         >
-          {isListOpen && (
+          {listPresent && (
             <div
+              ref={listRef}
+              data-motion-menu
+              data-state={isListOpen && !active ? "open" : "closed"}
+              inert={!isListOpen || !!active}
               className="notification-list"
               id="notification-archive"
               aria-label={uiCopy.notificationCenter.listLabel}
