@@ -134,6 +134,11 @@ for (const width of [390, 1366]) {
     await page.goto("/e2e/preview.html?screen=/letter&theme=dark");
     await page.locator(".letter-envelope").click();
     await expect(page.locator(".letter-reader")).toBeVisible();
+    // Finish the typewriter through its UI before comparing exact text snapshots.
+    // A queued character can legitimately commit alongside the close event.
+    const showAll = page.getByRole("button", { name: "显示全文", exact: true });
+    await showAll.click();
+    await expect(showAll).toHaveCount(0);
     const text = await page
       .locator(".letter-reader")
       .evaluate(sampleExit, "收起");
