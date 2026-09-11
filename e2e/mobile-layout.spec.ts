@@ -271,6 +271,11 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
   await expect(page.locator(".game-topbar")).toBeVisible();
   for (const width of [390, 700, 1280]) {
     await page.setViewportSize({ width, height: 900 });
+    // matchMedia updates the React desktop variant after viewport resizing.
+    // Measure safe-area changes only once that layout has actually switched.
+    await expect(page.locator(".game-world[data-desktop]")).toHaveCount(
+      width >= 1100 ? 1 : 0,
+    );
     await setSafeInsets(page, 0, 34);
     const header = page.locator(".game-topbar");
     const baseline = await header.boundingBox();
@@ -279,6 +284,11 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
     await setSafeInsets(page, 59, 34);
     const avatar = header.getByRole("button", { name: "打开冒险者菜单" });
     expect((await avatar.boundingBox())!.y).toBeGreaterThanOrEqual(59);
+    if (width >= 1100) {
+      expect(
+        (await page.locator(".game-navigation").boundingBox())!.y,
+      ).toBeGreaterThanOrEqual(59);
+    }
     if (width < 760) {
       await expect(page.locator(".game-navigation")).toHaveCSS(
         "padding-bottom",
