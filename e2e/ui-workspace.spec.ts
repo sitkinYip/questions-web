@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
 import { makeRewards } from "@/test/game-fixtures";
+import { visibleBox } from "@e2e/layout-assertions";
 
 for (const width of [390, 1366]) {
   test(`workspace retains navigation at ${width}px`, async ({ page }) => {
@@ -10,23 +11,24 @@ for (const width of [390, 1366]) {
     const tabs = page.getByRole("tablist");
     await expect(tabs).toHaveAttribute(
       "aria-orientation",
-      width > 1100 ? "vertical" : "horizontal",
+      width >= 1100 ? "vertical" : "horizontal",
     );
-    const top = await tabs.boundingBox();
+    const top = await visibleBox(tabs);
+    await expect(page.getByRole("tabpanel")).toBeVisible();
     await page.getByRole("tabpanel").evaluate((el) => {
       el.scrollTop = el.scrollHeight;
     });
-    expect((await tabs.boundingBox())?.y).toBe(top?.y);
+    expect((await visibleBox(tabs)).y).toBe(top.y);
     await expect(page.locator(".game-topbar")).toBeInViewport();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollHeight <= innerHeight,
       ),
     ).toBe(true);
-    if (width > 1100) {
+    if (width >= 1100) {
       const cards = page.locator(".chapter-card");
-      expect((await cards.nth(1).boundingBox())!.x).toBeGreaterThan(
-        (await cards.first().boundingBox())!.x,
+      expect((await visibleBox(cards.nth(1))).x).toBeGreaterThan(
+        (await visibleBox(cards.first())).x,
       );
     }
   });
@@ -45,7 +47,7 @@ test("long reward instructions stay in details and media restores the details", 
   );
   await login(page, "/rewards");
   expect(
-    (await page.locator(".reward-card").first().boundingBox())!.height,
+    (await visibleBox(page.locator(".reward-card").first())).height,
   ).toBeLessThan(260);
   await page.getByRole("button", { name: "查看星辰纪念章详情" }).click();
   await page.getByRole("button", { name: "放大查看图片" }).last().click();
@@ -63,11 +65,20 @@ for (const width of [390, 1100, 1366, 1920]) {
     await page.goto("/e2e/preview.html?theme=dark&screen=/notifications");
     await expect(page.locator(".notification-letter").first()).toBeVisible();
     const tabs = page.getByRole("tablist");
-    const panel = page.getByRole("tabpanel");
-    for (const name of ["旅途来信", "星海信笺"]) {
-      await page.getByRole("tab", { name: new RegExp(name) }).click();
-      const navigation = (await tabs.boundingBox())!;
-      const content = (await panel.boundingBox())!;
+    await expect(tabs).toHaveAttribute(
+      "aria-orientation",
+      width >= 1100 ? "vertical" : "horizontal",
+    );
+    for (const name of ["旅途来信", "星海信笺", "旅途来信"]) {
+      const tab = page.getByRole("tab", { name: new RegExp(name) });
+      await tab.click();
+      await expect(tab).toHaveAttribute("aria-selected", "true");
+      // A generic tabpanel may still resolve to the departing pane after click.
+      // Wait for this tab's own panel, not whichever panel happens to be visible.
+      const panel = page.getByRole("tabpanel", { name: new RegExp(name) });
+      await expect(panel).toHaveAttribute("data-state", "active");
+      const navigation = await visibleBox(tabs);
+      const content = await visibleBox(panel);
       if (width >= 1100) {
         expect(content.x).toBeGreaterThanOrEqual(
           navigation.x + navigation.width,
@@ -83,7 +94,7 @@ for (const width of [390, 1100, 1366, 1920]) {
       await panel.evaluate((el) => {
         el.scrollTop = el.scrollHeight;
       });
-      expect((await tabs.boundingBox())!.y).toBe(navigation.y);
+      expect((await visibleBox(tabs)).y).toBe(navigation.y);
       await expect(page.locator(".game-topbar")).toBeInViewport();
       expect(
         await page.evaluate(
