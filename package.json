@@ -28,7 +28,9 @@
     "verify:api": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/levels/records?perPage=500&sort=step' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-api.ts",
     "verify:letter": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/letter/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-letter-api.ts",
     "verify:notifications": "curl -fsSL -H 'Origin: http://local.sitkin.top:5173' 'https://api.sitkin.top/api/collections/notifications/records?perPage=500&sort=created' | node --import ./scripts/register-aliases.mjs --experimental-strip-types scripts/verify-live-notification-api.ts",
-    "check:motion": "node scripts/verify-motion-architecture.mjs"
+    "check:motion": "node scripts/verify-motion-architecture.mjs",
+    "check:release": "node scripts/check-release.mjs",
+    "verify:release": "pnpm install --frozen-lockfile && pnpm check:release && node scripts/verify-game-deployment.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

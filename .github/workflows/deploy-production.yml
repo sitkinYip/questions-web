@@ -58,17 +58,8 @@ jobs:
       - name: Build production
         run: pnpm build:production
 
-      - name: Verify production asset base
-        run: |
-          grep -Fq '/questions/assets/' dist/index.html
-          if grep -Eq '(src|href)="/assets/' dist/index.html; then
-            echo 'Production build contains a root /assets/ reference.' >&2
-            exit 1
-          fi
-          if grep -Fq '/questions-next/assets/' dist/index.html; then
-            echo 'Production build contains a preview asset reference.' >&2
-            exit 1
-          fi
+      - name: Verify production artifact
+        run: node scripts/verify-build-artifact.mjs production
 
       - name: Record release identity
         run: |

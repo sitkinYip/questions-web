@@ -33,6 +33,8 @@ pnpm dev
 
 ### 检查与构建
 
+**每项任务完成前必须执行 `pnpm verify:release`**，完整流程见 [发布验证与任务收尾](./docs/release-verification.md)。普通 build 和局部测试不代表发布流程通过。本地与 CI 共用 `check:release`，包含两种环境构建和完整 Chromium 回归。
+
 以下单元测试和浏览器测试使用测试夹具，不依赖 Docker 或本地数据库；浏览器测试需先安装 Playwright 浏览器。
 
 ```bash

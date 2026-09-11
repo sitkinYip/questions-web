@@ -16,7 +16,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -35,34 +35,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check formatting
-        run: pnpm format:check
-
-      - name: Check style architecture
-        run: pnpm check:styles
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Run unit tests
-        run: pnpm test:run
-
-      - name: Build preview
-        run: pnpm build:preview
-
-      - name: Verify preview asset base
-        run: |
-          grep -Fq '/questions-next/assets/' dist/index.html
-          if grep -Eq '(src|href)="/assets/' dist/index.html; then
-            echo 'Preview build contains a root /assets/ reference.' >&2
-            exit 1
-          fi
-
       - name: Install Playwright Chromium and WebKit
         run: pnpm exec playwright install --with-deps chromium webkit
 
-      - name: Run browser tests
-        run: pnpm test:e2e
+      - name: Validate release pipeline
+        run: pnpm check:release
 
-      - name: Run iOS audio regression tests
-        run: pnpm exec playwright test e2e/music-control.spec.ts e2e/bless-flow.spec.ts --project=mobile-webkit
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-evidence
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore

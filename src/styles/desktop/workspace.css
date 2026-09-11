@@ -7,6 +7,7 @@
 }
 .game-world[data-desktop] {
   --topbar-height: 80px;
+  --topbar-clearance: 10px;
   --page-width: var(--desktop-page-width);
   height: 100dvh;
   min-height: 620px;
@@ -18,7 +19,7 @@
   flex-shrink: 0;
 }
 .game-world[data-desktop] .game-navigation {
-  top: 14px;
+  top: calc(14px + var(--topbar-safe-offset));
 }
 .game-world[data-desktop] .game-shell {
   flex: 1;

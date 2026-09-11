@@ -64,13 +64,8 @@ jobs:
       - name: Build preview
         run: pnpm build:preview
 
-      - name: Verify preview asset base
-        run: |
-          grep -Fq '/questions-next/assets/' dist/index.html
-          if grep -Eq '(src|href)="/assets/' dist/index.html; then
-            echo 'Preview build contains a root /assets/ reference.' >&2
-            exit 1
-          fi
+      - name: Verify preview artifact
+        run: node scripts/verify-build-artifact.mjs preview
 
       - name: Record release identity
         run: |

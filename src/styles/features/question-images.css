@@ -50,6 +50,18 @@
   margin: 22px auto;
 }
 
+/* Keep paragraph spacing outside the interactive image frame. */
+.quest-prompt .rich-media-trigger {
+  display: block;
+  width: fit-content;
+  max-width: min(100%, 680px);
+  margin: 22px auto;
+}
+
+.quest-prompt .rich-media-trigger img {
+  margin: 0;
+}
+
 .question-image button:is(:hover, :focus-visible) img,
 .question-gallery button:is(:hover, :focus-visible) img {
   border-color: var(--color-accent);
