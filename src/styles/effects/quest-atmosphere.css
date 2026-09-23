@@ -1,4 +1,5 @@
 .quest-atmosphere {
+  mask-image: linear-gradient(to bottom, transparent 0 8px, #000 180px);
   position: fixed;
   z-index: 0;
   inset: 0;

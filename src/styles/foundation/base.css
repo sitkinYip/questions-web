@@ -7,7 +7,13 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100dvh;
+  /* Match browser chrome at the edge, then reveal the existing ambient light. */
   background:
+    linear-gradient(
+      to bottom,
+      var(--color-browser-chrome) 0 8px,
+      transparent 180px
+    ),
     radial-gradient(
       circle at 18% 18%,
       var(--color-canvas-ambient),

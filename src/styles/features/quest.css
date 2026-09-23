@@ -19,6 +19,11 @@
 }
 
 .quest-background {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0 8px,
+    var(--color-browser-chrome) 180px
+  );
   position: fixed;
   z-index: 0;
   inset: 0;
