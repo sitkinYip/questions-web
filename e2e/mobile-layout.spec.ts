@@ -408,7 +408,7 @@ test("bottom navigation only commits a valid release and ignores gaps or oversho
   await page.evaluate(() =>
     document.documentElement.setAttribute("data-theme", "light"),
   );
-  await expect(links.nth(2)).toHaveCSS("color", "rgb(21, 95, 159)");
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(17, 105, 88)");
   await page.screenshot({
     path: test.info().outputPath("bottom-nav-light.png"),
   });
