@@ -511,3 +511,44 @@
     display: none;
   }
 }
+
+/* A feathered, theme-aware tail connects the reading pane to its quiet status. */
+.game-sync-note {
+  position: relative;
+  z-index: 1;
+  margin-top: -20px;
+  padding: 24px 12px 8px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--color-surface) 62%, transparent) 55%,
+    color-mix(in srgb, var(--color-surface) 30%, transparent)
+  );
+}
+.game-lobby__journeys .workspace-tabs > [role="tabpanel"] {
+  padding-bottom: 48px;
+  scroll-padding-bottom: 48px;
+}
+
+/* Only exhausted workspaces opt into shell scrolling; the header stays fixed. */
+.game-world .game-shell[data-workspace-fallback] {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.game-shell[data-workspace-fallback]
+  :is(.game-page-enter, .game-lobby, .game-lobby__journeys) {
+  flex: none;
+  min-height: auto;
+}
+.game-shell[data-workspace-fallback] .workspace-tabs {
+  flex: none;
+  min-height: var(--workspace-fallback-height);
+  overflow: visible;
+}
+
+.game-shell[data-workspace-fallback] .workspace-tabs > [role="tabpanel"] {
+  flex: 1 0 auto;
+  min-height: 180px;
+  overflow: visible;
+}
