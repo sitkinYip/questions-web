@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi, enterGame, login } from "@e2e/fixtures";
+import { mockStarwardApi, enterGame, login } from "@e2e/fixtures";
 
 test("single assignment settles on the server and survives reload", async ({
   page,
 }) => {
-  await mockQuestionsApi(page, { single: true });
+  await mockStarwardApi(page, { single: true });
   await enterGame(page);
   await expect(page.getByRole("navigation", { name: "题目导航" })).toHaveCount(
     0,
@@ -39,7 +39,7 @@ test("single assignment settles on the server and survives reload", async ({
 });
 
 test("multi-question assignment unlocks sequentially", async ({ page }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await enterGame(page);
   await expect(page.getByRole("button", { name: /02/ })).toBeDisabled();
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
@@ -55,7 +55,7 @@ test("multi-question assignment unlocks sequentially", async ({ page }) => {
 });
 
 test("incorrect choice displays the server cooldown", async ({ page }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await enterGame(page);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
@@ -69,7 +69,7 @@ test("incorrect choice displays the server cooldown", async ({ page }) => {
 test("new players must change password; logout removes access to private pages", async ({
   page,
 }) => {
-  await mockQuestionsApi(page, { mustChange: true });
+  await mockStarwardApi(page, { mustChange: true });
   await login(page);
   await expect(page.getByRole("heading", { name: /修改/ })).toBeVisible();
   await page
@@ -92,7 +92,7 @@ test("new players must change password; logout removes access to private pages",
 test("empty text, whitespace and unselected choices use the timed danger alert without an API attempt", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   let attempts = 0;
   page.on("request", (request) => {
     if (request.url().endsWith("/answers")) attempts++;
@@ -124,7 +124,7 @@ test("empty text, whitespace and unselected choices use the timed danger alert w
 test("the original combined-clue dialog and launcher survive a completed-session reload", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await enterGame(page);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
@@ -145,7 +145,7 @@ test("notifications retain the original floating archive after server read ackno
   page,
 }) => {
   test.setTimeout(60000);
-  await mockQuestionsApi(page, { single: true, notifications: true });
+  await mockStarwardApi(page, { single: true, notifications: true });
   await enterGame(page);
   await page.getByRole("button", { name: "收到消息", exact: true }).click();
   const launcher = page.getByRole("button", { name: "打开通知列表" });

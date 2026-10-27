@@ -44,7 +44,7 @@ export async function fulfillJson(route: Route, body: unknown, status = 200) {
   });
 }
 /** UI fixtures only. Permission, transaction and concurrency tests use real PB separately. */
-export async function mockQuestionsApi(
+export async function mockStarwardApi(
   page: Page,
   options: {
     single?: boolean;

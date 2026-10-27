@@ -15,7 +15,7 @@ describe("quest answer guide repository", () => {
     const repository = createQuestAnswerGuideRepository(storage);
 
     expect(questAnswerGuideKey("alice:bob")).toBe(
-      "questions:v1:quest-answer-guide:alice%3Abob",
+      "starward:v1:quest-answer-guide:alice%3Abob",
     );
     expect(repository.hasSeen("alice")).toBe(false);
     repository.markSeen("alice");

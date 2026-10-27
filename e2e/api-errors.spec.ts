@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { fulfillJson, login, mockStarwardApi } from "@e2e/fixtures";
 
 test("reports a mismatched server contract without rendering private content", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await page.route("**/api/questions/v1/me", (route) =>
     fulfillJson(route, { id: "broken" }),
   );
@@ -16,7 +16,7 @@ test("reports a mismatched server contract without rendering private content", a
 test("recovers from a server error without discarding the login", async ({
   page,
 }) => {
-  const state = await mockQuestionsApi(page);
+  const state = await mockStarwardApi(page);
   let recovered = false;
   await page.route("**/api/questions/v1/assignments", (route) =>
     recovered
@@ -40,7 +40,7 @@ for (const resource of ["me", "assignments/assignment1"]) {
   test(`background ${resource} failure preserves the answer and recovers`, async ({
     page,
   }) => {
-    await mockQuestionsApi(page, { single: true });
+    await mockStarwardApi(page, { single: true });
     await login(page, "/play/assignment1");
     await page.getByRole("button", { name: "开始本场冒险" }).click();
     const input = page.getByPlaceholder("输入你的答案");
@@ -74,7 +74,7 @@ for (const theme of ["dark", "light"]) {
       width: theme === "dark" ? 1280 : 390,
       height: 844,
     });
-    await mockQuestionsApi(page, { single: true });
+    await mockStarwardApi(page, { single: true });
     await login(page, `/play/assignment1?theme=${theme}`);
     await page.getByRole("button", { name: "开始本场冒险" }).click();
     const input = page.getByPlaceholder("输入你的答案");
@@ -112,7 +112,7 @@ for (const theme of ["dark", "light"]) {
 }
 
 test("a revoked assignment removes the cached question", async ({ page }) => {
-  await mockQuestionsApi(page, { single: true });
+  await mockStarwardApi(page, { single: true });
   await login(page, "/play/assignment1");
   await page.getByRole("button", { name: "开始本场冒险" }).click();
   await page.getByPlaceholder("输入你的答案").fill("草稿");
@@ -132,7 +132,7 @@ test("a revoked assignment removes the cached question", async ({ page }) => {
 test("start failures can be dismissed and retried without leaving the briefing", async ({
   page,
 }) => {
-  await mockQuestionsApi(page, { single: true });
+  await mockStarwardApi(page, { single: true });
   await login(page, "/play/assignment1");
   await page.route(
     "**/api/questions/v1/assignments/assignment1/start",

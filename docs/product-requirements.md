@@ -1,10 +1,10 @@
-# Questions 产品需求基线
+# Starward 产品需求基线
 
 ## 项目边界
 
-Questions 是独立 React 应用。旧 `home` 仓库在新应用验收前继续承载线上 `/questions`，只作为业务行为、接口契约和测试样本来源；不复制旧 Vue 组件结构。
+Starward 是独立 React 应用。旧 `home` 仓库在新应用验收前继续承载线上 `/questions`，只作为业务行为、接口契约和测试样本来源；不复制旧 Vue 组件结构。
 
-新项目最终负责：答题会话、题目与本场线索、等级、通知、媒体、BGM、Letter、Bless、本地记录管理和 Questions 专属埋点。
+新项目最终负责：答题会话、题目与本场线索、等级、通知、媒体、BGM、Letter、Bless、本地记录管理和 Starward 专属埋点。
 
 ## 核心模型
 

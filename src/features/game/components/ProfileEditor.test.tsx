@@ -1,11 +1,19 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { gameApi } from "@/api/game.client";
 import { makePlayer } from "@/test/game-fixtures";
 import { GameContext } from "@/features/game/useGame";
 import { ProfileEditor } from "@/features/game/components/ProfileEditor";
 import { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 vi.mock("./AvatarCropDialog", () => ({
   default: ({
@@ -60,11 +68,69 @@ function editor() {
       <GameContext.Provider
         value={{ player, setPlayer: vi.fn(), logout: vi.fn() }}
       >
-        <EditorHarness />
+        <ToastProvider>
+          <MemoryRouter>
+            <EditorHarness />
+          </MemoryRouter>
+        </ToastProvider>
       </GameContext.Provider>
     </QueryClientProvider>,
   );
 }
+
+it.each([
+  ["image/svg+xml", 5, "请选择 JPG、PNG 或 WebP 图片。"],
+  ["image/png", 50 * 1024 * 1024 + 1, "原图超过 50 MB，请选择小一点的图片。"],
+])(
+  "shows an avatar error toast with the rejection reason for %s",
+  (type, size, reason) => {
+    editor();
+    const file = new File(["image"], "avatar", { type });
+    Object.defineProperty(file, "size", { value: size });
+    fireEvent.change(screen.getByLabelText("上传头像"), {
+      target: { files: [file] },
+    });
+    const toast = screen.getByRole("listitem");
+    expect(within(toast).getByText("更换头像失败")).toBeVisible();
+    expect(within(toast).getByText(reason)).toBeVisible();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  },
+);
+
+it("restarts the toast for repeated invalid selections and reopens after dismissal", () => {
+  editor();
+  const input = screen.getByLabelText("上传头像");
+  const selectInvalidFile = () =>
+    fireEvent.change(input, {
+      target: {
+        files: [new File(["svg"], "bad.svg", { type: "image/svg+xml" })],
+      },
+    });
+  selectInvalidFile();
+  const previousToast = screen.getByRole("listitem");
+  selectInvalidFile();
+  expect(screen.getByRole("listitem")).not.toBe(previousToast);
+  fireEvent.click(screen.getByRole("button", { name: "关闭更换头像失败" }));
+  expect(screen.queryByText("更换头像失败")).toBeNull();
+  selectInvalidFile();
+  expect(screen.getByText("更换头像失败")).toBeVisible();
+});
+
+it("shows the server rejection in a toast and preserves the profile draft", async () => {
+  vi.spyOn(gameApi, "profile").mockRejectedValue(
+    new Error("头像保存失败，请重试"),
+  );
+  editor();
+  fireEvent.change(screen.getByLabelText("显示昵称"), {
+    target: { value: "等待保存的旅人" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "保存资料" }));
+  await screen.findByText("资料保存失败");
+  const toast = screen.getByRole("listitem");
+  expect(within(toast).getByText("头像保存失败，请重试")).toBeVisible();
+  expect(screen.getByLabelText("显示昵称")).toHaveValue("等待保存的旅人");
+  expect(screen.getByRole("button", { name: "保存资料" })).toBeEnabled();
+});
 
 it("releases the avatar preview on unmount", async () => {
   const view = editor();

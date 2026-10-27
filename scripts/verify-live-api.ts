@@ -2,7 +2,9 @@ import { levelsResponseSchema } from "@/api/level.schema.ts";
 import { adaptLevelRecord } from "@/api/level.adapter.ts";
 
 const origin =
-  process.env.QUESTIONS_LOCAL_ORIGIN ?? "http://local.sitkin.top:5173";
+  process.env.STARWARD_LOCAL_ORIGIN ??
+  process.env.QUESTIONS_LOCAL_ORIGIN ??
+  "http://local.sitkin.top:5173";
 let input = "";
 process.stdin.setEncoding("utf8");
 for await (const chunk of process.stdin) input += chunk;

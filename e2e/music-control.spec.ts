@@ -1,12 +1,12 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   mockLegacyAudioPlayback,
-  mockQuestionsApi,
+  mockStarwardApi,
   enterGame,
 } from "@e2e/fixtures";
 
 test.beforeEach(async ({ page }) => {
-  await mockQuestionsApi(page, { bgm: true });
+  await mockStarwardApi(page, { bgm: true });
 });
 
 async function waitForControlMotion(control: Locator) {
@@ -108,7 +108,7 @@ for (const leaveHovered of [false, true]) {
     expect(draggedBox.x).toBeLessThanOrEqual(14);
 
     const storedPosition = await page.evaluate(() => {
-      const value = window.localStorage.getItem("questions:v1:bgm");
+      const value = window.localStorage.getItem("starward:v1:bgm");
       return value ? JSON.parse(value).position : null;
     });
     expect(storedPosition).toEqual({

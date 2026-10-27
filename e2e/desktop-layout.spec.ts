@@ -3,11 +3,12 @@ import {
   fulfillJson,
   login,
   mockLegacyAudioPlayback,
-  mockQuestionsApi,
+  mockStarwardApi,
   questions,
 } from "@e2e/fixtures";
 import { desktopAssignment, desktopLetter } from "@e2e/desktop-preview-data";
 import { makeNotifications } from "@/test/game-fixtures";
+import { visibleBox } from "@e2e/layout-assertions";
 
 async function expectPageFits(page: Page) {
   await expect
@@ -95,7 +96,7 @@ async function expectProfileActionsAligned(page: Page) {
 test("desktop profile exposes both editors at laptop sizes and retains drafts across the boundary", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await login(page, "/profile");
   for (const size of [
     { width: 1100, height: 700 },
@@ -177,7 +178,7 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
 test("desktop profile save buttons stay aligned when either editor shows feedback", async ({
   page,
 }) => {
-  const { player } = await mockQuestionsApi(page);
+  const { player } = await mockStarwardApi(page);
   await page.route("**/api/questions/v1/me/profile", (route) =>
     fulfillJson(route, { ...player, displayName: "更新后的旅人" }),
   );
@@ -195,13 +196,24 @@ test("desktop profile save buttons stay aligned when either editor shows feedbac
   await expect(page.locator("#password-validation")).toBeVisible();
   await expectProfileActionsAligned(page);
 
-  await page.getByLabel("上传头像").setInputFiles({
-    name: "bad.svg",
-    mimeType: "image/svg+xml",
-    buffer: Buffer.from("<svg />"),
-  });
-  await expect(page.locator(".profile-editor [role=alert]")).toBeVisible();
-  await expectProfileActionsAligned(page);
+  const toast = page.locator(".ui-toast");
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await page.getByLabel("上传头像").setInputFiles({
+      name: "bad.svg",
+      mimeType: "image/svg+xml",
+      buffer: Buffer.from("<svg />"),
+    });
+    await expect(page.locator(".profile-editor [role=alert]")).toBeVisible();
+    await expect(toast.locator(".ui-toast__title")).toHaveText("更换头像失败");
+    await expect(toast.locator(".ui-toast__description")).toHaveText(
+      "请选择 JPG、PNG 或 WebP 图片。",
+    );
+    await expect(toast).toBeInViewport({ ratio: 1 });
+    expect((await visibleBox(toast)).y).toBeLessThan(80);
+    await expectProfileActionsAligned(page);
+    await toast.getByRole("button", { name: "关闭更换头像失败" }).click();
+    await expect(toast).toBeHidden();
+  }
 
   await page.getByLabel("显示昵称", { exact: true }).fill("更新后的旅人");
   await page.getByRole("button", { name: "保存资料" }).click();
@@ -215,7 +227,7 @@ test("desktop profile save buttons stay aligned when either editor shows feedbac
 test("desktop keeps unlocked clues beside the current question, without revealing locked content", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   Object.assign(assignment, structuredClone(desktopAssignment), {
     id: "assignment1",
     player: "playeralice",
@@ -262,7 +274,7 @@ test("desktop keeps unlocked clues beside the current question, without revealin
 test("desktop clue index follows the auto-selected unlocked clue", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   Object.assign(assignment, structuredClone(desktopAssignment), {
     id: "assignment1",
     player: "playeralice",
@@ -308,7 +320,7 @@ test("completed desktop prioritizes narrative jumps and keeps the combined archi
   page,
 }) => {
   await mockLegacyAudioPlayback(page);
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   Object.assign(assignment, structuredClone(desktopAssignment), {
     id: "assignment1",
     player: "playeralice",
@@ -448,7 +460,7 @@ test("completed desktop prioritizes narrative jumps and keeps the combined archi
 test("desktop question growth stays inside its reading and answer panes", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   Object.assign(assignment, structuredClone(desktopAssignment), {
     id: "assignment1",
     player: "playeralice",
@@ -497,7 +509,7 @@ test("desktop question growth stays inside its reading and answer panes", async 
 test("long questions scroll independently while the answer action stays visible", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page, { single: true });
+  const { assignment } = await mockStarwardApi(page, { single: true });
   assignment.status = "active";
   assignment.startedAt = new Date().toISOString();
   assignment.levels[0].question = structuredClone(questions[0]);
@@ -527,7 +539,7 @@ test("long questions scroll independently while the answer action stays visible"
 test("many choices scroll inside the answer area without hiding submit", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   Object.assign(assignment, structuredClone(desktopAssignment), {
     id: "assignment1",
     player: "playeralice",
@@ -559,7 +571,7 @@ test("many choices scroll inside the answer area without hiding submit", async (
 test("desktop inbox keeps compact rows and offers read acknowledgement from its hover menu", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   const notes = Array.from({ length: 25 }, (_, i) => ({
     ...makeNotifications()[0],
     id: `note-${i}`,
@@ -596,7 +608,7 @@ for (const variant of ["modern", "classical", "magic"] as const) {
   test(`desktop ${variant} letter fits, paginates and keeps direct return visible`, async ({
     page,
   }) => {
-    await mockQuestionsApi(page);
+    await mockStarwardApi(page);
     await page.route(
       "**/api/questions/v1/assignments/assignment1/narratives/desktop-letter",
       (route) =>

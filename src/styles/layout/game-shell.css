@@ -30,6 +30,11 @@
   color: var(--color-accent-text);
   flex-shrink: 0;
 }
+.brand-mark {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+}
 .version-secret {
   width: 44px;
   height: 44px;

@@ -11,8 +11,13 @@ export function createBuildInfo(
   commit: string,
   builtAt = new Date().toISOString(),
 ): BuildInfo {
-  const release = env.QUESTIONS_RELEASE_NUMBER;
-  const attempt = env.QUESTIONS_RELEASE_ATTEMPT;
+  const isStarwardRelease = env.STARWARD_RELEASE_NUMBER !== undefined;
+  const release = isStarwardRelease
+    ? env.STARWARD_RELEASE_NUMBER
+    : env.QUESTIONS_RELEASE_NUMBER;
+  const attempt = isStarwardRelease
+    ? env.STARWARD_RELEASE_ATTEMPT
+    : env.QUESTIONS_RELEASE_ATTEMPT;
   if (
     release &&
     (!/^[1-9]\d*$/.test(release) || !/^[1-9]\d*$/.test(attempt ?? ""))

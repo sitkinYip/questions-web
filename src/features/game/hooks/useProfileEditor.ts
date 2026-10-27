@@ -11,7 +11,26 @@ export function useProfileEditor() {
     null,
   );
   const [validation, setValidation] = useState("");
+  const [errorToast, setErrorToast] = useState<{
+    id: number;
+    title: string;
+    description: string;
+  } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  function notifyError(title: string, description: string) {
+    setErrorToast((previous) => ({
+      id: (previous?.id ?? 0) + 1,
+      title,
+      description,
+    }));
+  }
+  function reportAvatarError(message: string) {
+    setValidation(message);
+    notifyError(uiCopy.profileEditor.avatarFailed, message);
+  }
+  function dismissErrorToast() {
+    setErrorToast(null);
+  }
   useEffect(() => {
     return () => {
       if (upload) URL.revokeObjectURL(upload.url);
@@ -25,6 +44,9 @@ export function useProfileEditor() {
       setUpload(null);
       if (fileInput.current) fileInput.current.value = "";
     },
+    onError: (error) => {
+      notifyError(uiCopy.profileEditor.saveFailed, error.message);
+    },
   });
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -37,6 +59,7 @@ export function useProfileEditor() {
     form.set("displayName", name.trim());
     if (upload) form.set("avatar", upload.file);
     setValidation("");
+    dismissErrorToast();
     mutation.mutate(form);
   }
   return {
@@ -48,6 +71,9 @@ export function useProfileEditor() {
     setUpload,
     validation,
     setValidation,
+    errorToast,
+    reportAvatarError,
+    dismissErrorToast,
     fileInput,
     mutation,
     submit,

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { enterGame, login, mockQuestionsApi } from "@e2e/fixtures";
+import { enterGame, login, mockStarwardApi } from "@e2e/fixtures";
 import { imageAssignment } from "@e2e/question-image-fixtures";
 
 // Device emulation does not expose a physical notch. Exercise the same tokens
@@ -23,7 +23,7 @@ for (const withImage of [false, true]) {
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 390, height: 932 });
-    const { assignment } = await mockQuestionsApi(page);
+    const { assignment } = await mockStarwardApi(page);
     Object.assign(assignment, structuredClone(imageAssignment), {
       id: "assignment1",
       player: "playeralice",
@@ -55,7 +55,7 @@ for (const single of [true, false]) {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 664 });
-    await mockQuestionsApi(page, { single });
+    await mockStarwardApi(page, { single });
     await enterGame(page);
     await expect(page.locator(".game-play-context")).toHaveCount(0);
     await expect(page.getByText("场次详情", { exact: true })).toHaveCount(0);
@@ -87,7 +87,7 @@ for (const viewport of [
   }) => {
     await page.setViewportSize(viewport);
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const { player } = await mockQuestionsApi(page);
+    const { player } = await mockStarwardApi(page);
     player.displayName = "星图尽头仍在寻找答案的远航者";
     player.nextLevel = {
       ...player.level,
@@ -182,7 +182,7 @@ test("an open sidebar adapts across height thresholds without losing actions or 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 1200 });
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await login(page);
   await expect(page.locator(".game-topbar")).toBeVisible();
@@ -227,7 +227,7 @@ test("question top spacing takes the larger inset and never reserves a bottom ta
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 664 });
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await enterGame(page);
   for (const inset of [0, 12, 44, 59]) {
     await setSafeInsets(page, inset, 34);
@@ -252,7 +252,7 @@ test("question top spacing takes the larger inset and never reserves a bottom ta
 test("login and lobby preserve ordinary header spacing and clear a notch", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await page.goto("/login");
   for (const width of [390, 700, 1280]) {
     await page.setViewportSize({ width, height: 900 });
@@ -320,7 +320,7 @@ test("mobile navigation uses a frosted glass and an unframed breathing icon", as
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await login(page);
   const navigation = page.getByRole("navigation", { name: "冒险导航" });
   const home = navigation.getByRole("link", { name: "启程" });
@@ -347,7 +347,7 @@ test("bottom navigation only commits a valid release and ignores gaps or oversho
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await login(page);
   const nav = page.getByRole("navigation", { name: "冒险导航" });
   const links = nav.getByRole("link");
@@ -426,7 +426,7 @@ test.describe("touch navigation", () => {
       "Chromium CDP provides real touch movement",
     );
     await page.setViewportSize({ width: 390, height: 844 });
-    await mockQuestionsApi(page);
+    await mockStarwardApi(page);
     await login(page);
     const nav = page.getByRole("navigation", { name: "冒险导航" });
     const links = nav.getByRole("link");

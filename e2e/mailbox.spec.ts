@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { fulfillJson, login, mockStarwardApi } from "@e2e/fixtures";
 import { makeNotifications } from "@/test/game-fixtures";
 
 test("star letters collect unlocked narratives and return to their mailbox tab", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page, { completed: true });
+  const { assignment } = await mockStarwardApi(page, { completed: true });
   assignment.clues = [
     {
       id: "blessing",
@@ -53,7 +53,7 @@ test("touch swipe reveals acceptance and long mail stays compact in both themes"
     isMobile: true,
   });
   const page = await context.newPage();
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   const notes = makeNotifications();
   notes[0].content = "这是一封很长的来信。".repeat(200);
   let reads = 0;

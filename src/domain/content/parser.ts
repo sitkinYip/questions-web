@@ -35,7 +35,7 @@ export function withSafeQuery(
 ): SafeUrl | null {
   const safeUrl = classifySafeUrl(rawUrl);
   if (!safeUrl) return null;
-  const url = new URL(safeUrl.href, "https://questions.local");
+  const url = new URL(safeUrl.href, "https://starward.local");
   for (const [key, value] of Object.entries(query)) {
     url.searchParams.set(key, value);
   }

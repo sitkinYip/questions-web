@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "赴星之约",
+  "short_name": "赴星之约",
+  "description": "向着星辰的冒险。循着线索，赴一场为你准备的星辰之约。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#07090e",
+  "icons": [
+    {
+      "src": "branding/starward-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "branding/starward-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

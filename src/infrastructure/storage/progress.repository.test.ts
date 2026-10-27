@@ -37,6 +37,28 @@ const quest: Quest = {
 };
 
 describe("progress repository", () => {
+  it("migrates a Questions attempt without losing progress or penalty state", () => {
+    const storage = new MemoryStorage();
+    const previous = {
+      questId: quest.id,
+      status: "penalized",
+      input: "B",
+      wrongCount: 3,
+      penaltyEndsAt: -1,
+      completedAt: null,
+    };
+    const oldKey = "questions:v1:attempt:alice:3:revision";
+    storage.setItem(oldKey, JSON.stringify({ version: 1, attempt: previous }));
+    expect(createProgressRepository(storage).load(quest, "alice")).toEqual(
+      previous,
+    );
+    expect(storage.getItem(oldKey)).toBeNull();
+    expect(
+      JSON.parse(storage.getItem(progressKey(quest, "alice")) ?? "null")
+        .attempt,
+    ).toEqual(previous);
+  });
+
   it("migrates a legacy completion record to the versioned key", () => {
     const storage = new MemoryStorage();
     storage.setItem(

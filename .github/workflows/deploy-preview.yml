@@ -1,9 +1,9 @@
-name: Deploy Questions Preview
+name: Deploy Starward Preview
 
 on:
   workflow_run:
     workflows:
-      - CI
+      - Starward CI
     branches:
       - main
     types:
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: questions-preview
+  group: starward-preview
   cancel-in-progress: false
 
 jobs:
@@ -29,15 +29,15 @@ jobs:
     timeout-minutes: 15
     environment: preview
     env:
-      QUESTIONS_RELEASE_NUMBER: ${{ github.run_number }}
-      QUESTIONS_RELEASE_ATTEMPT: ${{ github.run_attempt }}
+      STARWARD_RELEASE_NUMBER: ${{ github.run_number }}
+      STARWARD_RELEASE_ATTEMPT: ${{ github.run_attempt }}
       REMOTE_HOST: ${{ secrets.HOST }}
       REMOTE_USER: ${{ secrets.USERNAME }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
       SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
       SSH_PORT: ${{ vars.SSH_PORT || '22' }}
-      QUESTIONS_ROOT: ${{ secrets.QUESTIONS_ROOT }}
-      VITE_POCKETBASE_URL: ${{ vars.QUESTIONS_POCKETBASE_URL || 'https://api.sitkin.top' }}
+      STARWARD_ROOT: ${{ secrets.STARWARD_ROOT || secrets.QUESTIONS_ROOT }}
+      VITE_POCKETBASE_URL: ${{ vars.STARWARD_POCKETBASE_URL || vars.QUESTIONS_POCKETBASE_URL || 'https://api.sitkin.top' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -77,8 +77,8 @@ jobs:
           test -n "$REMOTE_USER"
           test -n "$SSH_PRIVATE_KEY"
           test -n "$SSH_KNOWN_HOSTS"
-          test -n "$QUESTIONS_ROOT"
-          test "${QUESTIONS_ROOT#/}" != "$QUESTIONS_ROOT"
+          test -n "$STARWARD_ROOT"
+          test "${STARWARD_ROOT#/}" != "$STARWARD_ROOT"
           install -d -m 700 "$HOME/.ssh"
           printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
@@ -86,7 +86,7 @@ jobs:
 
       - name: Deploy preview files
         run: |
-          remote_path="${QUESTIONS_ROOT%/}/questions-next"
+          remote_path="${STARWARD_ROOT%/}/questions-next"
           ssh -p "$SSH_PORT" -i "$HOME/.ssh/id_ed25519" \
             "$REMOTE_USER@$REMOTE_HOST" "mkdir -p -- '$remote_path'"
           rsync --archive --compress --delete \
@@ -105,7 +105,7 @@ jobs:
           for url in "${urls[@]}"; do
             html="$(curl --fail --silent --show-error --retry 5 --retry-all-errors "$url")"
             if ! printf '%s' "$html" | grep -Fq '/questions-next/assets/'; then
-              echo "Preview route did not return the Questions HTML: $url" >&2
+              echo "Preview route did not return the Starward HTML: $url" >&2
               exit 1
             fi
           done

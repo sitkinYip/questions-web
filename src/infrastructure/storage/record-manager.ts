@@ -1,6 +1,10 @@
 import { z } from "zod";
 import type { QuestAttempt } from "@/domain/quest/types";
 import { parseStoredAttempt } from "@/infrastructure/storage/progress.repository";
+import {
+  removeStorageItem,
+  writeStorageItem,
+} from "@/infrastructure/storage/namespace";
 
 export interface EnumerableStorage {
   readonly length: number;
@@ -84,7 +88,9 @@ function parseCurrentAttempt(
   key: string,
   storage: EnumerableStorage,
 ): LocalQuestionRecord | null {
-  const match = /^questions:v1:attempt:([^:]*):(\d+):(.*)$/.exec(key);
+  const match = /^(?:starward|questions):v1:attempt:([^:]*):(\d+):(.*)$/.exec(
+    key,
+  );
   if (!match) return null;
   const attempt = parseStoredAttempt(storage.getItem(key));
   return {
@@ -204,7 +210,7 @@ export function scanLocalQuestionRecords(
             isCorrupt: false,
           } satisfies LocalQuestionRecord)
         : null) ??
-      (key === "questions:v1:bgm"
+      (key === "starward:v1:bgm" || key === "questions:v1:bgm"
         ? ({
             key,
             kind: "audio-preference",
@@ -254,7 +260,7 @@ export function deleteLocalRecords(
   storage: EnumerableStorage,
   keys: readonly string[],
 ) {
-  for (const key of keys) storage.removeItem(key);
+  for (const key of keys) removeStorageItem(storage, key);
 }
 
 export function clearRecordPenalty(
@@ -276,6 +282,10 @@ export function clearRecordPenalty(
           : "unanswered",
     penaltyEndsAt: null,
   };
-  storage.setItem(record.key, JSON.stringify({ version: 1, attempt }));
+  writeStorageItem(
+    storage,
+    record.key,
+    JSON.stringify({ version: 1, attempt }),
+  );
   return true;
 }

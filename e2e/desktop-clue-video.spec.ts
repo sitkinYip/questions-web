@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { login, mockQuestionsApi } from "@e2e/fixtures";
+import { login, mockStarwardApi } from "@e2e/fixtures";
 import { desktopAssignment, desktopVideoClue } from "@e2e/desktop-preview-data";
 
 for (const theme of ["light", "dark"] as const) {
@@ -9,7 +9,7 @@ for (const theme of ["light", "dark"] as const) {
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 1280, height: 720 });
-    const { assignment } = await mockQuestionsApi(page);
+    const { assignment } = await mockStarwardApi(page);
     Object.assign(assignment, structuredClone(desktopAssignment), {
       id: "assignment1",
       player: "playeralice",

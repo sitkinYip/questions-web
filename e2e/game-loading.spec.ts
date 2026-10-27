@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { fulfillJson, login, mockStarwardApi } from "@e2e/fixtures";
 import { desktopAssignment } from "@e2e/desktop-preview-data";
 
 function deferred() {
@@ -15,7 +15,7 @@ for (const theme of ["light", "dark"] as const) {
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const { player, assignment } = await mockQuestionsApi(page);
+    const { player, assignment } = await mockStarwardApi(page);
     Object.assign(assignment, structuredClone(desktopAssignment), {
       id: "assignment1",
       player: player.id,
@@ -106,7 +106,7 @@ test("narrative loading retains navigation, yields to errors and retries into th
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   const narrativeReady = deferred();
   let shouldFail = true;
   await page.route(

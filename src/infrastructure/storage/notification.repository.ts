@@ -1,8 +1,12 @@
+import {
+  readStorageItem,
+  writeStorageItem,
+} from "@/infrastructure/storage/namespace";
 import { z } from "zod";
 
 export const NOTIFICATION_SEEN_IDS_KEY = "notification_seen_ids";
 export const NOTIFICATION_LAUNCHER_POSITION_KEY =
-  "questions:v1:notification-launcher";
+  "starward:v1:notification-launcher";
 
 const seenIdsSchema = z.array(z.string().min(1));
 const launcherPositionSchema = z.object({
@@ -50,7 +54,10 @@ export function createNotificationLauncherPositionRepository(
   return {
     load(): NotificationLauncherPosition | null {
       try {
-        const raw = storage.getItem(NOTIFICATION_LAUNCHER_POSITION_KEY);
+        const raw = readStorageItem(
+          storage,
+          NOTIFICATION_LAUNCHER_POSITION_KEY,
+        );
         if (!raw) return null;
         const parsed = launcherPositionSchema.safeParse(JSON.parse(raw));
         return parsed.success ? parsed.data : null;
@@ -59,7 +66,8 @@ export function createNotificationLauncherPositionRepository(
       }
     },
     save(position: NotificationLauncherPosition) {
-      storage.setItem(
+      writeStorageItem(
+        storage,
         NOTIFICATION_LAUNCHER_POSITION_KEY,
         JSON.stringify(position),
       );

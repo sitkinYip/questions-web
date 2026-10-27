@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi, enterGame } from "@e2e/fixtures";
+import { mockStarwardApi, enterGame } from "@e2e/fixtures";
 
 test("next question scrolls into view after an autoplay clue closes", async ({
   page,
 }) => {
-  await mockQuestionsApi(page, { autoNext: true, autoClue: true });
+  await mockStarwardApi(page, { autoNext: true, autoClue: true });
   await enterGame(page);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
@@ -23,7 +23,7 @@ test("active tab stays visible and completed questions remain swipeable", async 
 }) => {
   test.setTimeout(60000);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await mockQuestionsApi(page, { count: 10 });
+  await mockStarwardApi(page, { count: 10 });
   await enterGame(page);
   for (let index = 0; index < 5; index++) {
     await page.getByPlaceholder("输入你的答案").fill("星辰大海");

@@ -211,7 +211,7 @@ export function ClearCachePage() {
             }
           >
             <option value="all">
-              {uiCopy.clearCachePage.allQuestionsRecords}
+              {uiCopy.clearCachePage.allStarwardRecords}
             </option>
             <option value="progress">{uiCopy.clearCachePage.progress}</option>
             <option value="penalty">{uiCopy.clearCachePage.penalty}</option>

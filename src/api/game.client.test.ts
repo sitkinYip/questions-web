@@ -30,6 +30,66 @@ afterEach(() => {
 });
 
 describe("authenticated game transport", () => {
+  it("restores legacy authentication and does not resurrect it after logout", () => {
+    const previous = { token: "previous-token", playerId: "alice" };
+    localStorage.setItem("questions:v2:auth", JSON.stringify(previous));
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "questions:v2:auth" }),
+    );
+    expect(authState.get()).toEqual(previous);
+    expect(
+      JSON.parse(localStorage.getItem("starward:v2:auth") ?? "null"),
+    ).toEqual(previous);
+    expect(localStorage.getItem("questions:v2:auth")).toBeNull();
+
+    // A stale tab may still hold an old-namespace record when the user logs out.
+    localStorage.setItem("questions:v2:auth", JSON.stringify(previous));
+    authState.set(null);
+    expect(localStorage.getItem("starward:v2:auth")).toBeNull();
+    expect(localStorage.getItem("questions:v2:auth")).toBeNull();
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "starward:v2:auth" }),
+    );
+    expect(authState.get()).toBeNull();
+  });
+
+  it("prefers canonical authentication when an old-namespace event arrives", () => {
+    const current = { token: "new-token", playerId: "bob" };
+    authState.set(current);
+    localStorage.setItem(
+      "questions:v2:auth",
+      JSON.stringify({ token: "old-token", playerId: "alice" }),
+    );
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: "questions:v2:auth" }),
+    );
+    expect(authState.get()).toEqual(current);
+  });
+
+  it("shadows a legacy token when its removal is blocked during logout", () => {
+    const previous = { token: "previous-token", playerId: "alice" };
+    authState.set(previous);
+    localStorage.setItem("questions:v2:auth", JSON.stringify(previous));
+    const nativeRemove = Storage.prototype.removeItem;
+    const remove = vi
+      .spyOn(Storage.prototype, "removeItem")
+      .mockImplementation(function (this: Storage, key: string) {
+        if (key === "questions:v2:auth") throw new Error("cleanup blocked");
+        nativeRemove.call(this, key);
+      });
+    try {
+      authState.set(null);
+      expect(localStorage.getItem("questions:v2:auth")).not.toBeNull();
+      expect(localStorage.getItem("starward:v2:auth")).toBe("null");
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: "starward:v2:auth" }),
+      );
+      expect(authState.get()).toBeNull();
+    } finally {
+      remove.mockRestore();
+    }
+  });
+
   it("logs in with the account, validates the profile, and never stores the password", async () => {
     const fetcher = vi
       .fn()
@@ -47,7 +107,7 @@ describe("authenticated game transport", () => {
       token: "alice-token",
       playerId: "alice",
     });
-    expect(localStorage.getItem("questions:v2:auth")).not.toContain(
+    expect(localStorage.getItem("starward:v2:auth")).not.toContain(
       "private-password",
     );
   });

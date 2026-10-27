@@ -1,3 +1,7 @@
+import {
+  readStorageItem,
+  writeStorageItem,
+} from "@/infrastructure/storage/namespace";
 import { z } from "zod";
 import { createEmptyAttempt } from "@/domain/quest/session";
 import type { Quest, QuestAttempt } from "@/domain/quest/types";
@@ -30,7 +34,7 @@ const legacyPenaltySchema = z.object({
 });
 
 export const progressKey = (quest: Quest, userId: string) =>
-  `questions:v1:attempt:${userId}:${quest.step}:${quest.revision}`;
+  `starward:v1:attempt:${userId}:${quest.step}:${quest.revision}`;
 export const legacyCompletionKey = (quest: Quest, userId: string) =>
   `qaIndex${quest.step}${userId}${quest.revision}`;
 export const legacyPenaltyKey = (quest: Quest, userId: string) =>
@@ -52,13 +56,14 @@ export function parseStoredAttempt(raw: string | null): QuestAttempt | null {
 
 export function createProgressRepository(storage: KeyValueStorage) {
   const save = (quest: Quest, userId: string, attempt: QuestAttempt) =>
-    storage.setItem(
+    writeStorageItem(
+      storage,
       progressKey(quest, userId),
       JSON.stringify({ version: 1, attempt }),
     );
   const load = (quest: Quest, userId: string): QuestAttempt => {
     const current = parseStoredAttempt(
-      storage.getItem(progressKey(quest, userId)),
+      readStorageItem(storage, progressKey(quest, userId)),
     );
     if (current) return current;
 

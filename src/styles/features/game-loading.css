@@ -39,7 +39,7 @@
   font: 600 15px/1.4 var(--font-display);
   letter-spacing: 0.18em;
 }
-.game-loading-screen__brand svg {
+.game-loading-screen__brand .brand-mark {
   width: 30px;
   height: 30px;
 }

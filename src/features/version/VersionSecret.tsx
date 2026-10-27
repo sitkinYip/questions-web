@@ -1,6 +1,7 @@
 import { uiCopy } from "@/config/ui-copy";
 import { useRef, useState } from "react";
-import { CompassIcon, StarFourIcon, XIcon } from "@phosphor-icons/react";
+import { StarFourIcon, XIcon } from "@phosphor-icons/react";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { AppDialog } from "@/components/ui/Dialog";
 import { overlayPriority } from "@/components/ui/overlay-context";
 
@@ -33,7 +34,7 @@ export function VersionSecret() {
           }
         }}
       >
-        <CompassIcon weight="thin" aria-hidden="true" />
+        <BrandMark />
         {pulse > 0 && (
           <i key={pulse} className="version-secret__pulse" aria-hidden="true" />
         )}
@@ -59,7 +60,7 @@ export function VersionSecret() {
           <i />
           <i />
           <i />
-          <CompassIcon weight="thin" />
+          <BrandMark size={72} />
         </div>
         <p className="version-eyebrow">{uiCopy.versionSecret.eyebrow}</p>
         <h2>{uiCopy.versionSecret.title}</h2>

@@ -5,6 +5,7 @@ import { uiCopy } from "@/config/ui-copy";
 import { UploadSimpleIcon, CheckIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/FormControls";
+import { AppToast } from "@/components/ui/Toast";
 import { PlayerAvatar } from "@/features/game/components/PlayerPassport";
 import { GameFailure } from "@/features/game/components/GameState";
 
@@ -26,6 +27,9 @@ export function ProfileEditor({
     setUpload,
     validation,
     setValidation,
+    errorToast,
+    reportAvatarError,
+    dismissErrorToast,
     fileInput,
     mutation,
     submit,
@@ -80,11 +84,12 @@ export function ProfileEditor({
                   mutation.reset();
                   if (error) {
                     setUpload(null);
-                    setValidation(error);
+                    reportAvatarError(error);
                     event.target.value = "";
                     return;
                   }
                   setValidation("");
+                  dismissErrorToast();
                   setLoadingCrop(true);
                   try {
                     const module = await import("./AvatarCropDialog");
@@ -93,7 +98,7 @@ export function ProfileEditor({
                     setSelectedFile(selected);
                   } catch {
                     if (request === selection.current)
-                      setValidation(uiCopy.avatarCrop.loadFailed);
+                      reportAvatarError(uiCopy.avatarCrop.loadFailed);
                   } finally {
                     if (request === selection.current) setLoadingCrop(false);
                   }
@@ -153,6 +158,17 @@ export function ProfileEditor({
             : uiCopy.profileEditor.save}
         </Button>
       </form>
+      {errorToast && (
+        <AppToast
+          key={errorToast.id}
+          open
+          onOpenChange={(open) => {
+            if (!open) dismissErrorToast();
+          }}
+          title={errorToast.title}
+          description={errorToast.description}
+        />
+      )}
       {cropSnapshot.value && CropDialog && (
         <CropDialog
           file={cropSnapshot.value}

@@ -8,7 +8,7 @@ vi.mock("@/api/client", () => ({
   fetchQuests: vi.fn().mockResolvedValue([]),
 }));
 
-const key = "questions:v1:attempt:alice:11:r1";
+const key = "starward:v1:attempt:alice:11:r1";
 const attempt = {
   questId: "quest-11",
   status: "penalized",

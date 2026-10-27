@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi, enterGame, login } from "@e2e/fixtures";
+import { mockStarwardApi, enterGame, login } from "@e2e/fixtures";
 
 test.beforeEach(async ({ page }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
 });
 
 test("follows the device theme and persists an avatar-menu override", async ({

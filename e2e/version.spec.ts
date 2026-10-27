@@ -1,14 +1,14 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi } from "@e2e/fixtures";
+import { mockStarwardApi } from "@e2e/fixtures";
 
 test.describe("hidden version archive", () => {
   test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
   test("five taps reveal build details and closing restores focus", async ({
     page,
   }) => {
-    await mockQuestionsApi(page);
+    await mockStarwardApi(page);
     await page.goto("/login");
-    const trigger = page.getByRole("button", { name: "Questions · 星图" });
+    const trigger = page.getByRole("button", { name: "赴星之约 · 星图" });
     for (let i = 0; i < 4; i++) await trigger.tap();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await trigger.tap();
@@ -30,10 +30,10 @@ test.describe("hidden version archive", () => {
   test("archive effects never create horizontal scrolling at narrow or short sizes", async ({
     page,
   }) => {
-    await mockQuestionsApi(page);
+    await mockStarwardApi(page);
     await page.goto("/login");
     for (let i = 0; i < 5; i++)
-      await page.getByRole("button", { name: "Questions · 星图" }).tap();
+      await page.getByRole("button", { name: "赴星之约 · 星图" }).tap();
     const dialog = page.getByRole("dialog", { name: "星图档案" });
     await expect(dialog).toBeVisible();
     for (const size of [

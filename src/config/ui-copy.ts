@@ -58,8 +58,8 @@ const common = {
   gameSidebarBackToQuest: "返回答题",
   backHint: "接着刚才的线索继续",
   logout: "退出登录",
-  brand: "QUESTIONS",
-  tagline: "答案之外 · 另有天地",
+  brand: "赴星之约",
+  tagline: "向着星辰的冒险",
   gameSidebarIdentityLabel: "冒险者名片",
   gameSidebarIdentityTitle: "冒险者护照",
   read: "已收下",
@@ -85,8 +85,9 @@ const common = {
 
 export const uiCopy = {
   document: {
-    title: "向着星辰的冒险",
-    description: "答案之外，另有天地。循着线索，走进属于你的解谜故事。",
+    title: common.brand,
+    description:
+      "赴星之约，一场向着星辰的冒险。循着线索，走进属于你的解谜故事。",
   },
   // src/api/client.ts
   client: {
@@ -264,7 +265,7 @@ export const uiCopy = {
     eyebrow: "Local memory ledger",
     title: "本地记录管理",
     description:
-      "仅管理 Questions 已知命名空间；同域名下其他应用的数据不会出现在这里。",
+      "仅管理「赴星之约」的本地记录；同域名下其他应用的数据不会出现在这里。",
     back: common.back,
     metadataFailed:
       "无法读取最新题目元数据；新版记录仍可管理，部分旧记录可能无法识别 step。",
@@ -275,7 +276,7 @@ export const uiCopy = {
     damagedRecords: "损坏记录",
     filterLabel: "筛选本地记录",
     recordType: "记录类型",
-    allQuestionsRecords: "全部 Questions 记录",
+    allStarwardRecords: "全部「赴星之约」记录",
     progress: common.progress,
     penalty: "惩罚记录",
     rankAnimation: "等级动画",
@@ -306,7 +307,7 @@ export const uiCopy = {
     deleteHeading: "确认删除本地记录？",
     releaseHeading: "确认解除惩罚？",
     affectedCount: (length: string | number | null | undefined) =>
-      `将影响 ${length} 条明确列出的 Questions 记录。`,
+      `将影响 ${length} 条明确列出的「赴星之约」记录。`,
     irreversible: "删除后无法从浏览器恢复。",
     cancel: "取消",
     confirmDelete: "确认删除",
@@ -482,7 +483,7 @@ export const uiCopy = {
   },
   // src/features/game/components/GameLayout.tsx
   gameLayout: {
-    homeLabel: "Questions · 回到启程",
+    homeLabel: "赴星之约 · 回到启程",
     brand: common.brand,
     tagline: common.tagline,
     skipContent: "跳到主要内容",
@@ -595,6 +596,8 @@ export const uiCopy = {
   profileEditor: {
     changeAvatar: "更换头像",
     uploadAvatar: "上传头像",
+    avatarFailed: "更换头像失败",
+    saveFailed: "资料保存失败",
     avatarHint: "JPG / PNG / WebP · 原图最大 50 MB，裁剪后自动压缩",
     selectedFile: (name: string | number | null | undefined) =>
       `已选择：${name}`,
@@ -933,7 +936,7 @@ export const uiCopy = {
   },
   // src/features/quest/QuestEntryPage.tsx
   questEntryPage: {
-    eyebrow: "Questions",
+    eyebrow: common.brand,
     loadingTitle: "正在读取冒险记录",
     loadingDescription: "通过 local.sitkin.top 连接 PocketBase…",
     notFoundEyebrow: "Quest not found",
@@ -979,11 +982,11 @@ export const uiCopy = {
     preview: "预览航线",
     production: "正式航线",
     local: "本地星图",
-    label: "Questions · 星图",
+    label: "赴星之约 · 星图",
     title: common.versionSecretTitle,
     description: "当前页面的版本与构建信息",
     close: "关闭星图档案",
-    eyebrow: "QUESTIONS · HIDDEN ARCHIVE",
+    eyebrow: "赴星之约 · 隐藏档案",
     caption: "你找到了，故事背后的坐标。",
     version: (version: string | number | null | undefined) => `v${version}`,
     commit: "提交坐标",

@@ -1,3 +1,7 @@
+import {
+  readStorageItem,
+  writeStorageItem,
+} from "@/infrastructure/storage/namespace";
 import { z } from "zod";
 import type { KeyValueStorage } from "@/infrastructure/storage/progress.repository";
 
@@ -5,12 +9,15 @@ const openedNarrativeIdsSchema = z.array(z.string().min(1));
 const maxRememberedNarratives = 128;
 
 export const narrativeAttentionKey = (userId: string, assignmentId: string) =>
-  `questions:v1:narrative-attention:${encodeURIComponent(userId || "anonymous")}:${encodeURIComponent(assignmentId)}`;
+  `starward:v1:narrative-attention:${encodeURIComponent(userId || "anonymous")}:${encodeURIComponent(assignmentId)}`;
 
 export function createNarrativeAttentionRepository(storage: KeyValueStorage) {
   const load = (userId: string, assignmentId: string) => {
     try {
-      const raw = storage.getItem(narrativeAttentionKey(userId, assignmentId));
+      const raw = readStorageItem(
+        storage,
+        narrativeAttentionKey(userId, assignmentId),
+      );
       if (!raw) return new Set<string>();
       const parsed = openedNarrativeIdsSchema.safeParse(JSON.parse(raw));
       return new Set(parsed.success ? parsed.data : []);
@@ -24,7 +31,8 @@ export function createNarrativeAttentionRepository(storage: KeyValueStorage) {
     markOpened(userId: string, assignmentId: string, clueId: string) {
       try {
         const opened = [...load(userId, assignmentId), clueId];
-        storage.setItem(
+        writeStorageItem(
+          storage,
           narrativeAttentionKey(userId, assignmentId),
           JSON.stringify([...new Set(opened)].slice(-maxRememberedNarratives)),
         );

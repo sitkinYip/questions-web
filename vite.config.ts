@@ -37,10 +37,10 @@ export default defineConfig(({ mode }) => {
               .replaceAll("<", "&lt;")
               .replaceAll(">", "&gt;");
           return html
-            .replace("__UI_COPY_TITLE__", () =>
+            .replaceAll("__UI_COPY_TITLE__", () =>
               escapeHtml(uiCopy.document.title),
             )
-            .replace("__UI_COPY_DESCRIPTION__", () =>
+            .replaceAll("__UI_COPY_DESCRIPTION__", () =>
               escapeHtml(uiCopy.document.description),
             );
         },

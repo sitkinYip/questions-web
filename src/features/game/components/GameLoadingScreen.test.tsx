@@ -21,7 +21,14 @@ describe("GameLoadingScreen", () => {
       expect(
         container.querySelector(".game-loading-screen__art"),
       ).toHaveAttribute("aria-hidden", "true");
-      expect(container.querySelectorAll("img, video, audio")).toHaveLength(0);
+      expect(
+        container.querySelector(".game-loading-screen__brand img"),
+      ).toHaveAttribute("src", "/branding/starward-mark-96.png");
+      expect(
+        container.querySelectorAll(
+          ".game-loading-screen__art img, video, audio",
+        ),
+      ).toHaveLength(0);
     },
   );
 

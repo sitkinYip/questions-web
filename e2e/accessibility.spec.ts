@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { mockQuestionsApi, enterGame } from "@e2e/fixtures";
+import { mockStarwardApi, enterGame } from "@e2e/fixtures";
 
 test.beforeEach(async ({ page }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
 });
 
 test("visual identity fields render and media dialog restores keyboard focus", async ({

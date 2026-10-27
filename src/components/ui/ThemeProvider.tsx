@@ -19,6 +19,7 @@ import {
   type ThemePreference,
 } from "@/shared/theme/theme";
 import { ThemeContext } from "@/components/ui/theme-context";
+import { legacyStorageKey } from "@/infrastructure/storage/namespace";
 
 function readSystemTheme(): ResolvedTheme {
   if (typeof window.matchMedia !== "function") return "dark";
@@ -68,7 +69,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
-      if (event.key === THEME_PREFERENCES_KEY)
+      if (
+        event.key === THEME_PREFERENCES_KEY ||
+        event.key === legacyStorageKey(THEME_PREFERENCES_KEY) ||
+        event.key === null
+      )
         setStoredPreference(repository.load());
     };
     window.addEventListener("storage", onStorage);

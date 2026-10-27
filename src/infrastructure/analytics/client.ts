@@ -29,7 +29,7 @@ function browserTransport(): AnalyticsTransport {
 function fallbackSessionId() {
   if (typeof crypto !== "undefined" && crypto.randomUUID)
     return crypto.randomUUID();
-  return `questions-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return `starward-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 export function summarizeAnalyticsEvent(event: AnalyticsEvent): string {

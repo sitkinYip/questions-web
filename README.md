@@ -1,6 +1,14 @@
-# questions-web
+# Starward · 赴星之约
 
-Questions 的独立 React 游戏工程，正式玩家入口为 https://sitkin.top/questions/。
+Starward 是「赴星之约」的独立 React 冒险游戏工程，正式玩家入口为 https://sitkin.top/questions/。
+
+## 品牌与兼容标识
+
+工程及包名统一使用 `starward`，中文界面、浏览器标题和主屏幕名称使用「赴星之约」，「向着星辰的冒险」作为副标题。浏览器与手机主屏幕采用已选定的黑底星尘图标：原稿位于 `design/branding/starward-icon-master.png`，入口使用 `public/branding/starward-icon-{32,48,180,192,512}.png`。页面内的页头、加载页和版本弹层使用 `public/branding/starward-mark-{96,192}.png` 透明标志，保留原图的星形、星环、冰蓝渐变及左下轻擦效果，直接融入明暗主题背景。
+
+线上 `/questions/`、预览 `/questions-next/` 和后端 `/api/questions/v1` 是既有部署与接口契约，品牌更名继续兼容这些地址。本地仓库目录、历史备份与部署记录中的实际名称按原记录保留。
+
+本地存储统一使用 `starward:*` 命名空间，首次读取时迁移旧 `questions:*` 数据，保留登录、偏好和记录；退出时同时清除新旧认证缓存。
 
 ## 当前状态
 
@@ -66,16 +74,16 @@ pnpm build:preview
 pnpm build:production
 ```
 
-GitHub Actions 默认使用线上 API，不再要求迁移期间的 `QUESTIONS_BACKEND_V1_READY` 变量。仅当目标接口不同于线上时，才在对应 Environment 设置可选变量 `QUESTIONS_POCKETBASE_URL`（HTTPS 根地址）。部署前会无凭据、只读探测新 API；普通本地构建不做网络探测。
+GitHub Actions 默认使用线上 API。仅当目标接口不同于线上时，才在对应 Environment 设置可选变量 `STARWARD_POCKETBASE_URL`（HTTPS 根地址）；既有 `QUESTIONS_POCKETBASE_URL` 仍作为回退兼容。部署前会无凭据、只读探测新 API；普通本地构建不做网络探测。
 
-push 到 `main` 并通过 CI 后，由 `Deploy Questions Preview` 工作流发布预览环境，也可手动触发。PR 检查不会触发发布。
+push 到 `main` 并通过 `Starward CI` 后，由 `Deploy Starward Preview` 工作流发布预览环境，也可手动触发。PR 检查不会触发发布。
 GitHub 的 `preview` Environment 需要配置 `HOST`、`USERNAME`、`SSH_KEY`、
-`SSH_KNOWN_HOSTS` 和 `QUESTIONS_ROOT` Secrets；可选的 `SSH_PORT` 配置为
-Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next/`，
+`SSH_KNOWN_HOSTS` 和 `STARWARD_ROOT` Secrets；既有 `QUESTIONS_ROOT` 仍作为根目录回退。可选的 `SSH_PORT` 配置为
+Environment Variable。工作流只会同步到 `<STARWARD_ROOT>/questions-next/`，
 不会写入主页部署目录。
 
-正式环境通过 `Deploy Questions Production` 工作流手动发布。运行时必须勾选确认项；
-工作流固定构建 `main` 最新提交并同步到 `<QUESTIONS_ROOT>/questions/`，只验证服务器文件，
+正式环境通过 `Deploy Starward Production` 工作流手动发布。运行时必须勾选确认项；
+工作流固定构建 `main` 最新提交并同步到 `<STARWARD_ROOT>/questions/`，只验证服务器文件，
 不会修改 OpenResty。现有 `/questions/` 路由已上线，发布到该目录即可更新正式玩家端。
 
 两种工作流只发布当前 Git 提交的静态构建，不上传 PocketBase 数据库或替换后端容器。此次迁移曾通过本地打包、SSH 上线；后续以前端仓库的 Actions 为常规发布入口。未提交、未 push 的本地修改不会出现在 Actions 中。
@@ -88,9 +96,11 @@ Environment Variable。工作流只会同步到 `<QUESTIONS_ROOT>/questions-next
 
 ### 发布版本暗门
 
-在登录页或主页左上角连续点指南针图标 5 次（每次间隔不超过 1.5 秒），打开「星图档案」。品牌文字仍然返回首页。档案显示当前已载入页面的版本、环境、实际 Git 提交号和本地时区的构建时间；查看旧页面时会如实显示旧版本。
+在登录页或主页左上角连续点星环图标 5 次（每次间隔不超过 1.5 秒），打开「星图档案」。品牌文字仍然返回首页。档案显示当前已载入页面的版本、环境、实际 Git 提交号和本地时区的构建时间；查看旧页面时会如实显示旧版本。
 
 预览与正式发布工作流分别使用 GitHub Actions 的 `run_number` 和 `run_attempt` 生成 `1.<发布序号>.<重跑次数>`。新运行递增发布序号，同一运行重试递增末位；两条航线独立编号，以环境加版本号区分。失败发布可能留下编号空档，不会为自增版本而提交代码或触发循环构建。
+
+构建变量使用 `STARWARD_RELEASE_NUMBER` 与 `STARWARD_RELEASE_ATTEMPT`；仍兼容旧 `QUESTIONS_RELEASE_NUMBER` / `QUESTIONS_RELEASE_ATTEMPT`。同一次构建按完整命名空间读取，不混用新序号与旧重试次数。旧内容只读校验脚本的来源设置使用 `STARWARD_LOCAL_ORIGIN`，回退兼容 `QUESTIONS_LOCAL_ORIGIN`。
 
 发布产物根目录的 `version.json` 与页面使用相同元数据，Actions 的部署摘要也会列出这些信息。未经过发布工作流的本地构建明确显示 `0.0.0-local`，不会冒充已发布版本。
 

@@ -2,6 +2,12 @@ import { uiCopy } from "@/config/ui-copy";
 import { withSilentRetry, isTransientStatus } from "@/api/retry";
 import { z } from "zod";
 import {
+  legacyStorageKey,
+  readStorageItem,
+  removeStorageItem,
+  writeStorageItem,
+} from "@/infrastructure/storage/namespace";
+import {
   gameAnswerSchema,
   gameAssignmentSchema,
   gameAssignmentSummarySchema,
@@ -14,13 +20,13 @@ import {
 export const pocketBaseUrl = (
   import.meta.env.VITE_POCKETBASE_URL || "https://api.sitkin.top"
 ).replace(/\/$/, "");
-const storageKey = "questions:v2:auth";
+const storageKey = "starward:v2:auth";
 const authSchema = z.object({ token: z.string(), playerId: z.string() });
 type Auth = z.infer<typeof authSchema>;
 function loadAuth(): Auth | null {
   try {
     return authSchema.parse(
-      JSON.parse(localStorage.getItem(storageKey) || "null"),
+      JSON.parse(readStorageItem(localStorage, storageKey) || "null"),
     );
   } catch {
     return null;
@@ -39,16 +45,28 @@ export const authState = {
   set(value: Auth | null) {
     auth = value;
     try {
-      if (value) localStorage.setItem(storageKey, JSON.stringify(value));
-      else localStorage.removeItem(storageKey);
+      if (value)
+        writeStorageItem(localStorage, storageKey, JSON.stringify(value));
+      else removeStorageItem(localStorage, storageKey);
     } catch {
-      /* In-memory login remains usable. */
+      if (!value) {
+        try {
+          // Shadow a legacy token if its removal was blocked during logout.
+          localStorage.setItem(storageKey, "null");
+        } catch {
+          /* In-memory logout remains usable when persistence is unavailable. */
+        }
+      }
     }
     for (const listener of listeners) listener();
   },
 };
 window.addEventListener("storage", (event) => {
-  if (event.key === storageKey) {
+  if (
+    event.key === storageKey ||
+    event.key === legacyStorageKey(storageKey) ||
+    event.key === null
+  ) {
     auth = loadAuth();
     for (const listener of listeners) listener();
   }

@@ -57,7 +57,7 @@ Bless 页面只在存在 `from` 时请求 Phrase 集合并执行精确匹配。�
 - UI 为可恢复错误提供重试；权限和契约错误给出明确维护提示，不执行无意义重试。
 - 底层请求函数不直接调用 Toast，避免网络层依赖 UI。
 
-## Questions 埋点
+## Starward 埋点
 
 埋点使用独立的 `VITE_ANALYTICS_URL`，与 PocketBase 数据接口隔离。只有 `VITE_ANALYTICS_ENABLED=true` 且构建 base 为 `/questions/` 时允许发送；本地 `/` 和并行预览 `/questions-next/` 始终禁用。
 

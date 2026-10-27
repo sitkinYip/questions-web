@@ -42,5 +42,5 @@
 - [x] 预览环境禁用生产埋点。
 - [ ] OpenResty 配置已备份，旧站可一键回滚。
 - [ ] `/letter` 重定向保留 query。
-- [ ] `/bless` 重定向保留 query，旧根路径不再承载新 Questions 的最终跳转。
+- [ ] `/bless` 重定向保留 query，旧根路径不再承载新 Starward 的最终跳转。
 - [ ] 切换后 `/questions/**` 刷新不返回主页 index.html。

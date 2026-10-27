@@ -1,4 +1,4 @@
-# 架构决策
+# Starward 架构决策
 
 ```text
 features / routes
@@ -22,6 +22,7 @@ api adapters / storage repositories
 - `components/ui` 以 Radix Primitives 作为无障碍交互内核，业务组件保留各自视觉样式，不直接重复实现 Portal、焦点陷阱和 Escape 行为。
 - `OverlayProvider` 统一调度全局弹层；通关、确认、内容、等级和通知按优先级排队，同一时刻只向用户呈现一个模态弹窗。
 - `ThemeProvider` 只管理应用级外观偏好，不进入 domain 或 QuestSession。偏好由 storage repository 持久化，解析后的 `light / dark` 写入 `html[data-theme]`，CSS 只消费语义 Token。
+- 前端品牌文案统一为「赴星之约」，页面内由 `components/brand/BrandMark.tsx` 复用保留原图形状、冰蓝渐变与左下轻擦的透明标志；浏览器和手机主屏幕通过独立的黑底星尘图标与 Web App Manifest 展示应用身份。
 - Button、表单、Sheet 和 Toast 的接口及状态归属记录在 [`docs/ui-system.md`](./ui-system.md)。
 
 ## 主题解析链路
@@ -29,7 +30,7 @@ api adapters / storage repositories
 ```text
 index.html 启动脚本
   ├─ 读取合法 theme query
-  ├─ 回退 questions:v1:theme
+  ├─ 回退 starward:v1:theme（缺失时兼容 questions:v1:theme）
   └─ system 查询 prefers-color-scheme
              ↓ 首次绘制前
        html[data-theme]
@@ -57,4 +58,4 @@ ThemeProvider ── 监听设备变化 / storage 事件
 
 - 不预设 Redux/Zustand/XState，垂直切片证明 React reducer 不足后再引入。
 - MSW 仅在需要更复杂的组件级网络模拟时再引入。
-- PWA 在主页根作用域 Service Worker 完成隔离后再评估。
+- 已提供 Web App Manifest 和手机主屏幕图标；Service Worker 与离线缓存能力在主页根作用域完成隔离后再评估。

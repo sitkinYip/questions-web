@@ -1,6 +1,7 @@
 import { uiCopy } from "@/config/ui-copy";
 import { useId, type ReactNode } from "react";
-import { CompassIcon, StarFourIcon } from "@phosphor-icons/react";
+import { StarFourIcon } from "@phosphor-icons/react";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
 
 const loadingScenes = {
@@ -46,7 +47,7 @@ export function GameLoadingScreen({
       <div className="game-loading-screen__header">
         {header ?? (
           <span className="game-loading-screen__brand">
-            <CompassIcon weight="thin" aria-hidden="true" />
+            <BrandMark size={30} />
             {uiCopy.gameLoadingScreen.brand}
           </span>
         )}

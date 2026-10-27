@@ -1,9 +1,5 @@
 import { expect, test } from "@playwright/test";
-import {
-  login,
-  mockLegacyAudioPlayback,
-  mockQuestionsApi,
-} from "@e2e/fixtures";
+import { login, mockLegacyAudioPlayback, mockStarwardApi } from "@e2e/fixtures";
 
 test.beforeAll(
   "initialize WebKit before timing narrative playback",
@@ -21,7 +17,7 @@ test("authorized Bless content plays and returns to its assignment", async ({
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await mockQuestionsApi(page, { completed: true });
+  await mockStarwardApi(page, { completed: true });
   await mockLegacyAudioPlayback(page);
   await login(page, "/play/assignment1/content/bless1");
   await expect(page.getByRole("link", { name: "返回冒险" })).toHaveAttribute(
@@ -40,7 +36,7 @@ test("authorized Bless content plays and returns to its assignment", async ({
 test("direct narrative links cannot bypass the server unlock check", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await login(page, "/play/assignment1/content/bless1");
   await expect(page.getByRole("alert")).toContainText("内容尚未解锁", {
     timeout: 15000,

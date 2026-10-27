@@ -33,7 +33,7 @@ const answerEvent = {
   },
 };
 
-describe("Questions analytics client", () => {
+describe("Starward analytics client", () => {
   it("disables the legacy delivery adapter for reused authenticated-game visuals", () => {
     expect(trackAnalytics(answerEvent, "old-user")).toBe(false);
     expect(trackAnalyticsOnce("old-key", answerEvent, "old-user")).toBe(false);

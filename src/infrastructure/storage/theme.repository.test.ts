@@ -16,6 +16,23 @@ function memoryStorage(initial?: string) {
 }
 
 describe("theme preferences repository", () => {
+  it("preserves an existing Questions theme preference under the new namespace", () => {
+    const values = new Map([
+      [
+        "questions:v1:theme",
+        JSON.stringify({ version: 1, preference: "light" }),
+      ],
+    ]);
+    const repository = createThemePreferencesRepository({
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+    });
+    expect(repository.load()).toBe("light");
+    expect(values.get(THEME_PREFERENCES_KEY)).toBe(
+      values.get("questions:v1:theme"),
+    );
+  });
+
   it("defaults invalid or missing state to the system preference", () => {
     expect(createThemePreferencesRepository(memoryStorage()).load()).toBe(
       "system",
@@ -40,7 +57,7 @@ describe("theme preferences repository", () => {
       preference: "light",
     });
     expect(repository.load()).toBe("light");
-    expect(THEME_PREFERENCES_KEY).toBe("questions:v1:theme");
+    expect(THEME_PREFERENCES_KEY).toBe("starward:v1:theme");
   });
 
   it("keeps working when browser storage is unavailable", () => {

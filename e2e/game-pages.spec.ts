@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { fulfillJson, login, mockStarwardApi } from "@e2e/fixtures";
+import { visibleBox } from "@e2e/layout-assertions";
 import { makeNotifications, makeRewards } from "@/test/game-fixtures";
 
 test("mobile login keeps the primary action visible and theme controls named", async ({
@@ -25,7 +26,7 @@ test("mobile login keeps the primary action visible and theme controls named", a
 test("lobby filters history and reflects changing availability", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   assignment.startsAt = new Date(Date.now() + 60000).toISOString();
   await login(page);
   await expect(page.getByText("静候启程", { exact: true })).toBeVisible();
@@ -48,7 +49,7 @@ test("lobby filters history and reflects changing availability", async ({
 test("assignment briefing disables start before the opening time", async ({
   page,
 }) => {
-  const { assignment } = await mockQuestionsApi(page);
+  const { assignment } = await mockStarwardApi(page);
   assignment.startsAt = new Date(Date.now() + 86400000).toISOString();
   await login(page, "/play/assignment1");
   await expect(
@@ -62,7 +63,7 @@ test("assignment briefing disables start before the opening time", async ({
 test("nickname-only profile saves use JSON and preserve a tabbed draft", async ({
   page,
 }) => {
-  const { player } = await mockQuestionsApi(page);
+  const { player } = await mockStarwardApi(page);
   await page.route("**/api/questions/v1/me/profile", async (route) => {
     player.displayName = "追星旅人";
     await fulfillJson(route, player);
@@ -83,7 +84,9 @@ test("nickname-only profile saves use JSON and preserve a tabbed draft", async (
   expect(request.method()).toBe("PATCH");
   expect(request.headers()["content-type"]).toContain("application/json");
   expect(request.postDataJSON()).toEqual({ displayName: "追星旅人" });
-  await expect(page.getByRole("status")).toContainText("资料已保存");
+  await expect(page.locator(".profile-editor [role=status]")).toContainText(
+    "资料已保存",
+  );
   await expect(page.locator(".player-passport h2")).toHaveText("追星旅人");
 });
 
@@ -91,7 +94,7 @@ test("avatar crops before uploading compressed multipart data", async ({
   page,
   browserName,
 }) => {
-  const { player } = await mockQuestionsApi(page);
+  const { player } = await mockStarwardApi(page);
   const avatar = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=",
     "base64",
@@ -183,23 +186,43 @@ test("avatar crops before uploading compressed multipart data", async ({
     expect(file.size).toBe(cropped.size);
     expect(Buffer.from(await file.arrayBuffer())).not.toEqual(avatar);
   }
-  await expect(page.getByRole("status")).toContainText("资料已保存");
+  await expect(page.locator(".profile-editor [role=status]")).toContainText(
+    "资料已保存",
+  );
   await expect(page.locator(".player-passport h2")).toHaveText("追星旅人");
   await expect(preview).toHaveAttribute("src", /\/avatar_saved\.png\?/);
   await expect(upload).toHaveValue("");
   await expect(page.locator(".profile-editor__filename")).toHaveCount(0);
 });
 
-test("invalid avatar and mismatched passwords never call write endpoints", async ({
+test("mobile invalid avatars show repeatable toasts and validation never calls write endpoints", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockStarwardApi(page);
   let writes = 0;
   page.on("request", (request) => {
     if (/\/me\/(profile|change-password)$/.test(request.url())) writes++;
   });
   await login(page, "/profile");
-  await page.getByLabel("上传头像").evaluate((input: HTMLInputElement) => {
+  const upload = page.getByLabel("上传头像");
+  const toast = page.locator(".ui-toast");
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await upload.setInputFiles({
+      name: "bad.svg",
+      mimeType: "image/svg+xml",
+      buffer: Buffer.from("<svg />"),
+    });
+    await expect(toast.locator(".ui-toast__title")).toHaveText("更换头像失败");
+    await expect(toast.locator(".ui-toast__description")).toHaveText(
+      "请选择 JPG、PNG 或 WebP 图片。",
+    );
+    await expect(toast).toBeInViewport({ ratio: 1 });
+    expect((await visibleBox(toast)).y).toBeLessThan(80);
+    await toast.getByRole("button", { name: "关闭更换头像失败" }).click();
+    await expect(toast).toBeHidden();
+  }
+  await upload.evaluate((input: HTMLInputElement) => {
     const transfer = new DataTransfer();
     transfer.items.add(
       new File([new Uint8Array(50 * 1024 * 1024 + 1)], "large.png", {
@@ -209,7 +232,16 @@ test("invalid avatar and mismatched passwords never call write endpoints", async
     input.files = transfer.files;
     input.dispatchEvent(new Event("change", { bubbles: true }));
   });
-  await expect(page.getByRole("alert")).toContainText("50 MB");
+  await expect(page.locator(".profile-editor [role=alert]")).toContainText(
+    "50 MB",
+  );
+  await expect(toast.locator(".ui-toast__title")).toHaveText("更换头像失败");
+  await expect(toast.locator(".ui-toast__description")).toHaveText(
+    "原图超过 50 MB，请选择小一点的图片。",
+  );
+  await expect(toast).toBeInViewport({ ratio: 1 });
+  await toast.getByRole("button", { name: "关闭更换头像失败" }).click();
+  await expect(toast).toBeHidden();
   if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
     await page.getByRole("tab", { name: "账号安全" }).click();
   }
@@ -227,10 +259,34 @@ test("invalid avatar and mismatched passwords never call write endpoints", async
   expect(writes).toBe(0);
 });
 
+test("failed avatar crop tool loading shows a toast and allows saving again", async ({
+  page,
+}) => {
+  await mockStarwardApi(page);
+  await login(page, "/profile");
+  await page.route("**/AvatarCropDialog.tsx*", (route) => route.abort());
+  await page.getByLabel("上传头像").setInputFiles({
+    name: "avatar.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  });
+  const toast = page.locator(".ui-toast");
+  await expect(toast.locator(".ui-toast__title")).toHaveText("更换头像失败");
+  await expect(toast.locator(".ui-toast__description")).toHaveText(
+    "裁剪工具加载失败，请重新选择图片重试。",
+  );
+  await expect(toast).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "裁剪头像" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "保存资料" })).toBeEnabled();
+});
+
 test("failed profile saves keep the typed name available for retry", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await page.route("**/api/questions/v1/me/profile", (route) =>
     fulfillJson(
       route,
@@ -241,7 +297,15 @@ test("failed profile saves keep the typed name available for retry", async ({
   await login(page, "/profile");
   await page.getByLabel("显示昵称", { exact: true }).fill("等待保存的旅人");
   await page.getByRole("button", { name: "保存资料" }).click();
-  await expect(page.getByRole("alert")).toContainText("保存暂时失败");
+  await expect(page.locator(".profile-editor [role=alert]")).toContainText(
+    "保存暂时失败",
+  );
+  const toast = page.locator(".ui-toast");
+  await expect(toast.locator(".ui-toast__title")).toHaveText("资料保存失败");
+  await expect(toast.locator(".ui-toast__description")).toHaveText(
+    "保存暂时失败，请重试",
+  );
+  await expect(toast).toBeInViewport({ ratio: 1 });
   await expect(page.getByLabel("显示昵称", { exact: true })).toHaveValue(
     "等待保存的旅人",
   );
@@ -249,7 +313,7 @@ test("failed profile saves keep the typed name available for retry", async ({
 });
 
 test("rewards show claim details only while available", async ({ page }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   const rewards = makeRewards();
   rewards[1].claimDetails = "PRIVATE-EXPIRED-CLAIM";
   await page.route("**/api/questions/v1/rewards", (route) =>
@@ -266,7 +330,7 @@ test("rewards show claim details only while available", async ({ page }) => {
 test("a letter can be acknowledged without losing its contents", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   const notes = makeNotifications();
   await page.route("**/api/questions/v1/notifications", (route) =>
     fulfillJson(route, { items: notes }),
@@ -299,7 +363,7 @@ test("narrow layouts and long content never overflow; bottom navigation stays re
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 740 });
-  const { assignment, player } = await mockQuestionsApi(page);
+  const { assignment, player } = await mockStarwardApi(page);
   player.displayName = "星图尽头仍然在寻找答案的远航者";
   assignment.title = "这是一场名字很长但仍然需要完整展示的星辰探险";
   await login(page);
@@ -322,7 +386,7 @@ test("narrow layouts and long content never overflow; bottom navigation stays re
 test("reduced motion leaves the lobby readable without running atlas animations", async ({
   page,
 }) => {
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await login(page);
   await expect(

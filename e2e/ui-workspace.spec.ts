@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { fulfillJson, login, mockQuestionsApi } from "@e2e/fixtures";
+import { fulfillJson, login, mockStarwardApi } from "@e2e/fixtures";
 import { makeRewards } from "@/test/game-fixtures";
 import { visibleBox } from "@e2e/layout-assertions";
 
@@ -38,7 +38,7 @@ test("long reward instructions stay in details and media restores the details", 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await mockQuestionsApi(page);
+  await mockStarwardApi(page);
   const rewards = makeRewards();
   rewards[0].snapshot.publicInstructions =
     "领取说明 ".repeat(400) + "{{/e2e/assets/question-landscape.svg}}";

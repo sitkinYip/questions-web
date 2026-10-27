@@ -35,7 +35,7 @@ const attempt = {
   completedAt: null,
 };
 
-describe("local Questions record manager", () => {
+describe("local Starward record manager", () => {
   it("scans current and legacy records while ignoring unrelated origin data", () => {
     const storage = new MemoryStorage();
     storage.setItem(
@@ -109,7 +109,7 @@ describe("local Questions record manager", () => {
 
   it("clears a current penalty without deleting completion data", () => {
     const storage = new MemoryStorage();
-    const key = "questions:v1:attempt:alice:11:r1";
+    const key = "starward:v1:attempt:alice:11:r1";
     storage.setItem(key, JSON.stringify({ version: 1, attempt }));
     const [record] = scanLocalQuestionRecords(storage);
 
@@ -129,5 +129,16 @@ describe("local Questions record manager", () => {
     deleteLocalRecords(storage, ["notification_seen_ids"]);
     expect(storage.getItem("notification_seen_ids")).toBeNull();
     expect(storage.getItem("another-app-token")).toBe("keep");
+  });
+
+  it("deletes both namespace copies of a selected logical record", () => {
+    const storage = new MemoryStorage();
+    const current = "starward:v1:attempt:alice:11:r1";
+    const previous = "questions:v1:attempt:alice:11:r1";
+    storage.setItem(current, JSON.stringify({ version: 1, attempt }));
+    storage.setItem(previous, JSON.stringify({ version: 1, attempt }));
+    deleteLocalRecords(storage, [current]);
+    expect(storage.getItem(current)).toBeNull();
+    expect(storage.getItem(previous)).toBeNull();
   });
 });

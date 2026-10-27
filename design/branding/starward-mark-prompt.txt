@@ -1,0 +1,6 @@
+Use case: background-extraction.
+Edit the supplied approved Starward icon into a TRUE TRANSPARENT-BACKGROUND PNG for use inside a website UI.
+
+Remove ONLY the black / dark navy background. Preserve the original central four-point star and Saturn-style ring EXACTLY: identical silhouette, positions, scale, proportions, ring tilt, front/back occlusion, original icy-white to pale-blue colors and gradient. Preserve the existing softly erased / blurred lower-left section of the ring with properly feathered partial alpha. Preserve the faint blue star-dust particles in their original positions on transparent alpha at restrained opacity, without carrying any dark background pixels.
+
+Keep the original square canvas and placement. Do not redraw or redesign anything, no crop, no recoloring, no new shape, no new glow or shadows, no text. Make all background areas and the negative-space holes between star and ring genuinely transparent. Clean antialiased edges with no black matte or dark halo, so the exact same blue-white artwork can be placed cleanly on either a pale or dark website background. No checkerboard rendered into the image, no colored backing tile, no black rectangle or app container. Deliver only the original emblem and its subtle dust / left-side feathering on alpha transparency.
