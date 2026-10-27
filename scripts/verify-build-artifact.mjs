@@ -64,10 +64,16 @@ for (const entry of entries) {
     const metadata = [...html.matchAll(/<meta\b[^>]*>/g)].map(([tag]) =>
       attributes(tag),
     );
-    for (const name of ["application-name", "apple-mobile-web-app-title"])
+    for (const [name, content] of Object.entries({
+      "application-name": "赴星之约",
+      "apple-mobile-web-app-title": "赴星之约",
+      "mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "default",
+    }))
       assert.equal(
         metadata.find((meta) => meta.name === name)?.content,
-        "赴星之约",
+        content,
         `${entry}: wrong ${name}`,
       );
   }
@@ -89,6 +95,10 @@ for (const entry of entries) {
       rels.some((rel) => ["icon", "apple-touch-icon", "manifest"].includes(rel))
     )
       publicAsset(link.href, `${entry}: ${link.rel}`);
+    if (rels.includes("apple-touch-icon")) {
+      assert.equal(link.sizes, "180x180", `${entry}: wrong Apple icon sizes`);
+      verifyPng(publicAsset(link.href, `${entry}: Apple icon`), 180);
+    }
     if (rels.includes("manifest")) manifests.add(link.href);
   }
   const assets = [
@@ -113,21 +123,37 @@ for (const url of manifests) {
   );
   assert.equal(manifest.name, "赴星之约", "Wrong manifest name");
   assert.equal(manifest.short_name, "赴星之约", "Wrong manifest short name");
+  assert.equal(manifest.display, "standalone", "Wrong manifest display mode");
   for (const key of ["start_url", "scope", "id"])
     assert.equal(manifest[key], "./", `Wrong manifest ${key}`);
   assert(Array.isArray(manifest.icons), "Manifest is missing icons");
   const manifestUrl = new URL(url, "https://starward.invalid");
-  for (const edge of [192, 512]) {
+  const iconPaths = new Map();
+  for (const [edge, purpose] of [
+    [192, "any"],
+    [512, "any"],
+    [512, "maskable"],
+  ]) {
     const icon = manifest.icons.find(
-      (image) => image.sizes === `${edge}x${edge}`,
+      (image) => image.sizes === `${edge}x${edge}` && image.purpose === purpose,
     );
-    assert(icon, `Manifest is missing ${edge}px icon`);
+    assert(icon, `Manifest is missing ${edge}px ${purpose} icon`);
     assert.equal(icon.type, "image/png", "Wrong manifest icon type");
     assert.equal(typeof icon.src, "string", "Manifest icon is missing src");
+    assert(
+      !/^(?:\/|[a-z][a-z\d+.-]*:)/i.test(icon.src),
+      `Manifest icon must use a relative URL: ${icon.src}`,
+    );
     const iconUrl = new URL(icon.src, manifestUrl);
     assert.equal(iconUrl.origin, manifestUrl.origin, "External manifest icon");
     verifyPng(publicAsset(iconUrl.pathname, "manifest icon"), edge);
+    iconPaths.set(`${edge}:${purpose}`, iconUrl.href);
   }
+  assert.notEqual(
+    iconPaths.get("512:maskable"),
+    iconPaths.get("512:any"),
+    "Maskable icon must have its own padded artwork",
+  );
 }
 if (mode === "production")
   assert(

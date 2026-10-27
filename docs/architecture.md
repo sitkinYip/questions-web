@@ -23,6 +23,7 @@ api adapters / storage repositories
 - `OverlayProvider` 统一调度全局弹层；通关、确认、内容、等级和通知按优先级排队，同一时刻只向用户呈现一个模态弹窗。
 - `ThemeProvider` 只管理应用级外观偏好，不进入 domain 或 QuestSession。偏好由 storage repository 持久化，解析后的 `light / dark` 写入 `html[data-theme]`，CSS 只消费语义 Token。
 - 前端品牌文案统一为「赴星之约」，页面内由 `components/brand/BrandMark.tsx` 复用保留原图形状、冰蓝渐变与左下轻擦的透明标志；浏览器和手机主屏幕通过独立的黑底星尘图标与 Web App Manifest 展示应用身份。
+- 支持通过手机浏览器添加到主屏幕，并声明独立窗口显示。Manifest 的 `id`、`start_url`、`scope` 和图标路径相对其所在目录解析，分别保持在 `/questions-next/` 或 `/questions/` 内。Android 使用常规 192/512 图标或独立的 512 maskable 图标，iOS 使用 180 图标、应用名与 Apple 独立窗口元数据；状态栏采用 `default`，由系统保留状态栏区域。
 - Button、表单、Sheet 和 Toast 的接口及状态归属记录在 [`docs/ui-system.md`](./ui-system.md)。
 
 ## 主题解析链路
@@ -58,4 +59,4 @@ ThemeProvider ── 监听设备变化 / storage 事件
 
 - 不预设 Redux/Zustand/XState，垂直切片证明 React reducer 不足后再引入。
 - MSW 仅在需要更复杂的组件级网络模拟时再引入。
-- 已提供 Web App Manifest 和手机主屏幕图标；Service Worker 与离线缓存能力在主页根作用域完成隔离后再评估。
+- 主屏幕安装元数据不注册 Service Worker，不提供离线缓存；这两项能力在应用作用域隔离与缓存更新策略确定后再评估。

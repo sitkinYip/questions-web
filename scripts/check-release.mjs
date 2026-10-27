@@ -24,6 +24,7 @@ run("pnpm", [
   "exec",
   "playwright",
   "test",
+  "e2e/branding.spec.ts",
   "e2e/music-control.spec.ts",
   "e2e/bless-flow.spec.ts",
   "e2e/motion.spec.ts",
