@@ -1,9 +1,9 @@
 import { useRef, useState, type ReactNode } from "react";
 import { DropdownMenu } from "radix-ui";
-import { DotsThreeIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
 import { uiCopy } from "@/config/ui-copy";
 
-/** A compact inbox entry. Gesture state stays local; persistence belongs to the caller. */
+/** A letter card. Gesture state stays local; persistence belongs to the caller. */
 export function MailboxRow({
   title,
   summary,
@@ -89,10 +89,13 @@ export function MailboxRow({
           {icon}
         </span>
         <span className="mailbox-row__body">
-          <span className="mailbox-row__meta">{meta}</span>
           <span className="mailbox-row__title">{title}</span>
-          <span className="mailbox-row__summary">{summary}</span>
+          {summary && <span className="mailbox-row__summary">{summary}</span>}
+          <span className="mailbox-row__meta">{meta}</span>
         </span>
+        {!actionable && (
+          <ArrowRightIcon className="mailbox-row__arrow" aria-hidden="true" />
+        )}
         {unread && (
           <span
             className="mailbox-row__unread"

@@ -55,7 +55,7 @@ export function GameNotificationsPage() {
               retry={() => void query.refetch()}
             />
           )}
-          <div className="notification-letters">
+          <div className="mailbox-list">
             {query.data?.items.map((note) => (
               <NotificationLetter key={note.id} note={note} />
             ))}

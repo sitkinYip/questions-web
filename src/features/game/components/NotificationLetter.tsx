@@ -81,13 +81,7 @@ export function NotificationLetterView({
             <time dateTime={note.sentAt}>{formatGameDate(note.sentAt)}</time>
           </>
         }
-        icon={
-          note.readAt ? (
-            <EnvelopeOpenIcon weight="thin" />
-          ) : (
-            <EnvelopeSimpleIcon weight="thin" />
-          )
-        }
+        icon={note.readAt ? <EnvelopeOpenIcon /> : <EnvelopeSimpleIcon />}
         unread={!note.readAt}
         pending={pending}
         onOpen={() => setOpen(true)}

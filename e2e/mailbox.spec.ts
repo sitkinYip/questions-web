@@ -1,11 +1,15 @@
 import { expect, test } from "@playwright/test";
 import { fulfillJson, login, mockStarwardApi } from "@e2e/fixtures";
+import { visibleBox } from "@e2e/layout-assertions";
 import { makeNotifications } from "@/test/game-fixtures";
 
 test("star letters collect unlocked narratives and return to their mailbox tab", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const { assignment } = await mockStarwardApi(page, { completed: true });
+  assignment.completionTarget = { kind: "narrative", id: "letter1" };
   assignment.clues = [
     {
       id: "blessing",
@@ -31,9 +35,21 @@ test("star letters collect unlocked narratives and return to their mailbox tab",
   await login(page, "/notifications");
   await page.getByRole("tab", { name: "星海信笺", exact: true }).click();
   const rows = page.locator(".mailbox-row");
-  await expect(rows).toHaveCount(1);
+  await expect(rows).toHaveCount(2);
   await expect(page.getByRole("button", { name: "来信操作" })).toHaveCount(0);
-  await rows.locator(".mailbox-row__open").click();
+  const finale = rows.filter({ hasText: "旅途终章" });
+  await expect(finale.locator(".mailbox-row__title")).toHaveText(
+    assignment.title,
+  );
+  await expect(finale.locator(".mailbox-row__summary")).toHaveCount(0);
+  const [first, second] = await rows.evaluateAll((cards) =>
+    cards.map((card) => {
+      const { top, bottom } = card.getBoundingClientRect();
+      return { top, bottom };
+    }),
+  );
+  expect(second.top - first.bottom).toBeCloseTo(10, 0);
+  await page.getByRole("button", { name: /星海的祝福/ }).click();
   await expect(page).toHaveURL(/\/content\/bless1$/);
   const back = page.getByRole("link", { name: "返回冒险" });
   await expect(back).toHaveAttribute("href", "/notifications?tab=stars");
@@ -44,13 +60,14 @@ test("star letters collect unlocked narratives and return to their mailbox tab",
   await expect(page.getByRole("button", { name: /星海的祝福/ })).toBeVisible();
 });
 
-test("touch swipe reveals acceptance and long mail stays compact in both themes", async ({
+test("journey letters are separate cards in both themes and support touch acceptance", async ({
   browser,
 }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     hasTouch: true,
     isMobile: true,
+    reducedMotion: "reduce",
   });
   const page = await context.newPage();
   await mockStarwardApi(page);
@@ -69,15 +86,21 @@ test("touch swipe reveals acceptance and long mail stays compact in both themes"
     },
   );
   await login(page, "/notifications");
-  const row = page.locator(".mailbox-row").first();
+  const rows = page
+    .getByRole("tabpanel", { name: /旅途来信/ })
+    .locator(".mailbox-row");
+  const row = rows.first();
   await expect(row).toBeVisible();
   for (const theme of ["light", "dark"]) {
     await page.goto(`/notifications?theme=${theme}`);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-    await expect(row).toBeVisible();
-    expect(
-      await row.evaluate((el) => el.getBoundingClientRect().height),
-    ).toBeLessThan(160);
+    await expect(rows).toHaveCount(notes.length);
+    await expect(row).toHaveAttribute("data-read", "false");
+    await expect(row).toHaveCSS("border-radius", "14px");
+    const first = await visibleBox(row);
+    const second = await visibleBox(rows.nth(1));
+    expect(first.height).toBeLessThan(160);
+    expect(second.y - first.y - first.height).toBeCloseTo(10, 0);
     await page.screenshot({
       path: `/tmp/questions-mailbox-${theme}.png`,
       animations: "disabled",

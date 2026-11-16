@@ -12,24 +12,37 @@ export function StarLettersView({
   onOpen: (letter: StarLetter) => void;
 }) {
   return (
-    <div className="notification-letters">
-      {letters.map((letter) => (
-        <MailboxRow
-          key={letter.id}
-          title={letter.title}
-          summary={letter.description || uiCopy.mailbox.stars}
-          meta={
-            <>
-              <span>{letter.sessionTitle}</span>
-              <time dateTime={letter.sentAt}>
-                {formatGameDate(letter.sentAt)}
-              </time>
-            </>
-          }
-          icon={<SparkleIcon weight="thin" />}
-          onOpen={() => onOpen(letter)}
-        />
-      ))}
+    <div className="mailbox-list">
+      {letters.map((letter) => {
+        const finale =
+          letter.title === uiCopy.mailbox.finale &&
+          !!letter.sessionTitle &&
+          letter.description === letter.sessionTitle;
+        const title = finale ? letter.sessionTitle : letter.title;
+        const source = finale ? letter.title : letter.sessionTitle;
+        const summary = letter.description.trim();
+        return (
+          <MailboxRow
+            key={letter.id}
+            title={title}
+            summary={
+              summary === title.trim() || summary === source.trim()
+                ? ""
+                : summary
+            }
+            meta={
+              <>
+                {source && source !== title && <span>{source}</span>}
+                <time dateTime={letter.sentAt}>
+                  {formatGameDate(letter.sentAt)}
+                </time>
+              </>
+            }
+            icon={<SparkleIcon weight="regular" />}
+            onOpen={() => onOpen(letter)}
+          />
+        );
+      })}
     </div>
   );
 }
