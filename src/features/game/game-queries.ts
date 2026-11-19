@@ -25,11 +25,11 @@ export function useRewards() {
     refetchInterval: 5000,
   });
 }
-export function useGameNotifications() {
+export function useGameNotifications(poll = false) {
   const { player } = useGame();
   return useQuery({
     queryKey: gameKeys.notifications(player.id),
     queryFn: ({ signal }) => gameApi.notifications(signal),
-    refetchInterval: 5000,
+    refetchInterval: poll ? 5000 : false,
   });
 }

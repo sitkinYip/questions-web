@@ -95,6 +95,29 @@
   width: 19px;
   height: 19px;
 }
+.game-navigation__icon {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.game-navigation__unread {
+  position: absolute;
+  top: -7px;
+  right: -11px;
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding-inline: 4px;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-round);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
 .game-navigation a::after {
   position: absolute;
   content: "";

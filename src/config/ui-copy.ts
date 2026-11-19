@@ -406,6 +406,11 @@ export const uiCopy = {
   // src/features/game/GameNotificationCenter.tsx
   gameNotificationCenter: {
     saveFailed: "通知已读状态保存失败，请重试。",
+    newArrival: "有新的旅途来信",
+    unreadSummary: (count: number) => `你有 ${count} 封未读来信。`,
+    viewInbox: "查看来信",
+    allRead: "来信已全部读完",
+    archiveHint: "已阅读的来信可在「来信」中查看。",
   },
   // src/features/game/GamePlayPage.tsx
   gamePlayPage: {
@@ -882,9 +887,10 @@ export const uiCopy = {
   notificationCenter: {
     unknownTime: "未知时序",
     listLabel: "通知列表",
-    eyebrow: "Signal archive",
-    title: "远方来的讯息",
-    count: (length: string | number | null | undefined) => `${length} 条通知`,
+    eyebrow: "Unread letters",
+    title: "未读来信",
+    count: (length: string | number | null | undefined) =>
+      `${length} 封未读来信`,
     untitled: "未命名通知",
     close: "关闭通知列表",
     open: "打开通知列表",

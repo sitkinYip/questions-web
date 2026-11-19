@@ -102,7 +102,7 @@ export function useNotifications(userId: string, initialDelay = 5_000) {
   );
 
   return {
-    notifications,
+    notifications: notifications.filter((item) => !seenIds.has(item.id)),
     unreadCount,
     current: queue[0] ?? null,
     queuedCount: queue.length,

@@ -12,6 +12,7 @@ interface AppToastProps {
   onAction?: () => void;
   duration?: number;
   className?: string;
+  onContentClick?: () => void;
 }
 
 export function AppToast({
@@ -24,6 +25,7 @@ export function AppToast({
   onAction,
   duration,
   className,
+  onContentClick,
 }: AppToastProps) {
   return (
     <Toast.Root
@@ -33,14 +35,29 @@ export function AppToast({
       onOpenChange={onOpenChange}
       duration={duration}
     >
-      <div className="ui-toast__content">
-        <Toast.Title className="ui-toast__title">{title}</Toast.Title>
-        {description && (
-          <Toast.Description className="ui-toast__description">
-            {description}
-          </Toast.Description>
-        )}
-      </div>
+      {onContentClick ? (
+        <button
+          type="button"
+          className="ui-toast__content ui-toast__content-action"
+          onClick={onContentClick}
+        >
+          <Toast.Title className="ui-toast__title">{title}</Toast.Title>
+          {description && (
+            <Toast.Description className="ui-toast__description">
+              {description}
+            </Toast.Description>
+          )}
+        </button>
+      ) : (
+        <div className="ui-toast__content">
+          <Toast.Title className="ui-toast__title">{title}</Toast.Title>
+          {description && (
+            <Toast.Description className="ui-toast__description">
+              {description}
+            </Toast.Description>
+          )}
+        </div>
+      )}
       {actionLabel && onAction && (
         <Toast.Action asChild altText={actionAltText ?? actionLabel}>
           <Button

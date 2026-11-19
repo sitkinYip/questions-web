@@ -517,6 +517,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       }
       notifications={
         <GameNotificationCenter
+          key={assignment.id}
           blocked={flow.busy}
           onOpenImages={flow.openImages}
           onOpenVideo={flow.openVideo}

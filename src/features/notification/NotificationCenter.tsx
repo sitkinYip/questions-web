@@ -1,6 +1,6 @@
 import { useMotionPresence } from "@/shared/motion/useMotionPresence";
 import { uiCopy } from "@/config/ui-copy";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Notification } from "@/domain/notification/types";
 import { createNotificationLauncherPositionRepository } from "@/infrastructure/storage/notification.repository";
 import { useDraggableFloatingControl } from "@/shared/gestures/useDraggableFloatingControl";
@@ -56,6 +56,11 @@ export function NotificationCenterView({
   queuedCount,
   markRead,
   dismissCurrent,
+  pending = false,
+  feedback,
+  feedbackId,
+  acknowledge,
+  openInbox,
 }: NotificationCenterProps & {
   notifications: readonly Notification[];
   unreadCount: number;
@@ -63,6 +68,11 @@ export function NotificationCenterView({
   queuedCount: number;
   markRead: (id: string) => void;
   dismissCurrent: () => void;
+  pending?: boolean;
+  feedback?: ReactNode;
+  feedbackId?: string;
+  acknowledge?: (id: string) => void | Promise<unknown>;
+  openInbox?: () => void;
 }) {
   const [manualNotification, setManualNotification] =
     useState<Notification | null>(null);
@@ -108,10 +118,20 @@ export function NotificationCenterView({
     if (manualNotification) setManualNotification(null);
     else dismissCurrent();
   }, [dismissCurrent, manualNotification]);
+  const acceptNotification = async () => {
+    if (!visibleNotification || pending) return;
+    try {
+      if (acknowledge) await acknowledge(visibleNotification.id);
+      else markRead(visibleNotification.id);
+      closeDialog();
+    } catch {
+      // The owning read operation keeps the message and exposes its retry feedback.
+    }
+  };
 
   return (
     <>
-      {notifications.length > 0 && !blocked && (!active || listPresent) && (
+      {unreadCount > 0 && !blocked && (!active || listPresent) && (
         <aside
           className={`notification-launcher ${isDragging ? "is-dragging" : ""}`}
           style={launcherStyle}
@@ -148,12 +168,11 @@ export function NotificationCenterView({
                 </span>
               </header>
               <div className="notification-list-items">
-                {notifications.slice(0, 5).map((item, index) => (
+                {notifications.map((item, index) => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => {
-                      markRead(item.id);
                       setManualNotification(item);
                       setIsListOpen(false);
                     }}
@@ -182,6 +201,16 @@ export function NotificationCenterView({
                   </button>
                 ))}
               </div>
+              {openInbox && (
+                <button
+                  type="button"
+                  className="notification-list-history"
+                  onClick={openInbox}
+                >
+                  {uiCopy.gameNotificationCenter.archiveHint}
+                  <span aria-hidden="true"> →</span>
+                </button>
+              )}
             </div>
           )}
           <button
@@ -224,6 +253,15 @@ export function NotificationCenterView({
         userId={userId}
         queuedCount={manualNotification ? 1 : queuedCount}
         onClose={closeDialog}
+        onAcknowledge={() => {
+          void acceptNotification();
+        }}
+        pending={pending}
+        feedback={
+          !feedbackId || visibleNotification?.id === feedbackId
+            ? feedback
+            : undefined
+        }
         onOpenImages={onOpenImages}
         onOpenVideo={onOpenVideo}
       />

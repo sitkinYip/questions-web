@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mockStarwardApi, enterGame, login } from "@e2e/fixtures";
+import { fulfillJson, mockStarwardApi, enterGame, login } from "@e2e/fixtures";
 
 test("single assignment settles on the server and survives reload", async ({
   page,
@@ -141,25 +141,121 @@ test("the original combined-clue dialog and launcher survive a completed-session
   await expect(page.locator(".quest-card .clue-panel")).toHaveCount(0);
 });
 
-test("notifications retain the original floating archive after server read acknowledgement", async ({
+test("the quest launcher contains unread letters only and receipt acknowledgement links to retained history", async ({
   page,
 }) => {
-  test.setTimeout(60000);
   await mockStarwardApi(page, { single: true, notifications: true });
+  const base = {
+    content: "请到入口领取下一份线索。",
+    popupTitle: "远方来信",
+    buttonText: "收到消息",
+    sentAt: "2026-11-19T00:00:00Z",
+    assignmentId: "assignment1",
+  };
+  const notes = [
+    { ...base, id: "note1", title: "来自工作人员的消息", readAt: "" },
+    {
+      ...base,
+      id: "read-history",
+      title: "已经收下的旧信",
+      readAt: base.sentAt,
+    },
+  ];
+  let receipts = 0;
+  await page.route("**/api/questions/v1/notifications", (route) =>
+    fulfillJson(route, { items: notes }),
+  );
+  await page.route("**/api/questions/v1/notifications/note1/read", (route) => {
+    receipts++;
+    notes[0].readAt = new Date().toISOString();
+    return fulfillJson(route, { id: "note1", readAt: notes[0].readAt });
+  });
   await enterGame(page);
-  await page.getByRole("button", { name: "收到消息", exact: true }).click();
+  const modal = page.getByRole("dialog", { name: "远方来信" });
+  await expect(modal).toBeVisible({ timeout: 10000 });
+  await page.keyboard.press("Escape");
+  await expect(modal).not.toBeVisible();
+  expect(receipts).toBe(0);
   const launcher = page.getByRole("button", { name: "打开通知列表" });
   await expect(launcher).toHaveClass("notification-bell");
   await launcher.click();
   const archive = page.getByLabel("通知列表", { exact: true });
   await expect(archive).toHaveClass("notification-list");
+  await expect(
+    archive.getByRole("button", { name: /已经收下的旧信/ }),
+  ).toHaveCount(0);
   await archive.getByRole("button", { name: /来自工作人员的消息/ }).click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "请到入口领取下一份线索。",
-  );
+  await expect(modal).toContainText("请到入口领取下一份线索。");
+  expect(receipts).toBe(0);
   await page.getByRole("button", { name: "收到消息", exact: true }).click();
-  await page.reload();
-  await expect(page.getByRole("button", { name: "打开通知列表" })).toBeVisible({
-    timeout: 15000,
+  await expect(launcher).toHaveCount(0);
+  const complete = page
+    .getByRole("listitem")
+    .filter({ hasText: "来信已全部读完" });
+  await expect(complete).toContainText("已阅读的来信可在「来信」中查看。");
+  expect(receipts).toBe(1);
+  await complete.getByRole("button", { name: "查看来信", exact: true }).click();
+  await expect(page).toHaveURL(/\/notifications$/);
+  const history = page
+    .locator(".mailbox-row")
+    .filter({ hasText: "来自工作人员的消息" });
+  await expect(history).toHaveAttribute("data-read", "true");
+  await expect(page.locator(".mailbox-row")).toHaveCount(2);
+  await page.getByRole("link", { name: "返回正在探索的场次" }).click();
+  await expect(launcher).toHaveCount(0);
+  expect(receipts).toBe(1);
+});
+
+test("an unread letter survives a failed receipt and a confirmed receipt survives a failed inbox refresh", async ({
+  page,
+}) => {
+  await mockStarwardApi(page, { single: true, notifications: true });
+  const note = {
+    id: "note1",
+    title: "需要确认的未读信",
+    content: "确认成功后才能从未读移除。",
+    popupTitle: "远方来信",
+    buttonText: "收到消息",
+    sentAt: "2026-11-19T00:00:00Z",
+    readAt: "",
+    assignmentId: "assignment1",
+  };
+  let rejectReceipt = true,
+    accepted = 0;
+  await page.route("**/api/questions/v1/notifications", (route) =>
+    accepted
+      ? fulfillJson(
+          route,
+          { error: { code: "TEST_UNAVAILABLE", message: "同步暂时不可用" } },
+          503,
+        )
+      : fulfillJson(route, { items: [note] }),
+  );
+  await page.route("**/api/questions/v1/notifications/note1/read", (route) => {
+    if (rejectReceipt)
+      return fulfillJson(
+        route,
+        { error: { code: "TEST_UNAVAILABLE", message: "收信暂时失败" } },
+        503,
+      );
+    accepted++;
+    note.readAt = "2026-11-19T00:01:00Z";
+    return fulfillJson(route, { id: note.id, readAt: note.readAt });
   });
+  await enterGame(page);
+  const modal = page.getByRole("dialog", { name: "远方来信" });
+  await expect(modal).toBeVisible({ timeout: 10000 });
+  await modal.getByRole("button", { name: "收到消息", exact: true }).click();
+  await expect(modal.getByText("通知已读状态保存失败，请重试。")).toBeVisible();
+  expect(accepted).toBe(0);
+  await expect(page.getByText("来信已全部读完", { exact: true })).toHaveCount(
+    0,
+  );
+  rejectReceipt = false;
+  await modal.getByRole("button", { name: "收到消息", exact: true }).click();
+  await expect(page.getByText("来信已全部读完", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "打开通知列表" })).toHaveCount(
+    0,
+  );
+  expect(accepted).toBe(1);
 });

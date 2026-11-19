@@ -111,7 +111,7 @@
 .notification-list-signal i {
   position: absolute;
   content: "";
-  border: 1px solid rgba(199, 151, 214, 0.18);
+  border: 1px solid var(--color-accent-border);
   border-radius: 50%;
 }
 
@@ -126,8 +126,8 @@
 
 .notification-list-signal i:nth-child(1) {
   inset: 42%;
-  background: rgba(204, 157, 218, 0.13);
-  box-shadow: 0 0 42px rgba(158, 103, 175, 0.22);
+  background: var(--color-accent-soft);
+  box-shadow: 0 0 42px var(--glow-accent-soft);
 }
 
 .notification-list-signal i:nth-child(2) {
@@ -147,7 +147,7 @@
 
 .notification-list > header > span {
   animation-delay: 70ms;
-  text-shadow: 0 0 26px rgba(179, 124, 196, 0.25);
+  text-shadow: 0 0 26px var(--glow-accent-soft);
 }
 
 .notification-list-items button:nth-child(1) {
@@ -189,8 +189,8 @@
 }
 
 .notification-list-items button:hover .notification-list-action {
-  color: #e7c7ef;
-  border-color: rgba(195, 145, 210, 0.55);
+  color: var(--color-accent-strong);
+  border-color: var(--color-accent-border);
   transform: translate3d(2px, -1px, 0) rotate(-5deg) scale(1.07);
 }
 
@@ -216,20 +216,20 @@
 }
 
 .notification-bell:hover {
-  color: #f1dff6;
-  border-color: #9572a1;
+  color: var(--color-accent-strong);
+  border-color: var(--color-accent-border);
   box-shadow:
-    0 16px 46px rgba(0, 0, 0, 0.48),
-    0 0 36px rgba(169, 113, 190, 0.18);
+    0 16px 46px var(--color-shadow),
+    0 0 36px var(--glow-accent-soft);
   transform: translate3d(0, -3px, 0) rotate(-7deg) scale(1.06);
 }
 
 .notification-launcher[data-state="open"] .notification-bell {
-  color: #f1dff6;
-  border-color: #9a77a6;
+  color: var(--color-accent-strong);
+  border-color: var(--color-accent-border);
   box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.5),
-    0 0 42px rgba(169, 113, 190, 0.22);
+    0 16px 48px var(--color-shadow),
+    0 0 42px var(--glow-accent-soft);
   transform: rotate(12deg) scale(0.96);
 }
 
@@ -268,23 +268,4 @@
   .notification-bell strong {
     animation: none;
   }
-}
-
-:root[data-theme="light"]
-  .notification-list-items
-  button:hover
-  .notification-list-action {
-  color: #76517f;
-  border-color: #9e7da7;
-}
-
-:root[data-theme="light"] .notification-bell:hover,
-:root[data-theme="light"]
-  .notification-launcher[data-state="open"]
-  .notification-bell {
-  color: #4f3d55;
-  border-color: #9e7da7;
-  box-shadow:
-    0 16px 46px rgba(59, 41, 64, 0.2),
-    0 0 36px rgba(117, 81, 128, 0.12);
 }

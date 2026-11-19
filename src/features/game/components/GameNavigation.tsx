@@ -2,10 +2,14 @@ import { uiCopy } from "@/config/ui-copy";
 import { useRef, type PointerEvent } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { gameNavigation } from "@/features/game/game-navigation";
+import { useGameNotifications } from "@/features/game/game-queries";
 
 export function GameNavigation({ returnTo }: { returnTo?: string }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const notifications = useGameNotifications();
+  const unread =
+    notifications.data?.items.filter((note) => !note.readAt).length ?? 0;
   const gesture = useRef<{
     id: number;
   } | null>(null);
@@ -108,10 +112,27 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
       }}
     >
       {gameNavigation.map(({ to, label, Icon }) => (
-        <NavLink key={to} to={to} end={to === "/"} state={{ returnTo }}>
+        <NavLink
+          key={to}
+          to={to}
+          end={to === "/"}
+          state={{ returnTo }}
+          aria-description={
+            to === "/notifications" && unread > 0
+              ? uiCopy.gameNotificationCenter.unreadSummary(unread)
+              : undefined
+          }
+        >
           {({ isActive }) => (
             <>
-              <Icon weight={isActive ? "fill" : "regular"} aria-hidden="true" />
+              <span className="game-navigation__icon" aria-hidden="true">
+                <Icon weight={isActive ? "fill" : "regular"} />
+                {to === "/notifications" && unread > 0 && (
+                  <span className="game-navigation__unread">
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
+              </span>
               <span>{label}</span>
             </>
           )}

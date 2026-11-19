@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { PasswordPage } from "@/features/game/pages/PasswordPage";
 import { GameFailure } from "@/features/game/components/GameState";
 import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
+import { GameNotificationSignals } from "@/features/game/GameNotificationSignals";
 
 import { GameContext, useGame } from "@/features/game/useGame";
 export { GameFailure } from "@/features/game/components/GameState";
@@ -97,7 +98,14 @@ export function GameGate() {
     >
       <div key={player.id}>
         <GameSyncMessage active={hasSyncError} />
-        {player.mustChangePassword ? <PasswordPage forced /> : <Outlet />}
+        {player.mustChangePassword ? (
+          <PasswordPage forced />
+        ) : (
+          <>
+            <GameNotificationSignals />
+            <Outlet />
+          </>
+        )}
       </div>
     </GameContext.Provider>
   );

@@ -358,6 +358,16 @@
   color: var(--color-text-strong);
   font-weight: 600;
 }
+.ui-toast__content-action {
+  appearance: none;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
 
 .ui-toast__description {
   margin-top: 3px;

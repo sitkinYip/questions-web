@@ -135,3 +135,49 @@ test("journey letters are separate cards in both themes and support touch accept
   ).toBeVisible();
   await context.close();
 });
+
+test("a newly received letter updates the bottom badge and its toast opens the inbox without marking it read", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockStarwardApi(page);
+  const notes = makeNotifications().map((note) => ({
+    ...note,
+    readAt: note.sentAt,
+  }));
+  let receipts = 0;
+  await page.route("**/api/questions/v1/notifications", (route) =>
+    fulfillJson(route, { items: notes }),
+  );
+  await page.route("**/api/questions/v1/notifications/*/read", (route) => {
+    receipts++;
+    return fulfillJson(route, {});
+  });
+  await login(page);
+  const nav = page.getByRole("navigation", { name: "冒险导航" });
+  const mailbox = nav.getByRole("link", { name: "来信", exact: true });
+  await expect(
+    page.getByRole("heading", { name: "下一段故事，等你落笔。" }),
+  ).toBeVisible();
+  await expect(mailbox.locator(".game-navigation__unread")).toHaveCount(0);
+  const added = {
+    ...notes[0],
+    id: "brand-new-letter",
+    title: "新的远方来信",
+    readAt: "",
+  };
+  notes.push(added);
+  const toast = page
+    .getByRole("listitem")
+    .filter({ hasText: "有新的旅途来信" });
+  await expect(toast).toBeVisible({ timeout: 10000 });
+  await expect(mailbox.locator(".game-navigation__unread")).toHaveText("1");
+  await toast
+    .getByRole("button", { name: /有新的旅途来信.*你有 1 封未读来信/ })
+    .click();
+  await expect(page).toHaveURL(/\/notifications$/);
+  await expect(
+    page.locator(".mailbox-row").filter({ hasText: "新的远方来信" }),
+  ).toHaveAttribute("data-read", "false");
+  expect(receipts).toBe(0);
+});

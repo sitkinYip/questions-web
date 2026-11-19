@@ -36,7 +36,7 @@ describe("NotificationCenter launcher", () => {
     notificationHookMock.dismissCurrent.mockClear();
   });
 
-  it("shows only the unread count and hides the badge when all messages are read", () => {
+  it("shows only the unread count and removes the launcher when all messages are read", () => {
     const { container, rerender } = render(
       <NotificationCenter
         userId="alice"
@@ -62,11 +62,11 @@ describe("NotificationCenter launcher", () => {
 
     expect(container.querySelector(".notification-bell strong")).toBeNull();
     expect(
-      screen.getByRole("button", { name: "打开通知列表" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "打开通知列表" }),
+    ).not.toBeInTheDocument();
   });
 
-  it("marks an archived notification as read when it is opened", () => {
+  it("marks a notification as read only when it is explicitly accepted", () => {
     render(
       <NotificationCenter
         userId="alice"
@@ -79,6 +79,8 @@ describe("NotificationCenter launcher", () => {
     fireEvent.click(screen.getByRole("button", { name: "打开通知列表" }));
     fireEvent.click(screen.getByRole("button", { name: /测试讯息/ }));
 
+    expect(notificationHookMock.markRead).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "✨ 知晓了" }));
     expect(notificationHookMock.markRead).toHaveBeenCalledWith("notice-1");
   });
 
