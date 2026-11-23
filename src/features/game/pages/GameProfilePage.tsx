@@ -15,12 +15,7 @@ export function GameProfilePage() {
   const security = usePasswordEditor();
   return (
     <>
-      <GamePageHeading
-        eyebrow={uiCopy.gameProfilePage.eyebrow}
-        title={uiCopy.gameProfilePage.title}
-      >
-        {uiCopy.gameProfilePage.description}
-      </GamePageHeading>
+      <GamePageHeading title={uiCopy.gameNavigation.profile} />
       {isDesktop ? (
         <DesktopProfile profile={profile} security={security} />
       ) : (

@@ -1,35 +1,5 @@
 .player-passport {
-  position: relative;
-  overflow: hidden;
   padding: var(--space-6);
-  background:
-    linear-gradient(150deg, var(--color-accent-faint), transparent 60%),
-    var(--color-surface);
-  border: 1px solid var(--color-accent-border);
-  border-radius: var(--radius-panel);
-}
-.player-passport::before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border: 1px solid var(--color-border);
-  border-radius: 13px;
-  pointer-events: none;
-}
-.player-passport__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  color: var(--color-accent);
-  font: 12px var(--font-display);
-  letter-spacing: 0.12em;
-  padding-bottom: var(--space-5);
-}
-.player-passport > .celestial-atlas {
-  width: 190px;
-  max-width: 100%;
-  margin: 0 auto var(--space-4);
 }
 .player-passport__identity {
   display: flex;
@@ -42,17 +12,19 @@
 }
 .player-passport__identity h2 {
   margin: 0;
-  font: 500 24px/1.5 var(--font-display);
+  font: 650 20px / 1.35 var(--font-display);
   color: var(--color-text-strong);
   overflow-wrap: anywhere;
 }
 .player-passport__identity p {
   color: var(--color-accent-text);
   margin: var(--space-1) 0 0;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
 }
 .player-passport__identity p span {
   color: var(--color-text-subtle);
+  margin-left: 6px;
 }
 .player-avatar {
   display: grid;
@@ -61,10 +33,12 @@
   width: 40px;
   height: 40px;
   border-radius: var(--radius-round);
-  background: var(--color-accent-soft);
-  border: 1px solid var(--color-accent-border);
-  color: var(--color-accent-text);
+  background: linear-gradient(135deg, var(--star-sky), var(--star-cobalt));
+  border: 1px solid var(--color-rim-top);
+  color: var(--star-on-gradient);
   font-family: var(--font-display);
+  font-weight: 700;
+  box-shadow: 0 0 14px var(--color-light-spot);
   overflow: hidden;
 }
 .player-avatar img {
@@ -73,26 +47,30 @@
   object-fit: cover;
 }
 .player-avatar--large {
-  width: 58px;
-  height: 58px;
-  font-size: 26px;
+  width: 54px;
+  height: 54px;
+  font-size: 22px;
+  box-shadow:
+    0 0 0 2px var(--color-canvas),
+    0 0 0 4px var(--color-accent-border),
+    0 0 22px var(--color-light-spot);
 }
 .game-xp {
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
 }
 .game-xp__label {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--space-2);
-  color: var(--color-accent-text);
-  font: 11px/1.5 var(--font-mono);
+  color: var(--color-text-muted);
+  font: 12px / 1.5 var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 .game-xp p {
   color: var(--color-text-muted);
-  font-size: 11px;
-  line-height: 1.8;
+  font-size: 12px;
+  line-height: 1.7;
   margin: var(--space-3) 0 0;
 }
 .game-xp progress,
@@ -100,22 +78,25 @@
   appearance: none;
   display: block;
   width: 100%;
-  height: 4px;
-  border: 0;
-  background: var(--color-border);
+  height: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-glass-subtle);
   border-radius: var(--radius-round);
   overflow: hidden;
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
   accent-color: var(--color-accent);
 }
 .game-xp progress::-webkit-progress-bar,
 .chapter-card__progress progress::-webkit-progress-bar {
-  background: var(--color-border);
+  background: var(--color-surface-glass-subtle);
 }
 .game-xp progress::-webkit-progress-value,
 .chapter-card__progress progress::-webkit-progress-value {
-  background: var(--color-accent);
+  background: linear-gradient(90deg, var(--star-cobalt), var(--star-ice));
   border-radius: var(--radius-round);
+  box-shadow: 0 0 12px var(--color-light-spot);
+  /* Motion Prompt 068 步骤推进 300ms easeInOutCubic */
+  transition: width var(--duration-lift) var(--motion-step);
 }
 .game-xp progress::-moz-progress-bar,
 .chapter-card__progress progress::-moz-progress-bar {

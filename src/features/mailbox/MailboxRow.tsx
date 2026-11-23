@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { DropdownMenu } from "radix-ui";
 import { ArrowRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
 import { uiCopy } from "@/config/ui-copy";
+import { useSurfaceLight } from "@/shared/motion/useSurfaceLight";
 
 /** A letter card. Gesture state stays local; persistence belongs to the caller. */
 export function MailboxRow({
@@ -27,11 +28,13 @@ export function MailboxRow({
   const start = useRef<{ x: number; y: number } | null>(null);
   const suppressClick = useRef(false);
   const actionable = unread && !!onRead;
+  const light = useSurfaceLight();
   return (
     <article
-      className="mailbox-row notification-letter"
+      className="mailbox-row notification-letter ui-glass ui-light-surface"
       data-read={!unread}
       data-revealed={actionable && revealed}
+      {...light}
     >
       {actionable && (
         <button

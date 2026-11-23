@@ -1,9 +1,12 @@
+/* 星穹光感设计 Token 底座（锚定 starward-mark-192.png 冰蓝星环色谱）
+ * 兼顾 Web 与鸿蒙原生沉浸光感映射；所有结构层模块只消费此处语义变量。 */
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
   font-family: var(--font-ui);
   color: var(--color-text);
   background: var(--color-browser-chrome);
+  accent-color: var(--color-accent);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --z-floating: 900;
@@ -13,7 +16,11 @@
   --motion-spring: cubic-bezier(0.22, 0.78, 0.18, 1);
   --motion-ios: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-impact: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Motion Prompt #081 悬停抬升 cubic ease-out · #068 步骤推进 easeInOutCubic */
+  --motion-lift: cubic-bezier(0.33, 1, 0.68, 1);
+  --motion-step: cubic-bezier(0.65, 0, 0.35, 1);
   --duration-fast: 180ms;
+  --duration-lift: 300ms;
   --duration-medium: 360ms;
   --duration-reveal: 640ms;
   --duration-orbit: 100s;
@@ -27,127 +34,197 @@
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
-  --radius-control: 10px;
-  --radius-panel: 18px;
+  --radius-control: 14px;
+  --radius-panel: 22px;
   --radius-round: 999px;
-  --control-height: 52px;
+  --control-height: 50px;
   --page-width: 1180px;
-  --page-gutter: clamp(20px, 4vw, 48px);
+  --page-gutter: clamp(18px, 4vw, 44px);
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --text-small: 13px;
   --z-navigation: 100;
-  --font-mono: "SFMono-Regular", Consolas, monospace;
+  --font-mono:
+    ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
   --font-ui:
-    "Avenir Next", "Segoe UI Variable", "Noto Sans SC", system-ui, sans-serif;
-  --font-display: Georgia, "Noto Serif SC", "Songti SC", serif;
-  --color-browser-chrome: #000000;
-  --color-canvas: #10110f;
-  --color-surface: #151612;
-  --color-surface-raised: #171814;
-  --color-surface-inset: #10110e;
-  --color-surface-hover: #1d1e19;
-  --color-text: #e7e6e1;
-  --color-text-strong: #f0ecdf;
-  --color-text-muted: #aaa99f;
-  --color-text-subtle: #8c8e85;
-  --color-text-disabled: #777970;
-  --color-accent: #d4bc7d;
-  --color-accent-strong: #e1cb90;
-  --color-accent-muted: #bda66f;
-  --color-accent-text: #d8c486;
-  --color-on-accent: #191811;
-  --color-accent-soft: rgba(212, 188, 125, 0.12);
-  --color-accent-faint: rgba(212, 188, 125, 0.055);
-  --color-accent-border: #75684a;
-  --color-border: #30322c;
-  --color-border-strong: #34362f;
-  --color-border-interactive: #55574d;
-  --color-input-surface: #10110e;
-  --color-overlay: rgba(5, 6, 5, 0.76);
-  --color-overlay-strong: rgba(5, 6, 5, 0.92);
-  --color-shadow: rgba(5, 6, 5, 0.48);
-  --color-shadow-strong: rgba(3, 4, 3, 0.58);
-  --color-highlight-text: #f0dca2;
-  --color-highlight-surface: rgba(201, 170, 91, 0.14);
-  --color-danger: #dba6a1;
-  --color-danger-strong: #f0bab4;
-  --color-danger-surface: rgba(102, 49, 44, 0.12);
-  --color-danger-border: #70443f;
-  --color-success: #a8cfb4;
-  --color-success-surface: #142019;
-  --color-success-border: #355643;
-  --color-media-surface: #0b0c0a;
-  --color-canvas-ambient: rgba(183, 153, 88, 0.11);
-  --color-image-scrim-start: rgba(16, 17, 15, 0.54);
-  --color-image-scrim-end: rgba(16, 17, 15, 0.92);
-  --texture-opacity: 0.035;
-  --glow-gold: rgba(218, 184, 99, 0.58);
-  --glow-gold-soft: rgba(218, 184, 99, 0.16);
-  --glow-accent: rgba(218, 184, 99, 0.66);
-  --glow-accent-strong: rgba(239, 207, 126, 0.82);
-  --glow-accent-soft: rgba(218, 184, 99, 0.2);
-  --glow-accent-faint: rgba(218, 184, 99, 0.095);
-  --glow-danger: rgba(205, 92, 72, 0.46);
-  --glow-success: rgba(144, 199, 106, 0.48);
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "HarmonyOS Sans SC",
+    "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "HarmonyOS Sans SC",
+    "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+
+  /* 星穹 Logo 原色梯度 */
+  --star-core: #f4faff;
+  --star-ice: #9dd1ff;
+  --star-sky: #55a8ff;
+  --star-cobalt: #2974f6;
+  --star-on-gradient: #ffffff;
+
+  /* 深空星穹语义色板 */
+  --color-browser-chrome: #070d1a;
+  --color-canvas: #070d1a;
+  --color-surface: #0f192d;
+  --color-surface-raised: #15233d;
+  --color-surface-inset: #0b1324;
+  --color-surface-hover: #1b2c4b;
+  --color-surface-glass: rgba(16, 26, 46, 0.58);
+  --color-surface-glass-raised: rgba(22, 36, 62, 0.74);
+  --color-surface-glass-subtle: rgba(130, 188, 255, 0.08);
+  --color-surface-glass-nav: rgba(13, 22, 40, 0.66);
+  --glass-blur: blur(32px) saturate(158%);
+  --glass-dock-blur: blur(40px) saturate(165%);
+
+  --color-text: #cddcf2;
+  --color-text-strong: #f2f7ff;
+  --color-text-muted: #8ea5c7;
+  --color-text-subtle: #6e85a8;
+  --color-text-disabled: #546685;
+
+  --color-accent: #68b5ff;
+  --color-accent-strong: #3c8eff;
+  --color-accent-muted: #5098e8;
+  --color-accent-text: #85c5ff;
+  --color-on-accent: #051126;
+  --color-accent-soft: rgba(104, 181, 255, 0.16);
+  --color-accent-faint: rgba(104, 181, 255, 0.07);
+  --color-accent-border: rgba(140, 202, 255, 0.36);
+
+  --color-border: rgba(168, 214, 255, 0.16);
+  --color-border-strong: rgba(168, 214, 255, 0.32);
+  --color-border-interactive: rgba(168, 214, 255, 0.42);
+  --color-rim-top: rgba(224, 242, 255, 0.3);
+  --color-rim-inner: rgba(168, 214, 255, 0.08);
+  --color-light-spot: rgba(110, 186, 255, 0.34);
+  --color-light-rim: rgba(168, 220, 255, 0.54);
+  --color-energy-sheen: rgba(255, 255, 255, 0.68);
+  --color-nebula-1: rgba(56, 138, 255, 0.28);
+  --color-nebula-2: rgba(132, 198, 255, 0.18);
+  --color-nebula-3: rgba(34, 92, 220, 0.22);
+  --color-starfield-dot: rgba(206, 232, 255, 0.56);
+  --starfield-opacity: 0.58;
+
+  --color-input-surface: rgba(13, 22, 40, 0.72);
+  --color-overlay: rgba(4, 9, 20, 0.72);
+  --color-overlay-strong: rgba(3, 7, 16, 0.9);
+  --color-shadow: rgba(2, 8, 22, 0.48);
+  --color-shadow-strong: rgba(0, 6, 18, 0.62);
+  --color-highlight-text: #cce6ff;
+  --color-highlight-surface: rgba(85, 168, 255, 0.16);
+  --color-danger: #fda4af;
+  --color-danger-strong: #fecdd3;
+  --color-danger-surface: rgba(253, 164, 175, 0.14);
+  --color-danger-border: rgba(253, 164, 175, 0.36);
+  --color-success: #5eead4;
+  --color-success-surface: rgba(94, 234, 212, 0.14);
+  --color-success-border: rgba(94, 234, 212, 0.38);
+  --color-media-surface: #060b16;
+  --color-canvas-ambient: rgba(85, 168, 255, 0.14);
+  --color-image-scrim-start: rgba(7, 13, 26, 0.54);
+  --color-image-scrim-end: rgba(7, 13, 26, 0.92);
+  --texture-opacity: 0.025;
+  --glow-gold: rgba(104, 181, 255, 0.56);
+  --glow-gold-soft: rgba(104, 181, 255, 0.18);
+  --glow-accent: rgba(85, 168, 255, 0.62);
+  --glow-accent-strong: rgba(157, 209, 255, 0.8);
+  --glow-accent-soft: rgba(104, 181, 255, 0.24);
+  --glow-accent-faint: rgba(104, 181, 255, 0.1);
+  --glow-danger: rgba(253, 164, 175, 0.4);
+  --glow-success: rgba(94, 234, 212, 0.42);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --color-browser-chrome: #ffffff;
-  --color-canvas: #ffffff;
-  --color-surface: #f7f9f8;
+  --color-browser-chrome: #ebf2fc;
+  --color-canvas: #ebf2fc;
+  --color-surface: #f7faff;
   --color-surface-raised: #ffffff;
-  --color-surface-inset: #eef3f1;
-  --color-surface-hover: #e9f2ef;
-  --color-text: #293c38;
-  --color-text-strong: #162e28;
-  --color-text-muted: #536b63;
-  --color-text-subtle: #647970;
-  --color-text-disabled: #86958f;
-  --color-accent: #187b69;
-  --color-accent-strong: #0d6052;
-  --color-accent-muted: #397b6d;
-  --color-accent-text: #116958;
+  --color-surface-inset: #e3edf9;
+  --color-surface-hover: #edf4fd;
+  --color-surface-glass: rgba(255, 255, 255, 0.64);
+  --color-surface-glass-raised: rgba(255, 255, 255, 0.82);
+  --color-surface-glass-subtle: rgba(46, 124, 246, 0.08);
+  --color-surface-glass-nav: rgba(250, 253, 255, 0.7);
+
+  --color-text: #253856;
+  --color-text-strong: #0c1930;
+  --color-text-muted: #53698c;
+  --color-text-subtle: #667b9e;
+  --color-text-disabled: #8a9ab5;
+
+  --color-accent: #2570f0;
+  --color-accent-strong: #1759d1;
+  --color-accent-muted: #3d82f5;
+  --color-accent-text: #1c5ed4;
   --color-on-accent: #ffffff;
-  --color-accent-soft: rgba(24, 123, 105, 0.1);
-  --color-accent-faint: rgba(24, 123, 105, 0.05);
-  --color-accent-border: #82afa2;
-  --color-border: #dce5e0;
-  --color-border-strong: #bbcfc5;
-  --color-border-interactive: #8ba69a;
-  --color-input-surface: #ffffff;
-  --color-overlay: rgba(20, 43, 35, 0.32);
-  --color-overlay-strong: rgba(20, 43, 35, 0.56);
-  --color-shadow: rgba(28, 65, 51, 0.1);
-  --color-shadow-strong: rgba(22, 53, 42, 0.18);
-  --color-highlight-text: #0d6052;
-  --color-highlight-surface: rgba(24, 123, 105, 0.13);
-  --color-danger: #a13f4d;
-  --color-danger-strong: #84303d;
-  --color-danger-surface: rgba(161, 63, 77, 0.1);
-  --color-danger-border: #c58a93;
-  --color-success: #26715f;
-  --color-success-surface: #e5f3ef;
-  --color-success-border: #8fb8ae;
-  --color-media-surface: #e8efeb;
-  --color-canvas-ambient: rgba(24, 123, 105, 0.025);
-  --color-image-scrim-start: rgba(255, 255, 255, 0.38);
-  --color-image-scrim-end: rgba(255, 255, 255, 0.9);
-  --texture-opacity: 0.018;
-  --glow-gold: rgba(24, 123, 105, 0.34);
-  --glow-gold-soft: rgba(24, 123, 105, 0.13);
-  --glow-accent: rgba(24, 123, 105, 0.48);
-  --glow-accent-strong: rgba(40, 163, 137, 0.66);
-  --glow-accent-soft: rgba(24, 123, 105, 0.21);
-  --glow-accent-faint: rgba(24, 123, 105, 0.105);
-  --glow-danger: rgba(161, 63, 77, 0.3);
-  --glow-success: rgba(38, 113, 95, 0.3);
+  --color-accent-soft: rgba(37, 112, 240, 0.12);
+  --color-accent-faint: rgba(37, 112, 240, 0.055);
+  --color-accent-border: rgba(37, 112, 240, 0.34);
+
+  --color-border: rgba(34, 92, 198, 0.14);
+  --color-border-strong: rgba(34, 92, 198, 0.28);
+  --color-border-interactive: rgba(34, 92, 198, 0.4);
+  --color-rim-top: rgba(255, 255, 255, 0.96);
+  --color-rim-inner: rgba(255, 255, 255, 0.52);
+  --color-light-spot: rgba(85, 168, 255, 0.3);
+  --color-light-rim: rgba(46, 124, 246, 0.42);
+  --color-energy-sheen: rgba(255, 255, 255, 0.78);
+  --color-nebula-1: rgba(94, 168, 255, 0.32);
+  --color-nebula-2: rgba(168, 218, 255, 0.42);
+  --color-nebula-3: rgba(56, 124, 246, 0.16);
+  --color-starfield-dot: rgba(46, 118, 238, 0.34);
+  --starfield-opacity: 0.42;
+
+  --color-input-surface: rgba(255, 255, 255, 0.82);
+  --color-overlay: rgba(12, 25, 48, 0.34);
+  --color-overlay-strong: rgba(12, 25, 48, 0.58);
+  --color-shadow: rgba(24, 62, 132, 0.1);
+  --color-shadow-strong: rgba(20, 56, 124, 0.18);
+  --color-highlight-text: #1759d1;
+  --color-highlight-surface: rgba(37, 112, 240, 0.12);
+  --color-danger: #be123c;
+  --color-danger-strong: #9f1239;
+  --color-danger-surface: rgba(190, 18, 60, 0.1);
+  --color-danger-border: rgba(190, 18, 60, 0.32);
+  --color-success: #0d766e;
+  --color-success-surface: rgba(13, 118, 110, 0.11);
+  --color-success-border: rgba(13, 118, 110, 0.32);
+  --color-media-surface: #e4eefb;
+  --color-canvas-ambient: rgba(56, 138, 255, 0.08);
+  --color-image-scrim-start: rgba(235, 242, 252, 0.42);
+  --color-image-scrim-end: rgba(235, 242, 252, 0.92);
+  --texture-opacity: 0.015;
+  --glow-gold: rgba(37, 112, 240, 0.34);
+  --glow-gold-soft: rgba(37, 112, 240, 0.14);
+  --glow-accent: rgba(37, 112, 240, 0.44);
+  --glow-accent-strong: rgba(85, 168, 255, 0.62);
+  --glow-accent-soft: rgba(37, 112, 240, 0.2);
+  --glow-accent-faint: rgba(37, 112, 240, 0.1);
+  --glow-danger: rgba(190, 18, 60, 0.26);
+  --glow-success: rgba(13, 118, 110, 0.26);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root[data-theme="dark"] {
+    --glass-blur: none;
+    --glass-dock-blur: none;
+    --color-surface-glass: var(--color-surface);
+    --color-surface-glass-raised: var(--color-surface-raised);
+    --color-surface-glass-nav: var(--color-surface);
+  }
+  :root[data-theme="light"] {
+    --glass-blur: none;
+    --glass-dock-blur: none;
+    --color-surface-glass: var(--color-surface-raised);
+    --color-surface-glass-raised: var(--color-surface-raised);
+    --color-surface-glass-nav: var(--color-surface);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast: 0.01ms;
+    --duration-lift: 0.01ms;
     --duration-medium: 0.01ms;
     --duration-reveal: 0.01ms;
   }

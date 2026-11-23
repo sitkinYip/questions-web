@@ -13,12 +13,7 @@ export function GameRewardsPage() {
   const query = useRewards();
   return (
     <>
-      <GamePageHeading
-        eyebrow={uiCopy.gameRewardsPage.eyebrow}
-        title={uiCopy.gameRewardsPage.title}
-      >
-        {uiCopy.gameRewardsPage.description}
-      </GamePageHeading>
+      <GamePageHeading title={uiCopy.gameNavigation.rewards} />
       {query.isPending && (
         <GameLoading label={uiCopy.gameRewardsPage.loading} />
       )}

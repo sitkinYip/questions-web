@@ -19,13 +19,7 @@ export function GameNotificationsPage() {
   const unread = query.data?.items.filter((item) => !item.readAt).length ?? 0;
   return (
     <>
-      <GamePageHeading
-        eyebrow={uiCopy.gameNotificationsPage.eyebrow}
-        title={uiCopy.gameNotificationsPage.title}
-      >
-        {uiCopy.gameNotificationsPage.description}
-        {unread > 0 ? uiCopy.gameNotificationsPage.unreadCount(unread) : ""}
-      </GamePageHeading>
+      <GamePageHeading title={uiCopy.gameNavigation.notifications} />
       <WorkspaceTabs
         className="mailbox-panel"
         value={tab}

@@ -48,7 +48,7 @@ test("star letters collect unlocked narratives and return to their mailbox tab",
       return { top, bottom };
     }),
   );
-  expect(second.top - first.bottom).toBeCloseTo(10, 0);
+  expect(second.top - first.bottom).toBeCloseTo(12, 0);
   await page.getByRole("button", { name: /星海的祝福/ }).click();
   await expect(page).toHaveURL(/\/content\/bless1$/);
   const back = page.getByRole("link", { name: "返回冒险" });
@@ -96,11 +96,11 @@ test("journey letters are separate cards in both themes and support touch accept
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await expect(rows).toHaveCount(notes.length);
     await expect(row).toHaveAttribute("data-read", "false");
-    await expect(row).toHaveCSS("border-radius", "14px");
+    await expect(row).toHaveCSS("border-radius", "22px");
     const first = await visibleBox(row);
     const second = await visibleBox(rows.nth(1));
     expect(first.height).toBeLessThan(160);
-    expect(second.y - first.y - first.height).toBeCloseTo(10, 0);
+    expect(second.y - first.y - first.height).toBeCloseTo(12, 0);
     await page.screenshot({
       path: `/tmp/questions-mailbox-${theme}.png`,
       animations: "disabled",
@@ -156,9 +156,7 @@ test("a newly received letter updates the bottom badge and its toast opens the i
   await login(page);
   const nav = page.getByRole("navigation", { name: "冒险导航" });
   const mailbox = nav.getByRole("link", { name: "来信", exact: true });
-  await expect(
-    page.getByRole("heading", { name: "下一段故事，等你落笔。" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "启程" })).toBeVisible();
   await expect(mailbox.locator(".game-navigation__unread")).toHaveCount(0);
   const added = {
     ...notes[0],

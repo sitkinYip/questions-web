@@ -1,10 +1,10 @@
 import { uiCopy } from "@/config/ui-copy";
 import { Link } from "react-router-dom";
-import { ArrowUpRightIcon, StarFourIcon } from "@phosphor-icons/react";
+import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import type { GamePlayer } from "@/api/game.contracts";
-import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
 import { experienceProgress } from "@/features/game/game-presentation";
 import { useGame } from "@/features/game/useGame";
+import { useSurfaceLight } from "@/shared/motion/useSurfaceLight";
 import { ExtraMessages } from "./ExtraMessages";
 
 export function PlayerAvatar({
@@ -75,16 +75,13 @@ export function PlayerPassport({
   editable?: boolean;
 }) {
   const { player, avatarUrl } = useGame();
+  const light = useSurfaceLight();
   return (
     <section
-      className={`player-passport${compact ? " player-passport--compact" : ""}`}
+      className={`player-passport ui-glass ui-light-surface${compact ? " player-passport--compact" : ""}`}
       aria-label={uiCopy.playerPassport.label}
+      {...light}
     >
-      <div className="player-passport__heading">
-        <span>{uiCopy.playerPassport.title}</span>
-        <StarFourIcon aria-hidden="true" />
-      </div>
-      {!compact && <CelestialAtlas compact />}
       <div className="player-passport__identity">
         <PlayerAvatar name={player.displayName} url={avatarUrl} large />
         <div>

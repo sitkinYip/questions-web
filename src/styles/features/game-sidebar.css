@@ -7,8 +7,11 @@
   padding: max(var(--sidebar-gutter), var(--safe-area-top))
     var(--sidebar-gutter) var(--sidebar-gutter);
   background:
-    radial-gradient(ellipse at 0 0, var(--color-accent-soft), transparent 56%),
-    var(--color-surface);
+    radial-gradient(ellipse at 0 0, var(--color-accent-soft), transparent 58%),
+    var(--color-surface-glass-nav);
+  backdrop-filter: var(--glass-dock-blur);
+  -webkit-backdrop-filter: var(--glass-dock-blur);
+  box-shadow: inset 1px 0 0 var(--color-rim-top);
 }
 .game-sidebar .ui-sheet__header {
   position: relative;

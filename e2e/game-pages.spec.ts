@@ -383,18 +383,17 @@ test("narrow layouts and long content never overflow; bottom navigation stays re
   await expect(page.getByRole("button", { name: "保存资料" })).toBeVisible();
 });
 
-test("reduced motion leaves the lobby readable without running atlas animations", async ({
+test("reduced motion leaves the lobby readable without running starfield animations", async ({
   page,
 }) => {
   await mockStarwardApi(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await login(page);
-  await expect(
-    page.getByRole("heading", { name: "下一段故事，等你落笔。" }),
-  ).toBeVisible();
-  await expect(
-    page.locator(".celestial-atlas__orbit--outer").first(),
-  ).toHaveCSS("animation-name", "none");
+  await expect(page.getByRole("heading", { name: "启程" })).toBeVisible();
+  await expect(page.locator(".starfield-backdrop__nebula").first()).toHaveCSS(
+    "animation-name",
+    "none",
+  );
   await expect(page.locator(".chapter-card").first()).toHaveCSS(
     "animation-name",
     "none",

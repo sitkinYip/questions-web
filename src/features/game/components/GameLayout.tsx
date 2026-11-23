@@ -3,7 +3,8 @@ import { VersionSecret } from "@/features/version/VersionSecret";
 import { GameNavigation } from "@/features/game/components/GameNavigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { ArrowLeftIcon, StarFourIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { StarfieldBackdrop } from "@/components/effects/StarfieldBackdrop";
 import { GameSidebar } from "@/features/game/GameSidebar";
 import { useGame } from "@/features/game/useGame";
 
@@ -20,7 +21,6 @@ export function GameBrand() {
         aria-label={uiCopy.gameLayout.homeLabel}
       >
         {uiCopy.gameLayout.brand}
-        <small>{uiCopy.gameLayout.tagline}</small>
       </Link>
     </div>
   );
@@ -55,6 +55,7 @@ export function GameLayout() {
       }
       data-desktop={isDesktop ? desktopMode : undefined}
     >
+      <StarfieldBackdrop variant="app" />
       <a href="#game-content" className="game-skip-link">
         {uiCopy.gameLayout.skipContent}
       </a>
@@ -85,30 +86,20 @@ export function GameLayout() {
           <Outlet />
         </div>
       </main>
-      <footer className="game-footer">
-        <span />
-        <StarFourIcon aria-hidden="true" />
-        <p>{uiCopy.gameLayout.footer}</p>
-        <span />
-      </footer>
     </div>
   );
 }
 
 export function GamePageHeading({
-  eyebrow,
   title,
-  children,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   children?: ReactNode;
 }) {
   return (
     <header className="game-page-heading">
-      <p className="eyebrow">{eyebrow}</p>
       <h1>{title}</h1>
-      {children && <p className="game-page-heading__description">{children}</p>}
     </header>
   );
 }

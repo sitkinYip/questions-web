@@ -85,7 +85,7 @@ test("desktop avatar hover opens an account bubble without moving the question l
   await expect(menu.getByRole("link", { name: "冒险者护照" })).toBeVisible();
   await expect(menu.getByRole("link", { name: "奇遇收藏" })).toBeVisible();
   await expect(menu.getByRole("radio", { name: "跟随系统" })).toBeChecked();
-  await expect(menu).toHaveCSS("border-radius", "18px");
+  await expect(menu).toHaveCSS("border-radius", "22px");
   const logout = menu.getByRole("button", { name: "退出登录" });
   await logout.hover();
   const logoutAlignment = await logout.evaluate((button) => {
@@ -153,9 +153,7 @@ test("account bubble links navigate to prizes and return to the server-backed qu
   const menu = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
   await expect(menu.getByText("50 EXP", { exact: true })).toBeVisible();
   await menu.getByRole("link", { name: "奇遇收藏", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "把奇遇，收入囊中。" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "收藏" })).toBeVisible();
   await expect(menu).toHaveCount(0);
   await page.getByRole("button", { name: "打开冒险者菜单" }).click();
   await menu.getByRole("link", { name: /返回答题/ }).click();

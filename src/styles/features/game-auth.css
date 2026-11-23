@@ -1,140 +1,120 @@
+/* 无边界星穹开场登录页：去掉外层方框盒子，Logo 与毛玻璃输入控件直接悬浮于星穹之上 */
 .game-auth {
   min-height: 100dvh;
   padding: 0 var(--page-gutter);
   position: relative;
   isolation: isolate;
   overflow: clip;
+  display: flex;
+  flex-direction: column;
 }
 .game-auth__header {
-  --auth-header-height: 106px;
-  --auth-header-clearance: 29px;
+  --auth-header-height: 84px;
+  --auth-header-clearance: 16px;
   --auth-header-safe-offset: max(
     0px,
     calc(var(--safe-area-top) - var(--auth-header-clearance))
   );
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  width: 100%;
   min-height: calc(var(--auth-header-height) + var(--auth-header-safe-offset));
   padding-top: var(--auth-header-safe-offset);
-  max-width: 1320px;
-  margin: auto;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 .game-auth__main {
+  position: relative;
+  z-index: 2;
+  flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  align-items: center;
-  min-height: min(730px, calc(100dvh - 168px));
-  max-width: 1180px;
-  margin: auto;
-  gap: clamp(48px, 8vw, 120px);
-}
-.game-auth__story {
-  position: relative;
-  /*
-   * Keep the decorative stage independent from the entry column's content.
-   * Expanding login help must not resize the shared grid row and move the
-   * atlas that is positioned from this element's vertical midpoint.
-   */
-  align-self: start;
-  display: flex;
-  align-items: center;
-  height: clamp(500px, calc(100dvh - 168px), 730px);
-}
-.game-auth__story > .celestial-atlas {
-  position: absolute;
-  width: 780px;
-  left: -360px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.5;
-}
-.game-auth__story-copy {
-  position: relative;
-  z-index: 1;
-  padding-block: var(--space-12);
-}
-.game-auth__story h1 {
-  font-size: clamp(46px, 5.3vw, 76px);
-  line-height: 1.55;
-  letter-spacing: 0.04em;
-  margin: var(--space-6) 0 var(--space-4);
-  text-shadow: 0 4px 24px var(--color-canvas);
-}
-.game-auth__story-copy > p:not(.eyebrow) {
-  color: var(--color-text-muted);
-  font-size: 15px;
-  line-height: 1.8;
-  letter-spacing: 0.1em;
-}
-.game-auth__ornament {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-8);
-  color: var(--color-accent);
-}
-.game-auth__ornament i {
-  width: 64px;
-  height: 1px;
-  background: var(--color-accent-border);
-}
-.game-auth__ornament svg {
-  width: 18px;
-  height: 18px;
+  place-items: center;
+  padding: var(--space-4) 0 max(var(--space-12), var(--safe-area-bottom));
 }
 .game-auth__entry {
-  padding: var(--space-8) 0;
   width: 100%;
-  max-width: 400px;
+  max-width: 368px;
+  padding: var(--space-4) 0 var(--space-8);
+}
+.game-auth__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-10);
+}
+.game-auth__emblem {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+}
+.game-auth__emblem::before {
+  content: "";
+  position: absolute;
+  inset: -26px;
+  border-radius: var(--radius-round);
+  background: radial-gradient(
+    circle,
+    var(--color-light-spot) 0%,
+    var(--color-nebula-2) 44%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+.game-auth__emblem img {
+  position: relative;
+  z-index: 1;
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 24px var(--color-light-spot));
+}
+.game-auth__hero h1 {
+  margin: 0;
+  font: 600 clamp(28px, 4.4vw, 34px) / 1.25 var(--font-display);
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+  color: var(--color-text-strong);
 }
 .game-auth__entry > h2 {
-  font: 500 clamp(28px, 2.9vw, 36px)/1.6 var(--font-display);
-  margin: var(--space-4) 0;
-  letter-spacing: 0.035em;
+  font: 650 clamp(22px, 3vw, 26px) / 1.35 var(--font-display);
+  margin: 0 0 var(--space-5);
   color: var(--color-text-strong);
 }
 .game-auth__entry > .game-muted {
-  margin-bottom: var(--space-8);
+  margin: 0 0 var(--space-6);
 }
-.game-auth__seal {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--color-accent-border);
+.game-auth__entry .ui-input {
+  background: var(--color-surface-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-color: var(--color-border-strong);
+  box-shadow:
+    0 10px 28px var(--color-shadow),
+    inset 0 1px 0 var(--color-rim-top);
+}
+.game-auth__entry .ui-input:focus {
+  background: var(--color-surface-glass-raised);
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 3px var(--color-accent-soft),
+    0 12px 32px var(--color-light-spot);
+}
+.game-auth__entry .game-cta {
+  margin-top: var(--space-2);
   border-radius: var(--radius-round);
-  color: var(--color-accent);
-}
-.game-auth__seal svg {
-  width: 28px;
-  height: 28px;
-}
-.game-auth__help {
-  margin-top: var(--space-6);
-  color: var(--color-text-muted);
-  font-size: 12px;
-  line-height: 1.8;
-}
-.game-auth__help summary {
-  padding-block: var(--space-3);
-  cursor: pointer;
-}
-.game-auth__help p {
-  margin: var(--space-2) 0 0;
-}
-.game-auth__footer {
-  text-align: center;
-  padding: var(--space-5) 0 var(--space-6);
-  color: var(--color-text-subtle);
-  font: 12px/1.8 var(--font-display);
-  letter-spacing: 0.2em;
 }
 @media (max-width: 760px) {
   .game-auth__header {
-    --auth-header-height: 84px;
-    --auth-header-clearance: 18px;
+    --auth-header-height: 76px;
+    --auth-header-clearance: 12px;
   }
   .game-auth__header .game-theme-picker span {
     display: none;
@@ -142,63 +122,7 @@
   .game-auth__header .game-theme-picker label {
     padding-inline: 10px;
   }
-  .game-auth__main {
-    grid-template-columns: 1fr;
-    gap: 0;
-    min-height: auto;
-    max-width: 440px;
-  }
-  .game-auth__story {
-    height: auto;
-    min-height: auto;
-  }
-  .game-auth__story > .celestial-atlas {
-    width: 420px;
-    left: auto;
-    right: -150px;
-    top: 50%;
-    opacity: 0.22;
-  }
-  .game-auth__story-copy {
-    padding-block: var(--space-8) 0;
-  }
-  .game-auth__story .eyebrow {
-    font-size: 10px;
-  }
-  .game-auth__story h1 {
-    font-size: clamp(34px, 8.5vw, 46px);
-    line-height: 1.4;
-    margin: var(--space-4) 0 var(--space-3);
-  }
-  .game-auth__story-copy > p:not(.eyebrow) {
-    font-size: 13px;
-    letter-spacing: 0.025em;
-  }
-  .game-auth__ornament,
-  .game-auth__seal {
-    display: none;
-  }
   .game-auth__entry {
-    max-width: none;
-    padding-block: var(--space-5) var(--space-3);
-  }
-  .game-auth__entry > h2 {
-    font-size: 21px;
-    margin: 0 0 var(--space-4);
-  }
-  .game-auth__entry > h2 br {
-    display: none;
-  }
-  .game-auth__entry > .game-muted {
-    display: none;
-  }
-  .game-auth__entry .game-form {
-    gap: var(--space-4);
-  }
-  .game-auth__help {
-    margin-top: var(--space-3);
-  }
-  .game-auth__footer {
-    padding-top: var(--space-3);
+    max-width: 340px;
   }
 }

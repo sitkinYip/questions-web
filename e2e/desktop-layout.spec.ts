@@ -26,46 +26,31 @@ test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
 });
 
-test("desktop login help does not move or resize the celestial artwork", async ({
+test("desktop login keeps the centered glass cabin stable across theme switches", async ({
   page,
 }) => {
   await page.goto("/login?theme=light");
-  const artwork = page.locator(".game-auth__story");
-  const atlas = page.locator(".game-auth__story > .celestial-atlas");
-  const copy = page.locator(".game-auth__story-copy");
+  const entry = page.locator(".game-auth__entry");
+  await expect(entry).toBeVisible();
 
-  const documentRect = (selector: string) =>
-    page.locator(selector).evaluate((element) => {
+  const rectOf = () =>
+    entry.evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return {
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-        height: rect.height,
+        top: Math.round(rect.top),
+        left: Math.round(rect.left),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
       };
     });
 
-  const before = {
-    artwork: await documentRect(".game-auth__story"),
-    atlas: await documentRect(".game-auth__story > .celestial-atlas"),
-    copy: await documentRect(".game-auth__story-copy"),
-  };
+  const before = await rectOf();
+  expect(before.width).toBeGreaterThanOrEqual(320);
+  expect(before.width).toBeLessThanOrEqual(420);
 
-  await page.getByText("还没有账号，或忘记了密码？", { exact: true }).click();
-
-  await expect(page.locator(".game-auth__help")).toHaveAttribute("open", "");
-  const after = {
-    artwork: await documentRect(".game-auth__story"),
-    atlas: await documentRect(".game-auth__story > .celestial-atlas"),
-    copy: await documentRect(".game-auth__story-copy"),
-  };
-  expect(after).toEqual(before);
-  expect(Math.abs(after.atlas.width - after.atlas.height)).toBeLessThanOrEqual(
-    1,
-  );
-  await expect(artwork).toBeVisible();
-  await expect(atlas).toBeVisible();
-  await expect(copy).toBeVisible();
+  await page.getByRole("radio", { name: "深色" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await rectOf()).toEqual(before);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth + 1,

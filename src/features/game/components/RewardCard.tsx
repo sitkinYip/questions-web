@@ -6,12 +6,18 @@ import { SparkleIcon } from "@phosphor-icons/react";
 import type { GameReward } from "@/api/game.contracts";
 import { RichContent } from "@/features/content/RichContent";
 import { formatGameDate } from "@/features/game/game-presentation";
+import { useSurfaceLight } from "@/shared/motion/useSurfaceLight";
 
 export function RewardCard({ item }: { item: GameReward }) {
   const [open, setOpen] = useState(false);
+  const light = useSurfaceLight();
   return (
     <>
-      <article className="reward-card" data-state={item.status}>
+      <article
+        className="reward-card ui-glass ui-light-surface"
+        data-state={item.status}
+        {...light}
+      >
         <div className="reward-card__art">
           {item.snapshot.image ? (
             <img

@@ -7,6 +7,7 @@ import {
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { useSurfaceLight } from "@/shared/motion/useSurfaceLight";
 
 export function GameFailure({
   error,
@@ -44,9 +45,12 @@ export function GameEmptyState({
   children: ReactNode;
   action?: ReactNode;
 }) {
+  const light = useSurfaceLight();
   return (
-    <section className="game-empty">
-      <CompassIcon weight="thin" aria-hidden="true" />
+    <section className="game-empty ui-glass ui-light-surface" {...light}>
+      <span className="game-empty__icon" aria-hidden="true">
+        <CompassIcon weight="duotone" />
+      </span>
       <h2>{title}</h2>
       <p>{children}</p>
       {action}

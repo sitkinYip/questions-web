@@ -62,14 +62,52 @@
     transform: scale(1);
   }
 }
+/* Motion Prompt #095 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#095 */
+@keyframes starfield-nebula {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(14px, -12px, 0) scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-10px, 8px, 0) scale(1.02);
+    opacity: 0.92;
+  }
+}
+@keyframes starfield-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-44px, -26px, 0);
+  }
+}
+@keyframes starward-energy-sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+@keyframes starward-beacon-pulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.72;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   .game-page-enter,
   .game-auth__entry,
   .assignment-brief {
     animation: game-reveal var(--duration-reveal) var(--motion-impact) both;
-  }
-  .game-auth__story-copy {
-    animation: game-reveal 850ms var(--motion-impact) both;
   }
   .chapter-card,
   .reward-card,

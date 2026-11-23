@@ -401,14 +401,14 @@ test("bottom navigation only commits a valid release and ignores gaps or oversho
   await page.evaluate(() =>
     document.documentElement.setAttribute("data-theme", "dark"),
   );
-  await expect(links.nth(2)).toHaveCSS("color", "rgb(216, 196, 134)");
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(133, 197, 255)");
   await page.screenshot({
     path: test.info().outputPath("bottom-nav-dark.png"),
   });
   await page.evaluate(() =>
     document.documentElement.setAttribute("data-theme", "light"),
   );
-  await expect(links.nth(2)).toHaveCSS("color", "rgb(17, 105, 88)");
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(28, 94, 212)");
   await page.screenshot({
     path: test.info().outputPath("bottom-nav-light.png"),
   });
