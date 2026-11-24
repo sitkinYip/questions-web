@@ -10,19 +10,32 @@ export function useWorkspaceViewport(
     const shell = root?.closest<HTMLElement>(".game-shell");
     const navigation = root?.querySelector<HTMLElement>('[role="tablist"]');
     if (!root || !shell || !navigation) return;
+    const headerRow =
+      navigation.closest<HTMLElement>(".game-page-head") ?? navigation;
+    const floatingNav = desktop
+      ? null
+      : (shell
+          .closest<HTMLElement>(".game-world")
+          ?.querySelector<HTMLElement>(
+            ".game-navigation:not(.game-navigation--desktop)",
+          ) ?? null);
     let frame = 0;
     const measure = () => {
       const shellBox = shell.getBoundingClientRect();
       // Add scrollTop so scrolling the fallback does not switch modes mid-gesture.
       const top = root.getBoundingClientRect().top + shell.scrollTop;
-      const navigationHeight = desktop
-        ? 0
-        : navigation.getBoundingClientRect().height +
-          parseFloat(getComputedStyle(navigation).marginBottom || "0");
+      const navigationHeight =
+        headerRow.getBoundingClientRect().height +
+        parseFloat(getComputedStyle(headerRow).marginBottom || "0");
       const viewportBottom = window.visualViewport
         ? window.visualViewport.height + window.visualViewport.offsetTop
         : window.innerHeight;
-      const available = Math.min(shellBox.bottom, viewportBottom) - top;
+      // 非桌面端扣除固定悬浮底栏占用高度，避免横屏矮视口高估可用阅读区。
+      const navBound = floatingNav
+        ? floatingNav.getBoundingClientRect().top - 12
+        : Infinity;
+      const available =
+        Math.min(shellBox.bottom, viewportBottom, navBound) - top;
       root.style.setProperty(
         "--workspace-fallback-height",
         `${navigationHeight + 180}px`,
@@ -42,7 +55,8 @@ export function useWorkspaceViewport(
         : new ResizeObserver(schedule);
     observer?.observe(shell);
     observer?.observe(root);
-    observer?.observe(navigation);
+    observer?.observe(headerRow);
+    if (floatingNav) observer?.observe(floatingNav);
     window.addEventListener("resize", schedule);
     window.visualViewport?.addEventListener("resize", schedule);
     measure();

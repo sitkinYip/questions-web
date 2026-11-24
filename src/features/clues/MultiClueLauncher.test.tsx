@@ -65,6 +65,6 @@ describe("MultiClueLauncher", () => {
       JSON.parse(
         window.localStorage.getItem(MULTI_CLUE_LAUNCHER_POSITION_KEY) ?? "null",
       ).y,
-    ).toBeLessThan(0.72);
+    ).toBeLessThan(0.84);
   });
 });

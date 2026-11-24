@@ -10,9 +10,11 @@ import type { usePasswordEditor } from "@/features/game/hooks/usePasswordEditor"
 export function PasswordEditor({
   editor,
   forced = false,
+  hideHeading = false,
 }: {
   editor: ReturnType<typeof usePasswordEditor>;
   forced?: boolean;
+  hideHeading?: boolean;
 }) {
   const {
     logout,
@@ -28,15 +30,15 @@ export function PasswordEditor({
   } = editor;
   return (
     <section className="game-password-section">
-      <div className="game-section-title">
-        <KeyIcon aria-hidden="true" />
-        <h2>
-          {forced
-            ? uiCopy.passwordEditor.forcedTitle
-            : uiCopy.passwordEditor.title}
-        </h2>
-      </div>
-      <p className="game-muted">{uiCopy.passwordEditor.description}</p>
+      {!hideHeading && (
+        <div className="game-section-title">
+          <KeyIcon aria-hidden="true" />
+          <h2>{forced ? uiCopy.passwordEditor.forcedTitle : "密码"}</h2>
+        </div>
+      )}
+      {forced && (
+        <p className="game-muted">{uiCopy.passwordEditor.description}</p>
+      )}
       <form
         className="game-form"
         aria-busy={mutation.isPending}

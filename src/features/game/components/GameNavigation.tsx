@@ -4,7 +4,21 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { gameNavigation } from "@/features/game/game-navigation";
 import { useGameNotifications } from "@/features/game/game-queries";
 
-export function GameNavigation({ returnTo }: { returnTo?: string }) {
+function isFloatingTabBarViewport() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 1099px)").matches
+  );
+}
+
+export function GameNavigation({
+  returnTo,
+  desktopInline = false,
+}: {
+  returnTo?: string;
+  desktopInline?: boolean;
+}) {
   const navigate = useNavigate();
   const location = useLocation();
   const notifications = useGameNotifications();
@@ -14,6 +28,10 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
     id: number;
   } | null>(null);
   const suppressClick = useRef(false);
+
+  const items = desktopInline
+    ? gameNavigation.filter((item) => item.to !== "/profile")
+    : gameNavigation;
 
   function track(event: PointerEvent<HTMLElement>) {
     const current = gesture.current;
@@ -38,7 +56,7 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
 
   function release(event: PointerEvent<HTMLElement>) {
     if (gesture.current?.id !== event.pointerId) return;
-    // Test the actual release position, never the clamped glow or nearest tab.
+    // 以实际松手落点判定目标项，不按光斑边界吸附
     const link = Array.from(event.currentTarget.querySelectorAll("a")).find(
       (element) => {
         const box = element.getBoundingClientRect();
@@ -55,10 +73,11 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
     const index = link
       ? Array.from(event.currentTarget.querySelectorAll("a")).indexOf(link)
       : -1;
-    const target = gameNavigation[index];
+    const target = items[index];
     finish(event);
     if (
-      window.matchMedia("(max-width: 760px)").matches &&
+      !desktopInline &&
+      isFloatingTabBarViewport() &&
       target &&
       target.to !== location.pathname
     ) {
@@ -77,13 +96,14 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
 
   return (
     <nav
-      className="game-navigation"
+      className={`game-navigation${desktopInline ? " game-navigation--desktop" : ""}`}
       aria-label={uiCopy.gameNavigationControl.label}
       onDragStart={(event) => event.preventDefault()}
       onPointerDown={(event) => {
+        if (desktopInline) return;
         if (!gesture.current) suppressClick.current = false;
         if (
-          !window.matchMedia("(max-width: 760px)").matches ||
+          !isFloatingTabBarViewport() ||
           !event.isPrimary ||
           event.button !== 0 ||
           event.metaKey ||
@@ -100,18 +120,18 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
         event.currentTarget.setPointerCapture(event.pointerId);
         track(event);
       }}
-      onPointerMove={track}
-      onPointerUp={release}
-      onPointerCancel={finish}
-      onLostPointerCapture={finish}
+      onPointerMove={desktopInline ? undefined : track}
+      onPointerUp={desktopInline ? undefined : release}
+      onPointerCancel={desktopInline ? undefined : finish}
+      onLostPointerCapture={desktopInline ? undefined : finish}
       onClickCapture={(event) => {
-        if (event.detail > 0 && suppressClick.current) {
+        if (!desktopInline && event.detail > 0 && suppressClick.current) {
           event.preventDefault();
           suppressClick.current = false;
         }
       }}
     >
-      {gameNavigation.map(({ to, label, Icon }) => (
+      {items.map(({ to, label, Icon }) => (
         <NavLink
           key={to}
           to={to}
@@ -123,19 +143,28 @@ export function GameNavigation({ returnTo }: { returnTo?: string }) {
               : undefined
           }
         >
-          {({ isActive }) => (
-            <>
-              <span className="game-navigation__icon" aria-hidden="true">
-                <Icon weight={isActive ? "fill" : "regular"} />
+          {({ isActive }) =>
+            desktopInline ? (
+              <>
+                <span>{label}</span>
                 {to === "/notifications" && unread > 0 && (
-                  <span className="game-navigation__unread">
-                    {unread > 99 ? "99+" : unread}
-                  </span>
+                  <span className="game-navigation__dot" aria-hidden="true" />
                 )}
-              </span>
-              <span>{label}</span>
-            </>
-          )}
+              </>
+            ) : (
+              <>
+                <span className="game-navigation__icon" aria-hidden="true">
+                  <Icon weight={isActive ? "fill" : "regular"} />
+                  {to === "/notifications" && unread > 0 && (
+                    <span className="game-navigation__unread">
+                      {unread > 99 ? "99+" : unread}
+                    </span>
+                  )}
+                </span>
+                <span>{label}</span>
+              </>
+            )
+          }
         </NavLink>
       ))}
     </nav>

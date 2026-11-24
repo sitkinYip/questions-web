@@ -50,7 +50,12 @@ describe("Quest session operational analytics", () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole("button", { name: "选择答案" }));
     fireEvent.click(screen.getByText("月亮"));
+    expect(screen.queryByRole("region", { name: "答案选项" })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /已选择 A 月亮/ }),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
 
     const answerEvent = analyticsMocks.track.mock.calls.find(

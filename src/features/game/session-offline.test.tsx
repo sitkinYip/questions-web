@@ -85,7 +85,7 @@ describe("existing player pages support server-side session closure", () => {
       .mockResolvedValue({ items: [pending, completed] });
     const client = mount(<GameDashboard />);
     await screen.findByText("待答旧场次");
-    const history = screen.getByRole("tab", { name: /旅途回响/ });
+    const history = screen.getByRole("tab", { name: /回响/ });
     fireEvent.mouseDown(history, { button: 0, ctrlKey: false });
     await screen.findByText("已答旧场次");
     assignments.mockResolvedValue({ items: [] });
@@ -97,7 +97,7 @@ describe("existing player pages support server-side session closure", () => {
     await waitFor(() =>
       expect(screen.queryByText("已答旧场次")).not.toBeInTheDocument(),
     );
-    fireEvent.mouseDown(screen.getByRole("tab", { name: /待赴之约/ }), {
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /待赴/ }), {
       button: 0,
       ctrlKey: false,
     });
@@ -118,6 +118,16 @@ describe("existing player pages support server-side session closure", () => {
       }),
     );
     expect(screen.getByText(rewards[0].claimDetails)).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: `关闭${rewards[0].snapshot.name}` }),
+    );
+    fireEvent.mouseDown(screen.getByRole("tab", { name: "已领" }), {
+      button: 0,
+      ctrlKey: false,
+    });
+    expect(
+      await screen.findByText(rewards[1].snapshot.name),
+    ).toBeInTheDocument();
     expect(screen.getByText("已领取 · 已核销")).toBeInTheDocument();
     expect(assignments).not.toHaveBeenCalled();
   });

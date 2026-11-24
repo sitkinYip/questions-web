@@ -31,8 +31,11 @@ test("desktop login help does not move or resize the celestial artwork", async (
 }) => {
   await page.goto("/login?theme=light");
   const artwork = page.locator(".game-auth__story");
-  const atlas = page.locator(".game-auth__story > .celestial-atlas");
-  const copy = page.locator(".game-auth__story-copy");
+  const mark = page.locator(".game-auth__mark");
+  const copy = page.locator(".game-auth__brand-hero");
+  await expect(artwork).toBeVisible();
+  await expect(mark).toBeVisible();
+  await expect(copy).toBeVisible();
 
   const documentRect = (selector: string) =>
     page.locator(selector).evaluate((element) => {
@@ -47,8 +50,8 @@ test("desktop login help does not move or resize the celestial artwork", async (
 
   const before = {
     artwork: await documentRect(".game-auth__story"),
-    atlas: await documentRect(".game-auth__story > .celestial-atlas"),
-    copy: await documentRect(".game-auth__story-copy"),
+    mark: await documentRect(".game-auth__mark"),
+    copy: await documentRect(".game-auth__brand-hero"),
   };
 
   await page.getByText("还没有账号，或忘记了密码？", { exact: true }).click();
@@ -56,15 +59,13 @@ test("desktop login help does not move or resize the celestial artwork", async (
   await expect(page.locator(".game-auth__help")).toHaveAttribute("open", "");
   const after = {
     artwork: await documentRect(".game-auth__story"),
-    atlas: await documentRect(".game-auth__story > .celestial-atlas"),
-    copy: await documentRect(".game-auth__story-copy"),
+    mark: await documentRect(".game-auth__mark"),
+    copy: await documentRect(".game-auth__brand-hero"),
   };
   expect(after).toEqual(before);
-  expect(Math.abs(after.atlas.width - after.atlas.height)).toBeLessThanOrEqual(
-    1,
-  );
+  expect(Math.abs(after.mark.width - after.mark.height)).toBeLessThanOrEqual(1);
   await expect(artwork).toBeVisible();
-  await expect(atlas).toBeVisible();
+  await expect(mark).toBeVisible();
   await expect(copy).toBeVisible();
   expect(
     await page.evaluate(
@@ -73,27 +74,7 @@ test("desktop login help does not move or resize the celestial artwork", async (
   ).toBe(true);
 });
 
-async function expectProfileActionsAligned(page: Page) {
-  // Measure the resting layout, not the hovered button's intentional lift.
-  await page.mouse.move(0, 0);
-  const actions = page.locator(".desktop-profile .game-cta");
-  await expect(actions).toHaveCount(2);
-  await expect
-    .poll(() =>
-      actions.evaluateAll((buttons) => {
-        const [left, right] = buttons.map((button) =>
-          button.getBoundingClientRect(),
-        );
-        return Math.max(
-          Math.abs(left.top - right.top),
-          Math.abs(left.bottom - right.bottom),
-        );
-      }),
-    )
-    .toBeLessThanOrEqual(1);
-}
-
-test("desktop profile exposes both editors at laptop sizes and retains drafts across the boundary", async ({
+test("desktop passport uses two-column settings and retains sheet drafts across the boundary", async ({
   page,
 }) => {
   await mockStarwardApi(page);
@@ -109,18 +90,23 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
       "data-desktop",
       "profile",
     );
-    await expect(page.getByRole("button", { name: "保存资料" })).toBeInViewport(
+    const passportBox = (await page.locator(".player-passport").boundingBox())!;
+    const settingsBox = (await page
+      .locator(".passport-settings")
+      .boundingBox())!;
+    expect(settingsBox.x).toBeGreaterThan(passportBox.x + passportBox.width);
+    await expect(page.getByRole("button", { name: "修改资料" })).toBeInViewport(
       { ratio: 1 },
     );
-    await expect(
-      page.getByRole("button", { name: "保存新密码" }),
-    ).toBeInViewport({ ratio: 1 });
-    await expect(page.getByRole("tab", { name: "账号安全" })).toHaveCount(0);
-    await expectProfileActionsAligned(page);
+    await expect(page.getByRole("button", { name: "退出登录" })).toBeInViewport(
+      { ratio: 1 },
+    );
     await expectPageFits(page);
   }
+
+  await page.getByRole("button", { name: "修改资料" }).click();
+  await expect(page.locator(".passport-sheet")).toHaveClass(/ui-sheet--right/);
   await page.getByLabel("显示昵称", { exact: true }).fill("未保存的旅人");
-  await page.getByLabel("新密码", { exact: true }).fill("private-local-draft");
   const photo = await page.evaluate(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 640;
@@ -137,9 +123,7 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
   });
   const cropDialog = page.getByRole("dialog", { name: "裁剪头像" });
   await expect(cropDialog).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "保存资料", includeHidden: true }),
-  ).toBeDisabled();
+  await expect(page.getByRole("button", { name: "保存资料" })).toBeHidden();
   await cropDialog.getByRole("button", { name: "使用此头像" }).click();
   await expect(cropDialog).toBeHidden();
   await expect(page.locator(".profile-editor__avatar img")).toHaveAttribute(
@@ -149,8 +133,9 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
   const preview = await page
     .locator(".profile-editor__avatar img")
     .getAttribute("src");
+
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole("tab", { name: "我的名片" })).toBeVisible();
+  await expect(page.locator(".passport-sheet")).toHaveClass(/ui-sheet--bottom/);
   await expect(page.getByLabel("显示昵称", { exact: true })).toHaveValue(
     "未保存的旅人",
   );
@@ -158,16 +143,19 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
     "src",
     preview!,
   );
-  await page.getByRole("tab", { name: "账号安全" }).click();
+  await page.getByRole("button", { name: "关闭修改资料" }).click();
+  await page.getByRole("button", { name: "修改密码" }).click();
+  await page.getByLabel("新密码", { exact: true }).fill("private-local-draft");
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await expect(page.locator(".passport-sheet")).toHaveClass(/ui-sheet--right/);
   await expect(page.getByLabel("新密码", { exact: true })).toHaveValue(
     "private-local-draft",
   );
-  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.getByRole("button", { name: "关闭修改密码" }).click();
+  await page.getByRole("button", { name: "修改资料" }).click();
   await expect(page.getByLabel("显示昵称", { exact: true })).toHaveValue(
     "未保存的旅人",
-  );
-  await expect(page.getByLabel("新密码", { exact: true })).toHaveValue(
-    "private-local-draft",
   );
   await expect(page.locator(".profile-editor__avatar img")).toHaveAttribute(
     "src",
@@ -175,7 +163,7 @@ test("desktop profile exposes both editors at laptop sizes and retains drafts ac
   );
 });
 
-test("desktop profile save buttons stay aligned when either editor shows feedback", async ({
+test("desktop passport sheets validate password and avatar feedback without page overflow", async ({
   page,
 }) => {
   const { player } = await mockStarwardApi(page);
@@ -183,8 +171,8 @@ test("desktop profile save buttons stay aligned when either editor shows feedbac
     fulfillJson(route, { ...player, displayName: "更新后的旅人" }),
   );
   await login(page, "/profile?theme=light");
-  await expectProfileActionsAligned(page);
 
+  await page.getByRole("button", { name: "修改密码" }).click();
   await page
     .getByLabel("当前密码", { exact: true })
     .fill("current-test-password");
@@ -194,8 +182,9 @@ test("desktop profile save buttons stay aligned when either editor shows feedbac
     .fill("different-test-password");
   await page.getByRole("button", { name: "保存新密码" }).click();
   await expect(page.locator("#password-validation")).toBeVisible();
-  await expectProfileActionsAligned(page);
+  await page.getByRole("button", { name: "关闭修改密码" }).click();
 
+  await page.getByRole("button", { name: "修改资料" }).click();
   const toast = page.locator(".ui-toast");
   for (let attempt = 0; attempt < 2; attempt++) {
     await page.getByLabel("上传头像").setInputFiles({
@@ -210,7 +199,6 @@ test("desktop profile save buttons stay aligned when either editor shows feedbac
     );
     await expect(toast).toBeInViewport({ ratio: 1 });
     expect((await visibleBox(toast)).y).toBeLessThan(80);
-    await expectProfileActionsAligned(page);
     await toast.getByRole("button", { name: "关闭更换头像失败" }).click();
     await expect(toast).toBeHidden();
   }
@@ -220,7 +208,6 @@ test("desktop profile save buttons stay aligned when either editor shows feedbac
   await expect(page.locator(".profile-editor [role=status]")).toContainText(
     "资料已保存",
   );
-  await expectProfileActionsAligned(page);
   await expectPageFits(page);
 });
 
@@ -253,7 +240,10 @@ test("desktop keeps unlocked clues beside the current question, without revealin
     0,
   );
   await expect(page.getByLabel("答题引导")).toHaveCount(0);
-  await page.getByRole("radio", { name: "B 北极星" }).check();
+  await page.getByRole("button", { name: "选择答案" }).click();
+  await page.getByRole("radio", { name: "B 北极星" }).click();
+  await expect(page.locator(".choice-dock-popover")).toHaveCount(0);
+  await expect(page.locator(".choice-dock-trigger")).toContainText("北极星");
   await page
     .getByRole("button", { name: "旧观测台的罗盘", exact: true })
     .click();
@@ -267,6 +257,8 @@ test("desktop keeps unlocked clues beside the current question, without revealin
   await expectPageFits(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(shelf).toHaveCount(0);
+  await expect(page.locator(".choice-dock-trigger")).toContainText("北极星");
+  await page.locator(".choice-dock-trigger").click();
   await expect(page.getByRole("radio", { name: "B 北极星" })).toBeChecked();
   await expect(page.locator(".quest-card > .quest-content")).toBeVisible();
 });
@@ -487,19 +479,20 @@ test("desktop question growth stays inside its reading and answer panes", async 
       );
   const before = await stablePanels();
 
-  await page.getByText("查看提示", { exact: true }).click();
-  await expect(page.locator(".quest-hint")).toHaveAttribute("open", "");
+  await page.getByRole("button", { name: "查看提示" }).click();
+  const hintSheet = page.getByRole("dialog", { name: "查看提示" });
+  await expect(hintSheet).toBeVisible();
+  await expect(hintSheet).toContainText("提示只应扩展题目阅读区");
+  await page.getByRole("button", { name: "关闭查看提示" }).click();
+  await expect(hintSheet).toHaveCount(0);
   expect(await stablePanels()).toEqual(before);
-  expect(
-    await page
-      .locator(".desktop-question__reading")
-      .evaluate((element) => element.scrollHeight > element.clientHeight),
-  ).toBe(true);
 
-  await page.getByRole("radio", { name: "A 启明星" }).check();
+  await page.getByRole("button", { name: "选择答案" }).click();
+  await page.getByRole("radio", { name: "A 启明星" }).click();
+  await expect(page.locator(".choice-dock-popover")).toHaveCount(0);
+  await expect(page.locator(".choice-dock-trigger")).toContainText("启明星");
   await page.getByRole("button", { name: "提交答案" }).click();
   await expect(page.getByText("回答错误，已进入惩罚时间。")).toBeVisible();
-  expect(await stablePanels()).toEqual(before);
   await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
     ratio: 1,
   });
@@ -557,11 +550,15 @@ test("many choices scroll inside the answer area without hiding submit", async (
   await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
     ratio: 1,
   });
+  await page.getByRole("button", { name: "选择答案" }).click();
+  const popoverBody = page.locator(".choice-dock-popover__body");
+  await expect(popoverBody).toBeVisible();
   expect(
-    await page
-      .locator(".desktop-question fieldset")
-      .evaluate((el) => el.scrollHeight > el.clientHeight),
+    await popoverBody.evaluate((el) => el.scrollHeight > el.clientHeight),
   ).toBe(true);
+  await expect(page.getByRole("button", { name: "提交答案" })).toBeInViewport({
+    ratio: 1,
+  });
   await expect(
     page.getByRole("heading", { name: "星图上的北方" }),
   ).toBeInViewport();
@@ -597,10 +594,10 @@ test("desktop inbox keeps compact rows and offers read acknowledgement from its 
   await expect(letters.nth(1)).toHaveAttribute("data-read", "true");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await letters.nth(1).locator(".mailbox-row__open").click();
-  await expect(page.locator(".notification-content")).toHaveText(
-    "第二封信的正文",
-  );
-  await page.getByRole("button", { name: "关闭信件", exact: true }).click();
+  await expect(
+    page.locator(".mailbox-reader .notification-content"),
+  ).toHaveText("第二封信的正文");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await expectPageFits(page);
 });
 

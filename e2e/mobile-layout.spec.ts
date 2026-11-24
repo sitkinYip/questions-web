@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { enterGame, login, mockStarwardApi } from "@e2e/fixtures";
+import { enterGame, login, mockStarwardApi, questions } from "@e2e/fixtures";
 import { imageAssignment } from "@e2e/question-image-fixtures";
 
 // Device emulation does not expose a physical notch. Exercise the same tokens
@@ -41,7 +41,7 @@ for (const withImage of [false, true]) {
           .poll(() =>
             header.evaluate((element) => element.getBoundingClientRect().top),
           )
-          .toBeCloseTo(Math.max(24, inset), 0);
+          .toBeCloseTo(Math.max(14, inset), 0);
         await expect(
           page.getByRole("button", { name: "提交答案" }),
         ).toBeInViewport({ ratio: 1 });
@@ -51,7 +51,7 @@ for (const withImage of [false, true]) {
 }
 
 for (const single of [true, false]) {
-  test(`${single ? "single" : "multi"} question view keeps the avatar as its only navigation entry`, async ({
+  test(`${single ? "single" : "multi"} question view uses a symmetric floating capsule topbar and detached bottom input dock`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 664 });
@@ -59,7 +59,13 @@ for (const single of [true, false]) {
     await enterGame(page);
     await expect(page.locator(".game-play-context")).toHaveCount(0);
     await expect(page.getByText("场次详情", { exact: true })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: /返回启程/ })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "返回启程" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    await expect(
+      page.getByRole("button", { name: "打开冒险者菜单" }),
+    ).toHaveCount(0);
     await expect(
       page.locator(
         single
@@ -67,11 +73,12 @@ for (const single of [true, false]) {
           : ".session-header + .quest-nav",
       ),
     ).toHaveCount(1);
-    await page.getByRole("button", { name: "打开冒险者菜单" }).click();
-    await expect(page.locator(".game-sidebar")).toHaveClass(/ui-sheet--left/);
-    await expect(
-      page.getByRole("navigation", { name: "个人导航" }).getByRole("link"),
-    ).toHaveCount(4);
+    const dock = page.locator(".quest-input-dock");
+    await expect(dock).toBeVisible();
+    await expect(dock).toBeInViewport({ ratio: 1 });
+    const cardBox = (await page.locator(".quest-card").boundingBox())!;
+    const dockBox = (await dock.boundingBox())!;
+    expect(dockBox.y).toBeGreaterThanOrEqual(cardBox.y + cardBox.height);
   });
 }
 
@@ -82,7 +89,7 @@ for (const viewport of [
   { width: 390, height: 932, inset: 59 },
   { width: 430, height: 1024, inset: 59 },
 ]) {
-  test(`sidebar actions fit ${viewport.width}×${viewport.height} with a ${viewport.inset}px top inset`, async ({
+  test(`passport settings and bottom sheets fit ${viewport.width}×${viewport.height} with a ${viewport.inset}px top inset`, async ({
     page,
   }) => {
     await page.setViewportSize(viewport);
@@ -96,134 +103,34 @@ for (const viewport of [
       name: "追星人",
       minTotalXp: 100,
     };
-    await enterGame(page);
-    await setSafeInsets(page, viewport.inset);
-    const avatar = page.getByRole("button", { name: "打开冒险者菜单" });
-    await avatar.click();
-    const sidebar = page.getByRole("dialog", {
-      name: "冒险者菜单",
-      exact: true,
-    });
-    await sidebar.getByRole("link", { name: "奇遇收藏" }).click();
-    await avatar.click();
-    // The longest navigation state includes the return-to-question link.
-    await expect(sidebar.getByRole("link")).toHaveCount(5);
-    await expect(sidebar.locator(".player-passport")).toHaveCount(0);
-    await expect(sidebar.getByText("0 EXP", { exact: true })).toBeVisible();
-    await expect(sidebar.getByText("距下一级 100 EXP")).toBeVisible();
-    const close = sidebar.getByRole("button", { name: "关闭冒险者菜单" });
-    await expect(close).toBeFocused();
-    await expect(close.locator("svg")).toHaveCSS("width", "24px");
+    await login(page, "/profile");
+    await setSafeInsets(page, viewport.inset, 34);
+    await expect(page.locator(".player-passport")).toBeVisible();
+    await expect(page.locator(".player-passport")).toContainText("0 / 100 EXP");
+    await expect(page.getByRole("button", { name: "退出登录" })).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+
+    const appearanceTrigger = page.getByRole("button", { name: /外观/ });
+    await appearanceTrigger.click();
+    const sheet = page.getByRole("dialog", { name: "外观", exact: true });
+    await expect(sheet).toHaveClass(/ui-sheet--bottom/);
+    const close = sheet.getByRole("button", { name: "关闭外观" });
     await expect(close).toHaveCSS("width", "44px");
     await expect(close).toHaveCSS("height", "44px");
     await expect(close).toBeInViewport({ ratio: 0.999 });
-    expect((await close.boundingBox())!.y).toBeGreaterThanOrEqual(
-      viewport.inset,
-    );
-    for (const action of await sidebar
-      .locator("nav a, .game-theme-picker label, .game-sidebar__logout")
-      .all()) {
-      await expect(action).toBeInViewport({ ratio: 0.999 });
-    }
-    expect(
-      await sidebar.evaluate(
-        (element) => element.scrollHeight <= element.clientHeight,
-      ),
-    ).toBe(true);
-    expect(
-      await sidebar.evaluate(
-        (element) => element.scrollWidth <= element.clientWidth,
-      ),
-    ).toBe(true);
-    const composition = await sidebar.evaluate((element) => {
-      const sheet = element.getBoundingClientRect();
-      const header = element
-        .querySelector(".ui-sheet__header")!
-        .getBoundingClientRect();
-      const nav = element
-        .querySelector(".game-sidebar__nav")!
-        .getBoundingClientRect();
-      const footer = element
-        .querySelector(".game-sidebar__footer")!
-        .getBoundingClientRect();
-      const style = getComputedStyle(element);
-      const usableHeight =
-        sheet.height -
-        parseFloat(style.paddingTop) -
-        parseFloat(style.paddingBottom);
-      return {
-        bottomGap:
-          sheet.bottom - footer.bottom - parseFloat(style.paddingBottom),
-        navFooterGap: footer.top - nav.bottom,
-        occupiedRatio:
-          (header.height + nav.height + footer.height) / usableHeight,
-      };
-    });
-    // No scrolling is necessary, but that alone is not a complete layout check:
-    // the footer must reach the bottom and the sections must use the available height.
-    expect(Math.abs(composition.bottomGap)).toBeLessThanOrEqual(1);
-    expect(composition.navFooterGap).toBeLessThanOrEqual(24);
-    expect(composition.occupiedRatio).toBeGreaterThan(0.88);
-    if (viewport.height >= 900) {
-      await expect(sidebar.locator(".celestial-atlas")).toBeVisible();
-      await expect(
-        sidebar.locator(".game-sidebar__nav-copy small").first(),
-      ).toBeVisible();
-    } else {
-      await expect(sidebar.locator(".celestial-atlas")).toBeHidden();
-    }
+    await sheet.getByRole("radio", { name: "浅色", exact: true }).check();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await close.click();
-    await expect(sidebar).toHaveCount(0);
-    await expect(avatar).toBeFocused();
+    await expect(sheet).toHaveCount(0);
+    await expect(appearanceTrigger).toBeFocused();
   });
 }
 
-test("an open sidebar adapts across height thresholds without losing actions or leaving a blank tail", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 390, height: 1200 });
-  await mockStarwardApi(page);
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await login(page);
-  await expect(page.locator(".game-topbar")).toBeVisible();
-  await setSafeInsets(page, 44);
-  await page.getByRole("button", { name: "打开冒险者菜单" }).click();
-  const sidebar = page.getByRole("dialog", { name: "冒险者菜单", exact: true });
-  await expect(sidebar).toHaveClass(/ui-sheet--right/);
-  await expect
-    .poll(() =>
-      sidebar.evaluate(
-        (element) => window.innerWidth - element.getBoundingClientRect().right,
-      ),
-    )
-    .toBeCloseTo(0, 0);
-  for (const height of [
-    1200, 1024, 900, 820, 808, 800, 740, 688, 680, 640, 568,
-  ]) {
-    await page.setViewportSize({ width: 390, height });
-    await expect(sidebar).toHaveCSS("height", `${height}px`);
-    await expect(sidebar.getByRole("link")).toHaveCount(4);
-    await expect(
-      sidebar.getByRole("button", { name: "退出登录" }),
-    ).toBeInViewport({ ratio: 0.999 });
-    expect(
-      await sidebar.evaluate(
-        (element) => element.scrollHeight <= element.clientHeight,
-      ),
-    ).toBe(true);
-    const footerBottom = await sidebar
-      .locator(".game-sidebar__footer")
-      .evaluate((element) => element.getBoundingClientRect().bottom);
-    expect(height - footerBottom).toBeLessThanOrEqual(29);
-  }
-  await page.getByRole("radio", { name: "浅色", exact: true }).check();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(
-    sidebar.getByRole("button", { name: "关闭冒险者菜单" }),
-  ).toBeInViewport({ ratio: 0.999 });
-});
-
-test("question top spacing takes the larger inset and never reserves a bottom tab area", async ({
+test("question top spacing takes the larger inset and reserves bottom dock clearance without tabbar", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 664 });
@@ -233,11 +140,18 @@ test("question top spacing takes the larger inset and never reserves a bottom ta
     await setSafeInsets(page, inset, 34);
     await expect(page.locator(".quest-layout")).toHaveCSS(
       "padding-top",
-      `${Math.max(24, inset)}px`,
+      `${Math.max(14, inset) + 66}px`,
     );
+    await expect
+      .poll(() =>
+        page
+          .locator(".session-header")
+          .evaluate((element) => element.getBoundingClientRect().top),
+      )
+      .toBeCloseTo(Math.max(14, inset), 0);
     await expect(page.locator(".quest-layout")).toHaveCSS(
       "padding-bottom",
-      "36px",
+      "130px",
     );
   }
   await expect(page.getByRole("navigation", { name: "冒险导航" })).toHaveCount(
@@ -247,6 +161,29 @@ test("question top spacing takes the larger inset and never reserves a bottom ta
     "content",
     /viewport-fit=cover/,
   );
+});
+
+test("floating quest header hides on scroll down and reveals on scroll up", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 664 });
+  const { assignment } = await mockStarwardApi(page, { single: true });
+  assignment.status = "active";
+  assignment.startedAt = new Date().toISOString();
+  assignment.levels[0].question = structuredClone(questions[0]);
+  assignment.levels[0].question.content[0].text =
+    "沿着星轨继续前行，阅读这段漫长的观测记录。\n\n".repeat(16);
+  await login(page, "/play/assignment1");
+  await expect(page.locator(".quest-card h1")).toBeVisible();
+  const header = page.locator(".session-header");
+  await expect(header).toHaveAttribute("data-floating", "true");
+  await expect(header).not.toHaveAttribute("data-hidden", "true");
+
+  await page.evaluate(() => window.scrollTo(0, 320));
+  await expect(header).toHaveAttribute("data-hidden", "true");
+
+  await page.evaluate(() => window.scrollTo(0, 220));
+  await expect(header).not.toHaveAttribute("data-hidden", "true");
 });
 
 test("login and lobby preserve ordinary header spacing and clear a notch", async ({
@@ -271,25 +208,20 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
   await expect(page.locator(".game-topbar")).toBeVisible();
   for (const width of [390, 700, 1280]) {
     await page.setViewportSize({ width, height: 900 });
-    // matchMedia updates the React desktop variant after viewport resizing.
-    // Measure safe-area changes only once that layout has actually switched.
     await expect(page.locator(".game-world[data-desktop]")).toHaveCount(
       width >= 1100 ? 1 : 0,
     );
-    await setSafeInsets(page, 0, 34);
-    const header = page.locator(".game-topbar");
-    const baseline = await header.boundingBox();
-    await setSafeInsets(page, 8, 34);
-    expect(await header.boundingBox()).toEqual(baseline);
     await setSafeInsets(page, 59, 34);
-    const avatar = header.getByRole("button", { name: "打开冒险者菜单" });
-    expect((await avatar.boundingBox())!.y).toBeGreaterThanOrEqual(59);
+    const header = page.locator(".game-topbar");
+    const passportLink = header.getByRole("link", { name: "打开护照" });
+    await expect(passportLink).toContainText("远航者");
+    await expect(passportLink).toContainText("Lv.1");
+    expect((await passportLink.boundingBox())!.y).toBeGreaterThanOrEqual(59);
     if (width >= 1100) {
       expect(
         (await page.locator(".game-navigation").boundingBox())!.y,
       ).toBeGreaterThanOrEqual(59);
-    }
-    if (width < 760) {
+    } else {
       await expect(page.locator(".game-navigation")).toHaveCSS(
         "padding-bottom",
         "6px",
@@ -298,19 +230,10 @@ test("login and lobby preserve ordinary header spacing and clear a notch", async
         "border-radius",
         "999px",
       );
-      await expect(page.locator(".game-world")).toHaveCSS(
-        "padding-bottom",
-        "126px",
-      );
       const nav = await page.locator(".game-navigation").boundingBox();
       expect(nav!.x).toBeGreaterThan(0);
       expect(nav!.x + nav!.width).toBeLessThan(width + 1);
       expect(nav!.y + nav!.height).toBe(866);
-    } else {
-      await expect(page.locator(".game-world")).toHaveCSS(
-        "padding-bottom",
-        "0px",
-      );
     }
   }
 });
@@ -333,7 +256,7 @@ test("mobile navigation uses a frosted glass and an unframed breathing icon", as
       glowAnimation: getComputedStyle(active, "::after").animationName,
     };
   });
-  expect(appearance.backdrop).toContain("blur(40px)");
+  expect(appearance.backdrop).toContain("blur(36px)");
   expect(appearance.surfaceContent).toBe("none");
   expect(appearance.glowAnimation).toBe("game-tab-breathe");
   await navigation.getByRole("link", { name: "收藏" }).click();
@@ -371,7 +294,6 @@ test("bottom navigation only commits a valid release and ignores gaps or oversho
   await expect(links.nth(2)).toHaveAttribute("aria-current", "page");
   await page.goBack();
   await expect(links.nth(0)).toHaveAttribute("aria-current", "page");
-  // Releasing in gaps, padding or outside must not activate a nearest tab.
   for (const point of [
     { x: (center(0).x + center(1).x) / 2, y: start.y },
     { x: 389, y: start.y },
@@ -401,14 +323,14 @@ test("bottom navigation only commits a valid release and ignores gaps or oversho
   await page.evaluate(() =>
     document.documentElement.setAttribute("data-theme", "dark"),
   );
-  await expect(links.nth(2)).toHaveCSS("color", "rgb(216, 196, 134)");
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(158, 192, 255)");
   await page.screenshot({
     path: test.info().outputPath("bottom-nav-dark.png"),
   });
   await page.evaluate(() =>
     document.documentElement.setAttribute("data-theme", "light"),
   );
-  await expect(links.nth(2)).toHaveCSS("color", "rgb(17, 105, 88)");
+  await expect(links.nth(2)).toHaveCSS("color", "rgb(34, 88, 191)");
   await page.screenshot({
     path: test.info().outputPath("bottom-nav-light.png"),
   });

@@ -25,6 +25,11 @@ describe("GameLoadingScreen", () => {
         container.querySelector(".game-loading-screen__brand img"),
       ).toHaveAttribute("src", "/branding/starward-mark-96.png");
       expect(
+        container.querySelector(
+          ".game-loading-screen__art .star-ring-loader svg",
+        ),
+      ).toBeInTheDocument();
+      expect(
         container.querySelectorAll(
           ".game-loading-screen__art img, video, audio",
         ),

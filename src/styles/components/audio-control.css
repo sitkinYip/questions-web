@@ -47,7 +47,7 @@
   border-color: var(--color-accent);
   box-shadow:
     0 12px 42px var(--color-shadow-strong),
-    0 0 46px var(--glow-gold-soft);
+    0 0 46px var(--glow-accent-soft);
 }
 
 .bgm-note {
@@ -80,7 +80,7 @@
   border-color: var(--color-accent-strong);
   box-shadow:
     0 2px 8px var(--color-shadow),
-    0 0 12px var(--glow-gold);
+    0 0 12px var(--glow-accent);
 }
 
 .bgm-play-glyph {

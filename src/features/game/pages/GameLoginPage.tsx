@@ -2,7 +2,7 @@ import { uiCopy } from "@/config/ui-copy";
 import { useState, useSyncExternalStore } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { ArrowRightIcon, KeyIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { authState, gameApi } from "@/api/game.client";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/FormControls";
@@ -29,15 +29,6 @@ export function GameLoginPage() {
   if (auth) return <Navigate to="/" replace />;
   return (
     <AuthLayout>
-      <div className="game-auth__seal">
-        <KeyIcon weight="thin" aria-hidden="true" />
-      </div>
-      <h2>
-        {uiCopy.gameLoginPage.titleFirstLine}
-        <br />
-        {uiCopy.gameLoginPage.titleSecondLine}
-      </h2>
-      <p className="game-muted">{uiCopy.gameLoginPage.description}</p>
       <form
         className="game-form"
         onSubmit={(event) => {

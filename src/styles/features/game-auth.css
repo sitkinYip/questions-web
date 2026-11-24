@@ -4,10 +4,13 @@
   position: relative;
   isolation: isolate;
   overflow: clip;
+  display: flex;
+  flex-direction: column;
 }
+
 .game-auth__header {
-  --auth-header-height: 106px;
-  --auth-header-clearance: 29px;
+  --auth-header-height: 92px;
+  --auth-header-clearance: 22px;
   --auth-header-safe-offset: max(
     0px,
     calc(var(--safe-area-top) - var(--auth-header-clearance))
@@ -18,187 +21,151 @@
   gap: var(--space-4);
   min-height: calc(var(--auth-header-height) + var(--auth-header-safe-offset));
   padding-top: var(--auth-header-safe-offset);
-  max-width: 1320px;
-  margin: auto;
+  width: min(1180px, 100%);
+  margin: 0 auto;
 }
+
+/* PC 非对称双栏剧场：顶部固定间距，展开帮助时左侧不移位 */
 .game-auth__main {
+  flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  align-items: center;
-  min-height: min(730px, calc(100dvh - 168px));
-  max-width: 1180px;
-  margin: auto;
-  gap: clamp(48px, 8vw, 120px);
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 410px);
+  align-items: start;
+  align-content: start;
+  justify-content: center;
+  width: min(1020px, 100%);
+  margin: clamp(32px, 10vh, 104px) auto var(--space-8);
+  gap: clamp(36px, 7vw, 96px);
 }
+
 .game-auth__story {
-  position: relative;
-  /*
-   * Keep the decorative stage independent from the entry column's content.
-   * Expanding login help must not resize the shared grid row and move the
-   * atlas that is positioned from this element's vertical midpoint.
-   */
-  align-self: start;
   display: flex;
   align-items: center;
-  height: clamp(500px, calc(100dvh - 168px), 730px);
+  justify-content: center;
+  min-height: 380px;
 }
-.game-auth__story > .celestial-atlas {
-  position: absolute;
-  width: 780px;
-  left: -360px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.5;
-}
-.game-auth__story-copy {
-  position: relative;
-  z-index: 1;
-  padding-block: var(--space-12);
-}
-.game-auth__story h1 {
-  font-size: clamp(46px, 5.3vw, 76px);
-  line-height: 1.55;
-  letter-spacing: 0.04em;
-  margin: var(--space-6) 0 var(--space-4);
-  text-shadow: 0 4px 24px var(--color-canvas);
-}
-.game-auth__story-copy > p:not(.eyebrow) {
-  color: var(--color-text-muted);
-  font-size: 15px;
-  line-height: 1.8;
-  letter-spacing: 0.1em;
-}
-.game-auth__ornament {
-  display: inline-flex;
+
+.game-auth__brand-hero {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-8);
-  color: var(--color-accent);
+  gap: var(--space-5);
+  text-align: center;
 }
-.game-auth__ornament i {
-  width: 64px;
-  height: 1px;
-  background: var(--color-accent-border);
-}
-.game-auth__ornament svg {
-  width: 18px;
-  height: 18px;
-}
-.game-auth__entry {
-  padding: var(--space-8) 0;
-  width: 100%;
-  max-width: 400px;
-}
-.game-auth__entry > h2 {
-  font: 500 clamp(28px, 2.9vw, 36px)/1.6 var(--font-display);
-  margin: var(--space-4) 0;
-  letter-spacing: 0.035em;
-  color: var(--color-text-strong);
-}
-.game-auth__entry > .game-muted {
-  margin-bottom: var(--space-8);
-}
-.game-auth__seal {
+
+.game-auth__mark {
+  position: relative;
+  width: clamp(164px, 18vw, 224px);
+  height: clamp(164px, 18vw, 224px);
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--color-accent-border);
-  border-radius: var(--radius-round);
-  color: var(--color-accent);
+  flex-shrink: 0;
 }
-.game-auth__seal svg {
-  width: 28px;
-  height: 28px;
+
+.game-auth__mark .star-ring-loader--hero .star-ring-loader__orbit {
+  animation-duration: 5.4s;
 }
+
+.game-auth__mark .star-ring-loader--hero .star-ring-loader__inner-orbit {
+  animation-duration: 22s;
+}
+
+.game-auth__brand-hero h1 {
+  margin: 0;
+  font: 700 clamp(30px, 3.6vw, 44px) / 1.2 var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--color-text-strong);
+}
+
+/* L1 极光玻璃登录卡片（无 backdrop-filter，带鸿蒙沉浸光斑） */
+.game-auth__entry {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  width: 100%;
+  max-width: 410px;
+  justify-self: center;
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-panel);
+  background: var(--color-glass-card);
+  border: 1px solid var(--color-border-strong);
+  box-shadow:
+    0 18px 48px var(--color-shadow-strong),
+    inset 0 1px 0 var(--color-glass-highlight);
+}
+
+.game-auth__entry::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, var(--light-spot) 0%, transparent 68%);
+  transform: translate3d(
+    calc(var(--sw-light-x, 50%) - 120px),
+    calc(var(--sw-light-y, 50%) - 120px),
+    0
+  );
+  opacity: 0;
+  transition: opacity var(--duration-medium) var(--motion-ios);
+}
+
+.game-auth__entry[data-light="active"]::before {
+  opacity: 1;
+}
+
+.game-auth__entry-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.game-auth__entry > h2,
+.game-auth__entry-inner > h2 {
+  font: 700 24px / 1.3 var(--font-display);
+  margin: 0 0 var(--space-5);
+  color: var(--color-text-strong);
+}
+
 .game-auth__help {
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
   color: var(--color-text-muted);
   font-size: 12px;
-  line-height: 1.8;
+  line-height: 1.7;
+  text-align: center;
 }
+
 .game-auth__help summary {
-  padding-block: var(--space-3);
+  padding-block: var(--space-2);
   cursor: pointer;
+  list-style: none;
 }
+
 .game-auth__help p {
   margin: var(--space-2) 0 0;
+  text-align: left;
 }
-.game-auth__footer {
-  text-align: center;
-  padding: var(--space-5) 0 var(--space-6);
-  color: var(--color-text-subtle);
-  font: 12px/1.8 var(--font-display);
-  letter-spacing: 0.2em;
-}
+
 @media (max-width: 760px) {
-  .game-auth__header {
-    --auth-header-height: 84px;
-    --auth-header-clearance: 18px;
-  }
   .game-auth__header .game-theme-picker span {
     display: none;
   }
-  .game-auth__header .game-theme-picker label {
-    padding-inline: 10px;
-  }
   .game-auth__main {
     grid-template-columns: 1fr;
-    gap: 0;
-    min-height: auto;
-    max-width: 440px;
+    gap: var(--space-6);
+    align-content: center;
   }
-  .game-auth__story {
-    height: auto;
-    min-height: auto;
+  .game-auth__mark {
+    width: 140px;
+    height: 140px;
   }
-  .game-auth__story > .celestial-atlas {
-    width: 420px;
-    left: auto;
-    right: -150px;
-    top: 50%;
-    opacity: 0.22;
-  }
-  .game-auth__story-copy {
-    padding-block: var(--space-8) 0;
-  }
-  .game-auth__story .eyebrow {
-    font-size: 10px;
-  }
-  .game-auth__story h1 {
-    font-size: clamp(34px, 8.5vw, 46px);
-    line-height: 1.4;
-    margin: var(--space-4) 0 var(--space-3);
-  }
-  .game-auth__story-copy > p:not(.eyebrow) {
-    font-size: 13px;
-    letter-spacing: 0.025em;
-  }
-  .game-auth__ornament,
-  .game-auth__seal {
-    display: none;
+  .game-auth__brand-hero h1 {
+    font-size: 30px;
   }
   .game-auth__entry {
-    max-width: none;
-    padding-block: var(--space-5) var(--space-3);
-  }
-  .game-auth__entry > h2 {
-    font-size: 21px;
-    margin: 0 0 var(--space-4);
-  }
-  .game-auth__entry > h2 br {
-    display: none;
-  }
-  .game-auth__entry > .game-muted {
-    display: none;
-  }
-  .game-auth__entry .game-form {
-    gap: var(--space-4);
-  }
-  .game-auth__help {
-    margin-top: var(--space-3);
-  }
-  .game-auth__footer {
-    padding-top: var(--space-3);
+    padding: var(--space-6) var(--space-5);
   }
 }

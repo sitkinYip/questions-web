@@ -1,8 +1,7 @@
 import { uiCopy } from "@/config/ui-copy";
 import { useId, type ReactNode } from "react";
-import { StarFourIcon } from "@phosphor-icons/react";
 import { BrandMark } from "@/components/brand/BrandMark";
-import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
+import { StarRingEmblem } from "@/components/brand/StarRingEmblem";
 
 const loadingScenes = {
   player: {
@@ -47,21 +46,16 @@ export function GameLoadingScreen({
       <div className="game-loading-screen__header">
         {header ?? (
           <span className="game-loading-screen__brand">
-            <BrandMark size={30} />
-            {uiCopy.gameLoadingScreen.brand}
+            <BrandMark size={28} />
+            <span>{uiCopy.gameLoadingScreen.brand}</span>
           </span>
         )}
       </div>
       <section className="game-loading-screen__stage">
         <div className="game-loading-screen__art" aria-hidden="true">
-          <span className="game-loading-screen__ticks" />
-          <span className="game-loading-screen__trail" />
-          <CelestialAtlas />
+          <StarRingEmblem />
         </div>
         <div className="game-loading-screen__copy">
-          <p className="game-loading-screen__eyebrow">
-            {uiCopy.gameLoadingScreen.eyebrow}
-          </p>
           <h1 id={titleId}>{copy.title}</h1>
           <p
             className="game-loading-screen__status"
@@ -70,13 +64,8 @@ export function GameLoadingScreen({
             aria-atomic="true"
           >
             <span className="game-loading-screen__pulse" aria-hidden="true" />
-            {copy.label}
+            <span>{copy.label}</span>
           </p>
-        </div>
-        <div className="game-loading-screen__path" aria-hidden="true">
-          <span />
-          <StarFourIcon weight="fill" />
-          <span />
         </div>
         <p className="game-loading-screen__hint">{copy.hint}</p>
       </section>

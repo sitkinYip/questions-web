@@ -6,17 +6,25 @@
   background: var(--color-browser-chrome);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  /* 层级 */
+  --z-navigation: 100;
   --z-floating: 900;
   --z-overlay: 2000;
   --z-toast: 2200;
   --z-texture: 2300;
-  --motion-spring: cubic-bezier(0.22, 0.78, 0.18, 1);
-  --motion-ios: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* 动效曲线与时长（与 ArkUI curves 对应） */
+  --motion-spring: cubic-bezier(0.22, 0.9, 0.24, 1);
+  --motion-ios: cubic-bezier(0.2, 0, 0, 1);
   --motion-impact: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 180ms;
-  --duration-medium: 360ms;
-  --duration-reveal: 640ms;
+  --duration-fast: 120ms;
+  --duration-medium: 240ms;
+  --duration-reveal: 420ms;
   --duration-orbit: 100s;
+
+  /* 间距 */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -27,122 +35,257 @@
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
-  --radius-control: 10px;
-  --radius-panel: 18px;
+
+  /* 系统友好 4 档圆角（10 / 16 / 24 / 胶囊） */
+  --radius-control: 16px;
+  --radius-panel: 24px;
+  --radius-sm: 10px;
   --radius-round: 999px;
-  --control-height: 52px;
+
+  --control-height: 50px;
   --page-width: 1180px;
-  --page-gutter: clamp(20px, 4vw, 48px);
+  --page-gutter: clamp(18px, 4vw, 44px);
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --text-small: 13px;
-  --z-navigation: 100;
-  --font-mono: "SFMono-Regular", Consolas, monospace;
+
+  /* 字体：系统原生无衬线（HarmonyOS Sans / PingFang），零外链加载 */
+  --font-mono:
+    "HarmonyOS Sans SC", "SF Pro Display", "SFMono-Regular", Consolas, monospace;
   --font-ui:
-    "Avenir Next", "Segoe UI Variable", "Noto Sans SC", system-ui, sans-serif;
-  --font-display: Georgia, "Noto Serif SC", "Songti SC", serif;
-  --color-browser-chrome: #000000;
-  --color-canvas: #10110f;
-  --color-surface: #151612;
-  --color-surface-raised: #171814;
-  --color-surface-inset: #10110e;
-  --color-surface-hover: #1d1e19;
-  --color-text: #e7e6e1;
-  --color-text-strong: #f0ecdf;
-  --color-text-muted: #aaa99f;
-  --color-text-subtle: #8c8e85;
-  --color-text-disabled: #777970;
-  --color-accent: #d4bc7d;
-  --color-accent-strong: #e1cb90;
-  --color-accent-muted: #bda66f;
-  --color-accent-text: #d8c486;
-  --color-on-accent: #191811;
-  --color-accent-soft: rgba(212, 188, 125, 0.12);
-  --color-accent-faint: rgba(212, 188, 125, 0.055);
-  --color-accent-border: #75684a;
-  --color-border: #30322c;
-  --color-border-strong: #34362f;
-  --color-border-interactive: #55574d;
-  --color-input-surface: #10110e;
-  --color-overlay: rgba(5, 6, 5, 0.76);
-  --color-overlay-strong: rgba(5, 6, 5, 0.92);
-  --color-shadow: rgba(5, 6, 5, 0.48);
-  --color-shadow-strong: rgba(3, 4, 3, 0.58);
-  --color-highlight-text: #f0dca2;
-  --color-highlight-surface: rgba(201, 170, 91, 0.14);
-  --color-danger: #dba6a1;
-  --color-danger-strong: #f0bab4;
-  --color-danger-surface: rgba(102, 49, 44, 0.12);
-  --color-danger-border: #70443f;
-  --color-success: #a8cfb4;
-  --color-success-surface: #142019;
-  --color-success-border: #355643;
-  --color-media-surface: #0b0c0a;
-  --color-canvas-ambient: rgba(183, 153, 88, 0.11);
-  --color-image-scrim-start: rgba(16, 17, 15, 0.54);
-  --color-image-scrim-end: rgba(16, 17, 15, 0.92);
-  --texture-opacity: 0.035;
-  --glow-gold: rgba(218, 184, 99, 0.58);
-  --glow-gold-soft: rgba(218, 184, 99, 0.16);
-  --glow-accent: rgba(218, 184, 99, 0.66);
-  --glow-accent-strong: rgba(239, 207, 126, 0.82);
-  --glow-accent-soft: rgba(218, 184, 99, 0.2);
-  --glow-accent-faint: rgba(218, 184, 99, 0.095);
-  --glow-danger: rgba(205, 92, 72, 0.46);
-  --glow-success: rgba(144, 199, 106, 0.48);
+    "HarmonyOS Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    system-ui, -apple-system, sans-serif;
+  --font-display:
+    "HarmonyOS Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    system-ui, -apple-system, sans-serif;
+
+  /* L0 深空底色（取自品牌 Logo） */
+  --color-browser-chrome: #070a12;
+  --color-canvas: #070a12;
+  --color-surface: #0f1628;
+  --color-surface-raised: #141d34;
+  --color-surface-inset: #0a101e;
+  --color-surface-hover: #1a2642;
+
+  /* 文字 */
+  --color-text: #dce6fa;
+  --color-text-strong: #eef3ff;
+  --color-text-muted: #8a94ad;
+  --color-text-subtle: #78849e;
+  --color-text-disabled: #5a657d;
+
+  /* 主色：Logo 冰蓝 */
+  --color-accent: #8db4ff;
+  --color-accent-strong: #b5d0ff;
+  --color-accent-muted: #6c96e8;
+  --color-accent-text: #9ec0ff;
+  --color-on-accent: #07101f;
+  --color-accent-soft: rgba(141, 180, 255, 0.14);
+  --color-accent-faint: rgba(141, 180, 255, 0.06);
+  --color-accent-border: rgba(141, 180, 255, 0.42);
+
+  /* 奖励/稀有度专用色：金色（仅用于奖品与成就） */
+  --color-reward: #e3c27a;
+  --color-reward-soft: rgba(227, 194, 122, 0.12);
+  --color-reward-border: rgba(227, 194, 122, 0.48);
+  --color-reward-glow: rgba(227, 194, 122, 0.28);
+
+  /* 边框与玻璃高光 */
+  --color-border: rgba(176, 206, 255, 0.14);
+  --color-border-strong: rgba(176, 206, 255, 0.22);
+  --color-border-interactive: rgba(176, 206, 255, 0.34);
+  --color-glass-highlight: rgba(226, 239, 255, 0.22);
+  --color-glass-card: linear-gradient(
+    180deg,
+    rgba(24, 34, 56, 0.72) 0%,
+    rgba(14, 20, 36, 0.78) 100%
+  );
+  --color-glass-card-active: linear-gradient(
+    180deg,
+    rgba(36, 54, 88, 0.78) 0%,
+    rgba(17, 26, 46, 0.86) 100%
+  );
+  --color-glass-floating: rgba(15, 22, 38, 0.7);
+  --color-input-surface: rgba(9, 14, 26, 0.66);
+
+  /* 遮罩与着色投影 */
+  --color-overlay: rgba(4, 7, 15, 0.68);
+  --color-overlay-strong: rgba(4, 7, 15, 0.86);
+  --color-shadow: rgba(2, 5, 14, 0.46);
+  --color-shadow-strong: rgba(2, 5, 14, 0.64);
+  --color-highlight-text: #bdd6ff;
+  --color-highlight-surface: rgba(141, 180, 255, 0.16);
+
+  /* 语义反馈 */
+  --color-danger: #e28b8b;
+  --color-danger-strong: #f2a9a9;
+  --color-danger-surface: rgba(226, 139, 139, 0.12);
+  --color-danger-border: rgba(226, 139, 139, 0.42);
+  --color-success: #7cd4c0;
+  --color-success-surface: rgba(124, 212, 192, 0.12);
+  --color-success-border: rgba(124, 212, 192, 0.38);
+
+  --color-media-surface: #070b14;
+  --color-canvas-ambient: rgba(112, 162, 255, 0.15);
+  --color-star-dot: rgba(214, 230, 255, 0.52);
+  --color-star-dot-soft: rgba(141, 180, 255, 0.24);
+  --color-image-scrim-start: rgba(7, 10, 18, 0.48);
+  --color-image-scrim-end: rgba(7, 10, 18, 0.9);
+  --texture-opacity: 0.02;
+
+  /* 冰蓝光感与奖励辉光 */
+  --glow-gold: rgba(227, 194, 122, 0.48);
+  --glow-gold-soft: rgba(227, 194, 122, 0.16);
+  --glow-accent: rgba(141, 180, 255, 0.56);
+  --glow-accent-strong: rgba(158, 196, 255, 0.78);
+  --glow-accent-soft: rgba(141, 180, 255, 0.24);
+  --glow-accent-faint: rgba(141, 180, 255, 0.1);
+  --glow-danger: rgba(226, 139, 139, 0.42);
+  --glow-success: rgba(124, 212, 192, 0.44);
+  --light-spot: rgba(141, 180, 255, 0.3);
+
+  /* 与 src/design/components 共享的变量别名 */
+  --sw-accent: var(--color-accent);
+  --sw-accent-strong: var(--color-accent-strong);
+  --sw-accent-glow-strong: var(--glow-accent-strong);
+  --sw-text-strong: var(--color-text-strong);
+  --sw-text-muted: var(--color-text-muted);
+  --sw-on-accent: var(--color-on-accent);
+  --sw-radius-pill: var(--radius-round);
+  --sw-ring-track: rgba(164, 196, 255, 0.16);
+  --color-burst-backdrop: rgba(5, 8, 16, 0.78);
+  --color-burst-glow-card: rgba(14, 22, 42, 0.45);
+
+  /* 流光与按钮高光语义变量（供组件消费，避免字面量颜色） */
+  --color-btn-highlight: rgba(255, 255, 255, 0.42);
+  --color-btn-highlight-hover: rgba(255, 255, 255, 0.56);
+  --color-btn-sheen: rgba(255, 255, 255, 0.32);
+  --color-sweep-ice: rgba(255, 255, 255, 0.2);
+  --color-sweep-ice-soft: rgba(255, 255, 255, 0.08);
+  --color-sweep-gold: rgba(255, 236, 186, 0.28);
+  --color-sweep-gold-soft: rgba(255, 236, 186, 0.1);
+  --color-reward-highlight: rgba(255, 240, 200, 0.34);
+
+  /* 星环加载四芒星渐变色（深浅模式均保持星心透白、星尖冰蓝） */
+  --color-star-core: #f4f8ff;
+  --color-star-mid: #b5d2ff;
+  --color-star-edge: #79a7ff;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --color-browser-chrome: #ffffff;
-  --color-canvas: #ffffff;
-  --color-surface: #f7f9f8;
+
+  /* L0 雾白底色 */
+  --color-browser-chrome: #f3f6fb;
+  --color-canvas: #f3f6fb;
+  --color-surface: #ffffff;
   --color-surface-raised: #ffffff;
-  --color-surface-inset: #eef3f1;
-  --color-surface-hover: #e9f2ef;
-  --color-text: #293c38;
-  --color-text-strong: #162e28;
-  --color-text-muted: #536b63;
-  --color-text-subtle: #647970;
-  --color-text-disabled: #86958f;
-  --color-accent: #187b69;
-  --color-accent-strong: #0d6052;
-  --color-accent-muted: #397b6d;
-  --color-accent-text: #116958;
+  --color-surface-inset: #e8effa;
+  --color-surface-hover: #edf3fc;
+
+  /* 文字 */
+  --color-text: #1b253a;
+  --color-text-strong: #0e1424;
+  --color-text-muted: #5a6478;
+  --color-text-subtle: #6b768c;
+  --color-text-disabled: #95a0b5;
+
+  /* 主色：深冰蓝（保证 AA 对比度） */
+  --color-accent: #2f6bdb;
+  --color-accent-strong: #1f56be;
+  --color-accent-muted: #4b80e4;
+  --color-accent-text: #2258bf;
   --color-on-accent: #ffffff;
-  --color-accent-soft: rgba(24, 123, 105, 0.1);
-  --color-accent-faint: rgba(24, 123, 105, 0.05);
-  --color-accent-border: #82afa2;
-  --color-border: #dce5e0;
-  --color-border-strong: #bbcfc5;
-  --color-border-interactive: #8ba69a;
-  --color-input-surface: #ffffff;
-  --color-overlay: rgba(20, 43, 35, 0.32);
-  --color-overlay-strong: rgba(20, 43, 35, 0.56);
-  --color-shadow: rgba(28, 65, 51, 0.1);
-  --color-shadow-strong: rgba(22, 53, 42, 0.18);
-  --color-highlight-text: #0d6052;
-  --color-highlight-surface: rgba(24, 123, 105, 0.13);
-  --color-danger: #a13f4d;
-  --color-danger-strong: #84303d;
-  --color-danger-surface: rgba(161, 63, 77, 0.1);
-  --color-danger-border: #c58a93;
-  --color-success: #26715f;
-  --color-success-surface: #e5f3ef;
-  --color-success-border: #8fb8ae;
-  --color-media-surface: #e8efeb;
-  --color-canvas-ambient: rgba(24, 123, 105, 0.025);
-  --color-image-scrim-start: rgba(255, 255, 255, 0.38);
-  --color-image-scrim-end: rgba(255, 255, 255, 0.9);
-  --texture-opacity: 0.018;
-  --glow-gold: rgba(24, 123, 105, 0.34);
-  --glow-gold-soft: rgba(24, 123, 105, 0.13);
-  --glow-accent: rgba(24, 123, 105, 0.48);
-  --glow-accent-strong: rgba(40, 163, 137, 0.66);
-  --glow-accent-soft: rgba(24, 123, 105, 0.21);
-  --glow-accent-faint: rgba(24, 123, 105, 0.105);
-  --glow-danger: rgba(161, 63, 77, 0.3);
-  --glow-success: rgba(38, 113, 95, 0.3);
+  --color-accent-soft: rgba(47, 107, 219, 0.1);
+  --color-accent-faint: rgba(47, 107, 219, 0.05);
+  --color-accent-border: rgba(47, 107, 219, 0.36);
+
+  /* 奖励/稀有度专用色：暖金 */
+  --color-reward: #b5832a;
+  --color-reward-soft: rgba(181, 131, 42, 0.1);
+  --color-reward-border: rgba(181, 131, 42, 0.42);
+  --color-reward-glow: rgba(181, 131, 42, 0.22);
+
+  /* 边框与玻璃高光 */
+  --color-border: rgba(30, 64, 138, 0.09);
+  --color-border-strong: rgba(30, 64, 138, 0.16);
+  --color-border-interactive: rgba(30, 64, 138, 0.26);
+  --color-glass-highlight: rgba(255, 255, 255, 0.94);
+  --color-glass-card: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(246, 249, 255, 0.84) 100%
+  );
+  --color-glass-card-active: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(235, 243, 255, 0.94) 100%
+  );
+  --color-glass-floating: rgba(255, 255, 255, 0.74);
+  --color-input-surface: rgba(238, 243, 252, 0.78);
+
+  /* 遮罩与冷调投影 */
+  --color-overlay: rgba(14, 24, 48, 0.32);
+  --color-overlay-strong: rgba(14, 24, 48, 0.56);
+  --color-shadow: rgba(24, 52, 112, 0.09);
+  --color-shadow-strong: rgba(20, 44, 96, 0.16);
+  --color-highlight-text: #1f56be;
+  --color-highlight-surface: rgba(47, 107, 219, 0.12);
+
+  /* 语义反馈 */
+  --color-danger: #c94a54;
+  --color-danger-strong: #a6353f;
+  --color-danger-surface: rgba(201, 74, 84, 0.1);
+  --color-danger-border: rgba(201, 74, 84, 0.36);
+  --color-success: #1f8a70;
+  --color-success-surface: rgba(31, 138, 112, 0.1);
+  --color-success-border: rgba(31, 138, 112, 0.34);
+
+  --color-media-surface: #e6edf8;
+  --color-canvas-ambient: rgba(84, 142, 248, 0.13);
+  --color-star-dot: rgba(47, 107, 219, 0.24);
+  --color-star-dot-soft: rgba(94, 144, 232, 0.14);
+  --color-image-scrim-start: rgba(243, 246, 251, 0.36);
+  --color-image-scrim-end: rgba(243, 246, 251, 0.92);
+  --texture-opacity: 0.012;
+
+  /* 冰蓝光感与奖励辉光 */
+  --glow-gold: rgba(181, 131, 42, 0.36);
+  --glow-gold-soft: rgba(181, 131, 42, 0.14);
+  --glow-accent: rgba(47, 107, 219, 0.44);
+  --glow-accent-strong: rgba(47, 107, 219, 0.62);
+  --glow-accent-soft: rgba(47, 107, 219, 0.18);
+  --glow-accent-faint: rgba(47, 107, 219, 0.08);
+  --glow-danger: rgba(201, 74, 84, 0.28);
+  --glow-success: rgba(31, 138, 112, 0.28);
+  --light-spot: rgba(47, 107, 219, 0.18);
+
+  /* 与 src/design/components 共享的变量别名 */
+  --sw-accent: var(--color-accent);
+  --sw-accent-strong: var(--color-accent-strong);
+  --sw-accent-glow-strong: var(--glow-accent-strong);
+  --sw-text-strong: var(--color-text-strong);
+  --sw-text-muted: var(--color-text-muted);
+  --sw-on-accent: var(--color-on-accent);
+  --sw-radius-pill: var(--radius-round);
+  --sw-ring-track: rgba(30, 64, 138, 0.12);
+  --color-burst-backdrop: rgba(235, 241, 252, 0.84);
+  --color-burst-glow-card: rgba(186, 206, 240, 0.34);
+
+  /* 流光与按钮高光语义变量 */
+  --color-btn-highlight: rgba(255, 255, 255, 0.48);
+  --color-btn-highlight-hover: rgba(255, 255, 255, 0.64);
+  --color-btn-sheen: rgba(255, 255, 255, 0.34);
+  --color-sweep-ice: rgba(255, 255, 255, 0.42);
+  --color-sweep-ice-soft: rgba(255, 255, 255, 0.16);
+  --color-sweep-gold: rgba(255, 236, 186, 0.38);
+  --color-sweep-gold-soft: rgba(255, 236, 186, 0.14);
+  --color-reward-highlight: rgba(255, 246, 220, 0.62);
+
+  /* 星环加载四芒星渐变色（浅色模式星心雪白透亮、星尖清澈深冰蓝） */
+  --color-star-core: #ffffff;
+  --color-star-mid: #9fc4ff;
+  --color-star-edge: #2f6bdb;
 }
 
 @media (prefers-reduced-motion: reduce) {

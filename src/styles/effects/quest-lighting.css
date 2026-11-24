@@ -1,102 +1,18 @@
-.session-header {
-  text-shadow: 0 2px 24px var(--glow-accent-faint);
-}
-
-.traveler-avatar {
-  outline: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
-  outline-offset: 5px;
-}
-
-.session-progress strong {
-  text-shadow:
-    0 0 22px var(--glow-accent),
-    0 8px 28px var(--color-shadow-strong);
-}
-
-.quest-nav button {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.quest-nav button::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  content: "";
-  opacity: 0;
-  background: radial-gradient(
-    circle at 50% 110%,
-    color-mix(in srgb, var(--color-accent) 28%, transparent),
-    transparent 64%
-  );
-  transform: scale(0.72);
-  transition:
-    opacity 480ms var(--motion-ios),
-    transform 680ms var(--motion-impact);
-}
-
-.quest-nav button::after {
-  position: absolute;
-  right: 14px;
-  bottom: 0;
-  left: 14px;
-  height: 1px;
-  content: "";
-  opacity: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--color-accent) 92%, var(--color-text-strong)),
-    transparent
-  );
-  box-shadow: 0 0 16px var(--glow-accent);
-  transform: scaleX(0.24);
-}
-
-.quest-nav button.is-active::before,
-.quest-nav button.is-active::after {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.quest-nav button.is-active::after {
-  animation: quest-nav-glint 2.8s var(--motion-ios) infinite alternate;
-}
-
-.quest-nav button.is-active {
-  box-shadow:
-    0 14px 38px var(--color-shadow),
-    0 0 30px var(--glow-accent-soft),
-    inset 0 1px color-mix(in srgb, var(--color-text-strong) 9%, transparent);
-}
-
 .quest-card {
   --spotlight-x: 50%;
   --spotlight-y: 20%;
   --spotlight-opacity: 0;
-  outline: 1px solid color-mix(in srgb, var(--color-accent) 9%, transparent);
-  outline-offset: -7px;
-  box-shadow:
-    0 34px 110px var(--color-shadow-strong),
-    0 0 58px var(--glow-accent-faint),
-    inset 0 1px color-mix(in srgb, var(--color-text-strong) 6%, transparent),
-    inset 0 0 0 6px
-      color-mix(in srgb, var(--color-text-strong) 1.8%, transparent);
   transition:
-    border-color 520ms var(--motion-ios),
-    box-shadow 720ms var(--motion-ios);
+    border-color 420ms var(--motion-ios),
+    box-shadow 520ms var(--motion-ios);
 }
 
 .quest-card:hover {
   border-color: var(--color-accent-border);
   box-shadow:
-    0 42px 140px var(--color-shadow-strong),
-    0 0 82px var(--glow-accent-faint),
-    0 0 0 1px color-mix(in srgb, var(--color-accent) 10%, transparent),
-    inset 0 1px color-mix(in srgb, var(--color-text-strong) 8%, transparent),
-    inset 0 0 0 6px
-      color-mix(in srgb, var(--color-text-strong) 1.8%, transparent);
+    0 26px 68px -8px var(--color-shadow-strong),
+    0 0 42px -12px var(--glow-accent-faint),
+    inset 0 1px 0 var(--color-glass-highlight);
 }
 
 .quest-card-chrome {
@@ -104,82 +20,27 @@
   z-index: -1;
   inset: 0;
   overflow: hidden;
+  border-radius: inherit;
   pointer-events: none;
 }
 
+/* 鸿蒙沉浸式柔光指针跟随 */
 .quest-card-chrome::before {
   position: absolute;
   inset: -1px;
   content: "";
   opacity: var(--spotlight-opacity);
   background: radial-gradient(
-    420px circle at var(--spotlight-x) var(--spotlight-y),
-    color-mix(in srgb, var(--color-accent) 20%, transparent),
-    var(--glow-accent-faint) 35%,
+    380px circle at var(--spotlight-x) var(--spotlight-y),
+    var(--light-spot),
+    var(--glow-accent-faint) 38%,
     transparent 68%
   );
-  transition: opacity 420ms var(--motion-ios);
-}
-
-.quest-card-chrome::after {
-  position: absolute;
-  top: -48%;
-  left: -28%;
-  width: 58%;
-  height: 190%;
-  content: "";
-  opacity: 0.11;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--color-text-strong) 56%, transparent),
-    transparent
-  );
-  filter: blur(10px);
-  transform: translate3d(-130%, 0, 0) rotate(17deg);
-  animation: quest-card-sheen 9s 1.6s var(--motion-ios) infinite;
+  transition: opacity 380ms var(--motion-ios);
 }
 
 .quest-card-chrome i {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  opacity: 0.48;
-  border-color: color-mix(in srgb, var(--color-accent) 52%, transparent);
-}
-
-.quest-card-chrome i:nth-child(1) {
-  top: 12px;
-  left: 12px;
-  border-top: 1px solid;
-  border-left: 1px solid;
-}
-
-.quest-card-chrome i:nth-child(2) {
-  top: 12px;
-  right: 12px;
-  border-top: 1px solid;
-  border-right: 1px solid;
-}
-
-.quest-card-chrome i:nth-child(3) {
-  right: 12px;
-  bottom: 12px;
-  border-right: 1px solid;
-  border-bottom: 1px solid;
-}
-
-.quest-card-chrome i:nth-child(4) {
-  bottom: 12px;
-  left: 12px;
-  border-bottom: 1px solid;
-  border-left: 1px solid;
-}
-
-.quest-card h1 {
-  text-shadow:
-    0 2px 0 color-mix(in srgb, var(--color-text-strong) 3%, transparent),
-    0 18px 54px var(--color-shadow-strong);
+  display: none;
 }
 
 .choice-option {
@@ -196,13 +57,13 @@
   opacity: 0;
   background: radial-gradient(
     circle at 8% 50%,
-    color-mix(in srgb, var(--color-accent) 24%, transparent),
+    color-mix(in srgb, var(--color-accent) 20%, transparent),
     transparent 62%
   );
   transform: translate3d(-12%, 0, 0) scaleX(0.72);
   transition:
-    opacity 420ms var(--motion-ios),
-    transform 680ms var(--motion-impact);
+    opacity 360ms var(--motion-ios),
+    transform 520ms var(--motion-impact);
 }
 
 .choice-option:hover::before,
@@ -212,34 +73,24 @@
 }
 
 .choice-option.is-selected {
-  animation: choice-lock 620ms var(--motion-impact) both;
+  animation: choice-lock 520ms var(--motion-impact) both;
 }
 
 .play-badge,
 .choice-media-button > span:last-child {
   box-shadow:
-    0 0 0 7px var(--glow-accent-faint),
-    0 0 34px var(--glow-accent);
+    0 0 0 6px var(--glow-accent-faint),
+    0 8px 28px var(--glow-accent);
   transition:
-    box-shadow 520ms var(--motion-ios),
-    transform 620ms var(--motion-impact);
+    box-shadow 420ms var(--motion-ios),
+    transform 480ms var(--motion-spring);
 }
 
 .video-poster-button:hover .play-badge {
   box-shadow:
-    0 0 0 12px var(--glow-accent-faint),
-    0 0 58px var(--glow-accent);
-  transform: translate(-50%, -50%) scale(1.09);
-}
-
-@media (max-width: 620px) {
-  .quest-card-chrome::after {
-    opacity: 0.07;
-  }
-
-  .quest-atmosphere__sigil {
-    width: 125vw;
-  }
+    0 0 0 10px var(--glow-accent-faint),
+    0 12px 36px var(--glow-accent);
+  transform: translate(-50%, -50%) scale(1.06);
 }
 
 @media (hover: none) {
@@ -249,52 +100,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .quest-card-chrome::after,
-  .quest-nav button.is-active::after,
   .choice-option.is-selected {
     animation: none;
   }
 }
 
-:root[data-theme="light"] .session-header {
-  text-shadow: 0 2px 28px var(--glow-accent-faint);
-}
-
-:root[data-theme="light"] .session-progress strong,
-:root[data-theme="light"] .quest-card h1 {
-  text-shadow:
-    0 0 24px var(--glow-accent-soft),
-    0 10px 30px var(--color-shadow);
-}
-
-:root[data-theme="light"] .traveler-avatar {
-  outline-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
-}
-
-:root[data-theme="light"] .quest-card {
-  outline-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
-  box-shadow:
-    0 34px 100px var(--color-shadow),
-    0 0 64px var(--glow-accent-soft),
-    0 0 0 1px color-mix(in srgb, var(--color-accent) 13%, transparent),
-    inset 0 1px color-mix(in srgb, var(--color-text-strong) 8%, transparent),
-    inset 0 0 0 6px var(--glow-accent-faint);
-}
-
-:root[data-theme="light"] .quest-card:hover {
-  border-color: var(--color-accent-border);
-  box-shadow:
-    0 42px 110px var(--color-shadow),
-    0 0 64px var(--glow-accent-soft),
-    inset 0 1px color-mix(in srgb, var(--color-text-strong) 8%, transparent),
-    inset 0 0 0 6px var(--glow-accent-faint);
-}
-
 :root[data-theme="light"] .quest-card-chrome::before {
-  opacity: calc(var(--spotlight-opacity, 0) * 0.86);
-  mix-blend-mode: normal;
-}
-
-:root[data-theme="light"] .choice-option::before {
-  mix-blend-mode: normal;
+  opacity: calc(var(--spotlight-opacity, 0) * 0.72);
 }

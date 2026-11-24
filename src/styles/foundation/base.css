@@ -1,36 +1,46 @@
 * {
   box-sizing: border-box;
-  /* Suppress native touch rectangles, including nested SVG and portal content. */
+  /* 抑制移动端触摸高亮矩形 */
   -webkit-tap-highlight-color: transparent;
 }
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100dvh;
-  /* Match browser chrome at the edge, then reveal the existing ambient light. */
+  /* L0 深空 / 雾白底色 + 极光星穹环境光 + 轻量星点 */
   background:
-    linear-gradient(
-      to bottom,
-      var(--color-browser-chrome) 0 8px,
-      transparent 180px
+    radial-gradient(
+      92% 46% at 50% 0%,
+      var(--color-canvas-ambient) 0%,
+      transparent 72%
+    ),
+    radial-gradient(1.5px 1.5px at 14% 18%, var(--color-star-dot), transparent),
+    radial-gradient(1.2px 1.2px at 29% 11%, var(--color-star-dot), transparent),
+    radial-gradient(1.5px 1.5px at 78% 15%, var(--color-star-dot), transparent),
+    radial-gradient(
+      1.2px 1.2px at 88% 28%,
+      var(--color-star-dot-soft),
+      transparent
     ),
     radial-gradient(
-      circle at 18% 18%,
-      var(--color-canvas-ambient),
-      transparent 34rem
+      1.4px 1.4px at 18% 46%,
+      var(--color-star-dot-soft),
+      transparent
+    ),
+    radial-gradient(
+      1.4px 1.4px at 84% 58%,
+      var(--color-star-dot-soft),
+      transparent
+    ),
+    radial-gradient(1.2px 1.2px at 36% 74%, var(--color-star-dot), transparent),
+    radial-gradient(
+      1.4px 1.4px at 66% 84%,
+      var(--color-star-dot-soft),
+      transparent
     ),
     var(--color-canvas);
-}
-
-body::before {
-  position: fixed;
-  z-index: var(--z-texture);
-  inset: 0;
-  content: "";
-  opacity: var(--texture-opacity);
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
-  mix-blend-mode: soft-light;
+  background-attachment: fixed;
 }
 
 body,
@@ -44,6 +54,7 @@ textarea {
     border-color 240ms var(--motion-ios),
     box-shadow 240ms var(--motion-ios);
 }
+
 button,
 input,
 textarea {
@@ -58,7 +69,12 @@ select {
   touch-action: manipulation;
 }
 
-/* Custom controls own their appearance; keep native select/file/radio behavior. */
+/* 等宽数字：等级、经验、进度、倒计时防横向抖动 */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 自定义控件外观，保留原生 select/file/radio 行为 */
 button,
 input:is([type="button"], [type="submit"], [type="reset"]),
 .ui-input,
@@ -67,7 +83,7 @@ textarea {
   appearance: none;
 }
 
-/* Pointer focus must not leave a browser outline on a rounded control. */
+/* 指针点击不在圆角控件留下默认外框 */
 :where(
     a,
     button,

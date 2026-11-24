@@ -224,7 +224,13 @@ export function AppDialog({
               if (!closeOnEscape) event.preventDefault();
             }}
             onPointerDownOutside={(event) => {
-              if (!closeOnOutside) event.preventDefault();
+              const target = event.target as Element | null;
+              if (!closeOnOutside || target?.closest(".ui-toast-viewport"))
+                event.preventDefault();
+            }}
+            onInteractOutside={(event) => {
+              const target = event.target as Element | null;
+              if (target?.closest(".ui-toast-viewport")) event.preventDefault();
             }}
             onKeyDownCapture={() => {
               pointerFocusIndex.current = -1;

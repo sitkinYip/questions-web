@@ -9,10 +9,7 @@ for (const width of [390, 1366]) {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/e2e/preview.html?theme=dark");
     const tabs = page.getByRole("tablist");
-    await expect(tabs).toHaveAttribute(
-      "aria-orientation",
-      width >= 1100 ? "vertical" : "horizontal",
-    );
+    await expect(tabs).toHaveAttribute("aria-orientation", "horizontal");
     const top = await visibleBox(tabs);
     await expect(page.getByRole("tabpanel")).toBeVisible();
     await page.getByRole("tabpanel").evaluate((el) => {
@@ -65,37 +62,30 @@ for (const width of [390, 1100, 1366, 1920]) {
     await page.goto("/e2e/preview.html?theme=dark&screen=/notifications");
     await expect(page.locator(".notification-letter").first()).toBeVisible();
     const tabs = page.getByRole("tablist");
-    await expect(tabs).toHaveAttribute(
-      "aria-orientation",
-      width >= 1100 ? "vertical" : "horizontal",
-    );
+    await expect(tabs).toHaveAttribute("aria-orientation", "horizontal");
     for (const name of ["旅途来信", "星海信笺", "旅途来信"]) {
       const tab = page.getByRole("tab", { name: new RegExp(name) });
       await tab.click();
       await expect(tab).toHaveAttribute("aria-selected", "true");
-      // A generic tabpanel may still resolve to the departing pane after click.
-      // Wait for this tab's own panel, not whichever panel happens to be visible.
       const panel = page.getByRole("tabpanel", { name: new RegExp(name) });
       await expect(panel).toHaveAttribute("data-state", "active");
       const navigation = await visibleBox(tabs);
       const content = await visibleBox(panel);
-      if (width >= 1100) {
-        expect(content.x).toBeGreaterThanOrEqual(
-          navigation.x + navigation.width,
-        );
-        expect(Math.abs(content.y - navigation.y)).toBeLessThan(2);
-        expect(content.width).toBeGreaterThan(navigation.width * 2);
-      } else {
-        expect(content.y).toBeGreaterThanOrEqual(
-          navigation.y + navigation.height,
-        );
-      }
+      expect(content.y).toBeGreaterThanOrEqual(
+        navigation.y + navigation.height,
+      );
       expect(content.height).toBeGreaterThan(200);
       await panel.evaluate((el) => {
         el.scrollTop = el.scrollHeight;
       });
       expect((await visibleBox(tabs)).y).toBe(navigation.y);
-      await expect(page.locator(".game-topbar")).toBeInViewport();
+      if (width >= 1100) {
+        await expect(page.locator(".game-topbar")).toBeInViewport();
+      } else {
+        await expect(
+          page.getByRole("heading", { name: "来信" }),
+        ).toBeInViewport();
+      }
       expect(
         await page.evaluate(
           () => document.documentElement.scrollHeight <= innerHeight,

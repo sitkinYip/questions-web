@@ -1,12 +1,13 @@
 /* Activated only by useDesktopLayout. Mobile never matches these selectors. */
 :where(.game-world[data-desktop], .quest-desktop, .letter-page[data-desktop]) {
-  --desktop-gutter: clamp(24px, 2.5vw, 48px);
-  --desktop-gap: clamp(20px, 2vw, 32px);
-  --desktop-panel-padding: clamp(24px, 2.4vw, 40px);
-  --desktop-page-width: 1600px;
+  --desktop-gutter: clamp(24px, 2.5vw, 40px);
+  --desktop-gap: clamp(18px, 1.8vw, 24px);
+  --desktop-panel-padding: clamp(22px, 2.2vw, 32px);
+  --desktop-page-width: 1120px;
 }
+
 .game-world[data-desktop] {
-  --topbar-height: 80px;
+  --topbar-height: 58px;
   --topbar-clearance: 10px;
   --page-width: var(--desktop-page-width);
   height: 100dvh;
@@ -15,61 +16,77 @@
   flex-direction: column;
   padding-inline: var(--desktop-gutter);
 }
+
 .game-world[data-desktop] .game-topbar {
   flex-shrink: 0;
+  height: 58px;
+  min-height: 58px;
+  margin-top: max(18px, var(--safe-area-top));
+  padding: 0 14px 0 18px;
+  border-radius: var(--radius-round);
+  background: var(--color-glass-floating);
+  border: 1px solid var(--color-border-strong);
+  box-shadow:
+    0 14px 40px var(--color-shadow-strong),
+    inset 0 1px 0 var(--color-glass-highlight);
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
 }
-.game-world[data-desktop] .game-navigation {
-  top: calc(14px + var(--topbar-safe-offset));
-}
+
 .game-world[data-desktop] .game-shell {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding-block: 20px 24px;
+  padding-block: 24px 32px;
 }
+
+.game-world[data-desktop] .game-shell[data-workspace-fallback] {
+  padding-bottom: 32px;
+}
+
 .game-world[data-desktop] .game-page-enter {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
+
 .game-world[data-desktop] .game-page-heading {
   flex-shrink: 0;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  gap: 8px 24px;
-  padding: 0 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 0 22px;
 }
-.game-world[data-desktop] .game-page-heading .eyebrow {
-  grid-column: 1 / -1;
-  font-size: 10px;
-}
+
 .game-world[data-desktop] .game-page-heading h1 {
-  font-size: 32px;
+  font-size: 34px;
   margin: 0;
 }
-.game-world[data-desktop] .game-page-heading__description {
-  font-size: 12px;
-  padding-bottom: 5px;
-}
+
 .game-world[data-desktop] .game-return-link {
   flex-shrink: 0;
   margin-bottom: 12px;
 }
-.game-world[data-desktop] .game-footer {
-  display: none;
+
+@media (prefers-reduced-transparency: reduce) {
+  .game-world[data-desktop] .game-topbar {
+    background: var(--color-surface-raised);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* Long content scrolls in its own pane; focus and scrollbar remain visible. */
 :where(
   .desktop-question__reading,
-  .desktop-question__answer,
   .desktop-clues__reading,
   .desktop-clues__index,
   .mailbox-panel [role="tabpanel"],
-  .desktop-profile
+  .mailbox-reader,
+  .passport-grid
 ) {
   scrollbar-width: thin;
   scrollbar-color: var(--color-accent-border) transparent;

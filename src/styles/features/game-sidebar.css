@@ -265,12 +265,14 @@
     color-mix(in srgb, var(--color-text-strong) 12%, var(--color-border));
   transform: rotate(45deg);
 }
-.game-topbar__player .game-account-popover {
+.game-topbar__player .game-account-popover,
+.session-header__actions .game-account-popover {
   right: -6px;
   left: auto;
   transform-origin: calc(100% - 32px) -10px;
 }
-.game-topbar__player .game-account-popover::before {
+.game-topbar__player .game-account-popover::before,
+.session-header__actions .game-account-popover::before {
   right: 27px;
   left: auto;
 }

@@ -410,6 +410,7 @@ export function SessionPreviewPlayer({
                   visualConfig: {},
                 },
               }}
+              title={assignment.title}
               progress={{
                 completed: assignment.completedLevels,
                 total: assignment.totalLevels,

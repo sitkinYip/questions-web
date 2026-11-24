@@ -1,0 +1,200 @@
+/* 赴星之约 · 极光玻璃 v2 设计系统变量（单一来源，与 src/design/tokens.ts 同步） */
+
+.sw-root,
+.sw-root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* 字体：系统原生无衬线 + 等宽数字，零外链字体加载 */
+  --sw-font-ui:
+    "HarmonyOS Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    system-ui, -apple-system, sans-serif;
+  --sw-font-num:
+    "HarmonyOS Sans SC", "SF Pro Display", "PingFang SC", system-ui, sans-serif;
+
+  /* 圆角：严格 4 档（10 / 16 / 24 / 胶囊） */
+  --sw-radius-sm: 10px;
+  --sw-radius-md: 16px;
+  --sw-radius-lg: 24px;
+  --sw-radius-pill: 999px;
+
+  /* 动效：3 档基础时长 + 仪式演出，2 条可控曲线 */
+  --sw-dur-press: 120ms;
+  --sw-dur-state: 240ms;
+  --sw-dur-page: 420ms;
+  --sw-dur-ceremony: 900ms;
+  --sw-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --sw-ease-spring: cubic-bezier(0.22, 0.9, 0.24, 1);
+
+  /* L0 深空底色 */
+  --sw-bg: #070a12;
+  --sw-bg-ambient-top: rgba(112, 162, 255, 0.16);
+  --sw-bg-ambient-bottom: rgba(58, 108, 208, 0.08);
+  --sw-star-dot: rgba(214, 230, 255, 0.55);
+  --sw-star-dot-soft: rgba(141, 180, 255, 0.28);
+
+  /* 文字 */
+  --sw-text: #dce6fa;
+  --sw-text-strong: #eef3ff;
+  --sw-text-muted: #8a94ad;
+  --sw-text-disabled: #5c667e;
+
+  /* 品牌主色：logo 冰蓝 */
+  --sw-accent: #8db4ff;
+  --sw-accent-strong: #b5d0ff;
+  --sw-on-accent: #07101f;
+  --sw-accent-soft: rgba(141, 180, 255, 0.14);
+  --sw-accent-glow: rgba(141, 180, 255, 0.36);
+  --sw-accent-glow-strong: rgba(154, 194, 255, 0.56);
+
+  /* 奖励/稀有度专用色：金色（仅用于奖品与成就） */
+  --sw-reward: #e3c27a;
+  --sw-reward-soft: rgba(227, 194, 122, 0.12);
+  --sw-reward-border: rgba(227, 194, 122, 0.48);
+  --sw-reward-glow: rgba(227, 194, 122, 0.26);
+
+  /* 判题反馈色 */
+  --sw-danger: #e28b8b;
+  --sw-danger-soft: rgba(226, 139, 139, 0.14);
+  --sw-danger-border: rgba(226, 139, 139, 0.42);
+  --sw-success: #7cd4c0;
+  --sw-success-soft: rgba(124, 212, 192, 0.14);
+
+  /* L1 卡片材质（不用 backdrop-filter，保证滚动帧率与 ArkUI 对应） */
+  --sw-l1-bg: linear-gradient(
+    180deg,
+    rgba(24, 34, 56, 0.72) 0%,
+    rgba(14, 20, 36, 0.78) 100%
+  );
+  --sw-l1-bg-active: linear-gradient(
+    180deg,
+    rgba(36, 54, 88, 0.78) 0%,
+    rgba(17, 26, 46, 0.86) 100%
+  );
+  --sw-l1-bg-locked: rgba(14, 20, 34, 0.46);
+  --sw-l1-border: rgba(176, 206, 255, 0.14);
+  --sw-l1-border-active: rgba(141, 180, 255, 0.44);
+  --sw-l1-highlight: rgba(226, 239, 255, 0.22);
+  --sw-l1-shadow: 0 12px 32px rgba(2, 5, 14, 0.44);
+
+  /* L2 浮层材质（仅用于顶栏、悬浮底栏、弹层，2 档模糊） */
+  --sw-l2-bg: rgba(15, 22, 38, 0.68);
+  --sw-l2-bg-solid: #111829;
+  --sw-l2-border: rgba(186, 212, 255, 0.18);
+  --sw-l2-highlight: rgba(232, 242, 255, 0.24);
+  --sw-l2-shadow: 0 18px 48px rgba(2, 5, 14, 0.62);
+  --sw-blur-soft: blur(20px) saturate(145%);
+  --sw-blur-strong: blur(40px) saturate(165%);
+
+  /* 输入框与分段器槽 */
+  --sw-input-bg: rgba(9, 14, 26, 0.62);
+  --sw-input-border: rgba(164, 196, 255, 0.16);
+  --sw-input-border-focus: rgba(141, 180, 255, 0.68);
+  --sw-track-bg: rgba(16, 24, 42, 0.72);
+  --sw-ring-track: rgba(164, 196, 255, 0.16);
+
+  /* 鸿蒙沉浸光感跟随光斑 */
+  --sw-light-spot: rgba(141, 180, 255, 0.32);
+  --sw-light-spot-reward: rgba(227, 194, 122, 0.28);
+}
+
+.sw-root[data-theme="light"] {
+  color-scheme: light;
+
+  /* L0 雾白底色 */
+  --sw-bg: #f3f6fb;
+  --sw-bg-ambient-top: rgba(84, 142, 248, 0.14);
+  --sw-bg-ambient-bottom: rgba(141, 180, 255, 0.1);
+  --sw-star-dot: rgba(47, 107, 219, 0.26);
+  --sw-star-dot-soft: rgba(94, 144, 232, 0.16);
+
+  /* 文字 */
+  --sw-text: #1b253a;
+  --sw-text-strong: #0e1424;
+  --sw-text-muted: #5a6478;
+  --sw-text-disabled: #95a0b5;
+
+  /* 品牌主色：深冰蓝（保证 AA 对比度） */
+  --sw-accent: #2f6bdb;
+  --sw-accent-strong: #1f56be;
+  --sw-on-accent: #ffffff;
+  --sw-accent-soft: rgba(47, 107, 219, 0.1);
+  --sw-accent-glow: rgba(47, 107, 219, 0.2);
+  --sw-accent-glow-strong: rgba(47, 107, 219, 0.34);
+
+  /* 奖励/稀有度专用色：暖金 */
+  --sw-reward: #b5832a;
+  --sw-reward-soft: rgba(181, 131, 42, 0.1);
+  --sw-reward-border: rgba(181, 131, 42, 0.44);
+  --sw-reward-glow: rgba(181, 131, 42, 0.22);
+
+  /* 判题反馈色 */
+  --sw-danger: #c94a54;
+  --sw-danger-soft: rgba(201, 74, 84, 0.1);
+  --sw-danger-border: rgba(201, 74, 84, 0.36);
+  --sw-success: #1f8a70;
+  --sw-success-soft: rgba(31, 138, 112, 0.1);
+
+  /* L1 卡片材质（日间雾光卡片，带冷调投影与高光边） */
+  --sw-l1-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(246, 249, 255, 0.82) 100%
+  );
+  --sw-l1-bg-active: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(235, 243, 255, 0.92) 100%
+  );
+  --sw-l1-bg-locked: rgba(235, 240, 249, 0.64);
+  --sw-l1-border: rgba(30, 64, 138, 0.09);
+  --sw-l1-border-active: rgba(47, 107, 219, 0.36);
+  --sw-l1-highlight: rgba(255, 255, 255, 0.92);
+  --sw-l1-shadow: 0 10px 28px rgba(24, 52, 112, 0.08);
+
+  /* L2 浮层材质 */
+  --sw-l2-bg: rgba(255, 255, 255, 0.72);
+  --sw-l2-bg-solid: #ffffff;
+  --sw-l2-border: rgba(30, 64, 138, 0.11);
+  --sw-l2-highlight: rgba(255, 255, 255, 0.96);
+  --sw-l2-shadow: 0 16px 40px rgba(20, 44, 96, 0.14);
+
+  /* 输入框与分段器槽 */
+  --sw-input-bg: rgba(238, 243, 252, 0.75);
+  --sw-input-border: rgba(30, 64, 138, 0.12);
+  --sw-input-border-focus: rgba(47, 107, 219, 0.6);
+  --sw-track-bg: rgba(226, 234, 248, 0.72);
+  --sw-ring-track: rgba(30, 64, 138, 0.11);
+
+  /* 鸿蒙沉浸光感跟随光斑 */
+  --sw-light-spot: rgba(47, 107, 219, 0.18);
+  --sw-light-spot-reward: rgba(181, 131, 42, 0.2);
+}
+
+.sw-root {
+  font-family: var(--sw-font-ui);
+  color: var(--sw-text);
+  background: var(--sw-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sw-tabular {
+  font-family: var(--sw-font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+.sw-root[data-reduced-motion="true"] {
+  --sw-dur-press: 0.01ms;
+  --sw-dur-state: 0.01ms;
+  --sw-dur-page: 0.01ms;
+  --sw-dur-ceremony: 0.01ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-root {
+    --sw-dur-press: 0.01ms;
+    --sw-dur-state: 0.01ms;
+    --sw-dur-page: 0.01ms;
+    --sw-dur-ceremony: 0.01ms;
+  }
+}

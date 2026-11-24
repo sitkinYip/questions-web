@@ -87,7 +87,7 @@ export function NotificationCenterView({
     [],
   );
   const initialLauncherPosition = useMemo(
-    () => launcherPositionRepository.load() ?? { x: 0, y: 1 },
+    () => launcherPositionRepository.load() ?? { x: 0, y: 0.84 },
     [launcherPositionRepository],
   );
   const saveLauncherPosition = useCallback(

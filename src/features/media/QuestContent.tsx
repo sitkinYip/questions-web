@@ -1,3 +1,4 @@
+import { LightbulbFilamentIcon, PlayIcon } from "@phosphor-icons/react";
 import { uiCopy } from "@/config/ui-copy";
 import type { QuestContentItem } from "@/domain/quest/types";
 import { RichContent } from "@/features/content/RichContent";
@@ -5,6 +6,7 @@ import { RichContent } from "@/features/content/RichContent";
 interface QuestContentProps {
   items: readonly QuestContentItem[];
   fallback: string;
+  hideHints?: boolean;
   onOpenImages: (urls: readonly string[], index?: number) => void;
   onOpenVideo: (url: string, poster?: string) => void;
 }
@@ -18,6 +20,7 @@ function uniqueImages(item: QuestContentItem): string[] {
 export function QuestContent({
   items,
   fallback,
+  hideHints = false,
   onOpenImages,
   onOpenVideo,
 }: QuestContentProps) {
@@ -31,6 +34,10 @@ export function QuestContent({
         const images = uniqueImages(item);
         return (
           <section className="quest-content-item" key={itemIndex}>
+            {item.text && (
+              <RichContent className="quest-prompt" source={item.text} />
+            )}
+
             {item.videoUrl ? (
               <button
                 type="button"
@@ -50,7 +57,7 @@ export function QuestContent({
                   </span>
                 )}
                 <span className="play-badge" aria-hidden="true">
-                  ▶
+                  <PlayIcon size={22} weight="fill" />
                 </span>
               </button>
             ) : images.length > 0 ? (
@@ -76,12 +83,16 @@ export function QuestContent({
               </div>
             ) : null}
 
-            {item.text && (
-              <RichContent className="quest-prompt" source={item.text} />
-            )}
-            {item.hint && (
+            {!hideHints && item.hint && (
               <details className="quest-hint">
-                <summary>{uiCopy.questContent.hint}</summary>
+                <summary>
+                  <LightbulbFilamentIcon
+                    size={16}
+                    weight="regular"
+                    aria-hidden="true"
+                  />
+                  <span>{uiCopy.questContent.hint}</span>
+                </summary>
                 <RichContent source={item.hint} />
               </details>
             )}

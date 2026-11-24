@@ -29,17 +29,23 @@ test("lobby filters history and reflects changing availability", async ({
   const { assignment } = await mockStarwardApi(page);
   assignment.startsAt = new Date(Date.now() + 60000).toISOString();
   await login(page);
+  await expect(page.locator(".chapter-card").first()).toHaveAttribute(
+    "data-state",
+    "waiting",
+  );
   await expect(page.getByText("静候启程", { exact: true })).toBeVisible();
-  await page.getByRole("tab", { name: /旅途回响/ }).click();
+  await page.getByRole("tab", { name: "回响", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "故事的第一页，还空着。" }),
   ).toBeVisible();
-  await page.getByRole("tab", { name: /待赴之约/ }).click();
+  await page.getByRole("tab", { name: "待赴", exact: true }).click();
   assignment.startsAt = "";
-  await expect(page.getByText("可以出发", { exact: true })).toBeVisible({
-    timeout: 10000,
-  });
-  await page.getByRole("link", { name: "开启旅程" }).click();
+  await expect(page.locator(".chapter-card").first()).toHaveAttribute(
+    "data-state",
+    "ready",
+    { timeout: 10000 },
+  );
+  await page.getByRole("link", { name: /星辰探险/ }).click();
   await expect(page.getByRole("heading", { name: "星辰探险" })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "开始本场冒险" }),
@@ -60,7 +66,7 @@ test("assignment briefing disables start before the opening time", async ({
   ).toBeVisible();
 });
 
-test("nickname-only profile saves use JSON and preserve a tabbed draft", async ({
+test("nickname-only profile saves use JSON and preserve a sheet draft", async ({
   page,
 }) => {
   const { player } = await mockStarwardApi(page);
@@ -69,14 +75,14 @@ test("nickname-only profile saves use JSON and preserve a tabbed draft", async (
     await fulfillJson(route, player);
   });
   await login(page, "/profile");
+  await page.getByRole("button", { name: "修改资料" }).click();
   const name = page.getByLabel("显示昵称", { exact: true });
   await name.fill("追星旅人");
-  if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
-    await page.getByRole("tab", { name: "账号安全" }).click();
-    await page.getByRole("tab", { name: "我的名片" }).click();
-  } else {
-    await expect(page.getByLabel("当前密码", { exact: true })).toBeInViewport();
-  }
+  await page.getByRole("button", { name: "关闭修改资料" }).click();
+  await page.getByRole("button", { name: "修改密码" }).click();
+  await expect(page.getByLabel("当前密码", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "关闭修改密码" }).click();
+  await page.getByRole("button", { name: "修改资料" }).click();
   await expect(name).toHaveValue("追星旅人");
   const requestPending = page.waitForRequest("**/api/questions/v1/me/profile");
   await page.getByRole("button", { name: "保存资料" }).click();
@@ -111,6 +117,7 @@ test("avatar crops before uploading compressed multipart data", async ({
     route.fulfill({ contentType: "image/png", body: avatar }),
   );
   await login(page, "/profile");
+  await page.getByRole("button", { name: "修改资料" }).click();
   await page.getByLabel("显示昵称", { exact: true }).fill("追星旅人");
   const photo = await page.evaluate(() => {
     const canvas = document.createElement("canvas");
@@ -143,11 +150,9 @@ test("avatar crops before uploading compressed multipart data", async ({
   await page.getByRole("button", { name: "使用此头像" }).click();
   const preview = page.locator(".profile-editor__avatar img");
   await expect(preview).toHaveAttribute("src", /^blob:/);
-  if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
-    await page.getByRole("tab", { name: "账号安全" }).click();
-    await page.getByRole("tab", { name: "我的名片" }).click();
-    await expect(preview).toHaveAttribute("src", /^blob:/);
-  }
+  await page.getByRole("button", { name: "关闭修改资料" }).click();
+  await page.getByRole("button", { name: "修改资料" }).click();
+  await expect(preview).toHaveAttribute("src", /^blob:/);
   const cropped = await preview.evaluate(async (img: HTMLImageElement) => {
     const blob = await (await fetch(img.src)).blob();
     const bitmap = await createImageBitmap(blob);
@@ -180,8 +185,6 @@ test("avatar crops before uploading compressed multipart data", async ({
   const file = form.get("avatar") as File;
   expect(file.name).toBe("avatar.jpg");
   expect(file.type).toBe("image/jpeg");
-  // WebKit's intercepted body exposes multipart metadata but omits file bytes.
-  // Check the cropped preview above on every engine, and wire bytes in Chromium.
   if (browserName !== "webkit") {
     expect(file.size).toBe(cropped.size);
     expect(Buffer.from(await file.arrayBuffer())).not.toEqual(avatar);
@@ -205,6 +208,7 @@ test("mobile invalid avatars show repeatable toasts and validation never calls w
     if (/\/me\/(profile|change-password)$/.test(request.url())) writes++;
   });
   await login(page, "/profile");
+  await page.getByRole("button", { name: "修改资料" }).click();
   const upload = page.getByLabel("上传头像");
   const toast = page.locator(".ui-toast");
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -242,9 +246,8 @@ test("mobile invalid avatars show repeatable toasts and validation never calls w
   await expect(toast).toBeInViewport({ ratio: 1 });
   await toast.getByRole("button", { name: "关闭更换头像失败" }).click();
   await expect(toast).toBeHidden();
-  if (await page.getByRole("tab", { name: "账号安全" }).isVisible()) {
-    await page.getByRole("tab", { name: "账号安全" }).click();
-  }
+  await page.getByRole("button", { name: "关闭修改资料" }).click();
+  await page.getByRole("button", { name: "修改密码" }).click();
   await page
     .getByLabel("当前密码", { exact: true })
     .fill("current-test-password");
@@ -264,6 +267,7 @@ test("failed avatar crop tool loading shows a toast and allows saving again", as
 }) => {
   await mockStarwardApi(page);
   await login(page, "/profile");
+  await page.getByRole("button", { name: "修改资料" }).click();
   await page.route("**/AvatarCropDialog.tsx*", (route) => route.abort());
   await page.getByLabel("上传头像").setInputFiles({
     name: "avatar.png",
@@ -295,6 +299,7 @@ test("failed profile saves keep the typed name available for retry", async ({
     ),
   );
   await login(page, "/profile");
+  await page.getByRole("button", { name: "修改资料" }).click();
   await page.getByLabel("显示昵称", { exact: true }).fill("等待保存的旅人");
   await page.getByRole("button", { name: "保存资料" }).click();
   await expect(page.locator(".profile-editor [role=alert]")).toContainText(
@@ -325,6 +330,10 @@ test("rewards show claim details only while available", async ({ page }) => {
   await page.getByRole("button", { name: "查看星辰纪念章详情" }).click();
   await expect(page.getByText("你的领取线索")).toBeVisible();
   await expect(page.getByText("PRIVATE-EXPIRED-CLAIM")).toHaveCount(0);
+  await page.getByRole("button", { name: "关闭星辰纪念章" }).click();
+  await page.getByRole("tab", { name: "已领", exact: true }).click();
+  await page.getByRole("button", { name: "查看远航手记详情" }).click();
+  await expect(page.getByText("PRIVATE-EXPIRED-CLAIM")).toHaveCount(0);
 });
 
 test("a letter can be acknowledged without losing its contents", async ({
@@ -354,9 +363,6 @@ test("a letter can be acknowledged without losing its contents", async ({
   await expect(page.locator(".notification-content")).toContainText(
     "请到入口领取下一份线索",
   );
-  await expect(
-    page.getByRole("button", { name: "关闭信件", exact: true }),
-  ).toBeVisible();
 });
 
 test("narrow layouts and long content never overflow; bottom navigation stays reachable", async ({
@@ -380,6 +386,8 @@ test("narrow layouts and long content never overflow; bottom navigation stays re
       ),
     ).toBe(true);
   }
+  await expect(page.getByRole("button", { name: "修改资料" })).toBeVisible();
+  await page.getByRole("button", { name: "修改资料" }).click();
   await expect(page.getByRole("button", { name: "保存资料" })).toBeVisible();
 });
 
@@ -389,12 +397,7 @@ test("reduced motion leaves the lobby readable without running atlas animations"
   await mockStarwardApi(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await login(page);
-  await expect(
-    page.getByRole("heading", { name: "下一段故事，等你落笔。" }),
-  ).toBeVisible();
-  await expect(
-    page.locator(".celestial-atlas__orbit--outer").first(),
-  ).toHaveCSS("animation-name", "none");
+  await expect(page.getByRole("heading", { name: "启程" })).toBeVisible();
   await expect(page.locator(".chapter-card").first()).toHaveCSS(
     "animation-name",
     "none",

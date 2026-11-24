@@ -28,7 +28,7 @@ test("active tab stays visible and completed questions remain swipeable", async 
   for (let index = 0; index < 5; index++) {
     await page.getByPlaceholder("输入你的答案").fill("星辰大海");
     await page.getByRole("button", { name: "提交答案" }).click();
-    await page.getByRole("button", { name: "前往下一题" }).click();
+    await page.getByRole("button", { name: "下一题", exact: true }).click();
     // Let the original delayed card positioning finish before typing again.
     await expect(page.locator(".quest-card")).toBeFocused();
   }

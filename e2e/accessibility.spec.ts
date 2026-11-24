@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { mockStarwardApi, enterGame } from "@e2e/fixtures";
+import { mockStarwardApi, enterGame, login } from "@e2e/fixtures";
 
 test.beforeEach(async ({ page }) => {
   await mockStarwardApi(page);
@@ -9,9 +9,13 @@ test("visual identity fields render and media dialog restores keyboard focus", a
   page,
   browserName,
 }) => {
-  await enterGame(page);
+  await login(page, "/");
+  await expect(page.locator(".game-topbar .player-avatar")).toHaveText("远");
+  await page.goto("/play/assignment1");
+  await page.getByRole("button", { name: "开始本场冒险" }).click();
+  await expect(page.locator(".quest-card h1")).toBeVisible();
 
-  await expect(page.locator(".traveler-name")).toHaveText("远航者");
+  await expect(page.locator(".session-header__title")).toHaveText("星辰探险");
   await expect(page.locator(".quest-background")).toHaveCSS(
     "background-image",
     /background\.svg/,
@@ -98,17 +102,8 @@ test.describe("touch feedback", () => {
     browserName,
   }) => {
     await enterGame(page);
-    const avatar = page.getByRole("button", {
-      name: "打开冒险者菜单",
-      includeHidden: true,
-    });
-    await expect(avatar).toHaveCSS("appearance", "none");
-    await avatar.tap();
-    const sidebar = page.getByRole("navigation", { name: "个人导航" });
-    await expect(sidebar).toBeVisible();
-    await expect(avatar).toHaveCSS("outline-style", "none");
-    const home = sidebar.getByRole("link").filter({ hasText: "我的场次" });
-    await home.tap();
+    const back = page.getByRole("link", { name: "返回启程" });
+    await back.tap();
     const navigation = page.getByRole("navigation", { name: "冒险导航" });
     await expect(navigation).toBeVisible();
     await navigation.getByRole("link", { name: "收藏" }).tap();

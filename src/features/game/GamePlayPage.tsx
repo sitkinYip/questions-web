@@ -300,6 +300,33 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
             numericValue: result.player.level.order,
           },
         });
+      // 无立即阻断弹窗（自动播放线索/终章完成弹窗）时，展示答对星芒庆祝演出
+      const firstStep = sequence[0];
+      const hasImmediateModal =
+        firstStep?.type === "clue" || firstStep?.type === "completion";
+      if (!hasImmediateModal) {
+        const nextLevelIndex =
+          !completed && settled.levels[activeIndex + 1]?.question
+            ? activeIndex + 1
+            : null;
+        const unlockedForStep = selectClueViews(settled.clues, {
+          assignmentId: settled.id,
+          totalLevels: settled.totalLevels,
+          sessionLevel: step.id,
+          levelOrder: settled.levels.map((level) => level.id),
+        });
+        sequence.unshift({
+          type: "burst",
+          burst: {
+            title: completed ? "全部完成" : "回答正确",
+            xpDelta:
+              result.xpDelta ??
+              Math.max(0, result.player.totalXp - player.totalXp),
+            nextIndex: nextLevelIndex,
+            hasClues: unlockedForStep.length > 0,
+          },
+        });
+      }
       flow.start(sequence);
       void client.invalidateQueries({
         queryKey: ["game", player.id, "rewards"],
@@ -488,14 +515,19 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
       retainedCombination={retainedCombination}
       guideSeen={guideSeen}
       closeAnswerGuide={closeAnswerGuide}
-      header={
+      renderHeader={(trailing, floatingState) => (
         <GameHeader
+          title={assignment.title}
+          backTo="/"
           progress={{
             completed: assignment.completedLevels,
             total: assignment.totalLevels,
           }}
+          trailing={trailing}
+          floating={floatingState?.floating}
+          hidden={floatingState?.hidden}
         />
-      }
+      )}
       brief={{
         rank: player.level.order,
         now: serverNow,

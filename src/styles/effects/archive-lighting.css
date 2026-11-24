@@ -1,93 +1,22 @@
-.clue-panel-atmosphere {
-  position: absolute;
-  z-index: -1;
-  top: -70px;
-  right: -90px;
-  width: min(360px, 72vw);
-  aspect-ratio: 1;
-  opacity: 0.26;
-  pointer-events: none;
-  border: 1px solid rgba(202, 171, 91, 0.12);
-  border-radius: 50%;
-  transform: scaleY(0.48) rotate(-9deg);
-  animation: archive-orbit 24s cubic-bezier(0.45, 0.02, 0.55, 0.98) infinite;
-}
-
-.clue-panel-atmosphere::before,
-.clue-panel-atmosphere::after,
-.clue-panel-atmosphere i {
-  position: absolute;
-  content: "";
-  border: 1px solid rgba(202, 171, 91, 0.12);
-  border-radius: 50%;
-}
-
-.clue-panel-atmosphere::before {
-  inset: 13%;
-  border-style: dashed;
-}
-
-.clue-panel-atmosphere::after {
-  inset: 32%;
-  box-shadow: 0 0 52px rgba(199, 159, 61, 0.12);
-}
-
-.clue-panel-atmosphere i:nth-child(1) {
-  inset: 47% 4%;
-  border-radius: 0;
-}
-
-.clue-panel-atmosphere i:nth-child(2) {
-  inset: 4% 47%;
-  border-radius: 0;
-}
-
-.clue-panel-atmosphere i:nth-child(3) {
-  inset: 23%;
-  border-style: dotted;
-}
-
-.clue-panel-heading > div:first-child,
-.clue-panel-count {
-  animation: archive-heading-enter 720ms var(--motion-impact) both;
-}
-
-.clue-panel-count {
-  animation-delay: 90ms;
-}
-
-.clue-panel-count strong {
-  text-shadow: 0 0 28px rgba(203, 169, 77, 0.2);
-}
-
 .clue-list .clue-card {
-  transform-origin: left center;
-  animation: archive-card-enter 700ms var(--motion-impact) both;
+  transform-origin: center;
+  animation: archive-card-enter 520ms var(--motion-impact) both;
 }
 
 .clue-list .clue-card:nth-child(2) {
-  animation-delay: 70ms;
+  animation-delay: 60ms;
 }
 
 .clue-list .clue-card:nth-child(3) {
-  animation-delay: 140ms;
+  animation-delay: 120ms;
 }
 
 .clue-list .clue-card:nth-child(4) {
-  animation-delay: 210ms;
+  animation-delay: 180ms;
 }
 
 .clue-list .clue-card:nth-child(n + 5) {
-  animation-delay: 280ms;
-}
-
-.clue-card-action i {
-  animation: archive-action-orbit 8s cubic-bezier(0.45, 0.02, 0.55, 0.98)
-    infinite;
-}
-
-.clue-card:hover .clue-card-action i {
-  animation-duration: 2.4s;
+  animation-delay: 240ms;
 }
 
 .notification-list {
@@ -101,7 +30,7 @@
   right: -92px;
   width: 270px;
   aspect-ratio: 1;
-  opacity: 0.38;
+  opacity: 0.34;
   pointer-events: none;
   animation: signal-field-breathe 3.6s var(--motion-ios) infinite alternate;
 }
@@ -142,56 +71,56 @@
 
 .notification-list > header > *,
 .notification-list-items button {
-  animation: signal-item-enter 600ms var(--motion-impact) both;
+  animation: signal-item-enter 520ms var(--motion-impact) both;
 }
 
 .notification-list > header > span {
-  animation-delay: 70ms;
-  text-shadow: 0 0 26px var(--glow-accent-soft);
+  animation-delay: 60ms;
+  text-shadow: 0 0 24px var(--glow-accent-soft);
 }
 
 .notification-list-items button:nth-child(1) {
-  animation-delay: 100ms;
+  animation-delay: 80ms;
 }
 
 .notification-list-items button:nth-child(2) {
-  animation-delay: 155ms;
+  animation-delay: 130ms;
 }
 
 .notification-list-items button:nth-child(3) {
-  animation-delay: 210ms;
+  animation-delay: 180ms;
 }
 
 .notification-list-items button:nth-child(4) {
-  animation-delay: 265ms;
+  animation-delay: 230ms;
 }
 
 .notification-list-items button:nth-child(5) {
-  animation-delay: 320ms;
+  animation-delay: 280ms;
 }
 
 .notification-list-items button {
   transition:
-    color 360ms var(--motion-ios),
-    transform 520ms var(--motion-spring);
+    color 320ms var(--motion-ios),
+    transform 460ms var(--motion-spring);
 }
 
 .notification-list-items button:hover {
-  transform: translate3d(5px, 0, 0);
+  transform: translate3d(4px, 0, 0);
 }
 
 .notification-list-action,
 .notification-list-action i {
   transition:
-    color 360ms var(--motion-ios),
-    border-color 420ms var(--motion-ios),
-    transform 560ms var(--motion-spring);
+    color 320ms var(--motion-ios),
+    border-color 360ms var(--motion-ios),
+    transform 480ms var(--motion-spring);
 }
 
 .notification-list-items button:hover .notification-list-action {
   color: var(--color-accent-strong);
   border-color: var(--color-accent-border);
-  transform: translate3d(2px, -1px, 0) rotate(-5deg) scale(1.07);
+  transform: translate3d(2px, -1px, 0) scale(1.06);
 }
 
 .notification-list-items button:hover .notification-list-action i {
@@ -200,11 +129,11 @@
 
 .notification-bell {
   transition:
-    color 360ms var(--motion-ios),
-    border-color 360ms var(--motion-ios),
-    box-shadow 520ms var(--motion-ios),
-    transform 560ms var(--motion-spring);
-  animation: signal-launcher-enter 680ms var(--motion-spring) both;
+    color 320ms var(--motion-ios),
+    border-color 320ms var(--motion-ios),
+    box-shadow 460ms var(--motion-ios),
+    transform 480ms var(--motion-spring);
+  animation: signal-launcher-enter 600ms var(--motion-spring) both;
 }
 
 .notification-bell-signal > i:first-child {
@@ -219,18 +148,18 @@
   color: var(--color-accent-strong);
   border-color: var(--color-accent-border);
   box-shadow:
-    0 16px 46px var(--color-shadow),
-    0 0 36px var(--glow-accent-soft);
-  transform: translate3d(0, -3px, 0) rotate(-7deg) scale(1.06);
+    0 16px 44px var(--color-shadow),
+    0 0 32px var(--glow-accent-soft);
+  transform: translate3d(0, -3px, 0) scale(1.05);
 }
 
 .notification-launcher[data-state="open"] .notification-bell {
   color: var(--color-accent-strong);
   border-color: var(--color-accent-border);
   box-shadow:
-    0 16px 48px var(--color-shadow),
-    0 0 42px var(--glow-accent-soft);
-  transform: rotate(12deg) scale(0.96);
+    0 16px 46px var(--color-shadow),
+    0 0 38px var(--glow-accent-soft);
+  transform: scale(0.96);
 }
 
 .notification-bell:active {
@@ -238,27 +167,18 @@
 }
 
 .notification-bell strong {
-  animation: signal-badge-enter 620ms var(--motion-spring) both;
+  animation: signal-badge-enter 560ms var(--motion-spring) both;
 }
 
 @media (max-width: 620px) {
-  .clue-panel-atmosphere {
-    right: -130px;
-    opacity: 0.18;
-  }
-
   .notification-list-signal {
-    opacity: 0.28;
+    opacity: 0.24;
     transform: scale(0.82);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .clue-panel-atmosphere,
-  .clue-panel-heading > div:first-child,
-  .clue-panel-count,
   .clue-list .clue-card,
-  .clue-card-action i,
   .notification-list,
   .notification-list-signal,
   .notification-list > header > *,

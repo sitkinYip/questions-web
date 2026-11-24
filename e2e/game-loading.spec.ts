@@ -136,15 +136,7 @@ test("narrative loading retains navigation, yields to errors and retries into th
   try {
     await login(page, "/play/assignment1/content/loading-letter");
     await expect(page.getByRole("status")).toHaveText("正在准备这份专属内容…");
-    await page.getByRole("button", { name: "打开冒险者菜单" }).click();
-    await expect(
-      page.getByRole("navigation", { name: "个人导航" }),
-    ).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(
-      page.getByRole("navigation", { name: "个人导航" }),
-    ).toHaveCount(0);
-    await page.mouse.move(800, 600);
+    await expect(page.locator(".session-header")).toBeVisible();
     narrativeReady.resolve();
     await expect(page.getByRole("alert")).toContainText("这份故事暂时无法打开");
     await expect(page.locator(".game-loading-screen")).toHaveCount(0);

@@ -725,8 +725,8 @@ export const uiCopy = {
     title: "下一段故事，等你落笔。",
     description: "有些答案，要亲自出发才能找到。",
     tabsLabel: "场次分类",
-    upcoming: "待赴之约 ",
-    history: "旅途回响 ",
+    upcoming: "待赴",
+    history: "回响",
     upcomingEmptyTitle: "下一场奇遇，正在酝酿。",
     historyEmptyTitle: "故事的第一页，还空着。",
     upcomingEmptyDescription:

@@ -1,6 +1,6 @@
 import { uiCopy } from "@/config/ui-copy";
 import { useCallback, useMemo } from "react";
-import { ArchiveBoxIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
+import { ArrowUpRightIcon, SparkleIcon } from "@phosphor-icons/react";
 import { createMultiClueLauncherPositionRepository } from "@/infrastructure/storage/multi-clue-launcher.repository";
 import { useDraggableFloatingControl } from "@/shared/gestures/useDraggableFloatingControl";
 
@@ -8,7 +8,7 @@ interface MultiClueLauncherProps {
   onOpen: () => void;
 }
 
-const defaultPosition = { x: 1, y: 0.72 };
+const defaultPosition = { x: 1, y: 0.74 };
 
 export function MultiClueLauncher({ onOpen }: MultiClueLauncherProps) {
   const repository = useMemo(
@@ -38,8 +38,8 @@ export function MultiClueLauncher({ onOpen }: MultiClueLauncherProps) {
     consumeSuppressedClick,
   } = useDraggableFloatingControl({
     initialPosition,
-    fallbackWidth: 174,
-    fallbackHeight: 64,
+    fallbackWidth: 164,
+    fallbackHeight: 46,
     onPositionCommit: savePosition,
   });
 
@@ -59,15 +59,14 @@ export function MultiClueLauncher({ onOpen }: MultiClueLauncherProps) {
         }}
       >
         <span className="multi-clue-launcher__signal" aria-hidden="true">
-          <i />
-          <ArchiveBoxIcon weight="duotone" />
+          <SparkleIcon size={18} weight="fill" />
         </span>
-        <span className="multi-clue-launcher__copy">
-          <small>{uiCopy.multiClueLauncher.eyebrow}</small>
-          <strong>{uiCopy.multiClueLauncher.title}</strong>
-        </span>
+        <strong className="multi-clue-launcher__title">
+          {uiCopy.multiClueLauncher.title}
+        </strong>
         <ArrowUpRightIcon
           className="multi-clue-launcher__arrow"
+          size={15}
           weight="bold"
           aria-hidden="true"
         />

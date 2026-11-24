@@ -1,58 +1,150 @@
+import { useState } from "react";
+import { CaretRightIcon } from "@phosphor-icons/react";
 import { uiCopy } from "@/config/ui-copy";
-import { Tabs } from "radix-ui";
+import { Sheet } from "@/components/ui/Sheet";
+import { overlayPriority } from "@/components/ui/overlay-context";
+import { useOptionalTheme } from "@/components/ui/theme-context";
 import { GamePageHeading } from "@/features/game/components/GameLayout";
 import { PlayerPassport } from "@/features/game/components/PlayerPassport";
-import { ProfileEditor } from "@/features/game/components/ProfileEditor";
+import {
+  ProfileAvatarCrop,
+  ProfileEditor,
+} from "@/features/game/components/ProfileEditor";
 import { PasswordEditor } from "@/features/game/components/PasswordEditor";
+import { GameThemePicker } from "@/features/game/components/GameThemePicker";
 import { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
 import { usePasswordEditor } from "@/features/game/hooks/usePasswordEditor";
-import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
-import { DesktopProfile } from "@/features/game/desktop/DesktopProfile";
+import { useAssignments, useRewards } from "@/features/game/game-queries";
+import { useGame } from "@/features/game/useGame";
+
+type PassportSheet = "profile" | "password" | "theme" | null;
 
 export function GameProfilePage() {
-  const isDesktop = useDesktopLayout();
+  const { logout } = useGame();
+  const theme = useOptionalTheme();
   const profile = useProfileEditor();
   const security = usePasswordEditor();
+  const assignments = useAssignments();
+  const rewards = useRewards();
+  const [activeSheet, setActiveSheet] = useState<PassportSheet>(null);
+
+  const assignmentItems = assignments.data?.items;
+  const rewardItems = rewards.data?.items;
+  const stats = {
+    solved: assignmentItems
+      ? assignmentItems.reduce((sum, item) => sum + item.completedLevels, 0)
+      : null,
+    sessions: assignmentItems
+      ? assignmentItems.filter((item) => item.status !== "cancelled").length
+      : null,
+    rewards: rewardItems ? rewardItems.length : null,
+  };
+
+  const themeLabel =
+    theme?.preference === "light"
+      ? uiCopy.gameThemePicker.light
+      : theme?.preference === "dark"
+        ? uiCopy.gameThemePicker.dark
+        : uiCopy.gameThemePicker.system;
+
   return (
     <>
-      <GamePageHeading
-        eyebrow={uiCopy.gameProfilePage.eyebrow}
-        title={uiCopy.gameProfilePage.title}
-      >
-        {uiCopy.gameProfilePage.description}
-      </GamePageHeading>
-      {isDesktop ? (
-        <DesktopProfile profile={profile} security={security} />
-      ) : (
-        <div className="game-profile-grid">
-          <PlayerPassport compact />
-          <Tabs.Root
-            defaultValue="identity"
-            className="game-tabs game-profile-tabs"
+      <GamePageHeading title={uiCopy.gameNavigation.profile} />
+
+      <div className="passport-grid">
+        <PlayerPassport stats={stats} />
+
+        <section
+          className="passport-settings"
+          aria-label={uiCopy.gameProfilePage.settingsLabel}
+        >
+          <button
+            type="button"
+            className="passport-setting-item"
+            onClick={() => setActiveSheet("profile")}
           >
-            <Tabs.List
-              className="game-tabs__list"
-              aria-label={uiCopy.gameProfilePage.settingsLabel}
+            <span>修改资料</span>
+            <CaretRightIcon size={16} aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            className="passport-setting-item"
+            onClick={() => setActiveSheet("password")}
+          >
+            <span>修改密码</span>
+            <CaretRightIcon size={16} aria-hidden="true" />
+          </button>
+
+          {theme && (
+            <button
+              type="button"
+              className="passport-setting-item"
+              onClick={() => setActiveSheet("theme")}
             >
-              <Tabs.Trigger value="identity">
-                {uiCopy.gameProfilePage.identity}
-              </Tabs.Trigger>
-              <Tabs.Trigger value="security">
-                {uiCopy.gameProfilePage.security}
-              </Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content
-              value="identity"
-              className="game-tabs__content"
-              forceMount
-            >
-              <ProfileEditor editor={profile} />
-            </Tabs.Content>
-            <Tabs.Content value="security" className="game-tabs__content">
-              <PasswordEditor editor={security} />
-            </Tabs.Content>
-          </Tabs.Root>
-        </div>
+              <span>外观</span>
+              <span className="passport-setting-item__val">
+                <span>{themeLabel}</span>
+                <CaretRightIcon size={16} aria-hidden="true" />
+              </span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="passport-setting-item passport-setting-item--danger"
+            onClick={logout}
+          >
+            <span>{uiCopy.gameSidebar.logout}</span>
+          </button>
+        </section>
+      </div>
+
+      <Sheet
+        overlayId="passport-profile"
+        priority={overlayPriority.content}
+        open={activeSheet === "profile"}
+        onOpenChange={(open) => setActiveSheet(open ? "profile" : null)}
+        title="修改资料"
+        side="right"
+        mobileSide="bottom"
+        density="compact"
+        className="passport-sheet"
+      >
+        <ProfileEditor editor={profile} renderCropDialog={false} />
+      </Sheet>
+      <ProfileAvatarCrop editor={profile} />
+
+      <Sheet
+        overlayId="passport-password"
+        priority={overlayPriority.content}
+        open={activeSheet === "password"}
+        onOpenChange={(open) => setActiveSheet(open ? "password" : null)}
+        title="修改密码"
+        side="right"
+        mobileSide="bottom"
+        density="compact"
+        className="passport-sheet"
+      >
+        <PasswordEditor editor={security} hideHeading />
+      </Sheet>
+
+      {theme && (
+        <Sheet
+          overlayId="passport-theme"
+          priority={overlayPriority.content}
+          open={activeSheet === "theme"}
+          onOpenChange={(open) => setActiveSheet(open ? "theme" : null)}
+          title="外观"
+          side="right"
+          mobileSide="bottom"
+          density="compact"
+          className="passport-sheet passport-sheet--theme"
+        >
+          <div className="passport-theme-sheet">
+            <GameThemePicker />
+          </div>
+        </Sheet>
       )}
     </>
   );

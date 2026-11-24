@@ -24,10 +24,12 @@ for (const theme of ["light", "dark"]) {
           .locator(screen === "/" ? ".chapter-card" : ".notification-letter")
           .last();
         await expect(last).toBeVisible();
-        const header = await visibleBox(page.locator(".game-topbar"));
+        const hasTopbar = viewport.width >= 1100 || screen === "/";
+        const header = hasTopbar
+          ? await visibleBox(page.locator(".game-topbar"))
+          : null;
         await expect(shell).toHaveCSS("overflow-y", "auto");
         if (browserName === "webkit" && isMobile) {
-          // Mobile WebKit does not implement Playwright mouse.wheel.
           await last.scrollIntoViewIfNeeded();
         } else {
           await shell.hover();
@@ -37,9 +39,11 @@ for (const theme of ["light", "dark"]) {
           .poll(() => shell.evaluate((el) => el.scrollTop))
           .toBeGreaterThan(0);
         await expect(last).toBeInViewport();
-        expect((await visibleBox(page.locator(".game-topbar"))).y).toBe(
-          header.y,
-        );
+        if (header) {
+          expect((await visibleBox(page.locator(".game-topbar"))).y).toBe(
+            header.y,
+          );
+        }
         expect(
           await page.evaluate(
             () => document.documentElement.scrollHeight <= innerHeight,

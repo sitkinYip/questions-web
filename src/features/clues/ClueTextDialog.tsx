@@ -45,7 +45,6 @@ export function ClueTextDialog({
         ×
       </Button>
       <div className="clue-dialog-scroll">
-        <p className="eyebrow">{uiCopy.clueTextDialog.eyebrow}</p>
         <h2 id="clue-dialog-title">
           {clue.title || uiCopy.clueTextDialog.text}
         </h2>

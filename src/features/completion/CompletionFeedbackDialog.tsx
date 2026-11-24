@@ -46,11 +46,6 @@ export function CompletionFeedbackDialog({
       <div className="completion-sigil" aria-hidden="true">
         {isFinal ? "✦" : completedCount}
       </div>
-      <p className="eyebrow">
-        {isFinal
-          ? uiCopy.completionFeedbackDialog.finalEyebrow
-          : uiCopy.completionFeedbackDialog.combinedEyebrow}
-      </p>
       <h2 id="completion-title">
         {isFinal
           ? uiCopy.completionFeedbackDialog.finalTitle

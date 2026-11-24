@@ -7,7 +7,15 @@ import type {
 } from "@/domain/quest/types";
 import type { MediaViewerState } from "@/features/media/MediaViewer";
 
+export interface AnswerBurstState {
+  title: string;
+  xpDelta: number;
+  nextIndex: number | null;
+  hasClues: boolean;
+}
+
 export type PresentationStep =
+  | { type: "burst"; burst: AnswerBurstState }
   | { type: "clue"; clue: QuestClue }
   | { type: "completion"; variant: "multi" | "final" }
   | { type: "combination"; clue: MultiQuestClue }
@@ -17,6 +25,7 @@ export type PresentationStep =
 
 /** Display sequencing only. The server has already judged and settled answers. */
 export function useGamePresentation(onAdvance: (index: number) => void) {
+  const [burst, setBurst] = useState<AnswerBurstState | null>(null);
   const [media, setMedia] = useState<MediaViewerState>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [textClue, setTextClue] = useState<QuestClue | null>(null);
@@ -43,6 +52,9 @@ export function useGamePresentation(onAdvance: (index: number) => void) {
     const step = queue.current.shift();
     if (!step) return;
     switch (step.type) {
+      case "burst":
+        setBurst(step.burst);
+        return;
       case "clue":
         if (step.clue.kind === "text") {
           setTextClue(step.clue);
@@ -87,6 +99,7 @@ export function useGamePresentation(onAdvance: (index: number) => void) {
     queue.current = [];
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = null;
+    setBurst(null);
     setMedia(null);
     setVideoPlaying(false);
     setTextClue(null);
@@ -108,7 +121,22 @@ export function useGamePresentation(onAdvance: (index: number) => void) {
     setVideoPlaying(false);
     next();
   }
+  function closeBurst(shouldAdvance = true) {
+    const current = burst;
+    setBurst(null);
+    // 玩家主动点击“下一题”时直接切题并跳过重复的延迟前进；点背景/Esc 则留在当前题。
+    queue.current = queue.current.filter((step) => step.type !== "advance");
+    if (
+      shouldAdvance &&
+      current?.nextIndex !== null &&
+      current?.nextIndex !== undefined
+    ) {
+      navigate.current(current.nextIndex);
+    }
+    next();
+  }
   return {
+    burst,
     media,
     videoPlaying,
     setVideoPlaying,
@@ -118,10 +146,18 @@ export function useGamePresentation(onAdvance: (index: number) => void) {
     destination,
     rank,
     busy: Boolean(
-      media || textClue || completion || combination || destination || rank,
+      burst ||
+      media ||
+      textClue ||
+      completion ||
+      combination ||
+      destination ||
+      rank,
     ),
     start,
     reset,
+    continueBurst: () => closeBurst(true),
+    dismissBurst: () => closeBurst(false),
     openImages: (urls: readonly string[], index = 0) => {
       if (urls.length) {
         setVideoPlaying(false);

@@ -271,9 +271,7 @@ test("the Starward rename preserves a legacy login and theme without restoring t
     );
   });
   await page.goto("/profile");
-  await expect(page.getByLabel("显示昵称", { exact: true })).toHaveValue(
-    "远航者",
-  );
+  await expect(page.locator(".player-passport h2")).toHaveText("远航者");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(
     await page.evaluate(() => ({
@@ -288,7 +286,6 @@ test("the Starward rename preserves a legacy login and theme without restoring t
     oldAuth: null,
     oldTheme: null,
   });
-  await page.getByRole("button", { name: "打开冒险者菜单" }).click();
   await page.getByRole("button", { name: "退出登录", exact: true }).click();
   await expect(page.getByLabel("登录账号", { exact: true })).toBeVisible();
   await page.reload();

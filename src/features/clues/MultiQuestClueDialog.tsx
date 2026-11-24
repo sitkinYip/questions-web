@@ -40,7 +40,6 @@ export function MultiQuestClueDialog({
         <i />
       </div>
       <div className="multi-clue-dialog-scroll">
-        <p className="eyebrow">{uiCopy.multiQuestClueDialog.eyebrow}</p>
         <h2 id="multi-clue-title">
           {clue.title || uiCopy.multiQuestClueDialog.title}
         </h2>

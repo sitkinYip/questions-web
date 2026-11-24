@@ -1,53 +1,53 @@
 import { useState } from "react";
 import { Sheet } from "@/components/ui/Sheet";
-import { Button } from "@/components/ui/Button";
 import { uiCopy } from "@/config/ui-copy";
 import { SparkleIcon } from "@phosphor-icons/react";
 import type { GameReward } from "@/api/game.contracts";
 import { RichContent } from "@/features/content/RichContent";
 import { formatGameDate } from "@/features/game/game-presentation";
+import { useImmersiveLight } from "@/design/useImmersiveLight";
 
 export function RewardCard({ item }: { item: GameReward }) {
   const [open, setOpen] = useState(false);
+  const available = item.status === "available";
+  const light = useImmersiveLight(item.status !== "voided");
+  const statusLabel = {
+    available: uiCopy.gameRewardsPage.available,
+    redeemed: uiCopy.gameRewardsPage.redeemed,
+    voided: uiCopy.gameRewardsPage.voided,
+  }[item.status];
+
   return (
     <>
-      <article className="reward-card" data-state={item.status}>
-        <div className="reward-card__art">
-          {item.snapshot.image ? (
-            <img
-              src={item.snapshot.image}
-              alt={item.snapshot.name}
-              loading="lazy"
-            />
-          ) : (
-            <SparkleIcon weight="thin" aria-hidden="true" />
-          )}
-          <span>× {item.quantity}</span>
-        </div>
-        <div className="reward-card__body">
-          <p
-            className="game-status"
-            data-tone={item.status === "available" ? "accent" : "muted"}
-          >
-            {
-              {
-                available: uiCopy.gameRewardsPage.available,
-                redeemed: uiCopy.gameRewardsPage.redeemed,
-                voided: uiCopy.gameRewardsPage.voided,
-              }[item.status]
-            }
-          </p>
-          <h2>{item.snapshot.name}</h2>
-          <p className="game-muted">{item.snapshot.description}</p>
-          <Button
-            variant="ghost"
-            size="small"
-            onClick={() => setOpen(true)}
-            aria-label={`查看${item.snapshot.name}详情`}
-          >
-            查看详情 <span aria-hidden="true">↗</span>
-          </Button>
-        </div>
+      <article className="reward-card" data-state={item.status} {...light}>
+        <button
+          type="button"
+          className="reward-card__trigger"
+          onClick={() => setOpen(true)}
+          aria-label={`查看${item.snapshot.name}详情`}
+        >
+          <div className="reward-card__art">
+            {item.snapshot.image ? (
+              <img
+                src={item.snapshot.image}
+                alt={item.snapshot.name}
+                loading="lazy"
+              />
+            ) : (
+              <SparkleIcon
+                weight={available ? "duotone" : "regular"}
+                aria-hidden="true"
+              />
+            )}
+          </div>
+          <div className="reward-card__foot">
+            <h2>{item.snapshot.name}</h2>
+            <span className="reward-card__qty tabular-nums">
+              ×{item.quantity}
+            </span>
+          </div>
+          <span className="sr-only">{statusLabel}</span>
+        </button>
       </article>
       <Sheet
         overlayId={`reward-${item.id}`}
@@ -56,6 +56,7 @@ export function RewardCard({ item }: { item: GameReward }) {
         title={item.snapshot.name}
         className="reward-details"
         density="compact"
+        side="right"
         mobileSide="bottom"
       >
         {item.snapshot.image && (
@@ -68,7 +69,7 @@ export function RewardCard({ item }: { item: GameReward }) {
             <RichContent source={item.snapshot.publicInstructions} />
           </div>
         )}
-        {item.status === "available" && item.claimDetails && (
+        {available && item.claimDetails && (
           <div className="game-claim-details">
             <h3>{uiCopy.gameRewardsPage.claimDetails}</h3>
             <RichContent source={item.claimDetails} />

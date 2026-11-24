@@ -1,0 +1,283 @@
+/* 赴星之约 · Motion Prompt 精选动效移植（严格保留原参数与 MIT 署名） */
+
+/* Motion Prompt #002 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#002 */
+/* Stagger：每项延迟 120ms，500ms 回弹上浮 */
+.sw-stagger {
+  animation: sw-mp-stagger 500ms cubic-bezier(0.34, 1.38, 0.64, 1) both;
+  animation-delay: calc(var(--stagger-i, 0) * 120ms);
+}
+
+@keyframes sw-mp-stagger {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Motion Prompt #007 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#007 */
+/* Count-up 落位轻弹：1 + 0.07*e^(-7t)*cos(15t) 关键帧采样 */
+.sw-count-land {
+  display: inline-block;
+  animation: sw-mp-count-land 420ms cubic-bezier(0.22, 0.9, 0.24, 1) both;
+}
+
+@keyframes sw-mp-count-land {
+  0% {
+    transform: scale(1);
+  }
+  32% {
+    transform: scale(1.07);
+  }
+  68% {
+    transform: scale(0.99);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Motion Prompt #022 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#022 */
+/* Light sweep：24deg(0.42rad) 斜向光带 1.05s 扫过表面，元素本身不动 */
+.sw-light-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.sw-light-sweep::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  left: -45%;
+  width: 48%;
+  pointer-events: none;
+  z-index: 3;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.26) 46%,
+    rgba(255, 255, 255, 0.06) 62%,
+    rgba(255, 255, 255, 0.2) 70%,
+    transparent 100%
+  );
+  transform: translate3d(-120%, 0, 0) rotate(24deg);
+  animation: sw-mp-sweep 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.sw-glass[data-tone="reward"].sw-light-sweep::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 236, 186, 0.34) 46%,
+    rgba(255, 236, 186, 0.08) 62%,
+    rgba(255, 236, 186, 0.24) 70%,
+    transparent 100%
+  );
+}
+
+@keyframes sw-mp-sweep {
+  0%,
+  18% {
+    transform: translate3d(-140%, 0, 0) rotate(24deg);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  52% {
+    transform: translate3d(380%, 0, 0) rotate(24deg);
+    opacity: 1;
+  }
+  56%,
+  100% {
+    transform: translate3d(380%, 0, 0) rotate(24deg);
+    opacity: 0;
+  }
+}
+
+/* Motion Prompt #051 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#051 */
+/* Bottom sheet：400ms easeOutCubic 从底部升起 + 顶部 52×6 抓手条 */
+.sw-sheet-panel {
+  animation: sw-mp-sheet-up 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sw-sheet-handle {
+  width: 52px;
+  height: 5px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  background: var(--sw-text-muted);
+  opacity: 0.35;
+}
+
+@keyframes sw-mp-sheet-up {
+  from {
+    opacity: 0.4;
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Motion Prompt #060 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#060 */
+/* Segmented control：250ms easeInOutCubic 平滑滑动高亮块 */
+.sw-segment {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 4px;
+  margin-bottom: 18px;
+  border-radius: var(--sw-radius-pill);
+  background: var(--sw-track-bg);
+  border: 1px solid var(--sw-l1-border);
+}
+
+.sw-segment__thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: var(--sw-radius-pill);
+  background: linear-gradient(
+    180deg,
+    var(--sw-accent-strong) 0%,
+    var(--sw-accent) 100%
+  );
+  box-shadow: 0 4px 16px -2px var(--sw-accent-glow);
+  transform: translate3d(calc(var(--seg-index, 0) * 100%), 0, 0);
+  transition: transform 250ms cubic-bezier(0.65, 0, 0.35, 1);
+  pointer-events: none;
+}
+
+.sw-segment__btn {
+  position: relative;
+  z-index: 1;
+  height: 38px;
+  border: none;
+  border-radius: var(--sw-radius-pill);
+  background: transparent;
+  color: var(--sw-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 250ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.sw-segment__btn[data-active="true"] {
+  color: var(--sw-on-accent);
+}
+
+/* Motion Prompt #003 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#003 */
+/* Burst：200ms 蓄力 1->0.7 -> 弹簧回弹，同时 600ms quintic ease-out 扩散环与射线 */
+.sw-burst__star--mp003 {
+  animation: sw-mp-burst-core 820ms cubic-bezier(0.22, 0.9, 0.24, 1) both;
+}
+
+.sw-burst__orbit--mp003 {
+  animation: sw-mp-burst-ring 600ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sw-burst__ray {
+  position: absolute;
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--sw-accent-strong));
+  transform-origin: left center;
+  opacity: 0;
+  animation: sw-mp-burst-ray 620ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sw-mp-burst-core {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(0.7);
+  }
+  52% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  76% {
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sw-mp-burst-ring {
+  0% {
+    opacity: 0.95;
+    transform: rotate(-14deg) scale(0.42);
+    border-width: 5px;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-14deg) scale(1.32);
+    border-width: 1px;
+  }
+}
+
+@keyframes sw-mp-burst-ray {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--ray-deg, 0deg)) translate3d(28px, 0, 0) scaleX(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: rotate(var(--ray-deg, 0deg)) translate3d(56px, 0, 0) scaleX(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--ray-deg, 0deg)) translate3d(96px, 0, 0) scaleX(0.1);
+  }
+}
+
+/* 减少动画：所有 Motion Prompt 装饰动效安全降级 */
+.sw-root[data-reduced-motion="true"] .sw-stagger,
+.sw-root[data-reduced-motion="true"] .sw-count-land,
+.sw-root[data-reduced-motion="true"] .sw-sheet-panel,
+.sw-root[data-reduced-motion="true"] .sw-burst__star--mp003,
+.sw-root[data-reduced-motion="true"] .sw-burst__orbit--mp003,
+.sw-root[data-reduced-motion="true"] .sw-burst__ray {
+  animation: none;
+}
+
+.sw-root[data-reduced-motion="true"] .sw-light-sweep::after {
+  display: none;
+}
+
+.sw-root[data-reduced-motion="true"] .sw-segment__thumb {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-stagger,
+  .sw-count-land,
+  .sw-sheet-panel,
+  .sw-burst__star--mp003,
+  .sw-burst__orbit--mp003,
+  .sw-burst__ray {
+    animation: none;
+  }
+
+  .sw-light-sweep::after {
+    display: none;
+  }
+
+  .sw-segment__thumb {
+    transition: none;
+  }
+}

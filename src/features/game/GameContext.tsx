@@ -1,7 +1,7 @@
 import { GameHeaderView } from "./components/GameHeaderView";
 import { uiCopy } from "@/config/ui-copy";
 import { GameSyncMessage } from "@/features/game/components/GameRequestFeedback";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { z } from "zod";
@@ -12,7 +12,6 @@ import {
   gameRequest,
   pocketBaseUrl,
 } from "@/api/game.client";
-import { GameSidebar } from "@/features/game/GameSidebar";
 import { Button } from "@/components/ui/Button";
 import { PasswordPage } from "@/features/game/pages/PasswordPage";
 import { GameFailure } from "@/features/game/components/GameState";
@@ -111,16 +110,33 @@ export function GameGate() {
   );
 }
 export function GameHeader({
+  title,
+  backTo,
+  backLabel,
   progress,
+  trailing,
+  floating,
+  hidden,
 }: {
+  title?: string;
+  backTo?: string;
+  backLabel?: string;
   progress?: { completed: number; total: number };
+  trailing?: ReactNode;
+  floating?: boolean;
+  hidden?: boolean;
 }) {
   const { player } = useGame();
   return (
     <GameHeaderView
       player={player}
+      title={title}
+      backTo={backTo}
+      backLabel={backLabel}
       progress={progress}
-      navigation={<GameSidebar />}
+      navigation={trailing}
+      floating={floating}
+      hidden={hidden}
     />
   );
 }

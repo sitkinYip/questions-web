@@ -1,18 +1,22 @@
-import type { ComponentProps, ReactNode, RefObject } from "react";
+import {
+  useRef,
+  type ComponentProps,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { Link } from "react-router-dom";
+import { StarFourIcon } from "@phosphor-icons/react";
 import { uiCopy } from "@/config/ui-copy";
 import type { GameAssignment } from "@/api/game.contracts";
 import type { QuestClue, MultiQuestClue } from "@/domain/quest/types";
-import {
-  QuestCard,
-  QuestAnswerGuide,
-  type QuestCardProps,
-} from "@/features/quest/QuestCard";
+import { useFloatingHeaderVisibility } from "@/shared/layout/useFloatingHeaderVisibility";
+import { QuestCard, type QuestCardProps } from "@/features/quest/QuestCard";
 import { DesktopQuestCard } from "./desktop/DesktopQuestCard";
 import { QuestWorkspace } from "./desktop/QuestWorkspace";
 import { AssignmentBrief } from "./components/AssignmentBrief";
 import { ExtraMessages } from "./components/ExtraMessages";
 import { QuestAtmosphere } from "@/components/effects/QuestAtmosphere";
+import { StarBurstOverlay } from "@/design/components/StarBurst";
 import { MediaViewer } from "@/features/media/MediaViewer";
 import { ClueTextDialog } from "@/features/clues/ClueTextDialog";
 import { MultiQuestClueDialog } from "@/features/clues/MultiQuestClueDialog";
@@ -35,6 +39,10 @@ export interface GamePlaySceneProps {
   bgm: ReturnType<typeof useQuestBgm>;
   brief: Omit<ComponentProps<typeof AssignmentBrief>, "assignment">;
   header?: ReactNode;
+  renderHeader?: (
+    trailing?: ReactNode,
+    floatingState?: { floating: boolean; hidden: boolean },
+  ) => ReactNode;
   retry?: ReactNode;
   notifications?: ReactNode;
   pending: boolean;
@@ -48,6 +56,7 @@ export interface GamePlaySceneProps {
   guideSeen: boolean;
   closeAnswerGuide: (locate?: boolean) => void;
 }
+
 /** Shared scene only: business requests, identity and persistence belong to its caller. */
 export function GamePlayScene({
   assignment,
@@ -59,6 +68,7 @@ export function GamePlayScene({
   bgm,
   brief,
   header,
+  renderHeader,
   retry,
   notifications,
   pending,
@@ -69,15 +79,79 @@ export function GamePlayScene({
   markNarrativeOpened,
   nextNarrativeAttention,
   retainedCombination,
-  guideSeen,
-  closeAnswerGuide,
 }: GamePlaySceneProps) {
+  const layoutRef = useRef<HTMLElement | null>(null);
   const QuestionCard = isDesktop ? DesktopQuestCard : QuestCard;
   const step =
     assignment.levels[activeIndex] ||
     assignment.levels[assignment.currentIndex];
+  const showQuestions = Boolean(
+    assignment.startedAt && assignment.status !== "cancelled",
+  );
+  const showStarNav = showQuestions && assignment.totalLevels > 1;
+  const headerHidden = useFloatingHeaderVisibility({
+    enabled: Boolean(renderHeader),
+    scrollContainerRef: layoutRef,
+    resetKey: `${assignment.id}:${activeIndex}:${showQuestions ? "q" : "b"}`,
+  });
+
+  const starNav = showStarNav ? (
+    <nav
+      ref={navRef}
+      className={`quest-nav${isDesktop ? " quest-nav--inline" : ""}`}
+      aria-label={uiCopy.gamePlayPage.questionNavigation}
+    >
+      {assignment.levels.map((level, index) => {
+        const isCurrent = index === activeIndex;
+        const isDone = Boolean(level.completedAt);
+        const state = isCurrent ? "current" : isDone ? "done" : "todo";
+        const classes = [
+          "quest-star-node",
+          isCurrent ? "is-active" : "",
+          isDone ? "is-completed" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+        return (
+          <button
+            type="button"
+            key={level.id}
+            className={classes}
+            data-state={state}
+            aria-current={isCurrent ? "step" : undefined}
+            disabled={!level.question || pending}
+            onClick={() => moveTo(index)}
+          >
+            <StarFourIcon
+              size={isCurrent ? (isDesktop ? 16 : 18) : isDesktop ? 13 : 14}
+              weight={state === "todo" ? "regular" : "fill"}
+              aria-hidden="true"
+            />
+            <span className="sr-only">
+              {String(index + 1).padStart(2, "0")}{" "}
+              {isDone
+                ? uiCopy.gamePlayPage.completed
+                : uiCopy.gamePlayPage.questionNumber(index + 1)}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  ) : null;
+
+  const embedNavInHeader = Boolean(isDesktop && renderHeader && starNav);
+  const resolvedHeader = renderHeader
+    ? renderHeader(embedNavInHeader ? starNav : undefined, {
+        floating: true,
+        hidden: headerHidden,
+      })
+    : header;
+
   return (
-    <main className={`quest-layout${isDesktop ? " quest-desktop" : ""}`}>
+    <main
+      ref={layoutRef}
+      className={`quest-layout${isDesktop ? " quest-desktop" : ""}`}
+    >
       {background && (
         <div
           className="quest-background"
@@ -86,7 +160,7 @@ export function GamePlayScene({
         />
       )}
       <QuestAtmosphere />
-      {header}
+      {resolvedHeader}
       <ExtraMessages value={assignment} />
       {assignment.status === "assigned" && (
         <AssignmentBrief assignment={assignment} {...brief} />
@@ -100,33 +174,9 @@ export function GamePlayScene({
           </Link>
         </section>
       )}
-      {assignment.startedAt && assignment.status !== "cancelled" && (
+      {showQuestions && (
         <>
-          {assignment.totalLevels > 1 && (
-            <nav
-              ref={navRef}
-              className="quest-nav"
-              aria-label={uiCopy.gamePlayPage.questionNavigation}
-            >
-              {assignment.levels.map((level, index) => (
-                <button
-                  type="button"
-                  key={level.id}
-                  className={index === activeIndex ? "is-active" : ""}
-                  aria-current={index === activeIndex ? "step" : undefined}
-                  disabled={!level.question || pending}
-                  onClick={() => moveTo(index)}
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <small>
-                    {level.completedAt
-                      ? uiCopy.gamePlayPage.completed
-                      : uiCopy.gamePlayPage.questionNumber(index + 1)}
-                  </small>
-                </button>
-              ))}
-            </nav>
-          )}
+          {!embedNavInHeader && starNav}
           {step?.question && <ExtraMessages value={step} />}
           <QuestWorkspace
             desktop={isDesktop}
@@ -139,12 +189,6 @@ export function GamePlayScene({
           >
             {card && <QuestionCard key={step!.id} {...card!} />}
           </QuestWorkspace>
-          {!isDesktop &&
-            !guideSeen &&
-            assignment.totalLevels > 1 &&
-            assignment.status === "active" && (
-              <QuestAnswerGuide dismissAnswerGuide={closeAnswerGuide} />
-            )}
           {!isDesktop && nextNarrativeAttention && (
             <NarrativeAttentionBeacon
               clue={nextNarrativeAttention}
@@ -168,6 +212,19 @@ export function GamePlayScene({
         onVideoEnded={flow.videoEnded}
       />
       <ClueTextDialog clue={flow.textClue} onClose={flow.closeText} />
+      <StarBurstOverlay
+        open={Boolean(flow.burst)}
+        title={flow.burst?.title}
+        xpDelta={flow.burst?.xpDelta ?? 0}
+        actionLabel={flow.burst?.nextIndex !== null ? "下一题" : "继续"}
+        secondaryLabel={
+          flow.burst?.nextIndex !== null && flow.burst?.hasClues
+            ? "留在当前题查看线索"
+            : undefined
+        }
+        onAction={flow.continueBurst}
+        onDismiss={flow.dismissBurst}
+      />
       <CompletionFeedbackDialog
         variant={flow.completion}
         completedCount={assignment.completedLevels}

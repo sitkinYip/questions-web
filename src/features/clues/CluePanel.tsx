@@ -3,6 +3,10 @@ import {
   ArrowRightIcon,
   ArrowUpRightIcon,
   EnvelopeSimpleOpenIcon,
+  FileTextIcon,
+  ImageIcon,
+  LinkSimpleIcon,
+  PlayCircleIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
@@ -27,6 +31,23 @@ const clueLabels = {
   bless: uiCopy.cluePanel.bless,
 } as const;
 
+function ClueKindIcon({ kind }: { kind: QuestClue["kind"] }) {
+  switch (kind) {
+    case "video":
+      return <PlayCircleIcon size={20} weight="duotone" />;
+    case "image":
+      return <ImageIcon size={20} weight="duotone" />;
+    case "link":
+      return <LinkSimpleIcon size={20} weight="duotone" />;
+    case "letter":
+      return <EnvelopeSimpleOpenIcon size={20} weight="duotone" />;
+    case "bless":
+      return <SparkleIcon size={20} weight="duotone" />;
+    default:
+      return <FileTextIcon size={20} weight="duotone" />;
+  }
+}
+
 function withReturnTo(href: string, returnTo: string) {
   const separator = href.includes("?") ? "&" : "?";
   return `${href}${separator}returnTo=${encodeURIComponent(returnTo)}`;
@@ -44,69 +65,48 @@ export function CluePanel({
 
   return (
     <section className="clue-panel" aria-labelledby="clue-panel-title">
-      <div className="clue-panel-atmosphere" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-      </div>
       <div className="clue-panel-heading">
-        <div>
-          <p className="eyebrow">{uiCopy.cluePanel.eyebrow}</p>
-          <h2 id="clue-panel-title">{uiCopy.cluePanel.title}</h2>
-        </div>
-        <div
-          className="clue-panel-count"
+        <h2 id="clue-panel-title">{uiCopy.cluePanel.title}</h2>
+        <span
+          className="clue-panel-count tabular-nums"
           aria-label={uiCopy.cluePanel.unlockedCount(clues.length)}
         >
-          <strong>{String(clues.length).padStart(2, "0")}</strong>
-          <span>{uiCopy.cluePanel.unlockedSuffix}</span>
-        </div>
+          {clues.length}
+        </span>
       </div>
       <div className="clue-list">
-        {clues.map((clue, index) => {
+        {clues.map((clue) => {
           const label = clue.title || clueLabels[clue.kind];
           const isNarrative = clue.kind === "letter" || clue.kind === "bless";
           const needsAttention = Boolean(
             isNarrative && attentionClueIds?.has(clue.id),
           );
-          const archiveNumber = String(index + 1).padStart(2, "0");
-          const preview = clue.content ? (
-            <RichContent source={clue.content} className="clue-preview" />
-          ) : (
-            <p className="clue-preview">{uiCopy.cluePanel.preview}</p>
-          );
           const lead = (
             <span className="clue-index" aria-hidden="true">
-              <strong>{archiveNumber}</strong>
-              <span>{clue.kind}</span>
+              <ClueKindIcon kind={clue.kind} />
             </span>
           );
           const content = (
             <div className="clue-card-body">
-              <span className="clue-card-status">
-                {needsAttention
-                  ? clue.kind === "letter"
+              {needsAttention && (
+                <span className="clue-card-status">
+                  {clue.kind === "letter"
                     ? uiCopy.cluePanel.letterWaiting
-                    : uiCopy.cluePanel.blessingWaiting
-                  : isNarrative
-                    ? uiCopy.cluePanel.narrativeUnlocked
-                    : uiCopy.cluePanel.verified}
-              </span>
+                    : uiCopy.cluePanel.blessingWaiting}
+                </span>
+              )}
               <strong>{label}</strong>
-              {preview}
+              {clue.content && (
+                <RichContent source={clue.content} className="clue-preview" />
+              )}
             </div>
           );
           const action = (
             <span className="clue-card-action" aria-hidden="true">
-              <i />
-              {clue.kind === "letter" ? (
-                <EnvelopeSimpleOpenIcon weight="duotone" />
-              ) : clue.kind === "bless" ? (
-                <SparkleIcon weight="duotone" />
-              ) : clue.kind === "link" ? (
-                <ArrowUpRightIcon />
+              {clue.kind === "link" ? (
+                <ArrowUpRightIcon size={16} weight="bold" />
               ) : (
-                <ArrowRightIcon />
+                <ArrowRightIcon size={16} weight="bold" />
               )}
             </span>
           );

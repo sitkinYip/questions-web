@@ -3,7 +3,7 @@ import { useRef, type ComponentProps } from "react";
 import { useWorkspaceViewport } from "@/shared/layout/useWorkspaceViewport";
 import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 
-/** Navigation stays outside the active pane; Radix owns selection and keyboard focus. */
+/** 统一标签页容器：桌面与移动端均采用水平滑动分段，由活动面板承担内部滚动。 */
 export function WorkspaceTabs({
   className = "",
   ...props
@@ -15,7 +15,7 @@ export function WorkspaceTabs({
     <Tabs.Root
       {...props}
       ref={viewportRef}
-      orientation={desktop ? "vertical" : "horizontal"}
+      orientation="horizontal"
       data-workspace-tabs
       data-wide={desktop ? "true" : undefined}
       className={`workspace-tabs ${className}`}

@@ -1,10 +1,7 @@
 import { WorkspaceTabs } from "@/components/ui/WorkspaceTabs";
 import { uiCopy } from "@/config/ui-copy";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Tabs } from "radix-ui";
-import { CelestialAtlas } from "@/components/effects/CelestialAtlas";
-import { GamePageHeading } from "@/features/game/components/GameLayout";
-import { PlayerPassport } from "@/features/game/components/PlayerPassport";
 import { AssignmentCard } from "@/features/game/components/AssignmentCard";
 import {
   GameEmptyState,
@@ -13,15 +10,20 @@ import {
 } from "@/features/game/components/GameState";
 import { useAssignments } from "@/features/game/game-queries";
 import { useGame } from "@/features/game/useGame";
+import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 
 export function GameDashboard() {
+  const isDesktop = useDesktopLayout();
   const { player } = useGame();
   const query = useAssignments();
+  const [tab, setTab] = useState<"current" | "history">("current");
   const [now, setNow] = useState(Date.now);
+
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 5000);
     return () => window.clearInterval(timer);
   }, []);
+
   const current =
     query.data?.items.filter(
       (item) => item.status === "assigned" || item.status === "active",
@@ -30,39 +32,47 @@ export function GameDashboard() {
     query.data?.items.filter(
       (item) => item.status === "completed" || item.status === "cancelled",
     ) ?? [];
+
   return (
-    <>
-      <div className="game-lobby">
-        <div className="game-lobby__journeys">
-          <div className="game-lobby__intro">
-            <CelestialAtlas compact />
-            <GamePageHeading
-              eyebrow={uiCopy.gameDashboard.eyebrow}
-              title={uiCopy.gameDashboard.title}
-            >
-              {uiCopy.gameDashboard.description}
-            </GamePageHeading>
-          </div>
-          <WorkspaceTabs defaultValue="current" className="game-tabs">
+    <div className="game-lobby">
+      <div className="game-lobby__journeys">
+        <WorkspaceTabs
+          value={tab}
+          onValueChange={(value) =>
+            setTab(value === "history" ? "history" : "current")
+          }
+          className="game-tabs"
+        >
+          <div className="game-page-head">
+            <h1>{uiCopy.gameNavigation.dashboard}</h1>
             <Tabs.List
-              className="game-tabs__list"
+              className="game-segment"
               aria-label={uiCopy.gameDashboard.tabsLabel}
+              style={
+                {
+                  "--seg-index": tab === "current" ? 0 : 1,
+                } as CSSProperties
+              }
             >
+              <span className="game-segment__thumb" aria-hidden="true" />
               <Tabs.Trigger value="current">
                 {uiCopy.gameDashboard.upcoming}
-                <span>{current.length}</span>
               </Tabs.Trigger>
               <Tabs.Trigger value="history">
                 {uiCopy.gameDashboard.history}
-                <span>{history.length}</span>
               </Tabs.Trigger>
             </Tabs.List>
-            {(
-              [
-                { value: "current", items: current },
-                { value: "history", items: history },
-              ] as const
-            ).map(({ value, items }) => (
+          </div>
+
+          {(
+            [
+              { value: "current", items: current },
+              { value: "history", items: history },
+            ] as const
+          ).map(({ value, items }) => {
+            const useDesktopBento =
+              isDesktop && value === "current" && items.length > 0;
+            return (
               <Tabs.Content
                 key={value}
                 value={value}
@@ -88,26 +98,53 @@ export function GameDashboard() {
                       : uiCopy.gameDashboard.historyEmptyDescription}
                   </GameEmptyState>
                 )}
-                <div className="chapter-list">
-                  {items.map((item, index) => (
+
+                {useDesktopBento ? (
+                  <div
+                    className={`chapter-bento${items.length === 1 ? " chapter-bento--single" : ""}`}
+                  >
                     <AssignmentCard
-                      key={item.id}
-                      item={item}
+                      key={items[0].id}
+                      item={items[0]}
                       rank={player.level.order}
                       now={now}
-                      index={index}
+                      index={0}
+                      hero
                     />
-                  ))}
-                </div>
+                    {items.length > 1 && (
+                      <div className="chapter-bento__side">
+                        {items.slice(1).map((item, idx) => (
+                          <AssignmentCard
+                            key={item.id}
+                            item={item}
+                            rank={player.level.order}
+                            now={now}
+                            index={idx + 1}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  items.length > 0 && (
+                    <div className="chapter-list">
+                      {items.map((item, index) => (
+                        <AssignmentCard
+                          key={item.id}
+                          item={item}
+                          rank={player.level.order}
+                          now={now}
+                          index={index}
+                        />
+                      ))}
+                    </div>
+                  )
+                )}
               </Tabs.Content>
-            ))}
-          </WorkspaceTabs>
-          <p className="game-sync-note">{uiCopy.gameDashboard.syncHint}</p>
-        </div>
-        <aside className="game-lobby__passport">
-          <PlayerPassport editable />
-        </aside>
+            );
+          })}
+        </WorkspaceTabs>
       </div>
-    </>
+    </div>
   );
 }

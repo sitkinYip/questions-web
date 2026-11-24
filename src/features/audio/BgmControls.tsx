@@ -23,7 +23,7 @@ export function BgmControls({
     [storage],
   );
   const initialPosition = useMemo(
-    () => repository.load().position ?? { x: 1, y: 1 },
+    () => repository.load().position ?? { x: 1, y: 0.84 },
     [repository],
   );
   const savePosition = useCallback(

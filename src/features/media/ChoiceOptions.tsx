@@ -7,6 +7,7 @@ interface ChoiceOptionsProps {
   value: string;
   disabled: boolean;
   onChange: (value: string) => void;
+  onSelect?: (value: string) => void;
   onOpenImage: (url: string) => void;
   onOpenVideo: (url: string, poster?: string) => void;
 }
@@ -17,25 +18,36 @@ export function ChoiceOptions({
   value,
   disabled,
   onChange,
+  onSelect,
   onOpenImage,
   onOpenVideo,
 }: ChoiceOptionsProps) {
   return (
-    <fieldset disabled={disabled}>
+    <fieldset>
       <legend className="sr-only">{uiCopy.choiceOptions.legend}</legend>
       <div className="choice-list">
         {options.map((option) => (
           <div
             className={`choice-option ${value === option.key ? "is-selected" : ""}`}
+            data-disabled={disabled ? "true" : undefined}
             key={option.key}
           >
-            <label>
+            <label
+              onClick={() => {
+                if (!disabled && value === option.key) onSelect?.(option.key);
+              }}
+            >
               <input
                 type="radio"
                 name={`answer-${questId}`}
                 value={option.key}
                 checked={value === option.key}
-                onChange={(event) => onChange(event.target.value)}
+                disabled={disabled}
+                onChange={(event) => {
+                  if (disabled) return;
+                  onChange(event.target.value);
+                  onSelect?.(event.target.value);
+                }}
               />
               <strong>{option.key}</strong>
               <span>

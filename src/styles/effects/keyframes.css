@@ -448,13 +448,13 @@
 
 @keyframes choice-lock {
   0% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(0.992);
   }
-  42% {
-    transform: translate3d(9px, 0, 0) scale(1.014);
+  45% {
+    transform: translate3d(0, 0, 0) scale(1.012);
   }
   100% {
-    transform: translate3d(6px, 0, 0) scale(1.006);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 

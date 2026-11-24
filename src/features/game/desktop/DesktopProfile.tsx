@@ -22,9 +22,8 @@ export function DesktopProfile({
       >
         <div className="game-section-title">
           <IdentificationCardIcon aria-hidden="true" />
-          <h2>{uiCopy.desktopProfile.title}</h2>
+          <h2>资料</h2>
         </div>
-        <p className="game-muted">{uiCopy.desktopProfile.description}</p>
         <ProfileEditor editor={profile} />
       </section>
       <PasswordEditor editor={security} />

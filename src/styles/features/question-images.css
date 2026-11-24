@@ -38,7 +38,9 @@
   object-fit: contain;
   background: transparent;
   /* The frame belongs to the actual image, never its grid cell. */
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  box-shadow: 0 10px 28px -8px var(--color-shadow);
   transition:
     border-color var(--duration-medium) var(--motion-ios),
     box-shadow var(--duration-medium) var(--motion-ios);
@@ -69,10 +71,108 @@
   /* No inner zoom: even on hover every edge of the image remains visible. */
 }
 
+.video-poster-button {
+  position: relative;
+  min-height: 180px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-media-surface);
+  box-shadow: 0 10px 28px -8px var(--color-shadow);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-medium) var(--motion-ios),
+    box-shadow var(--duration-medium) var(--motion-ios),
+    transform var(--duration-medium) var(--motion-spring);
+}
+
+.video-poster-button:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 18px 46px -8px var(--color-shadow-strong);
+  transform: translateY(-2px);
+}
+
+.video-poster-button img {
+  display: block;
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  transition: transform 720ms var(--motion-ios);
+}
+
+.video-poster-button:hover img {
+  transform: scale(1.025);
+}
+
+.video-placeholder {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  background: radial-gradient(
+    circle,
+    var(--color-surface-hover),
+    var(--color-media-surface) 70%
+  );
+}
+
+.play-badge {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  color: var(--color-on-accent);
+  background: linear-gradient(
+    180deg,
+    var(--color-accent-strong) 0%,
+    var(--color-accent) 100%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.choice-media-button {
+  position: relative;
+  width: 112px;
+  min-height: 72px;
+  padding: 0;
+  overflow: hidden;
+  color: var(--color-accent-text);
+  background: var(--color-media-surface);
+  border: 0;
+  border-left: 1px solid var(--color-border-strong);
+  cursor: pointer;
+}
+
+.choice-media-button img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.choice-media-button > span:last-child {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .question-image img,
   .question-gallery img,
-  .quest-prompt img {
+  .quest-prompt img,
+  .video-poster-button,
+  .video-poster-button img {
     transition: none;
   }
 }

@@ -43,7 +43,6 @@ export function NarrativeAttentionBeacon({
         <i />
       </span>
       <span className="narrative-attention-beacon__copy">
-        <small>{uiCopy.narrativeAttentionBeacon.eyebrow}</small>
         <strong>
           {isLetter
             ? uiCopy.narrativeAttentionBeacon.letterWaiting

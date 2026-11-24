@@ -1,6 +1,4 @@
 import { useExitSnapshot } from "@/shared/motion/useExitSnapshot";
-import { useEffect, useRef, useState, type ComponentType } from "react";
-import type { AvatarCropDialogProps } from "./AvatarCropDialog";
 import { uiCopy } from "@/config/ui-copy";
 import { UploadSimpleIcon, CheckIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
@@ -9,14 +7,32 @@ import { AppToast } from "@/components/ui/Toast";
 import { PlayerAvatar } from "@/features/game/components/PlayerPassport";
 import { GameFailure } from "@/features/game/components/GameState";
 
-import { validateAvatar } from "@/features/game/game-profile-validation";
-
 import type { useProfileEditor } from "@/features/game/hooks/useProfileEditor";
+
+type ProfileEditorModel = ReturnType<typeof useProfileEditor>;
+
+/** 头像裁剪弹窗：可在 Sheet 外层独立渲染，避免父级弹层挂起时卸载裁剪状态。 */
+export function ProfileAvatarCrop({ editor }: { editor: ProfileEditorModel }) {
+  const { selectedFile, CropDialog, cancelCrop, confirmCrop } = editor;
+  const cropSnapshot = useExitSnapshot(selectedFile);
+  if (!cropSnapshot.value || !CropDialog) return null;
+  return (
+    <CropDialog
+      file={cropSnapshot.value}
+      open={cropSnapshot.open}
+      onExitComplete={cropSnapshot.release}
+      onCancel={cancelCrop}
+      onConfirm={confirmCrop}
+    />
+  );
+}
 
 export function ProfileEditor({
   editor,
+  renderCropDialog = true,
 }: {
-  editor: ReturnType<typeof useProfileEditor>;
+  editor: ProfileEditorModel;
+  renderCropDialog?: boolean;
 }) {
   const {
     player,
@@ -24,28 +40,17 @@ export function ProfileEditor({
     name,
     setName,
     upload,
-    setUpload,
     validation,
     setValidation,
     errorToast,
-    reportAvatarError,
     dismissErrorToast,
+    selectedFile,
+    loadingCrop,
+    selectAvatarFile,
     fileInput,
     mutation,
     submit,
   } = editor;
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const cropSnapshot = useExitSnapshot(selectedFile);
-  const [CropDialog, setCropDialog] =
-    useState<ComponentType<AvatarCropDialogProps> | null>(null);
-  const [loadingCrop, setLoadingCrop] = useState(false);
-  const selection = useRef(0);
-  useEffect(
-    () => () => {
-      selection.current++;
-    },
-    [],
-  );
   return (
     <>
       <form
@@ -72,36 +77,11 @@ export function ProfileEditor({
                 aria-label={uiCopy.profileEditor.uploadAvatar}
                 accept="image/jpeg,image/png,image/webp"
                 disabled={mutation.isPending}
-                onChange={async (event) => {
+                onChange={(event) => {
                   const selected = event.target.files?.[0];
                   if (!selected) return;
                   event.target.value = "";
-                  const request = ++selection.current;
-                  setSelectedFile(null);
-                  setUpload(null);
-                  setLoadingCrop(false);
-                  const error = validateAvatar(selected);
-                  mutation.reset();
-                  if (error) {
-                    setUpload(null);
-                    reportAvatarError(error);
-                    event.target.value = "";
-                    return;
-                  }
-                  setValidation("");
-                  dismissErrorToast();
-                  setLoadingCrop(true);
-                  try {
-                    const module = await import("./AvatarCropDialog");
-                    if (request !== selection.current) return;
-                    setCropDialog(() => module.default);
-                    setSelectedFile(selected);
-                  } catch {
-                    if (request === selection.current)
-                      reportAvatarError(uiCopy.avatarCrop.loadFailed);
-                  } finally {
-                    if (request === selection.current) setLoadingCrop(false);
-                  }
+                  void selectAvatarFile(selected);
                 }}
               />
             </label>
@@ -114,10 +94,7 @@ export function ProfileEditor({
           </div>
         </div>
         {loadingCrop && <p role="status">{uiCopy.avatarCrop.loading}</p>}
-        <Field
-          label={uiCopy.profileEditor.displayName}
-          hint={uiCopy.profileEditor.displayNameHint}
-        >
+        <Field label={uiCopy.profileEditor.displayName}>
           <Input
             value={name}
             maxLength={40}
@@ -132,8 +109,7 @@ export function ProfileEditor({
         </Field>
         <div className="profile-editor__account">
           <span>{uiCopy.profileEditor.username}</span>
-          <strong>{player.account}</strong>
-          <small>{uiCopy.profileEditor.usernameHint}</small>
+          <strong className="tabular-nums">{player.account}</strong>
         </div>
         {validation && (
           <p className="game-field-error" role="alert">
@@ -169,18 +145,7 @@ export function ProfileEditor({
           description={errorToast.description}
         />
       )}
-      {cropSnapshot.value && CropDialog && (
-        <CropDialog
-          file={cropSnapshot.value}
-          open={cropSnapshot.open}
-          onExitComplete={cropSnapshot.release}
-          onCancel={() => setSelectedFile(null)}
-          onConfirm={(file) => {
-            setUpload({ file, url: URL.createObjectURL(file) });
-            setSelectedFile(null);
-          }}
-        />
-      )}
+      {renderCropDialog && <ProfileAvatarCrop editor={editor} />}
     </>
   );
 }

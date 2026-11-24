@@ -895,4 +895,25 @@ describe("session and question clue integration", () => {
       ).not.toBeInTheDocument();
     },
   );
+
+  it("opens question hints from the top-right lightbulb sheet on mobile without duplicate inline hint controls", () => {
+    const value = assignment();
+    value.levels[0].question!.content[0].hint = "抬头看穹顶开启的刻痕。";
+    renderGame(value);
+
+    // 移动端不保留重复的内联查看提示折叠块
+    expect(document.querySelector(".quest-hint")).toBeNull();
+    const trigger = screen.getByRole("button", { name: "查看提示" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(trigger);
+    const dialog = screen.getByRole("dialog", { name: "查看提示" });
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveTextContent("抬头看穹顶开启的刻痕。");
+
+    fireEvent.click(screen.getByRole("button", { name: "关闭查看提示" }));
+    expect(
+      screen.queryByRole("dialog", { name: "查看提示" }),
+    ).not.toBeInTheDocument();
+  });
 });

@@ -2,14 +2,16 @@ import { useRef, useState, type ReactNode } from "react";
 import { DropdownMenu } from "radix-ui";
 import { ArrowRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
 import { uiCopy } from "@/config/ui-copy";
+import { useImmersiveLight } from "@/design/useImmersiveLight";
 
-/** A letter card. Gesture state stays local; persistence belongs to the caller. */
+/** 来信列表行：极光玻璃 L1 沉浸光感卡片，保留左滑收下与菜单能力。 */
 export function MailboxRow({
   title,
   summary,
   meta,
   icon,
   unread = false,
+  selected = false,
   pending = false,
   onOpen,
   onRead,
@@ -19,6 +21,7 @@ export function MailboxRow({
   meta: ReactNode;
   icon: ReactNode;
   unread?: boolean;
+  selected?: boolean;
   pending?: boolean;
   onOpen: () => void;
   onRead?: () => void;
@@ -27,11 +30,14 @@ export function MailboxRow({
   const start = useRef<{ x: number; y: number } | null>(null);
   const suppressClick = useRef(false);
   const actionable = unread && !!onRead;
+  const light = useImmersiveLight(true);
   return (
     <article
       className="mailbox-row notification-letter"
       data-read={!unread}
+      data-selected={selected || undefined}
       data-revealed={actionable && revealed}
+      {...light}
     >
       {actionable && (
         <button

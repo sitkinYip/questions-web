@@ -36,27 +36,30 @@ type ResolvedTheme = "light" | "dark";
 - 手机与平板头像继续打开基于 Radix 的 Sheet；桌面头像使用非模态 hover / focus 气泡菜单，不遮罩当前工作区。`GameThemePicker` 提供三项原生 radio，登录页也可切换主题。移动端收起文字时仍保留可访问名称。
 - 偏好按应用和浏览器保存，不按业务用户隔离；其他标签页通过 `storage` 事件同步。
 
-### 语义色板
+### 语义色板（极光玻璃 v2，2026-11 更新）
 
-| 角色           | Dark      | Light     |
-| -------------- | --------- | --------- |
-| Canvas         | `#10110f` | `#f4f0e7` |
-| Surface        | `#151612` | `#fbf8f1` |
-| Raised surface | `#171814` | `#fffdf8` |
-| Strong text    | `#f0ecdf` | `#211f19` |
-| Body text      | `#e7e6e1` | `#38352e` |
-| Muted text     | `#aaa99f` | `#69645a` |
-| Accent         | `#d4bc7d` | `#76602f` |
-| On accent      | `#191811` | `#fffaf0` |
-| Border         | `#30322c` | `#d8d0c1` |
+> 完整视觉、三层材质、圆角、去 AI 味文案、Motion Prompt 动效与工程门禁规范已沉淀至 [极光玻璃 v2 设计规范](./design-system-aurora-glass-v2.md)，本节仅保留核心语义色速查。
 
-浅色中的 `#76602f` 承担链接、焦点和主按钮等交互角色；浅金只用于装饰和低透明度光效。不要让同一个物理色值跨主题承担相同语义。
+| 角色             | Dark                        | Light                     |
+| ---------------- | --------------------------- | ------------------------- |
+| Canvas           | `#070a12`                   | `#f3f6fb`                 |
+| Surface          | `#0f1628`                   | `#ffffff`                 |
+| Raised surface   | `#141d34`                   | `#ffffff`                 |
+| Strong text      | `#eef3ff`                   | `#0e1424`                 |
+| Body text        | `#dce6fa`                   | `#1b253a`                 |
+| Muted text       | `#8a94ad`                   | `#5a6478`                 |
+| Accent（冰蓝）   | `#8db4ff`                   | `#2f6bdb`                 |
+| On accent        | `#07101f`                   | `#ffffff`                 |
+| Reward（专用金） | `#e3c27a`                   | `#b5832a`                 |
+| Border           | `rgba(176, 206, 255, 0.14)` | `rgba(30, 64, 138, 0.09)` |
+
+色板全部取自品牌 Logo：深空与雾白做底，冰蓝承担全部主交互、焦点和进度语义（浅色 `#2f6bdb` 保证 AA 对比度），**金色严格仅用于奖品、成就与稀有度**。不要让同一个物理色值跨主题承担相同语义。
 
 ### Token 所有权
 
-1. `foundation/tokens.css` 只定义跨功能语义：canvas、surface、text、border、accent、status、overlay、shadow。
-2. Quest、Records、通用控件和布局属于结构层，必须只消费语义 Token，不允许直接新增 hex/rgb/hsl。
-3. Notification 紫、组合线索青、Letter 纸张等属于 feature 身份色，在所属 CSS 内提供 dark/light 局部 recipe，不升级成全局颜色字典。
+1. `foundation/tokens.css` 定义全站跨功能语义：canvas、surface、text、border、accent、reward、status、overlay、shadow、glass、glow；与 `src/design/tokens.ts` 保持单源同步。
+2. Quest、Records、Game 页面、Desktop 工作区、通用控件和布局属于结构层，必须只消费语义 Token，不允许直接写任何 hex/rgb/hsl 字面量（含 CSS 注释）。
+3. 通知、组合线索弹窗与答题页已统一融入极光玻璃冰蓝体系，不再使用旧版独立紫色或墨绿色硬编码。
 4. Letter 正文、Bless 星空和媒体剧场是内容自有的沉浸式主题，使用 `color-scheme` 或局部变量隔离；它们不是漏适配。
 
 ## 动效层级
@@ -103,14 +106,16 @@ src/styles/
 | `GameState`                          | 与最终布局接近的 skeleton、空状态、可重试错误                 |
 | `CelestialAtlas`                     | 纯装饰几何，不参与输入、焦点和业务状态                        |
 
-### 视觉约束
+### 视觉约束（已演进至极光玻璃 v2）
 
-- 保留原有深橄榄黑 / 金色与浅纸色两套语义色板；不把全站强行改成深色。
-- 游戏标题沿用适合星图手稿的衬线字体，表单和正文使用 UI 无衬线字体；数值使用等宽/等宽数字。
-- 共享尺寸进入 tokens：`--space-*`、`--radius-control`（10px）、`--radius-panel`（18px）、`--control-height`（52px）、`--page-width`、`--page-gutter`。
-- 控件圆角不覆盖老答题控件：新表单/新 CTA 按新尺度；原谜题卡、媒体弹窗、BGM 与叙事页面维持现有视觉协议。
-- 桌面大厅为章节 + 护照双区，760px 以下单列；手机底栏使用悬浮圆角玻璃容器与独立选中气泡，避开 safe-area 并为正文预留底部空间。Web 玻璃效果由半透明表面、内描边与 `backdrop-filter` 近似实现，在降低透明度偏好或不支持模糊时回退为实体表面。答题页不显示常驻底栏。
-- 答题中的顶部只保留玩家与进度，头像打开导航；场次说明仅在开场前展示，不再插入返回/详情行挤压题目。
+> 以下条款已按 2026-11「极光玻璃 v2」更新；详尽视觉、材质、动效与避坑约束请以 [极光玻璃 v2 设计规范](./design-system-aurora-glass-v2.md) 为准。
+
+- 全站采用取自品牌 Logo 的深空冰蓝（Dark）与雾白深冰蓝（Light）两套语义色板，金色仅限奖品、成就与稀有度；不把全站强行改成深色。
+- 全站统一使用系统原生无衬线字体（`HarmonyOS Sans SC` / `PingFang SC` / `system-ui`），零外链字体加载；数值统一 `tabular-nums`。
+- 共享圆角严格收束为 4 档：`--radius-sm`（10px）、`--radius-control`（16px）、`--radius-panel`（24px）、`--radius-round`（999px）；共享尺寸进入 tokens：`--space-*`、`--control-height`（50px）、`--page-width`、`--page-gutter`。
+- 控件与答题页已统一接入极光玻璃 v2：L1 内容卡禁止 `backdrop-filter`，L2 悬浮控制层使用受控模糊与降级回退；媒体剧场与 Letter / Bless 叙事正文保留独立沉浸主题。
+- 桌面大厅为非对称 Bento / 多列场次卡，760px 以下单列；手机底栏使用悬浮圆角玻璃容器并保留触摸跟随流光交互，避开 safe-area 并为正文预留底部空间。答题页不显示常驻底栏。
+- 答题页顶栏采用悬浮极光玻璃胶囊：左侧 `←` 返回启程、居中显示场次标题、右侧保留紧凑头像导航入口（进度由 `sr-only` 与下方居中四角星节点承载）；场次说明仅在开场前展示。
 - 移动侧栏使用 `Sheet` 的 `className` 与 `headerContent` 插槽；`GameSidebarIdentity` 复用头像、经验条与装饰星盘，完整护照不复用到侧栏。桌面气泡复用同一导航、主题与退出动作，支持 hover、点击、焦点进入、Esc 和外部点击关闭。两种菜单规则都归属 `features/game-sidebar.css`，不影响其他抽屉。
 - 侧栏按扣除 padding / safe-area 后的可用高度做 container query：低于 620px 保留紧凑身份与完整操作；620px 起恢复星盘徽章；740px 起恢复导航说明与更大的徽章。`cqh` 连续调整头像/星盘尺度，导航等分剩余高度，主题与退出自然落底，不依赖绝对定位或 JS 测量。
 - 高屏和短屏都保留无障碍标题、焦点返回、44px 关闭/导航点击区。极矮横屏或放大文字时允许滚动兜底，不裁切操作。测试同时检查可操作性、无滚动、底部贴合与区块占用率，不能只用“无溢出”代表视觉通过。

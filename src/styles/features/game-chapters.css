@@ -1,247 +1,400 @@
+/* 启程大厅场次列表与桌面非对称 Bento：极光玻璃 v2 */
+
 .chapter-list {
-  display: grid;
-  gap: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
+
+.chapter-bento {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.chapter-bento--single {
+  grid-template-columns: minmax(0, 680px);
+}
+
+.chapter-bento__side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* L1 极光玻璃场次卡（无 backdrop-filter，带沉浸光斑与高光边） */
 .chapter-card {
   position: relative;
-  display: grid;
-  grid-template-columns: 94px minmax(0, 1fr);
-  background:
-    linear-gradient(120deg, var(--color-accent-faint), transparent 75%),
-    var(--color-surface);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--color-glass-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
-  overflow: hidden;
+  box-shadow:
+    0 12px 32px var(--color-shadow),
+    inset 0 1px 0 var(--color-glass-highlight);
   transition:
     border-color var(--duration-medium) var(--motion-ios),
-    transform var(--duration-medium) var(--motion-spring),
+    transform var(--duration-fast) var(--motion-spring),
     box-shadow var(--duration-medium) var(--motion-ios);
 }
-.chapter-card[data-state="active"],
-.chapter-card[data-state="ready"] {
-  border-color: var(--color-accent-border);
+
+.chapter-card--hero {
+  height: 100%;
 }
-.chapter-card__number {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  align-items: center;
-  padding-top: var(--space-8);
-  gap: var(--space-2);
-  border-right: 1px dashed var(--color-border);
-  color: var(--color-accent-muted);
-}
-.chapter-card__number > span {
-  font: 48px/1 var(--font-display);
-  opacity: 0.7;
-}
-.chapter-card__number small {
-  font: 8px var(--font-mono);
-  letter-spacing: 0.1em;
-}
-.chapter-card__number i {
-  position: absolute;
-  width: 64px;
-  height: 64px;
-  bottom: 28px;
-  border-radius: var(--radius-round);
-  border: 1px solid var(--color-border);
-}
-.chapter-card__number i::after {
+
+.chapter-card::before {
   content: "";
   position: absolute;
-  inset: 15px;
-  border: 1px solid var(--color-accent-border);
-  transform: rotate(45deg);
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, var(--light-spot) 0%, transparent 68%);
+  transform: translate3d(
+    calc(var(--sw-light-x, 50%) - 120px),
+    calc(var(--sw-light-y, 50%) - 120px),
+    0
+  );
+  opacity: 0;
+  transition: opacity var(--duration-medium) var(--motion-ios);
 }
-.chapter-card__body {
-  min-width: 0;
-  padding: var(--space-6);
+
+.chapter-card[data-light="active"]::before {
+  opacity: 1;
 }
-.chapter-card h2 {
-  margin: var(--space-3) 0;
-  font: 500 28px/1.5 var(--font-display);
-  color: var(--color-text-strong);
-  letter-spacing: 0.025em;
-  overflow-wrap: anywhere;
+
+.chapter-card[data-state="active"],
+.chapter-card[data-focal="true"] {
+  background: var(--color-glass-card-active);
+  border-color: var(--color-accent-border);
+  box-shadow:
+    0 14px 36px var(--color-shadow),
+    0 0 28px -8px var(--glow-accent-soft),
+    inset 0 1px 0 var(--color-glass-highlight);
 }
-.chapter-card__description {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  line-height: 1.85;
-  margin: 0 0 var(--space-4);
-  overflow-wrap: anywhere;
+
+.chapter-card[data-state="locked"] {
+  opacity: 0.72;
+  box-shadow: none;
 }
-.chapter-card__meta {
+
+.chapter-card:active {
+  transform: scale(0.985);
+}
+
+/* Motion Prompt 022 Light sweep（仅进行中/待开启场次启用） */
+@media (prefers-reduced-motion: no-preference) {
+  .chapter-card--sweep::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    bottom: -40%;
+    left: -45%;
+    width: 44%;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-sweep-ice) 48%,
+      var(--color-sweep-ice-soft) 64%,
+      var(--color-sweep-ice) 72%,
+      transparent 100%
+    );
+    transform: translate3d(-140%, 0, 0) rotate(24deg);
+    animation: mp-light-sweep 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  }
+}
+
+.chapter-card__link {
+  position: relative;
+  z-index: 2;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  font-size: 11px;
-  color: var(--color-text-subtle);
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
 }
-.chapter-card__meta span + span {
-  border-left: 1px solid var(--color-border-interactive);
-  padding-left: var(--space-3);
+
+/* 紧凑水平行卡（移动端全部场次 & 桌面次级/历史场次） */
+.chapter-card__row {
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 18px;
 }
+
+/* 桌面端非对称 Bento 左侧主焦点大卡 */
+.chapter-card__hero {
+  height: 100%;
+  min-height: 260px;
+  padding: 28px 28px 26px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.chapter-card__hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.chapter-card__hero h2 {
+  margin: 0;
+  font: 700 28px / 1.28 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--color-text-strong);
+  overflow-wrap: anywhere;
+}
+
+.chapter-card__hero-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.chapter-card__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chapter-card__star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--color-text-disabled);
+}
+
+.chapter-card__star[data-state="done"] {
+  color: var(--color-accent);
+}
+
+.chapter-card__star[data-state="current"] {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent-text);
+  background: var(--color-accent-soft);
+  box-shadow: 0 0 16px var(--glow-accent-soft);
+}
+
+.chapter-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-round);
+  background: linear-gradient(
+    180deg,
+    var(--color-accent-strong) 0%,
+    var(--color-accent) 100%
+  );
+  color: var(--color-on-accent);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow:
+    0 8px 22px -4px var(--glow-accent-strong),
+    inset 0 1px 0 var(--color-btn-highlight);
+}
+
+.chapter-card__info {
+  min-width: 0;
+  flex: 1;
+}
+
+.chapter-card__row h2 {
+  margin: 0;
+  font: 600 19px / 1.35 var(--font-display);
+  color: var(--color-text-strong);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.chapter-card__sub {
+  margin: 5px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent-text);
+}
+
 .chapter-card__schedule {
   display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-  font-size: 11px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
   color: var(--color-text-muted);
-  line-height: 1.8;
 }
+
 .chapter-card__schedule svg {
   flex: 0 0 14px;
-  margin-top: 3px;
 }
-.chapter-card__footer {
+
+.chapter-card__right {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-5);
-  margin-top: var(--space-6);
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
-.chapter-card__progress {
-  min-width: 85px;
-  flex: 1;
-  max-width: 180px;
-  padding-bottom: 5px;
-  font: 11px var(--font-ui);
+
+.chapter-card__fraction {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+
+.chapter-card__fraction--lg {
+  font-size: 16px;
+}
+
+.chapter-card__fraction small {
+  font-size: 11px;
+  font-weight: 400;
   color: var(--color-text-muted);
-  font-variant-numeric: tabular-nums;
 }
+
+.chapter-card__arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-round);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--motion-spring);
+}
+
+.chapter-card:hover .chapter-card__arrow {
+  transform: translateX(2px);
+}
+
+.chapter-card__lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 星环 SVG 通用规则 */
+.sw-star-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sw-star-ring__svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.sw-star-ring[data-glow="true"] .sw-star-ring__arc {
+  filter: drop-shadow(0 0 6px var(--glow-accent));
+}
+
+.sw-star-ring__arc {
+  transition: stroke-dashoffset var(--duration-reveal) var(--motion-spring);
+}
+
+.sw-star-ring__center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 场次入场简介卡 */
 .assignment-brief {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(180px, 0.75fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-10);
-  padding: var(--space-10);
+  gap: var(--space-6);
+  padding: var(--space-8);
   border: 1px solid var(--color-accent-border);
   border-radius: var(--radius-panel);
-  background: var(--color-surface);
+  background: var(--color-glass-card);
+  box-shadow:
+    0 18px 48px var(--color-shadow-strong),
+    inset 0 1px 0 var(--color-glass-highlight);
   overflow: hidden;
+  max-width: 720px;
+  margin: auto;
 }
-.assignment-brief__art .celestial-atlas {
-  width: 100%;
+
+.assignment-brief__art {
+  display: none;
 }
+
 .assignment-brief h1 {
-  font-size: clamp(30px, 4vw, 44px);
-  line-height: 1.5;
-  letter-spacing: 0.025em;
-  margin: var(--space-4) 0;
+  font: 700 clamp(28px, 3.6vw, 38px) / 1.3 var(--font-display);
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-strong);
   overflow-wrap: anywhere;
 }
+
 .assignment-brief__description {
   color: var(--color-text-muted);
-  line-height: 1.9;
-  font-size: 14px;
+  line-height: 1.75;
+  font-size: 15px;
 }
+
 .assignment-brief__facts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-  margin-block: var(--space-6);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-block: var(--space-5);
 }
-.assignment-brief__facts div {
-  min-width: 0;
-}
+
 .assignment-brief__facts dt {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--color-text-subtle);
-  font-size: 11px;
+  color: var(--color-text-muted);
+  font-size: 12px;
 }
+
 .assignment-brief__facts dd {
-  margin: var(--space-2) 0 0;
-  font-size: 13px;
-  color: var(--color-text);
-  line-height: 1.6;
+  margin: var(--space-1) 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-strong);
+  font-variant-numeric: tabular-nums;
 }
+
 .assignment-brief__actions {
   display: flex;
-  align-items: stretch;
+  flex-wrap: wrap;
   gap: var(--space-3);
 }
-.assignment-brief__actions .game-cta {
-  flex: 1 1 auto;
+
+.assignment-brief__hint {
+  display: none;
 }
-.assignment-brief__actions .game-action-link {
-  flex: 0 0 auto;
-}
-.assignment-brief__body > .game-muted:last-child {
-  font-size: 11px;
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .chapter-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--color-accent);
-    box-shadow: 0 14px 28px var(--color-shadow);
-  }
-}
+
 @media (max-width: 760px) {
-  .chapter-card {
-    grid-template-columns: 58px minmax(0, 1fr);
-  }
-  .chapter-card__number {
-    padding-top: var(--space-6);
-  }
-  .chapter-card__number > span {
-    font-size: 32px;
-  }
-  .chapter-card__number small {
-    font-size: 6px;
-  }
-  .chapter-card__number i {
-    width: 38px;
-    height: 38px;
-  }
-  .chapter-card__number i::after {
-    inset: 10px;
-  }
-  .chapter-card__body {
-    padding: var(--space-5) var(--space-4);
-  }
-  .chapter-card h2 {
-    font-size: 24px;
-  }
-  .chapter-card__footer {
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    margin-top: var(--space-5);
-  }
-  .chapter-card__progress {
-    width: 100%;
-    max-width: none;
-    flex-basis: 100%;
-  }
-  .chapter-card__footer .game-action-link {
-    width: 100%;
-    justify-content: space-between;
-  }
   .assignment-brief {
+    padding: var(--space-6) var(--space-5);
+  }
+  .assignment-brief__facts {
     grid-template-columns: 1fr;
-    gap: 0;
-    padding: var(--space-6);
-  }
-  .assignment-brief__art {
-    position: absolute;
-    width: 200px;
-    right: -60px;
-    top: -60px;
-    opacity: 0.16;
-    pointer-events: none;
-  }
-  .assignment-brief__body {
-    position: relative;
-  }
-  .assignment-brief__actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .assignment-brief__actions .game-action-link {
-    justify-content: center;
   }
 }

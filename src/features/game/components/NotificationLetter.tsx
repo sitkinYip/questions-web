@@ -16,7 +16,15 @@ import {
 } from "@/features/media/MediaViewer";
 import { parseLegacyContent } from "@/domain/content/parser";
 
-export function NotificationLetter({ note }: { note: GameNotification }) {
+export function NotificationLetter({
+  note,
+  selected = false,
+  onSelect,
+}: {
+  note: GameNotification;
+  selected?: boolean;
+  onSelect?: () => void;
+}) {
   const { player } = useGame();
   const client = useQueryClient();
   const mutation = useMutation({
@@ -27,6 +35,8 @@ export function NotificationLetter({ note }: { note: GameNotification }) {
   return (
     <NotificationLetterView
       note={note}
+      selected={selected}
+      onSelect={onSelect}
       pending={mutation.isPending}
       error={mutation.isError ? mutation.error : undefined}
       onRead={() => mutation.mutateAsync()}
@@ -36,12 +46,16 @@ export function NotificationLetter({ note }: { note: GameNotification }) {
 
 export function NotificationLetterView({
   note,
+  selected = false,
+  onSelect,
   pending = false,
   error,
   onRead,
   defaultOpen = false,
 }: {
   note: GameNotification;
+  selected?: boolean;
+  onSelect?: () => void;
   pending?: boolean;
   error?: unknown;
   onRead: () => void | Promise<unknown>;
@@ -83,49 +97,63 @@ export function NotificationLetterView({
         }
         icon={note.readAt ? <EnvelopeOpenIcon /> : <EnvelopeSimpleIcon />}
         unread={!note.readAt}
+        selected={selected}
         pending={pending}
-        onOpen={() => setOpen(true)}
+        onOpen={() => {
+          if (onSelect) onSelect();
+          else setOpen(true);
+        }}
         onRead={() => void accept()}
       />
       {!!error && !open && (
         <GameFailure error={error} retry={() => void accept()} />
       )}
-      <NotificationDialog
-        notification={
-          open
-            ? {
-                ...note,
-                buttonText: note.readAt
-                  ? uiCopy.mailbox.close
-                  : note.buttonText || uiCopy.notificationLetter.accept,
-                createdAt: note.sentAt,
-                revision: note.sentAt,
-              }
-            : null
-        }
-        userId=""
-        queuedCount={1}
-        onClose={() => setOpen(false)}
-        onAcknowledge={note.readAt ? () => setOpen(false) : () => void accept()}
-        pending={pending}
-        feedback={
-          error ? (
-            <GameFailure error={error} retry={() => void accept()} />
-          ) : undefined
-        }
-        onOpenImages={(urls) => setMedia({ type: "images", urls, index: 0 })}
-        onOpenVideo={(url, poster) => setMedia({ type: "video", url, poster })}
-      />
-      <MediaViewer
-        state={media}
-        onClose={() => setMedia(null)}
-        onImageIndexChange={(index) =>
-          setMedia((current) =>
-            current?.type === "images" ? { ...current, index } : current,
-          )
-        }
-        onVideoPlayingChange={() => {}}
-      />
+      {!onSelect && (
+        <>
+          <NotificationDialog
+            notification={
+              open
+                ? {
+                    ...note,
+                    buttonText: note.readAt
+                      ? uiCopy.mailbox.close
+                      : note.buttonText || uiCopy.notificationLetter.accept,
+                    createdAt: note.sentAt,
+                    revision: note.sentAt,
+                  }
+                : null
+            }
+            userId=""
+            queuedCount={1}
+            onClose={() => setOpen(false)}
+            onAcknowledge={
+              note.readAt ? () => setOpen(false) : () => void accept()
+            }
+            pending={pending}
+            feedback={
+              error ? (
+                <GameFailure error={error} retry={() => void accept()} />
+              ) : undefined
+            }
+            onOpenImages={(urls) =>
+              setMedia({ type: "images", urls, index: 0 })
+            }
+            onOpenVideo={(url, poster) =>
+              setMedia({ type: "video", url, poster })
+            }
+          />
+          <MediaViewer
+            state={media}
+            onClose={() => setMedia(null)}
+            onImageIndexChange={(index) =>
+              setMedia((current) =>
+                current?.type === "images" ? { ...current, index } : current,
+              )
+            }
+            onVideoPlayingChange={() => {}}
+          />
+        </>
+      )}
     </>
   );
 }

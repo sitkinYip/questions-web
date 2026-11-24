@@ -87,7 +87,6 @@ export function NotificationDialog({
       </div>
       <div className="notification-dialog-scroll">
         <header>
-          <p className="eyebrow">{uiCopy.notificationDialog.eyebrow}</p>
           <h2 id="notification-dialog-title">
             {notification.popupTitle || uiCopy.notificationDialog.heading}
           </h2>

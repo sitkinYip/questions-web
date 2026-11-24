@@ -568,7 +568,11 @@ describe("QuestSessionView", () => {
 
     expect(screen.getByText("RANK 3 · 守护咪")).toBeInTheDocument();
     act(() => vi.advanceTimersByTime(1_500));
-    expect(screen.getByRole("dialog", { name: "守护咪" })).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog", { name: "守护咪" });
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveTextContent("等级突破");
+    expect(dialog).toHaveTextContent("Lv.3 · 新的冒险等级已经生效");
+    expect(dialog.querySelector(".rank-up-emblem .rank-up-svg")).not.toBeNull();
     expect(window.localStorage.getItem(rankUpKey("alice", "3"))).toBe("1");
     fireEvent.click(screen.getByRole("button", { name: "继续冒险" }));
     first.unmount();
@@ -585,5 +589,40 @@ describe("QuestSessionView", () => {
     expect(
       screen.queryByRole("dialog", { name: "守护咪" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("lets completed choice questions expand options in read-only mode", () => {
+    render(
+      <QuestSessionView
+        allQuests={[choiceQuest]}
+        requestedSteps={[12]}
+        userId="alice"
+        missingSteps={[]}
+      />,
+    );
+
+    // 先完成选择题
+    fireEvent.click(screen.getByRole("button", { name: /选择答案/ }));
+    fireEvent.click(screen.getByText("正确选项"));
+    fireEvent.click(screen.getByRole("button", { name: "提交答案" }));
+
+    // 已作答后仍可点开底部选择栏回顾全部选项，但选项不可再改选
+    const trigger = screen.getByRole("button", { name: /正确选项/ });
+    expect(trigger).toBeEnabled();
+    fireEvent.click(trigger);
+
+    expect(screen.getByText("已作答 · 仅查看选项")).toBeInTheDocument();
+    const radios = screen.getAllByRole("radio");
+    expect(radios).toHaveLength(2);
+    expect(radios[0]).toBeDisabled();
+    expect(radios[1]).toBeDisabled();
+    expect(radios[1]).toBeChecked();
+
+    fireEvent.click(screen.getByText("错误选项"));
+    expect(radios[1]).toBeChecked();
+    expect(radios[0]).not.toBeChecked();
+
+    fireEvent.click(screen.getByRole("button", { name: "收起选项" }));
+    expect(screen.queryByText("已作答 · 仅查看选项")).not.toBeInTheDocument();
   });
 });

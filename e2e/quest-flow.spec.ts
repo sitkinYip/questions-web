@@ -13,7 +13,7 @@ test("single assignment settles on the server and survives reload", async ({
     page.locator(".session-header").getByLabel("答题进度"),
   ).toHaveText("0/1已完成");
   await expect(page.getByPlaceholder("输入你的答案")).toHaveClass(
-    /ui-input--line/,
+    /answer-input-bar__field/,
   );
   await expect(
     page.locator(".quest-card > .quest-card-chrome > i"),
@@ -26,6 +26,11 @@ test("single assignment settles on the server and survives reload", async ({
   await page.keyboard.press("Escape");
   await page.getByPlaceholder("输入你的答案").fill("星辰，大海");
   await page.getByRole("button", { name: "提交答案" }).click();
+  const burst = page.getByRole("dialog", { name: "全部完成" });
+  await expect(burst).toBeVisible();
+  await expect(burst).toContainText("+50 EXP");
+  await burst.getByRole("button", { name: "继续" }).click();
+  await expect(burst).toHaveCount(0);
   await expect(
     page.getByText("全部题目已经完成。", { exact: true }),
   ).toBeVisible();
@@ -44,8 +49,14 @@ test("multi-question assignment unlocks sequentially", async ({ page }) => {
   await expect(page.getByRole("button", { name: /02/ })).toBeDisabled();
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
-  await page.getByRole("button", { name: "前往下一题" }).click();
+  await expect(page.getByRole("dialog", { name: "回答正确" })).toContainText(
+    "+50 EXP",
+  );
+  await page.getByRole("button", { name: "下一题", exact: true }).click();
+  await page.getByRole("button", { name: "选择答案" }).click();
   await page.getByText("北极星", { exact: true }).click();
+  await expect(page.locator(".choice-dock-popover")).toHaveCount(0);
+  await expect(page.locator(".choice-dock-trigger")).toContainText("北极星");
   await page.getByRole("button", { name: "提交答案" }).click();
   await expect(
     page.getByRole("dialog", { name: "组合谜题全部破解" }),
@@ -59,8 +70,14 @@ test("incorrect choice displays the server cooldown", async ({ page }) => {
   await enterGame(page);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
-  await page.getByRole("button", { name: "前往下一题" }).click();
+  await expect(page.getByRole("dialog", { name: "回答正确" })).toContainText(
+    "+50 EXP",
+  );
+  await page.getByRole("button", { name: "下一题", exact: true }).click();
+  await page.getByRole("button", { name: "选择答案" }).click();
   await page.getByText("月亮", { exact: true }).click();
+  await expect(page.locator(".choice-dock-popover")).toHaveCount(0);
+  await expect(page.locator(".choice-dock-trigger")).toContainText("月亮");
   await page.getByRole("button", { name: "提交答案" }).click();
   await expect(page.getByRole("timer")).toBeVisible();
   await expect(page.getByRole("button", { name: "提交答案" })).toBeDisabled();
@@ -78,10 +95,8 @@ test("new players must change password; logout removes access to private pages",
   await page.getByLabel("新密码", { exact: true }).fill("New-password-123");
   await page.getByLabel("确认新密码", { exact: true }).fill("New-password-123");
   await page.getByRole("button", { name: /保存新密码/ }).click();
-  await expect(
-    page.getByRole("heading", { name: "下一段故事，等你落笔。" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "打开冒险者菜单" }).click();
+  await expect(page.getByRole("heading", { name: "启程" })).toBeVisible();
+  await page.getByRole("link", { name: "打开护照" }).click();
   await page.getByRole("button", { name: "退出登录", exact: true }).click();
   await expect(page.getByLabel("登录账号", { exact: true })).toBeVisible();
   await page.goto("/play/assignment1");
@@ -114,7 +129,7 @@ test("empty text, whitespace and unselected choices use the timed danger alert w
   expect(attempts).toBe(0);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await submit.click();
-  await page.getByRole("button", { name: "前往下一题" }).click();
+  await page.getByRole("button", { name: "下一题", exact: true }).click();
   await submit.click();
   await expect(hint).toContainText("请先输入或选择答案。");
   expect(attempts).toBe(1);
@@ -128,8 +143,14 @@ test("the original combined-clue dialog and launcher survive a completed-session
   await enterGame(page);
   await page.getByPlaceholder("输入你的答案").fill("星辰大海");
   await page.getByRole("button", { name: "提交答案" }).click();
-  await page.getByRole("button", { name: "前往下一题" }).click();
+  await expect(page.getByRole("dialog", { name: "回答正确" })).toContainText(
+    "+50 EXP",
+  );
+  await page.getByRole("button", { name: "下一题", exact: true }).click();
+  await page.getByRole("button", { name: "选择答案" }).click();
   await page.getByText("北极星", { exact: true }).click();
+  await expect(page.locator(".choice-dock-popover")).toHaveCount(0);
+  await expect(page.locator(".choice-dock-trigger")).toContainText("北极星");
   await page.getByRole("button", { name: "提交答案" }).click();
   await page.getByRole("button", { name: "查看组合结果" }).click();
   const combined = page.getByRole("dialog", { name: "星辰组合真相" });

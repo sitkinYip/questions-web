@@ -113,10 +113,9 @@ export function DesktopClueShelf({
       <header className="desktop-clues__heading">
         <ScrollIcon weight="duotone" aria-hidden="true" />
         <div>
-          <p className="eyebrow">{uiCopy.desktopClueShelf.eyebrow}</p>
           <h2>
             {uiCopy.desktopClueShelf.heading}
-            <small>{clues.length}</small>
+            <small className="tabular-nums">{clues.length}</small>
           </h2>
         </div>
       </header>
@@ -158,7 +157,6 @@ export function DesktopClueShelf({
               <SparkleIcon weight="duotone" aria-hidden="true" />
             )}
             <span>
-              <small>{uiCopy.desktopClueShelf.importantEyebrow}</small>
               {selected.kind === "letter"
                 ? uiCopy.desktopClueShelf.letterWaiting
                 : uiCopy.desktopClueShelf.blessingWaiting}

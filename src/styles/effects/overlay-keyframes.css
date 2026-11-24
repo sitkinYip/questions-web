@@ -144,3 +144,92 @@
     transform: translate3d(0, 18px, 0) scale(0.88);
   }
 }
+
+/* 升级礼赞星穹加冕动效（仅动画 transform 与 opacity） */
+@keyframes rank-shockwave {
+  0% {
+    opacity: 0.92;
+    transform: scale(0.28);
+  }
+  65% {
+    opacity: 0.42;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+}
+
+@keyframes rank-ray-burst {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--ray-deg, 0deg)) translate3d(24px, 0, 0) scaleX(0.25);
+  }
+  34% {
+    opacity: 0.96;
+    transform: rotate(var(--ray-deg, 0deg)) translate3d(58px, 0, 0) scaleX(1.12);
+  }
+  100% {
+    opacity: 0.24;
+    transform: rotate(var(--ray-deg, 0deg)) translate3d(76px, 0, 0) scaleX(0.76);
+  }
+}
+
+@keyframes rank-crest-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.45) rotate(-18deg);
+  }
+  52% {
+    opacity: 1;
+    transform: scale(1.1) rotate(3deg);
+  }
+  78% {
+    transform: scale(0.97) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes rank-spark-burst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.3);
+  }
+  28% {
+    opacity: 1;
+    transform: translate3d(
+        calc(var(--sx, 0px) * 0.72),
+        calc(var(--sy, 0px) * 0.72),
+        0
+      )
+      scale(1.15);
+  }
+  100% {
+    opacity: 0.52;
+    transform: translate3d(var(--sx, 0px), var(--sy, 0px), 0) scale(0.88);
+  }
+}
+
+@keyframes rank-ring-float {
+  0%,
+  100% {
+    transform: rotate(var(--tilt-deg, -16deg)) scale(1);
+  }
+  50% {
+    transform: rotate(calc(var(--tilt-deg, -16deg) + 3.5deg)) scale(1.035);
+  }
+}
+
+@keyframes rank-copy-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
