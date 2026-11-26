@@ -386,3 +386,49 @@ test.describe("touch navigation", () => {
     ).toBe("none");
   });
 });
+
+test("mobile login adapts vertically so hero and submit button fit above the fold across phone heights", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await mockStarwardApi(page);
+  await page.goto("/login");
+
+  for (const viewport of [
+    { width: 320, height: 568 },
+    { width: 375, height: 600 },
+    { width: 390, height: 664 },
+    { width: 390, height: 844 },
+    { width: 440, height: 956 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const mark = page.locator(".game-auth__mark");
+    const submit = page.getByRole("button", { name: "进入冒险" });
+    await expect(mark).toBeInViewport({ ratio: 1 });
+    await expect(page.locator(".game-auth__brand-hero h1")).toBeInViewport({
+      ratio: 1,
+    });
+    await expect(page.locator('input[autocomplete="username"]')).toBeInViewport(
+      { ratio: 1 },
+    );
+    await expect(page.locator('input[type="password"]')).toBeInViewport({
+      ratio: 1,
+    });
+    await expect(submit).toBeInViewport({ ratio: 1 });
+
+    const metrics = await page.evaluate(() => {
+      const box = document
+        .querySelector(".game-auth__mark")!
+        .getBoundingClientRect();
+      return {
+        markSquareDiff: Math.abs(box.width - box.height),
+        overflowX: document.documentElement.scrollWidth > window.innerWidth + 1,
+        overflowY:
+          document.documentElement.scrollHeight > window.innerHeight + 1,
+      };
+    });
+    expect(metrics.markSquareDiff).toBeLessThanOrEqual(1);
+    expect(metrics.overflowX).toBe(false);
+    expect(metrics.overflowY).toBe(false);
+  }
+});
