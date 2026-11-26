@@ -7,7 +7,13 @@ import { RichContent } from "@/features/content/RichContent";
 import { formatGameDate } from "@/features/game/game-presentation";
 import { useImmersiveLight } from "@/design/useImmersiveLight";
 
-export function RewardCard({ item }: { item: GameReward }) {
+export function RewardCard({
+  item,
+  unread = false,
+}: {
+  item: GameReward;
+  unread?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const available = item.status === "available";
   const light = useImmersiveLight(item.status !== "voided");
@@ -25,6 +31,7 @@ export function RewardCard({ item }: { item: GameReward }) {
           className="reward-card__trigger"
           onClick={() => setOpen(true)}
           aria-label={`查看${item.snapshot.name}详情`}
+          aria-description={unread ? uiCopy.gameUnread.reward : undefined}
         >
           <div className="reward-card__art">
             {item.snapshot.image ? (
@@ -41,7 +48,12 @@ export function RewardCard({ item }: { item: GameReward }) {
             )}
           </div>
           <div className="reward-card__foot">
-            <h2>{item.snapshot.name}</h2>
+            <div className="game-unread-title">
+              <h2>{item.snapshot.name}</h2>
+              {unread && (
+                <span className="game-unread-dot" aria-hidden="true" />
+              )}
+            </div>
             <span className="reward-card__qty tabular-nums">
               ×{item.quantity}
             </span>

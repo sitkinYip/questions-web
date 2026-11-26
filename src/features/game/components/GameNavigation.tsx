@@ -2,7 +2,16 @@ import { uiCopy } from "@/config/ui-copy";
 import { useRef, type PointerEvent } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { gameNavigation } from "@/features/game/game-navigation";
-import { useGameNotifications } from "@/features/game/game-queries";
+import {
+  useAssignments,
+  useGameNotifications,
+  useRewards,
+} from "@/features/game/game-queries";
+import {
+  unreadAssignments,
+  unreadRewards,
+  useGameSeenActivity,
+} from "@/features/game/game-unread";
 
 function isFloatingTabBarViewport() {
   return (
@@ -22,8 +31,25 @@ export function GameNavigation({
   const navigate = useNavigate();
   const location = useLocation();
   const notifications = useGameNotifications();
-  const unread =
-    notifications.data?.items.filter((note) => !note.readAt).length ?? 0;
+  const assignments = useAssignments(false);
+  const rewards = useRewards(false);
+  const seen = useGameSeenActivity();
+  const badges = {
+    "/": {
+      count: unreadAssignments(assignments.data?.items, seen).size,
+      describe: uiCopy.gameUnread.assignments,
+    },
+    "/rewards": {
+      count: unreadRewards(rewards.data?.items, seen).size,
+      describe: uiCopy.gameUnread.rewards,
+    },
+    "/notifications": {
+      count:
+        notifications.data?.items.filter((note) => !note.readAt).length ?? 0,
+      describe: uiCopy.gameNotificationCenter.unreadSummary,
+    },
+    "/profile": null,
+  };
   const gesture = useRef<{
     id: number;
   } | null>(null);
@@ -131,42 +157,44 @@ export function GameNavigation({
         }
       }}
     >
-      {items.map(({ to, label, Icon }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={to === "/"}
-          state={{ returnTo }}
-          aria-description={
-            to === "/notifications" && unread > 0
-              ? uiCopy.gameNotificationCenter.unreadSummary(unread)
-              : undefined
-          }
-        >
-          {({ isActive }) =>
-            desktopInline ? (
-              <>
-                <span>{label}</span>
-                {to === "/notifications" && unread > 0 && (
-                  <span className="game-navigation__dot" aria-hidden="true" />
-                )}
-              </>
-            ) : (
-              <>
-                <span className="game-navigation__icon" aria-hidden="true">
-                  <Icon weight={isActive ? "fill" : "regular"} />
-                  {to === "/notifications" && unread > 0 && (
-                    <span className="game-navigation__unread">
-                      {unread > 99 ? "99+" : unread}
-                    </span>
+      {items.map(({ to, label, Icon }) => {
+        const badge = badges[to];
+        const unread = badge?.count ?? 0;
+        return (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}
+            state={{ returnTo }}
+            aria-description={
+              badge && unread > 0 ? badge.describe(unread) : undefined
+            }
+          >
+            {({ isActive }) =>
+              desktopInline ? (
+                <>
+                  <span>{label}</span>
+                  {unread > 0 && (
+                    <span className="game-navigation__dot" aria-hidden="true" />
                   )}
-                </span>
-                <span>{label}</span>
-              </>
-            )
-          }
-        </NavLink>
-      ))}
+                </>
+              ) : (
+                <>
+                  <span className="game-navigation__icon" aria-hidden="true">
+                    <Icon weight={isActive ? "fill" : "regular"} />
+                    {unread > 0 && (
+                      <span className="game-navigation__unread">
+                        {unread > 99 ? "99+" : unread}
+                      </span>
+                    )}
+                  </span>
+                  <span>{label}</span>
+                </>
+              )
+            }
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

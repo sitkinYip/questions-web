@@ -35,6 +35,8 @@ import { useHorizontalSwipe } from "@/shared/gestures/useHorizontalSwipe";
 import { useQuestNavigationPosition } from "@/features/quest/useQuestNavigationPosition";
 import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
+import { useMarkGameActivitySeen } from "@/features/game/game-unread";
+import { invalidateGameList } from "@/features/game/game-queries";
 import {
   combinationView,
   selectClueViews,
@@ -49,8 +51,20 @@ export function GamePlayPage() {
     queryFn: ({ signal }) => gameApi.assignment(id, signal),
     refetchInterval: 5000,
   });
+  const markSeen = useMarkGameActivitySeen();
+  const assignment = query.data;
+  const unavailable =
+    query.isError && (!assignment || isFatalGameError(query.error));
+  const enteredAssigned =
+    !unavailable &&
+    assignment?.id === id &&
+    assignment.player === player.id &&
+    assignment.status === "assigned";
+  useEffect(() => {
+    if (enteredAssigned) markSeen("assignments", [id]);
+  }, [enteredAssigned, id, markSeen]);
   if (query.isPending) return <GameLoadingScreen scene="journey" />;
-  if (query.isError && (!query.data || isFatalGameError(query.error)))
+  if (unavailable)
     return (
       <main className="game-shell">
         <GameHeader />
@@ -328,9 +342,7 @@ export function GamePlayView({ assignment }: { assignment: GameAssignment }) {
         });
       }
       flow.start(sequence);
-      void client.invalidateQueries({
-        queryKey: ["game", player.id, "rewards"],
-      });
+      void invalidateGameList(client, player.id, "rewards");
     },
     onError: (error) => {
       if (isRetryableGameError(error)) setRetryAction("answer");

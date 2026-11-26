@@ -11,11 +11,14 @@ import {
   gameAnswerSchema,
   gameAssignmentSchema,
   gameAssignmentSummarySchema,
+  gameHomeSchema,
   gameNotificationSchema,
   gamePlayerSchema,
+  gameReadAllSchema,
   gameRewardSchema,
   listOf,
 } from "@/api/game.schema";
+import type { GameNotificationReadAllInput } from "@/api/game.contracts";
 
 export const pocketBaseUrl = (
   import.meta.env.VITE_POCKETBASE_URL || "https://api.sitkin.top"
@@ -240,6 +243,8 @@ export const gameApi = {
   },
   me: (signal?: AbortSignal) =>
     gameRequest("/me", { signal, schema: gamePlayerSchema }),
+  home: (signal?: AbortSignal) =>
+    gameRequest("/home", { signal, schema: gameHomeSchema }),
   assignments: (signal?: AbortSignal) =>
     gameRequest("/assignments", {
       signal,
@@ -278,6 +283,12 @@ export const gameApi = {
     gameRequest(`/notifications/${encodeURIComponent(id)}/read`, {
       method: "POST",
       body: {},
+    }),
+  readNotifications: (body: GameNotificationReadAllInput) =>
+    gameRequest("/notifications/read-all", {
+      method: "POST",
+      body,
+      schema: gameReadAllSchema,
     }),
   profile: (body: FormData) =>
     gameRequest("/me/profile", {

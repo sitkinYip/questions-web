@@ -9,9 +9,17 @@ import {
   GameLoading,
 } from "@/features/game/components/GameState";
 import { useRewards } from "@/features/game/game-queries";
+import { GameUnreadHeading } from "@/features/game/components/GameUnreadHeading";
+import {
+  unreadRewards,
+  useGameSeenActivity,
+  useMarkGameActivitySeen,
+} from "@/features/game/game-unread";
 
 export function GameRewardsPage() {
   const query = useRewards();
+  const unread = unreadRewards(query.data?.items, useGameSeenActivity());
+  const markSeen = useMarkGameActivitySeen();
   const [tab, setTab] = useState<"unclaimed" | "claimed">("unclaimed");
 
   const items = query.data?.items ?? [];
@@ -27,7 +35,11 @@ export function GameRewardsPage() {
       className="rewards-tabs"
     >
       <div className="game-page-head">
-        <h1>{uiCopy.gameNavigation.rewards}</h1>
+        <GameUnreadHeading
+          title={uiCopy.gameNavigation.rewards}
+          unread={unread.size}
+          onClear={() => markSeen("rewards", [...unread])}
+        />
         <Tabs.List
           className="game-segment"
           aria-label="收藏状态"
@@ -60,7 +72,11 @@ export function GameRewardsPage() {
           {list.length > 0 && (
             <div className="reward-grid">
               {list.map((item) => (
-                <RewardCard key={item.id} item={item} />
+                <RewardCard
+                  key={item.id}
+                  item={item}
+                  unread={unread.has(item.id)}
+                />
               ))}
             </div>
           )}

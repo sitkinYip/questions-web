@@ -14,6 +14,8 @@ import type {
   GameNotification,
   GameAssignmentSummary,
   GameClue,
+  GameHome,
+  GameNotificationReadAllResult,
 } from "@/api/game.contracts";
 
 const media = z
@@ -229,3 +231,14 @@ export const gameNotificationSchema: z.ZodType<GameNotification> = z.object({
 });
 export const listOf = <T>(schema: z.ZodType<T>) =>
   z.object({ items: z.array(schema) });
+
+export const gameHomeSchema: z.ZodType<GameHome> = z.object({
+  assignments: listOf(gameAssignmentSummarySchema),
+  rewards: listOf(gameRewardSchema),
+  notifications: listOf(gameNotificationSchema),
+});
+export const gameReadReceiptSchema = z.object({
+  readAt: z.string().min(1),
+});
+export const gameReadAllSchema: z.ZodType<GameNotificationReadAllResult> =
+  listOf(gameReadReceiptSchema.extend({ id: z.string().min(1) }));

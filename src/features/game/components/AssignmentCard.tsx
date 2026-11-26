@@ -20,12 +20,14 @@ export function AssignmentCard({
   rank,
   now,
   hero = false,
+  unread = false,
 }: {
   item: GameAssignmentSummary;
   rank: number;
   now: number;
   index: number;
   hero?: boolean;
+  unread?: boolean;
 }) {
   const state = assignmentState(item, rank, now);
   const active = state.kind === "active";
@@ -47,9 +49,13 @@ export function AssignmentCard({
       data-focal={focal || undefined}
       {...light}
     >
+      {unread && (
+        <span className="chapter-card__unread-ring" aria-hidden="true" />
+      )}
       <Link
         className={`chapter-card__link${hero ? " chapter-card__hero" : " chapter-card__row"}`}
         to={`/play/${item.id}`}
+        aria-description={unread ? uiCopy.gameUnread.assignment : undefined}
       >
         {hero ? (
           <>

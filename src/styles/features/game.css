@@ -345,6 +345,47 @@
   color: var(--color-text-strong);
 }
 
+.game-page-head__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 4px 12px;
+}
+
+.game-page-head__clear.ui-button {
+  min-height: 36px;
+  padding-inline: 11px;
+  color: var(--color-accent-text);
+  background: var(--color-accent-faint);
+  border-color: var(--color-accent-border);
+  border-radius: var(--radius-round);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.game-page-head__clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+.game-unread-title {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: 7px;
+}
+
+.game-unread-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: var(--radius-round);
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--glow-accent);
+}
+
 .game-world[data-desktop] .game-page-head {
   flex-direction: row;
   align-items: center;

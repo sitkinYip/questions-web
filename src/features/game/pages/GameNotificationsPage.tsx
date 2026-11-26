@@ -1,5 +1,4 @@
 import { useState, type CSSProperties } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { WorkspaceTabs } from "@/components/ui/WorkspaceTabs";
 import { Tabs } from "radix-ui";
 import { useSearchParams } from "react-router-dom";
@@ -12,22 +11,16 @@ import {
   GameFailure,
   GameLoading,
 } from "@/features/game/components/GameState";
-import { gameKeys, useGameNotifications } from "@/features/game/game-queries";
+import { useGameNotifications } from "@/features/game/game-queries";
 import { NotificationLetter } from "@/features/game/components/NotificationLetter";
+import { GameUnreadHeading } from "@/features/game/components/GameUnreadHeading";
+import { useGameReadNotifications } from "@/features/game/hooks/useGameReadNotifications";
 import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
-import { useGame } from "@/features/game/useGame";
-import { gameApi } from "@/api/game.client";
 import type { GameNotification } from "@/api/game.contracts";
 import { formatGameDate } from "@/features/game/game-presentation";
 
 function DesktopLetterReader({ note }: { note: GameNotification }) {
-  const { player } = useGame();
-  const client = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: () => gameApi.readNotification(note.id),
-    onSuccess: () =>
-      client.invalidateQueries({ queryKey: gameKeys.notifications(player.id) }),
-  });
+  const mutation = useGameReadNotifications();
 
   return (
     <article className="mailbox-reader" aria-label={note.title || "来信正文"}>
@@ -45,7 +38,7 @@ function DesktopLetterReader({ note }: { note: GameNotification }) {
       {mutation.isError && (
         <GameFailure
           error={mutation.error}
-          retry={() => void mutation.mutateAsync()}
+          retry={() => mutation.mutate({ ids: [note.id] })}
         />
       )}
       <footer className="mailbox-reader__foot">
@@ -57,7 +50,7 @@ function DesktopLetterReader({ note }: { note: GameNotification }) {
           <Button
             variant="primary"
             disabled={mutation.isPending}
-            onClick={() => void mutation.mutateAsync()}
+            onClick={() => mutation.mutate({ ids: [note.id] })}
           >
             {mutation.isPending
               ? uiCopy.notificationLetter.pending
@@ -75,7 +68,10 @@ export function GameNotificationsPage() {
   const tab = params.get("tab") === "stars" ? "stars" : "journey";
   const query = useGameNotifications();
   const items = query.data?.items ?? [];
-  const unread = items.filter((item) => !item.readAt).length;
+  const unreadIds = items.filter((item) => !item.readAt).map((item) => item.id);
+  const unread = unreadIds.length;
+  const read = useGameReadNotifications();
+  const clearUnread = () => read.mutate({ ids: unreadIds, bulk: true });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedNote =
     items.find((item) => item.id === selectedId) ?? items[0] ?? null;
@@ -91,7 +87,12 @@ export function GameNotificationsPage() {
       }
     >
       <div className="game-page-head">
-        <h1>{uiCopy.gameNavigation.notifications}</h1>
+        <GameUnreadHeading
+          title={uiCopy.gameNavigation.notifications}
+          unread={unread}
+          pending={read.isPending}
+          onClear={clearUnread}
+        />
         <Tabs.List
           className="game-segment game-segment--wide"
           aria-label={uiCopy.gameNotificationsPage.eyebrow}
@@ -109,6 +110,10 @@ export function GameNotificationsPage() {
           <Tabs.Trigger value="stars">{uiCopy.mailbox.stars}</Tabs.Trigger>
         </Tabs.List>
       </div>
+
+      {read.isError && unread > 0 && (
+        <GameFailure error={read.error} retry={clearUnread} />
+      )}
 
       <Tabs.Content value="journey">
         {query.isPending && (

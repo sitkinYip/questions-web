@@ -9,6 +9,12 @@ import {
   GameLoading,
 } from "@/features/game/components/GameState";
 import { useAssignments } from "@/features/game/game-queries";
+import { GameUnreadHeading } from "@/features/game/components/GameUnreadHeading";
+import {
+  unreadAssignments,
+  useGameSeenActivity,
+  useMarkGameActivitySeen,
+} from "@/features/game/game-unread";
 import { useGame } from "@/features/game/useGame";
 import { useDesktopLayout } from "@/shared/layout/useDesktopLayout";
 
@@ -16,6 +22,8 @@ export function GameDashboard() {
   const isDesktop = useDesktopLayout();
   const { player } = useGame();
   const query = useAssignments();
+  const unread = unreadAssignments(query.data?.items, useGameSeenActivity());
+  const markSeen = useMarkGameActivitySeen();
   const [tab, setTab] = useState<"current" | "history">("current");
   const [now, setNow] = useState(Date.now);
 
@@ -44,7 +52,11 @@ export function GameDashboard() {
           className="game-tabs"
         >
           <div className="game-page-head">
-            <h1>{uiCopy.gameNavigation.dashboard}</h1>
+            <GameUnreadHeading
+              title={uiCopy.gameNavigation.dashboard}
+              unread={unread.size}
+              onClear={() => markSeen("assignments", [...unread])}
+            />
             <Tabs.List
               className="game-segment"
               aria-label={uiCopy.gameDashboard.tabsLabel}
@@ -110,6 +122,7 @@ export function GameDashboard() {
                       now={now}
                       index={0}
                       hero
+                      unread={unread.has(items[0].id)}
                     />
                     {items.length > 1 && (
                       <div className="chapter-bento__side">
@@ -120,6 +133,7 @@ export function GameDashboard() {
                             rank={player.level.order}
                             now={now}
                             index={idx + 1}
+                            unread={unread.has(item.id)}
                           />
                         ))}
                       </div>
@@ -135,6 +149,7 @@ export function GameDashboard() {
                           rank={player.level.order}
                           now={now}
                           index={index}
+                          unread={unread.has(item.id)}
                         />
                       ))}
                     </div>

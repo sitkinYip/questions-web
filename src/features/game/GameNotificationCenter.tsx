@@ -1,25 +1,19 @@
 import { uiCopy } from "@/config/ui-copy";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { authState, gameApi } from "@/api/game.client";
 import { AppToast } from "@/components/ui/Toast";
 import {
   NotificationCenterView,
   type NotificationCenterProps,
 } from "@/features/notification/NotificationCenter";
-import { gameKeys, useGameNotifications } from "@/features/game/game-queries";
-import { useGame } from "@/features/game/useGame";
-import type { GameNotification } from "@/api/game.contracts";
+import { useGameNotifications } from "@/features/game/game-queries";
+import { useGameReadNotifications } from "@/features/game/hooks/useGameReadNotifications";
 
 export function GameNotificationCenter(
   props: Omit<NotificationCenterProps, "userId">,
 ) {
-  const { player } = useGame();
-  const client = useQueryClient();
   const navigate = useNavigate();
   const { id } = useParams();
-  const queryKey = gameKeys.notifications(player.id);
   const [ready, setReady] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
   const [allRead, setAllRead] = useState(false);
@@ -28,37 +22,7 @@ export function GameNotificationCenter(
     return () => window.clearTimeout(timer);
   }, []);
   const notes = useGameNotifications();
-  const read = useMutation({
-    mutationFn: async (notificationId: string) => {
-      await client.cancelQueries({ queryKey });
-      const receipt: unknown = await gameApi.readNotification(notificationId);
-      if (authState.get()?.playerId !== player.id) return;
-      if (
-        receipt !== null &&
-        typeof receipt === "object" &&
-        "id" in receipt &&
-        receipt.id === notificationId &&
-        "readAt" in receipt &&
-        typeof receipt.readAt === "string" &&
-        receipt.readAt.length > 0
-      ) {
-        const readAt = receipt.readAt;
-        client.setQueryData<{ items: GameNotification[] }>(
-          queryKey,
-          (previous) =>
-            previous
-              ? {
-                  items: previous.items.map((item) =>
-                    item.id === notificationId ? { ...item, readAt } : item,
-                  ),
-                }
-              : previous,
-        );
-      }
-      setAllRead(true);
-      await client.invalidateQueries({ queryKey });
-    },
-  });
+  const read = useGameReadNotifications();
   const unread = (notes.data?.items || []).filter((item) => !item.readAt);
   const notification = (
     item: NonNullable<typeof notes.data>["items"][number],
@@ -97,9 +61,12 @@ export function GameNotificationCenter(
             </p>
           ) : undefined
         }
-        feedbackId={read.variables}
+        feedbackId={read.variables?.ids[0]}
         markRead={() => {}}
-        acknowledge={(notificationId) => read.mutateAsync(notificationId)}
+        acknowledge={async (notificationId) => {
+          await read.mutateAsync({ ids: [notificationId] });
+          setAllRead(true);
+        }}
         openInbox={openInbox}
         dismissCurrent={() => {
           if (current)

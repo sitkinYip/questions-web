@@ -40,6 +40,8 @@ function Location() {
 }
 function setup(path = "/") {
   const notes = makeNotifications();
+  vi.spyOn(gameApi, "assignments").mockResolvedValue({ items: [] });
+  vi.spyOn(gameApi, "rewards").mockResolvedValue({ items: [] });
   vi.spyOn(gameApi, "notifications").mockResolvedValue({ items: notes });
   const read = vi.spyOn(gameApi, "readNotification");
   const client = new QueryClient({

@@ -171,6 +171,54 @@ export interface GameNotification {
   readAt: string;
   assignmentId: string;
 }
+export interface GameHome {
+  assignments: { items: GameAssignmentSummary[] };
+  rewards: { items: GameReward[] };
+  notifications: { items: GameNotification[] };
+}
+export const GAME_NOTIFICATION_READ_BATCH_LIMIT = 200;
+export interface GameNotificationReadAllInput {
+  ids: string[];
+}
+export interface GameNotificationReadAllResult {
+  items: { id: string; readAt: string }[];
+}
+/** Per-assignment subscription; notification permission alone is not consent. */
+export interface GamePushSubscription {
+  assignmentId: string;
+  subscribed: boolean;
+  pushEnabled: boolean;
+  revision: number;
+}
+export interface GamePushSubscriptionInput {
+  requestId: string;
+  subscribed: boolean;
+  pushEnabled: boolean;
+  expectedRevision: number;
+}
+export interface GamePushSubscriptionList {
+  items: (GamePushSubscription & { title: string })[];
+  subscriptionApproved: boolean;
+}
+/** One explicit account subscription for personally assigned adventures, story letters and level updates.
+ * Includes directed journey letters without a session; excludes generic important, security and promotional notices.
+ */
+export interface GamePushJourneySubscription {
+  scope: "personal_journey_v1";
+  subscribed: boolean;
+  pushEnabled: boolean;
+  revision: number;
+  subscriptionApproved: boolean;
+}
+export interface GamePushJourneySubscriptionInput {
+  requestId: string;
+  scope: "personal_journey_v1";
+  subscribed: boolean;
+  pushEnabled: boolean;
+  expectedRevision: number;
+}
+export type AdminNotificationMessagePurpose =
+  "journey" | "personal_journey" | "announcement";
 export interface GamePenalty {
   type: "lock" | "cooldown";
   seconds?: number;

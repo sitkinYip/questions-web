@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { uiCopy } from "@/config/ui-copy";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EnvelopeSimpleIcon, EnvelopeOpenIcon } from "@phosphor-icons/react";
-import { gameApi } from "@/api/game.client";
 import type { GameNotification } from "@/api/game.contracts";
 import { GameFailure } from "@/features/game/components/GameState";
-import { gameKeys } from "@/features/game/game-queries";
+import { useGameReadNotifications } from "@/features/game/hooks/useGameReadNotifications";
 import { formatGameDate } from "@/features/game/game-presentation";
-import { useGame } from "@/features/game/useGame";
 import { MailboxRow } from "@/features/mailbox/MailboxRow";
 import { NotificationDialog } from "@/features/notification/NotificationDialog";
 import {
@@ -25,13 +22,7 @@ export function NotificationLetter({
   selected?: boolean;
   onSelect?: () => void;
 }) {
-  const { player } = useGame();
-  const client = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: () => gameApi.readNotification(note.id),
-    onSuccess: () =>
-      client.invalidateQueries({ queryKey: gameKeys.notifications(player.id) }),
-  });
+  const mutation = useGameReadNotifications();
   return (
     <NotificationLetterView
       note={note}
@@ -39,7 +30,7 @@ export function NotificationLetter({
       onSelect={onSelect}
       pending={mutation.isPending}
       error={mutation.isError ? mutation.error : undefined}
-      onRead={() => mutation.mutateAsync()}
+      onRead={() => mutation.mutateAsync({ ids: [note.id] })}
     />
   );
 }

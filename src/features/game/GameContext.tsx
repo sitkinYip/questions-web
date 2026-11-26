@@ -17,6 +17,7 @@ import { PasswordPage } from "@/features/game/pages/PasswordPage";
 import { GameFailure } from "@/features/game/components/GameState";
 import { GameLoadingScreen } from "@/features/game/components/GameLoadingScreen";
 import { GameNotificationSignals } from "@/features/game/GameNotificationSignals";
+import { GameHomeFeed } from "@/features/game/GameHomeFeed";
 
 import { GameContext, useGame } from "@/features/game/useGame";
 export { GameFailure } from "@/features/game/components/GameState";
@@ -100,10 +101,10 @@ export function GameGate() {
         {player.mustChangePassword ? (
           <PasswordPage forced />
         ) : (
-          <>
+          <GameHomeFeed>
             <GameNotificationSignals />
             <Outlet />
-          </>
+          </GameHomeFeed>
         )}
       </div>
     </GameContext.Provider>

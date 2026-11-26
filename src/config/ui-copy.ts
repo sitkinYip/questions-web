@@ -412,6 +412,14 @@ export const uiCopy = {
     allRead: "来信已全部读完",
     archiveHint: "已阅读的来信可在「来信」中查看。",
   },
+  gameUnread: {
+    clear: "清空未读",
+    clearing: "正在清空…",
+    assignment: "未访问场次",
+    reward: "未读奖品",
+    assignments: (count: number) => `你有 ${count} 个未访问场次。`,
+    rewards: (count: number) => `你有 ${count} 份未读奖品。`,
+  },
   // src/features/game/GamePlayPage.tsx
   gamePlayPage: {
     locked: "回答错误，当前题目已永久锁定。请联系游戏管理员处理。",
